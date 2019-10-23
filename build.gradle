@@ -13,10 +13,8 @@ plugins {
 group = 'uk.gov.hmcts.reform'
 version = '0.0.1'
 
-allprojects {
-  sourceCompatibility = '11'
-  targetCompatibility = '11'
-}
+sourceCompatibility = '11'
+targetCompatibility = '11'
 
 sourceSets {
   functionalTest {
@@ -51,34 +49,55 @@ tasks.withType(JavaCompile) {
   options.compilerArgs << "-Xlint:unchecked" << "-Werror"
 }
 
-task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
+test {
+  failFast = true
+}
+
+task functional(type: Test) {
+  description = "Runs the functional tests."
+  group = "Verification"
+
   testClassesDirs = sourceSets.functionalTest.output.classesDirs
   classpath = sourceSets.functionalTest.runtimeClasspath
 }
 
-task integration(type: Test, description: 'Runs the integration tests.', group: 'Verification') {
+task integration(type: Test) {
+  description = "Runs the integration tests."
+  group = "Verification"
+
   testClassesDirs = sourceSets.integrationTest.output.classesDirs
   classpath = sourceSets.integrationTest.runtimeClasspath
-  useJUnitPlatform()
-  // set your environment variables here
-  // environment("APPINSIGHTS_INSTRUMENTATIONKEY", "test-key")
+
+  failFast = true
 }
 
 task smoke(type: Test) {
   description = "Runs Smoke Tests"
+  group = "Verification"
+
   testClassesDirs = sourceSets.smokeTest.output.classesDirs
   classpath = sourceSets.smokeTest.runtimeClasspath
 }
 
+tasks.withType(Test) {
+  useJUnitPlatform()
+
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}
+
 checkstyle {
   maxWarnings = 0
-  toolVersion = '8.24'
+  toolVersion = '8.25'
   // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
   configDir = new File(rootDir, 'config/checkstyle')
 }
 
 pmd {
   toolVersion = "6.18.0"
+  ignoreFailures = true
+  incrementalAnalysis = true
   sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.integrationTest, sourceSets.smokeTest]
   reportsDir = file("$project.buildDir/reports/pmd")
   // https://github.com/pmd/pmd/issues/876
@@ -91,34 +110,39 @@ jacocoTestReport {
   reports {
     xml.enabled = true
     csv.enabled = false
-    xml.destination file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+    xml.destination = file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
+  }
+  afterEvaluate {
+    getClassDirectories().from = getClassDirectories().files.collect {
+      fileTree(dir: it, exclude: [
+        'uk/gov/hmcts/reform/sendletter/config/**',
+        '**/BasicLetterInfo.java'
+      ])
+    }
   }
 }
 
-project.tasks['sonarqube'].dependsOn test, integration
+project.tasks['sonarqube'].dependsOn jacocoTestReport
 
 sonarqube {
   properties {
     property "sonar.projectName", "Reform :: blob-router-service"
     property "sonar.projectKey", "uk.gov.hmcts.reform:blob-router-service"
-    property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
-    property "sonar.jacoco.itReportPath", "${project.buildDir}/jacoco/integration.exec"
+    property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.destination.path
+    property 'sonar.exclusions', "**/config/**"
 
   }
 }
 
-dependencyUpdates.resolutionStrategy {
-  componentSelection { rules ->
-    rules.all {
-      def isNonStable = { String version ->
-        ['alpha', 'beta', 'rc', 'cr', 'm', 'preview', 'b', 'ea'].any { qualifier ->
-          version ==~ /(?i).*[.-]\$qualifier[.\\d-+]*/
-        }
-      }
-      if (isNonStable(candidate.version) && !isNonStable(currentVersion)) {
-        selection.reject('Release candidate')
-      }
-    }
+// before committing a change, make sure task still works
+dependencyUpdates {
+  def isNonStable = { String version ->
+    def stableKeyword = ['RELEASE', 'FINAL', 'GA'].any { qualifier -> version.toUpperCase().contains(qualifier) }
+    def regex = /^[0-9,.v-]+$/
+    return !stableKeyword && !(version ==~ regex)
+  }
+  rejectVersionIf { selection -> // <---- notice how the closure argument is named
+    return isNonStable(selection.candidate.version) && !isNonStable(selection.currentVersion)
   }
 }
 
@@ -128,12 +152,15 @@ dependencyCheck {
   // range of 0-10 fails the build, anything greater and it doesn't fail the build
   failBuildOnCVSS = System.getProperty('dependencyCheck.failBuild') == 'true' ? 0 : 11
   suppressionFile = 'config/owasp/suppressions.xml'
+
+  analyzers {
+    // Disable scanning of .NET related binaries
+    assemblyEnabled = false
+  }
 }
 
 dependencyManagement {
   dependencies {
-    dependency group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: '1.64'
-    // CVE-2018-10237 - Unbounded memory allocation
     dependencySet(group: 'com.google.guava', version: '28.1-jre') {
       entry 'guava'
     }
@@ -141,37 +168,19 @@ dependencyManagement {
 }
 
 repositories {
-  mavenLocal()
   jcenter()
-  mavenCentral()
-  maven {
-    url "https://dl.bintray.com/hmcts/hmcts-maven"
-  }
 }
 
 def versions = [
-  junit           : '5.5.0',
+  junit           : '5.5.2',
+  junitPlatform   : '1.5.2',
   reformLogging   : '5.1.0',
   springBoot      : springBoot.class.package.implementationVersion,
   springfoxSwagger: '2.9.2'
 ]
 
-configurations.all {
-  resolutionStrategy {
-    eachDependency { DependencyResolveDetails details ->
-      if (details.requested.group in ['com.fasterxml.jackson.core', 'com.fasterxml.jackson.module', 'com.fasterxml.jackson.datatype']) {
-        details.useVersion '2.9.9'
-      }
-
-      if (details.requested.name == 'jackson-databind') {
-        details.useVersion '2.9.10'
-      }
-    }
-  }
-}
-
 dependencies {
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+//  compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-json'
@@ -181,13 +190,17 @@ dependencies {
 
   compile group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   compile group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
-  compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-netflix-hystrix', version: '2.1.3.RELEASE'
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: versions.junit
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
   testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: versions.junit
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: versions.junit
+  testCompile group: 'org.junit.platform', name: 'junit-platform-commons', version: versions.junitPlatform
+  testCompile group: 'org.junit.platform', name: 'junit-platform-engine', version: versions.junitPlatform
 
-  testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+  testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+    exclude group: 'junit', module: 'junit'
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+  }
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
@@ -197,15 +210,12 @@ dependencies {
   smokeTestCompile sourceSets.main.runtimeClasspath
 }
 
-test {
-  useJUnitPlatform()
-  failFast = true
-}
-
 mainClassName = 'uk.gov.hmcts.reform.blobrouter.Application'
 
 bootJar {
-  archiveName = 'blob-router-service.jar'
+  getArchiveFileName().set(provider {
+    'blob-router-service.jar'
+  })
 
   manifest {
     attributes('Implementation-Version': project.version.toString())
