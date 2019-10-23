@@ -180,10 +180,11 @@ def versions = [
 ]
 
 dependencies {
-//  compile group: 'org.springframework.boot', name: 'spring-boot-starter-web'
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-json'
+
+  // following includes web, actuator and validator.
+  // until library is updated, can safely remove extra definition on our own ^
   compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: '0.0.5'
 
   compile group: 'io.springfox', name: 'springfox-swagger2', version: versions.springfoxSwagger
