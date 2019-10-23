@@ -115,8 +115,8 @@ jacocoTestReport {
   afterEvaluate {
     getClassDirectories().from = getClassDirectories().files.collect {
       fileTree(dir: it, exclude: [
-        'uk/gov/hmcts/reform/sendletter/config/**',
-        '**/BasicLetterInfo.java'
+        'uk/gov/hmcts/reform/blobrouter/config/**',
+        'uk/gov/hmcts/reform/blobrouter/Application.*' // no need to cover spring boot app entry point
       ])
     }
   }
