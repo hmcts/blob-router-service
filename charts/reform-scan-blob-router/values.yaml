@@ -1,0 +1,4 @@
+java:
+  applicationPort: 8584
+  environment:
+    image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
