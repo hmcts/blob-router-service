@@ -3,4 +3,4 @@ java:
   ingressHost: reform-scan-blob-router-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
   aadIdentityName: reform-scan
   environment:
-    image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
+  image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
