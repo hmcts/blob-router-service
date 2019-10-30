@@ -212,9 +212,11 @@ dependencies {
 
   functionalTestCompile sourceSets.main.runtimeClasspath
   functionalTestCompile libraries.junit5
+  functionalTestCompile group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
 
   smokeTestCompile sourceSets.main.runtimeClasspath
   smokeTestCompile libraries.junit5
+  smokeTestCompile group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.blobrouter.Application'
