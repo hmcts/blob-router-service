@@ -15,10 +15,6 @@ withPipeline(type, product, component) {
     builder.gradle('integration')
   }
 
-  after('smoketest:aat') {
-    sh "rm -rf infrastructure/"
-  }
-
   enableDockerBuild()
   enableAksStagingDeployment()
   installCharts()
