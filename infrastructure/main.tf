@@ -43,7 +43,7 @@ resource "azurerm_application_insights" "appinsights" {
 
 # store app insights key in key vault
 resource "azurerm_key_vault_secret" "appinsights_secret" {
-  name         = "AppInsightsInstrumentationKey"
+  name         = "app-insights-instrumentation-key"
   value        = "${azurerm_application_insights.appinsights.instrumentation_key}"
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
 }
