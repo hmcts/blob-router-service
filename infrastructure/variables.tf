@@ -10,6 +10,12 @@ variable "location" {
   default = "UK South"
 }
 
+variable "application_type" {
+  type        = "string"
+  default     = "Web"
+  description = "Type of Application Insights (Web/Other)"
+}
+
 variable "env" {}
 
 variable "subscription" {}
