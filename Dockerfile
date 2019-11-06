@@ -1,10 +1,10 @@
-ARG APP_INSIGHTS_AGENT_VERSION=2.5.0
+ARG APP_INSIGHTS_AGENT_VERSION=2.5.1
 
 # Build image
 
 FROM busybox as downloader
 
-RUN wget -P /tmp https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.0/applicationinsights-agent-2.5.0.jar
+RUN wget -P /tmp https://github.com/microsoft/ApplicationInsights-Java/releases/download/2.5.1/applicationinsights-agent-2.5.1.jar
 
 # Application image
 
