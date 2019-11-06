@@ -3,3 +3,4 @@ java:
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
+  devApplicationInsightsInstrumentKey: "4bb6dd82-2362-4899-acba-56e027dddc49"
