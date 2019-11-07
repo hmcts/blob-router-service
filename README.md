@@ -2,6 +2,7 @@
 
 ![](https://github.com/hmcts/blob-router-service/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/hmcts/blob-router-service/branch/master/graph/badge.svg)](https://codecov.io/gh/hmcts/blob-router-service)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c99af8bcd53947deb32e8f0a7c500676)](https://www.codacy.com/manual/HMCTS/blob-router-service)
 
 ## Building and deploying the application
 
