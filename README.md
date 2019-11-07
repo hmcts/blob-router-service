@@ -1,6 +1,6 @@
 # Blob Router
 
-[![Build Status](https://travis-ci.com/hmcts/blob-router-service.svg?branch=master)](https://travis-ci.com/hmcts/blob-router-service)
+![](https://github.com/hmcts/blob-router-service/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/hmcts/blob-router-service/branch/master/graph/badge.svg)](https://codecov.io/gh/hmcts/blob-router-service)
 
 ## Building and deploying the application
