@@ -47,3 +47,22 @@ resource "azurerm_key_vault_secret" "appinsights_secret" {
   value        = "${azurerm_application_insights.appinsights.instrumentation_key}"
   key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
 }
+
+# store blob storage secrets in key vault
+resource "azurerm_key_vault_secret" "storage_account_name" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "storage-account-name"
+  value        = "${azurerm_storage_account.storage_account.name}"
+}
+
+resource "azurerm_key_vault_secret" "storage_account_primary_key" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "storage-account-primary-key"
+  value        = "${azurerm_storage_account.storage_account.primary_access_key}"
+}
+
+resource "azurerm_key_vault_secret" "storage_account_secondary_key" {
+  key_vault_id = "${data.azurerm_key_vault.key_vault.id}"
+  name         = "storage-account-secondary-key"
+  value        = "${azurerm_storage_account.storage_account.secondary_access_key}"
+}
