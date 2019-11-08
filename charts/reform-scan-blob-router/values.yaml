@@ -2,5 +2,9 @@ java:
   applicationPort: 8584
   ingressHost: reform-scan-blob-router-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
   aadIdentityName: reform-scan
+  keyVaults:
+    reform-scan:
+      secrets:
+        - app-insights-instrumentation-key
   environment:
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
