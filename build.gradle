@@ -189,6 +189,8 @@ ext.libraries = [
 ]
 
 dependencies {
+  compile group: 'com.microsoft.azure', name: 'azure-storage', version: '8.4.0'
+
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-json'
 
@@ -206,6 +208,8 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
+  testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.1.0'
+  testCompile group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
 
   integrationTestCompile sourceSets.main.runtimeClasspath
   integrationTestCompile sourceSets.test.runtimeClasspath
