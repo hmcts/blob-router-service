@@ -4,6 +4,7 @@ java:
   aadIdentityName: reform-scan
   keyVaults:
     reform-scan:
+      resourceGroup: reform-scan
       secrets:
         - app-insights-instrumentation-key
   environment:
