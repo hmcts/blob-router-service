@@ -9,4 +9,8 @@
     <cve>CVE-2018-1258</cve>
   </suppress>
 
+  <suppress>
+    <notes><![CDATA[ Hard dependency from azure-storage library ]]></notes>
+    <cpe regex="true">cpe:\/a:netty:netty:(1\.0\.0|0\.9\.1)</cpe>
+  </suppress>
 </suppressions>
