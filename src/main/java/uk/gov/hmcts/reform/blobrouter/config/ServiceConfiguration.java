@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @ConfigurationProperties
@@ -20,7 +21,7 @@ public class ServiceConfiguration {
     public void setServicesConfig(List<ServiceConfig> servicesConfig) {
         this.servicesConfig = servicesConfig
             .stream()
-            .collect(Collectors.toMap(ServiceConfig::getName, config -> config));
+            .collect(Collectors.toMap(ServiceConfig::getName, Function.identity()));
     }
 
     public static class ServiceConfig {
