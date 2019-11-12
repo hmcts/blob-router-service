@@ -58,7 +58,7 @@ public class SasTokenGeneratorService {
 
     private ServiceConfig getConfigForService(String serviceName) {
         if (!serviceConfiguration.getServicesConfig().containsKey(serviceName)) {
-            throw new ServiceConfigNotFoundException("No service configuration found for service " + serviceName);
+            throw new ServiceConfigNotFoundException("No service configuration found for " + serviceName);
         }
         return serviceConfiguration.getServicesConfig().get(serviceName);
     }
