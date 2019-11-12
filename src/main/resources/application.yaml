@@ -1,7 +1,7 @@
 server:
   port: 8584
 
-management:
+  management:
   endpoint:
     health:
       show-details: "always"
@@ -13,7 +13,6 @@ spring:
   application:
     name: Blob Router Service
 
-accesstoken:
-  serviceConfig:
-    - serviceName: bulkscan
-      validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+service:
+  - name: bulkscan
+    sas-validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
