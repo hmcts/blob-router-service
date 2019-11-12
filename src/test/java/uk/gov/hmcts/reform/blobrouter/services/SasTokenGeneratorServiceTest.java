@@ -3,12 +3,11 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.common.Utility;
 import com.azure.storage.common.implementation.StorageImplUtils;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
 import java.time.OffsetDateTime;
 import java.util.Map;
@@ -17,13 +16,12 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith(MockitoExtension.class)
 class SasTokenGeneratorServiceTest {
-    private ServiceConfiguration serviceConfiguration;
-    private SasTokenGeneratorService tokenGeneratorService;
+    private static ServiceConfiguration serviceConfiguration;
+    private static SasTokenGeneratorService tokenGeneratorService;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void setUp() {
         StorageSharedKeyCredential storageCredentials = new StorageSharedKeyCredential(
             "testAccountName", "dGVzdGtleQ=="
         );
@@ -58,7 +56,15 @@ class SasTokenGeneratorServiceTest {
             .hasMessage("No service configuration found for service nonexistingservice");
     }
 
-    private void createAccessTokenConfig() {
+    @Test
+    void should_throw_exception_when_requested_sas_credentials_are_not_configured() {
+        tokenGeneratorService = new SasTokenGeneratorService(null, serviceConfiguration);
+        assertThatThrownBy(() -> tokenGeneratorService.generateSasToken("bulkscan"))
+            .isInstanceOf(UnableToGenerateSasTokenException.class)
+            .hasMessage("Unable to generate SAS token for service bulkscan");
+    }
+
+    private static void createAccessTokenConfig() {
         ServiceConfiguration.ServiceConfig serviceConfig = new ServiceConfiguration.ServiceConfig();
         serviceConfig.setSasValidity(300);
         serviceConfig.setName("bulkscan");

@@ -1,7 +1,7 @@
 server:
   port: 8584
 
-  management:
+management:
   endpoint:
     health:
       show-details: "always"
@@ -15,4 +15,4 @@ spring:
 
 service:
   - name: bulkscan
-    sas-validity: ${SAS_TOKEN_VALIDITY:300} #In seconds
+    sas-validity: 300 #In seconds

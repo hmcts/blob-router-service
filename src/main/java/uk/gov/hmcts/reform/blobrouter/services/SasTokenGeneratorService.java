@@ -10,6 +10,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration.ServiceConfig;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
 import java.time.OffsetDateTime;
 
@@ -31,10 +32,14 @@ public class SasTokenGeneratorService {
     }
 
     public String generateSasToken(String serviceName) {
-        log.info("SAS Token request received for service {} ", serviceName);
+        log.info("Generating SAS Token for {} service", serviceName);
 
         BlobServiceSasSignatureValues sasSignatureBuilder = getBlobServiceSasSignatureValues(serviceName);
-        return sasSignatureBuilder.generateSasQueryParameters(storageSharedKeyCredential).encode();
+        try {
+            return sasSignatureBuilder.generateSasQueryParameters(storageSharedKeyCredential).encode();
+        } catch (NullPointerException | IllegalArgumentException e) {
+            throw new UnableToGenerateSasTokenException("Unable to generate SAS token for service " + serviceName, e);
+        }
     }
 
     private BlobServiceSasSignatureValues getBlobServiceSasSignatureValues(String serviceName) {
