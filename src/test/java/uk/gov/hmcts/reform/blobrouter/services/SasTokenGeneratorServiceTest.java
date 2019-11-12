@@ -53,7 +53,7 @@ class SasTokenGeneratorServiceTest {
     void should_throw_exception_when_requested_service_is_not_configured() {
         assertThatThrownBy(() -> tokenGeneratorService.generateSasToken("nonexistingservice"))
             .isInstanceOf(ServiceConfigNotFoundException.class)
-            .hasMessage("No service configuration found for service nonexistingservice");
+            .hasMessage("No service configuration found for nonexistingservice");
     }
 
     @Test
