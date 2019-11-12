@@ -1,8 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.SharedAccessBlobPolicy;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import com.azure.storage.common.StorageSharedKeyCredential;
+import com.azure.storage.common.sas.SasProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -10,17 +11,8 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.AccessTokenProperties;
 import uk.gov.hmcts.reform.blobrouter.config.AccessTokenProperties.TokenConfig;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
-import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.time.ZoneOffset;
-import java.util.Date;
-import java.util.EnumSet;
-
-import static com.microsoft.azure.storage.blob.SharedAccessBlobPermissions.LIST;
-import static com.microsoft.azure.storage.blob.SharedAccessBlobPermissions.WRITE;
-import static java.time.LocalDateTime.now;
+import java.time.OffsetDateTime;
 
 @EnableConfigurationProperties(AccessTokenProperties.class)
 @Service
@@ -28,38 +20,36 @@ public class SasTokenGeneratorService {
 
     private static final Logger log = LoggerFactory.getLogger(SasTokenGeneratorService.class);
 
-    private final CloudBlobClient cloudBlobClient;
+    private final StorageSharedKeyCredential storageSharedKeyCredential;
     private final AccessTokenProperties accessTokenProperties;
 
     public SasTokenGeneratorService(
-        CloudBlobClient cloudBlobClient,
+        StorageSharedKeyCredential storageSharedKeyCredential,
         AccessTokenProperties accessTokenProperties
     ) {
-        this.cloudBlobClient = cloudBlobClient;
+        this.storageSharedKeyCredential = storageSharedKeyCredential;
         this.accessTokenProperties = accessTokenProperties;
     }
 
     public String generateSasToken(String serviceName) {
         log.info("SAS Token request received for service {} ", serviceName);
 
-        try {
-            return cloudBlobClient
-                .getContainerReference(serviceName)
-                .generateSharedAccessSignature(createSharedAccessPolicy(serviceName), null);
-
-        } catch (URISyntaxException | StorageException | InvalidKeyException e) {
-            throw new UnableToGenerateSasTokenException(e);
-        }
+        BlobServiceSasSignatureValues sasSignatureBuilder = getBlobServiceSasSignatureValues(serviceName);
+        return sasSignatureBuilder.generateSasQueryParameters(storageSharedKeyCredential).encode();
     }
 
-    private SharedAccessBlobPolicy createSharedAccessPolicy(String serviceName) {
+    private BlobServiceSasSignatureValues getBlobServiceSasSignatureValues(String serviceName) {
         TokenConfig config = getTokenConfigForService(serviceName);
 
-        SharedAccessBlobPolicy policy = new SharedAccessBlobPolicy();
-        policy.setPermissions(EnumSet.of(WRITE, LIST));
-        policy.setSharedAccessExpiryTime(Date.from(now().plusSeconds(config.getValidity()).toInstant(ZoneOffset.UTC)));
+        BlobContainerSasPermission permissions = new BlobContainerSasPermission()
+            .setListPermission(true)
+            .setWritePermission(true);
 
-        return policy;
+        return new BlobServiceSasSignatureValues()
+            .setProtocol(SasProtocol.HTTPS_ONLY) // Users MUST use HTTPS (not HTTP).
+            .setContainerName(serviceName)
+            .setExpiryTime(OffsetDateTime.now().plusSeconds(config.getValidity()))
+            .setPermissions(permissions);
     }
 
     private TokenConfig getTokenConfigForService(String serviceName) {

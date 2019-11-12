@@ -1,11 +1,8 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageCredentials;
-import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.core.PathUtility;
+import com.azure.storage.common.StorageSharedKeyCredential;
+import com.azure.storage.common.Utility;
+import com.azure.storage.common.implementation.StorageImplUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.AccessTokenProperties;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -29,26 +25,26 @@ class SasTokenGeneratorServiceTest {
     private SasTokenGeneratorService tokenGeneratorService;
 
     @BeforeEach
-    void setUp() throws URISyntaxException {
-        StorageCredentials storageCredentials = new StorageCredentialsAccountAndKey("testAccountName", "dGVzdGtleQ==");
-
-        CloudBlobClient cloudBlobClient = new CloudStorageAccount(storageCredentials, true).createCloudBlobClient();
+    void setUp() {
+        StorageSharedKeyCredential storageCredentials = new StorageSharedKeyCredential(
+            "testAccountName", "dGVzdGtleQ=="
+        );
 
         createAccessTokenConfig();
 
         tokenGeneratorService = new SasTokenGeneratorService(
-            cloudBlobClient,
+            storageCredentials,
             accessTokenProperties
         );
     }
 
     @Test
-    void should_generate_sas_token_when_service_configuration_is_available() throws StorageException {
+    void should_generate_sas_token_when_service_configuration_is_available() {
         String sasToken = tokenGeneratorService.generateSasToken("bulkscan");
 
+        String decodedSasToken = Utility.urlDecode(sasToken);
+        Map<String, String[]> queryParams = StorageImplUtils.parseQueryStringSplitValues(decodedSasToken);
         String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-
-        Map<String, String[]> queryParams = PathUtility.parseQueryString(sasToken);
 
         assertThat(queryParams.get("sig")).isNotNull();//this is a generated hash of the resource string
         assertThat(queryParams.get("se")[0]).startsWith(currentDate);//the expiry date/time for the signature
