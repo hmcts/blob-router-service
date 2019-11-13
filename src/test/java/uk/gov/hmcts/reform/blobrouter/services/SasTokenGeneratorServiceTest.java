@@ -70,6 +70,6 @@ class SasTokenGeneratorServiceTest {
         storageConfig.setName("bulkscan");
 
         serviceConfiguration = new ServiceConfiguration();
-        serviceConfiguration.setServicesConfig(singletonList(storageConfig));
+        serviceConfiguration.setStorageConfig(singletonList(storageConfig));
     }
 }

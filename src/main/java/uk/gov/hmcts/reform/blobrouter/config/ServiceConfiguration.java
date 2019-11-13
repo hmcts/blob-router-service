@@ -12,11 +12,11 @@ public class ServiceConfiguration {
 
     private Map<String, StorageConfig> storageConfig;
 
-    public Map<String, StorageConfig> getServicesConfig() {
+    public Map<String, StorageConfig> getStorageConfig() {
         return storageConfig;
     }
 
-    public void setServicesConfig(List<StorageConfig> storageConfig) {
+    public void setStorageConfig(List<StorageConfig> storageConfig) {
         this.storageConfig = storageConfig
             .stream()
             .collect(Collectors.toMap(StorageConfig::getName, Function.identity()));
