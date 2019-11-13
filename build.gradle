@@ -189,7 +189,7 @@ ext.libraries = [
 ]
 
 dependencies {
-  compile group: 'com.azure', name: 'azure-storage-blob', version: '12.0.0'
+  compile group: 'com.azure', name: 'azure-storage-blob', version: '12.0.0-preview.4'
 
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   compile group: 'org.springframework.boot', name: 'spring-boot-starter-json'
