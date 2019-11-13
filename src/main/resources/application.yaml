@@ -13,6 +13,10 @@ spring:
   application:
     name: Blob Router Service
 
+storage:
+  account-name: ${STORAGE_ACCOUNT_NAME:bulkscansandbox}
+  account-key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
+
 service:
   storage-config:
     - name: bulkscan
