@@ -26,7 +26,7 @@ class SasTokenGeneratorServiceTest {
             "testAccountName", "dGVzdGtleQ=="
         );
 
-        createAccessTokenConfig();
+        createServiceConfig();
 
         tokenGeneratorService = new SasTokenGeneratorService(
             storageCredentials,
@@ -64,12 +64,12 @@ class SasTokenGeneratorServiceTest {
             .hasMessage("Unable to generate SAS token for service bulkscan");
     }
 
-    private static void createAccessTokenConfig() {
-        ServiceConfiguration.ServiceConfig serviceConfig = new ServiceConfiguration.ServiceConfig();
-        serviceConfig.setSasValidity(300);
-        serviceConfig.setName("bulkscan");
+    private static void createServiceConfig() {
+        ServiceConfiguration.StorageConfig storageConfig = new ServiceConfiguration.StorageConfig();
+        storageConfig.setSasValidity(300);
+        storageConfig.setName("bulkscan");
 
         serviceConfiguration = new ServiceConfiguration();
-        serviceConfiguration.setServicesConfig(singletonList(serviceConfig));
+        serviceConfiguration.setStorageConfig(singletonList(storageConfig));
     }
 }

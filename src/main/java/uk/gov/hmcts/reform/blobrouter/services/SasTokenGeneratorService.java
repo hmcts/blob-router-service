@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration.ServiceConfig;
+import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration.StorageConfig;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
@@ -43,7 +43,7 @@ public class SasTokenGeneratorService {
     }
 
     private BlobServiceSasSignatureValues getBlobServiceSasSignatureValues(String serviceName) {
-        ServiceConfig config = getConfigForService(serviceName);
+        StorageConfig config = getConfigForService(serviceName);
 
         BlobContainerSasPermission permissions = new BlobContainerSasPermission()
             .setListPermission(true)
@@ -56,10 +56,10 @@ public class SasTokenGeneratorService {
             .setPermissions(permissions);
     }
 
-    private ServiceConfig getConfigForService(String serviceName) {
-        if (!serviceConfiguration.getServicesConfig().containsKey(serviceName)) {
+    private StorageConfig getConfigForService(String serviceName) {
+        if (!serviceConfiguration.getStorageConfig().containsKey(serviceName)) {
             throw new ServiceConfigNotFoundException("No service configuration found for " + serviceName);
         }
-        return serviceConfiguration.getServicesConfig().get(serviceName);
+        return serviceConfiguration.getStorageConfig().get(serviceName);
     }
 }
