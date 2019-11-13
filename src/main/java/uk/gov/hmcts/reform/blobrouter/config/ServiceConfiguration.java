@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
@@ -8,23 +7,22 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@ConfigurationProperties
+@ConfigurationProperties(prefix = "service")
 public class ServiceConfiguration {
 
-    @Value("service")
-    private Map<String, ServiceConfig> servicesConfig;
+    private Map<String, StorageConfig> storageConfig;
 
-    public Map<String, ServiceConfig> getServicesConfig() {
-        return servicesConfig;
+    public Map<String, StorageConfig> getServicesConfig() {
+        return storageConfig;
     }
 
-    public void setServicesConfig(List<ServiceConfig> servicesConfig) {
-        this.servicesConfig = servicesConfig
+    public void setServicesConfig(List<StorageConfig> storageConfig) {
+        this.storageConfig = storageConfig
             .stream()
-            .collect(Collectors.toMap(ServiceConfig::getName, Function.identity()));
+            .collect(Collectors.toMap(StorageConfig::getName, Function.identity()));
     }
 
-    public static class ServiceConfig {
+    public static class StorageConfig {
         private String name;
         private int sasValidity;
 

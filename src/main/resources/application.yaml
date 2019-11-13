@@ -14,5 +14,6 @@ spring:
     name: Blob Router Service
 
 service:
-  - name: bulkscan
-    sas-validity: 300 #In seconds
+  storage-config:
+    - name: bulkscan
+      sas-validity: 300 #In seconds
