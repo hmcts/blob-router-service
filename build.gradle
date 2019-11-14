@@ -89,12 +89,12 @@ tasks.withType(Test) {
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '8.25'
+  toolVersion = '8.26'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
 pmd {
-  toolVersion = "6.18.0"
+  toolVersion = "6.19.0"
   ignoreFailures = true
   incrementalAnalysis = true
   sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.integrationTest, sourceSets.smokeTest]
