@@ -6,11 +6,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = SasTokenController.class)
 @ComponentScan(basePackages = "uk.gov.hmcts.reform.blobrouter")
@@ -25,13 +26,11 @@ public class SasTokenControllerExceptionTest {
 
     @Test
     public void should_throw_exception_when_storage_is_not_configured() throws Exception {
-        MvcResult result = mockMvc
+        mockMvc
             .perform(get("/token/bulkscan"))
-            .andReturn();
-
-        assertThat(result.getResponse().getStatus()).isEqualTo(500);
-        assertThat(result.getResolvedException())
-            .isInstanceOf(UnableToGenerateSasTokenException.class)
-            .hasMessage("Unable to generate SAS token for service bulkscan");
+            .andDo(print())
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.message").value("Exception occurred while generating SAS Token"))
+            .andExpect(jsonPath("$.cause").value(UnableToGenerateSasTokenException.class.getName()));
     }
 }

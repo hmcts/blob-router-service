@@ -9,13 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = SasTokenController.class)
@@ -44,13 +45,11 @@ public class SasTokenControllerTest {
 
     @Test
     public void should_throw_exception_when_service_is_not_configured() throws Exception {
-        MvcResult result = mockMvc
+        mockMvc
             .perform(get("/token/not-configured-service"))
-            .andReturn();
-
-        assertThat(result.getResponse().getStatus()).isEqualTo(400);
-        assertThat(result.getResolvedException())
-            .isInstanceOf(ServiceConfigNotFoundException.class)
-            .hasMessage("No service configuration found for not-configured-service");
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("No service configuration found for not-configured-service"))
+            .andExpect(jsonPath("$.cause").value(ServiceConfigNotFoundException.class.getName()));
     }
 }

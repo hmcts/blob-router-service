@@ -4,9 +4,9 @@ public class ErrorResponse {
 
     public final String message;
 
-    public final Throwable cause;
+    public final Class<?> cause;
 
-    public ErrorResponse(String message, Throwable cause) {
+    public ErrorResponse(String message, Class<?> cause) {
         this.message = message;
         this.cause = cause;
     }
