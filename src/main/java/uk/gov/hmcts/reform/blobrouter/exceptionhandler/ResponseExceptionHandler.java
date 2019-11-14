@@ -18,20 +18,20 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(UnableToGenerateSasTokenException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected ErrorResponse handleUnableToGenerateSasTokenException(UnableToGenerateSasTokenException e) {
-        return new ErrorResponse("Exception occurred while generating SAS Token", e.getCause());
+    protected ErrorResponse handleUnableToGenerateSasTokenException(UnableToGenerateSasTokenException exception) {
+        return new ErrorResponse("Exception occurred while generating SAS Token", exception.getCause());
     }
 
     @ExceptionHandler(ServiceConfigNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse handleServiceConfigNotFoundException(ServiceConfigNotFoundException e) {
-        return new ErrorResponse(e.getMessage(), e.getCause());
+    protected ErrorResponse handleServiceConfigNotFoundException(ServiceConfigNotFoundException exception) {
+        return new ErrorResponse(exception.getMessage(), exception.getCause());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    protected ErrorResponse handleInternalException(Exception e) {
-        log.error(e.getMessage(), e);
-        return new ErrorResponse(e.getMessage(), e.getCause());
+    protected ErrorResponse handleInternalException(Exception exception) {
+        log.error(exception.getMessage(), exception);
+        return new ErrorResponse(exception.getMessage(), exception.getCause());
     }
 }
