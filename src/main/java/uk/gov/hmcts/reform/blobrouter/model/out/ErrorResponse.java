@@ -1,13 +1,13 @@
 package uk.gov.hmcts.reform.blobrouter.model.out;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 public class ErrorResponse {
 
-    @JsonProperty("message")
     public final String message;
 
-    public ErrorResponse(String message) {
+    public final Throwable cause;
+
+    public ErrorResponse(String message, Throwable cause) {
         this.message = message;
+        this.cause = cause;
     }
 }
