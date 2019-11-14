@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
+import uk.gov.hmcts.reform.blobrouter.model.out.ErrorResponse;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.ResponseEntity.status;
 
 @RestControllerAdvice
@@ -18,13 +21,13 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(ResponseExceptionHandler.class);
 
     @ExceptionHandler(UnableToGenerateSasTokenException.class)
-    protected ResponseEntity<String> handleUnableToGenerateSasTokenException() {
-        return status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exception occurred while generating SAS Token");
+    protected ResponseEntity<ErrorResponse> handleUnableToGenerateSasTokenException() {
+        return status(INTERNAL_SERVER_ERROR).body(new ErrorResponse("Exception occurred while generating SAS Token"));
     }
 
     @ExceptionHandler(ServiceConfigNotFoundException.class)
-    protected ResponseEntity<String> handleServiceConfigNotFoundException(ServiceConfigNotFoundException e) {
-        return status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    protected ResponseEntity<ErrorResponse> handleServiceConfigNotFoundException(ServiceConfigNotFoundException e) {
+        return status(BAD_REQUEST).body(new ErrorResponse(e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

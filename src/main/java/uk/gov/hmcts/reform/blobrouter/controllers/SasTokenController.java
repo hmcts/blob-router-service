@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.model.out.SasTokenResponse;
 import uk.gov.hmcts.reform.blobrouter.services.SasTokenGeneratorService;
 
 @RestController
-@RequestMapping("/token")
+@RequestMapping(path = "/token", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SasTokenController {
 
     private final SasTokenGeneratorService tokenGeneratorService;
