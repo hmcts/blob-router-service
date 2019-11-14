@@ -22,11 +22,10 @@ public class SasTokenController {
     }
 
     @GetMapping(path = "/{serviceName}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Get SAS Token to access blob storage")
+    @ApiOperation("Get SAS Token to access blob storage")
     @ApiResponse(code = 200, message = "Success")
     public ResponseEntity<SasTokenResponse> getSasToken(@PathVariable String serviceName) {
-        serviceName = serviceName.replaceAll("[\n|\r|\t]", "_");
-        String sasToken = tokenGeneratorService.generateSasToken(serviceName);
+        String sasToken = tokenGeneratorService.generateSasToken(serviceName.replaceAll("[\n|\r|\t]", "_"));
 
         return ResponseEntity.ok(new SasTokenResponse(sasToken));
     }
