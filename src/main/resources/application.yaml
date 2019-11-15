@@ -14,8 +14,9 @@ spring:
     name: Blob Router Service
 
 storage:
-  account-name: ${STORAGE_ACCOUNT_NAME:bulkscansandbox}
-  account-key: ${STORAGE_KEY:dGVzdA==} #Base 64 encoded
+  account-name: ${STORAGE_ACCOUNT_NAME:reformscanaat}
+  account-key: ${STORAGE_ACCOUNT_KEY:dGVzdA==} #Base 64 encoded
+  account-secondary-key: ${STORAGE_ACCOUNT_SECONDARY_KEY:dGVzdA==} #Base 64 encoded
 
 service:
   storage-config:
