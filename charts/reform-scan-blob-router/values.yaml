@@ -7,5 +7,11 @@ java:
       resourceGroup: reform-scan
       secrets:
         - app-insights-instrumentation-key
+        - storage-account-name
+        - storage-account-primary-key
+        - storage-account-secondary-key
   environment:
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
+reform:
+  blobstorage:
+    enabled: false
