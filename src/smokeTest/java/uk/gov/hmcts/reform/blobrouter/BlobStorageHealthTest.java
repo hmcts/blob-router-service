@@ -1,25 +1,24 @@
 package uk.gov.hmcts.reform.blobrouter;
 
+import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import static org.hamcrest.Matchers.containsString;
 
-@SpringBootTest
+@TestPropertySource("classpath:application.conf")
 public class BlobStorageHealthTest {
 
-    @Value("${test-url}")
-    private String testUrl;
+    private static final String TEST_URL = ConfigFactory.load().getString("test-url");
 
     @Test
     public void should_get_the_sas_token_for_service() {
         RestAssured
             .given()
             .relaxedHTTPSValidation()
-            .baseUri(testUrl)
+            .baseUri(TEST_URL)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob router smoke test")
             .get("/token/bulkscan")
             .then()
