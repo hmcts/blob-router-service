@@ -3,12 +3,10 @@ package uk.gov.hmcts.reform.blobrouter;
 import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import static org.hamcrest.Matchers.containsString;
 
-@TestPropertySource("classpath:application.conf")
 public class BlobStorageHealthTest {
 
     private static final String TEST_URL = ConfigFactory.load().getString("test-url");
