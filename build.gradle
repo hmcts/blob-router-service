@@ -89,13 +89,12 @@ tasks.withType(Test) {
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '8.25'
-  // need to set configDir to rootDir otherwise submodule will use submodule/config/checkstyle
-  configDir = new File(rootDir, 'config/checkstyle')
+  toolVersion = '8.26'
+  getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
 pmd {
-  toolVersion = "6.18.0"
+  toolVersion = "6.19.0"
   ignoreFailures = true
   incrementalAnalysis = true
   sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.integrationTest, sourceSets.smokeTest]
@@ -189,38 +188,39 @@ ext.libraries = [
 ]
 
 dependencies {
-  compile group: 'com.azure', name: 'azure-storage-blob', version: '12.0.0'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.0.0'
 
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
-  compile group: 'org.springframework.boot', name: 'spring-boot-starter-json'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
 
   // following includes web, actuator and validator.
   // until library is updated, can safely remove extra definition on our own ^
-  compile group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: '0.0.5'
+  implementation group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: '0.0.5'
 
-  compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+  implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+//  compile group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.2.0'
 
-  compile group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
-  compile group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
+  implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
+  implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
 
-  testCompile libraries.junit5
-  testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+  testImplementation libraries.junit5
+  testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  integrationTestCompile sourceSets.main.runtimeClasspath
-  integrationTestCompile sourceSets.test.runtimeClasspath
+  integrationTestImplementation sourceSets.main.runtimeClasspath
+  integrationTestImplementation sourceSets.test.runtimeClasspath
 
-  functionalTestCompile sourceSets.main.runtimeClasspath
-  functionalTestCompile libraries.junit5
-  functionalTestCompile group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
+  functionalTestImplementation sourceSets.main.runtimeClasspath
+  functionalTestImplementation libraries.junit5
+  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
 
-  smokeTestCompile sourceSets.main.runtimeClasspath
-  smokeTestCompile libraries.junit5
-  smokeTestCompile group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
-  smokeTestCompile group: 'com.typesafe', name: 'config', version: '1.4.0'
-  smokeTestCompile group: 'io.rest-assured', name: 'rest-assured', {
+  smokeTestImplementation sourceSets.main.runtimeClasspath
+  smokeTestImplementation libraries.junit5
+  smokeTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
+  smokeTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
+  smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
   }
 }
