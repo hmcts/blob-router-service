@@ -22,3 +22,15 @@ service:
   storage-config:
     - name: bulkscan
       sas-validity: 300 #In seconds
+    - name: cmc
+      sas-validity: 300 #In seconds
+    - name: crime
+      sas-validity: 300 #In seconds
+    - name: divorce
+      sas-validity: 300 #In seconds
+    - name: finrem
+      sas-validity: 300 #In seconds
+    - name: probate
+      sas-validity: 300 #In seconds
+    - name: sscs
+      sas-validity: 300 #In seconds
