@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
 import java.time.OffsetDateTime;
@@ -68,8 +69,8 @@ class SasTokenGeneratorServiceTest {
     @Test
     void should_throw_exception_when_service_is_disabled() {
         assertThatThrownBy(() -> tokenGeneratorService.generateSasToken(DISABLED_SERVICE))
-            .isInstanceOf(ServiceConfigNotFoundException.class)
-            .hasMessage("No service configuration found for " + DISABLED_SERVICE);
+            .isInstanceOf(ServiceDisabledException.class)
+            .hasMessageContaining("Service " + DISABLED_SERVICE + " has been disabled.");
     }
 
     @Test

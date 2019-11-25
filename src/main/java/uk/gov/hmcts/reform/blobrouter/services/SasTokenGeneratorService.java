@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration.StorageConfig;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
 import java.time.OffsetDateTime;
@@ -59,9 +60,13 @@ public class SasTokenGeneratorService {
     }
 
     private StorageConfig getConfigForService(String serviceName) {
-        return Optional
-            .ofNullable(serviceConfiguration.getStorageConfig().get(serviceName))
-            .filter(StorageConfig::isEnabled)
-            .orElseThrow(() -> new ServiceConfigNotFoundException("No service configuration found for " + serviceName));
+        StorageConfig config = serviceConfiguration.getStorageConfig().get(serviceName);
+        if (config == null) {
+            throw new ServiceConfigNotFoundException("No service configuration found for " + serviceName);
+        } else if (!config.isEnabled()) {
+            throw new ServiceDisabledException("Service " + serviceName + " has been disabled.");
+        } else {
+            return config;
+        }
     }
 }
