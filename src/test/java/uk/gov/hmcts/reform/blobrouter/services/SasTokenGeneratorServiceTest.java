@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenExcepti
 import java.time.OffsetDateTime;
 import java.util.Map;
 
-import static java.util.Collections.singletonList;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -20,13 +20,22 @@ class SasTokenGeneratorServiceTest {
     private static ServiceConfiguration serviceConfiguration;
     private static SasTokenGeneratorService tokenGeneratorService;
 
+    private static final String VALID_SERVICE = "bulkscan";
+    private static final String DISABLED_SERVICE = "disabled-service";
+
     @BeforeAll
     static void setUp() {
+        serviceConfiguration = new ServiceConfiguration();
+        serviceConfiguration.setStorageConfig(
+            asList(
+                cfg(VALID_SERVICE, 300, true),
+                cfg(DISABLED_SERVICE, 300, false)
+            )
+        );
+
         StorageSharedKeyCredential storageCredentials = new StorageSharedKeyCredential(
             "testAccountName", "dGVzdGtleQ=="
         );
-
-        createServiceConfig();
 
         tokenGeneratorService = new SasTokenGeneratorService(
             storageCredentials,
@@ -36,7 +45,7 @@ class SasTokenGeneratorServiceTest {
 
     @Test
     void should_generate_sas_token_when_service_configuration_is_available() {
-        String sasToken = tokenGeneratorService.generateSasToken("bulkscan");
+        String sasToken = tokenGeneratorService.generateSasToken(VALID_SERVICE);
 
         String decodedSasToken = Utility.urlDecode(sasToken);
         Map<String, String[]> queryParams = StorageImplUtils.parseQueryStringSplitValues(decodedSasToken);
@@ -57,19 +66,25 @@ class SasTokenGeneratorServiceTest {
     }
 
     @Test
-    void should_throw_exception_when_requested_sas_credentials_are_not_configured() {
-        tokenGeneratorService = new SasTokenGeneratorService(null, serviceConfiguration);
-        assertThatThrownBy(() -> tokenGeneratorService.generateSasToken("bulkscan"))
-            .isInstanceOf(UnableToGenerateSasTokenException.class)
-            .hasMessage("Unable to generate SAS token for service bulkscan");
+    void should_throw_exception_when_service_is_disabled() {
+        assertThatThrownBy(() -> tokenGeneratorService.generateSasToken(DISABLED_SERVICE))
+            .isInstanceOf(ServiceConfigNotFoundException.class)
+            .hasMessage("No service configuration found for " + DISABLED_SERVICE);
     }
 
-    private static void createServiceConfig() {
-        ServiceConfiguration.StorageConfig storageConfig = new ServiceConfiguration.StorageConfig();
-        storageConfig.setSasValidity(300);
-        storageConfig.setName("bulkscan");
+    @Test
+    void should_throw_exception_when_requested_sas_credentials_are_not_configured() {
+        tokenGeneratorService = new SasTokenGeneratorService(null, serviceConfiguration);
+        assertThatThrownBy(() -> tokenGeneratorService.generateSasToken(VALID_SERVICE))
+            .isInstanceOf(UnableToGenerateSasTokenException.class)
+            .hasMessage("Unable to generate SAS token for service " + VALID_SERVICE);
+    }
 
-        serviceConfiguration = new ServiceConfiguration();
-        serviceConfiguration.setStorageConfig(singletonList(storageConfig));
+    private static ServiceConfiguration.StorageConfig cfg(String name, int validity, boolean enabled) {
+        ServiceConfiguration.StorageConfig config = new ServiceConfiguration.StorageConfig();
+        config.setSasValidity(validity);
+        config.setName(name);
+        config.setEnabled(enabled);
+        return config;
     }
 }

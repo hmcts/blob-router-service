@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 @EnableConfigurationProperties(ServiceConfiguration.class)
 @Service
@@ -58,9 +59,9 @@ public class SasTokenGeneratorService {
     }
 
     private StorageConfig getConfigForService(String serviceName) {
-        if (!serviceConfiguration.getStorageConfig().containsKey(serviceName)) {
-            throw new ServiceConfigNotFoundException("No service configuration found for " + serviceName);
-        }
-        return serviceConfiguration.getStorageConfig().get(serviceName);
+        return Optional
+            .ofNullable(serviceConfiguration.getStorageConfig().get(serviceName))
+            .filter(StorageConfig::isEnabled)
+            .orElseThrow(() -> new ServiceConfigNotFoundException("No service configuration found for " + serviceName));
     }
 }
