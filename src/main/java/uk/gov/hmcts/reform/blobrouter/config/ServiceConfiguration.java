@@ -25,6 +25,7 @@ public class ServiceConfiguration {
     public static class StorageConfig {
         private String name;
         private int sasValidity;
+        private boolean isEnabled = true;
 
         public String getName() {
             return name;
@@ -40,6 +41,14 @@ public class ServiceConfiguration {
 
         public void setSasValidity(int sasValidity) {
             this.sasValidity = sasValidity;
+        }
+
+        public boolean isEnabled() {
+            return isEnabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            isEnabled = enabled;
         }
     }
 }
