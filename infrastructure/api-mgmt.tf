@@ -31,9 +31,9 @@ module "api_mgmt" {
   revision      = "1"
   product_id    = "${module.api_mgmt_product.product_id}"
   display_name  = "Get SAS token for storage account access"
-  path          = "/token/*"
+  path          = "token"
   protocols = [
-    "HTTPS"
+    "https"
   ]
   service_url = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
   swagger_url = "https://hmcts.github.io/reform-api-docs/specs/blob-router-service.json"
