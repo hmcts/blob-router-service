@@ -17,14 +17,14 @@ locals {
 }
 
 module "api_mgmt_product" {
-  source        = "git@github.com:hmcts/cnp-module-api-mgmt-product.git"
+  source        = "git@github.com:hmcts/cnp-module-api-mgmt-product?ref=master"
   api_mgmt_name = "core-api-mgmt-${var.env}"
   api_mgmt_rg   = "core-infra-${var.env}"
   name          = "${var.component}"
 }
 
 module "api_mgmt" {
-  source        = "git@github.com:hmcts/cnp-module-api-mgmt-api.git"
+  source        = "git@github.com:hmcts/cnp-module-api-mgmt-api?ref=master"
   name          = "${var.component}-api"
   api_mgmt_name = "core-api-mgmt-${var.env}"
   api_mgmt_rg   = "core-infra-${var.env}"
@@ -40,7 +40,7 @@ module "api_mgmt" {
 }
 
 module "api_mgmt_policy" {
-  source                 = "git@github.com:hmcts/cnp-module-api-mgmt-api-policy.git"
+  source                 = "git@github.com:hmcts/cnp-module-api-mgmt-api-policy?ref=master"
   api_mgmt_name          = "core-api-mgmt-${var.env}"
   api_mgmt_rg            = "core-infra-${var.env}"
   api_name               = "${module.api_mgmt.name}"
