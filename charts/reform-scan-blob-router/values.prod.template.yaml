@@ -1,3 +1,0 @@
-java:
-  environment:
-    CRIME_ENABLED: "false"
