@@ -12,6 +12,5 @@ java:
         - storage-account-secondary-key
   environment:
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
-reform:
-  blobstorage:
-    enabled: false
+blobstorage:
+  enabled: false
