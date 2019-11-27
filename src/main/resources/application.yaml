@@ -26,6 +26,7 @@ service:
       sas-validity: 300 #In seconds
     - name: crime
       sas-validity: 300 #In seconds
+      enabled: ${CRIME_ENABLED:false}
     - name: divorce
       sas-validity: 300 #In seconds
     - name: finrem
