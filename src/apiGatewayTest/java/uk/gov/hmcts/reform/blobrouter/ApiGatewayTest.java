@@ -30,7 +30,7 @@ class ApiGatewayTest {
 
     private static final Config CONFIG = ConfigFactory.load();
     private static final String API_URL = CONFIG.getString("api.gateway-url");
-    private static final String SAS_TOKEN_ENDPOINT = "/token/" + CONFIG.getString("container.name");
+    private static final String SAS_TOKEN_ENDPOINT = "/token/bulkscan";
     private static final String SUBSCRIPTION_KEY = CONFIG.getString("client.subscription-key");
 
     private static File validJavaKeyStore;
