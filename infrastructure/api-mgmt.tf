@@ -31,7 +31,7 @@ module "api_mgmt" {
   revision      = "1"
   product_id    = "${module.api_mgmt_product.product_id}"
   display_name  = "Blob Router API"
-  path          = "token"
+  path          = "reform-scan"
   protocols = [
     "https"
   ]
