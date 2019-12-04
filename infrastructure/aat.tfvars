@@ -1,0 +1,1 @@
+api_test_valid_certificate_thumbprint = "A612B39D42D0D72DEB738F4DF77EF8997023E078"

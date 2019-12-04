@@ -8,6 +8,26 @@ def product = "reform-scan"
 def component = "blob-router"
 
 def channel = '#bsp-build-notices'
+
+def vaultSecrets = [
+  'reform-scan-${env}': [
+    // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
+    secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
+    secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
+
+    secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY')
+  ]
+]
+
+static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+  [ $class: 'AzureKeyVaultSecret',
+    secretType: 'Secret',
+    name: secretName,
+    version: '',
+    envVariable: envVar
+  ]
+}
+
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
@@ -19,5 +39,10 @@ withPipeline(type, product, component) {
   enableAksStagingDeployment()
   installCharts()
   enableSlackNotifications(channel)
+  enableApiGatewayTest()
   disableLegacyDeployment()
+
+  onNonPR() {
+    loadVaultSecrets(vaultSecrets)
+  }
 }

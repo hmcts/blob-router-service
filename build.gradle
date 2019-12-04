@@ -17,6 +17,13 @@ sourceCompatibility = '11'
 targetCompatibility = '11'
 
 sourceSets {
+  apiGatewayTest {
+    java {
+      srcDir file('src/apiGatewayTest/java')
+    }
+    resources.srcDir file('src/apiGatewayTest/resources')
+  }
+
   functionalTest {
     java {
       compileClasspath += main.output
@@ -51,6 +58,14 @@ tasks.withType(JavaCompile) {
 
 test {
   failFast = true
+}
+
+task apiGateway(type: Test) {
+  description = "Runs API Gateway Tests"
+  group = "Verification"
+
+  testClassesDirs = sourceSets.apiGatewayTest.output.classesDirs
+  classpath = sourceSets.apiGatewayTest.runtimeClasspath
 }
 
 task functional(type: Test) {
@@ -186,6 +201,7 @@ ext.libraries = [
     "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
   ]
 ]
+ext["rest-assured.version"] = '4.1.2'
 
 dependencies {
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.0.1'
@@ -223,6 +239,13 @@ dependencies {
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
   }
+
+  apiGatewayTestImplementation libraries.junit5
+  apiGatewayTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
+  apiGatewayTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
+    exclude group: 'junit', module: 'junit'
+  }
+  apiGatewayTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.blobrouter.Application'

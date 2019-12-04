@@ -30,8 +30,8 @@ module "api_mgmt" {
   api_mgmt_rg   = "core-infra-${var.env}"
   revision      = "1"
   product_id    = "${module.api_mgmt_product.product_id}"
-  display_name  = "Get SAS token for storage account access"
-  path          = "token"
+  display_name  = "Blob Router API"
+  path          = "reform-scan"
   protocols = [
     "https"
   ]
