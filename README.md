@@ -59,6 +59,15 @@ Blob Router uses an (Azure API Management) API to protect its SAS token dispensi
 The API allows only HTTPS requests with approved client certificates and valid subscription keys to reach
 the service.
 
+Azure API Management is based on public swagger specs.
+As part of creating API in there documentation had to be [published](.github/workflows/swagger.yml).
+The full url to documentation can be found [here](infrastructure/api-mgmt.tf).
+
+If SAS dispensing endpoint has changed in some incompatible way which causes amended specs - the management needs to be notified.
+This means tiny alteration in [terraform file](infrastructure/api-mgmt.tf).
+
+In case any new endpoint needs to be included - same treatment must be applied.
+
 ### Calling the API
 
 In order to talk to the SAS dispensing endpoint through the API, you need to have the following pieces
