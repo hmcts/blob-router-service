@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.common.StorageSharedKeyCredential;
-import com.azure.storage.common.sas.SasProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -52,7 +51,6 @@ public class SasTokenGeneratorService {
             .setWritePermission(true);
 
         return new BlobServiceSasSignatureValues()
-            .setProtocol(SasProtocol.HTTPS_ONLY) // Users MUST use HTTPS (not HTTP).
             .setContainerName(serviceName)
             .setExpiryTime(OffsetDateTime.now().plusSeconds(config.getSasValidity()))
             .setPermissions(permissions);
