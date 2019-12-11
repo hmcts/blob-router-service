@@ -8,4 +8,4 @@ spring:
         app-insights-instrumentation-key: azure.application-insights.instrumentation-key
         storage-account-name: STORAGE_ACCOUNT_NAME
         storage-account-primary-key: STORAGE_ACCOUNT_KEY
-        storage-account-secondary-key: STORAGE_ACCOUNT_SECONDARY_KEYy
+        storage-account-secondary-key: STORAGE_ACCOUNT_SECONDARY_KEY
