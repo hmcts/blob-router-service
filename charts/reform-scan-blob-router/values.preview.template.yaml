@@ -5,10 +5,10 @@ java:
       key: storageAccountName
     STORAGE_ACCOUNT_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: primaryAccessKey
+      key: accessKey
     STORAGE_ACCOUNT_SECONDARY_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: secondaryAccessKey
+      key: accessKey
   environment:
   # Don't modify below here
   image: ${IMAGE_NAME}
