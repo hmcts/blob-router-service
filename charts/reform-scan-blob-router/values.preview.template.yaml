@@ -1,6 +1,26 @@
 java:
+  secrets:
+    STORAGE_ACCOUNT_NAME:
+      secretRef: storage-secret-{{ .Release.Name }}
+      key: storageAccountName
+    STORAGE_ACCOUNT_KEY:
+      secretRef: storage-secret-{{ .Release.Name }}
+      key: accessKey
+    STORAGE_ACCOUNT_SECONDARY_KEY:
+      secretRef: storage-secret-{{ .Release.Name }}
+      key: accessKey
   environment:
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
   aadIdentityName:
+
+blobstorage:
+  resourceGroup: reform-scan-aks
+  teamName: "BSP"
+  location: ukwest
+  setup:
+    containers:
+      - bulkscan
+      - bulkscan-rejected
+  enabled: true
