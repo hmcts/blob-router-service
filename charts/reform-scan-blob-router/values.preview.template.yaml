@@ -14,12 +14,13 @@ java:
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
   aadIdentityName:
-  blobstorage:
-    resourceGroup: reform-scan-aks
-    teamName: "BSP"
-    location: ukwest
-    setup:
-      containers:
-        - bulkscan
-        - bulkscan-rejected
-    enabled: true
+
+blobstorage:
+  resourceGroup: reform-scan-aks
+  teamName: "BSP"
+  location: ukwest
+  setup:
+    containers:
+      - bulkscan
+      - bulkscan-rejected
+  enabled: true
