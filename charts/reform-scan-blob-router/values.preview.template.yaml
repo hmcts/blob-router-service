@@ -1,12 +1,12 @@
 java:
   secrets:
-    STORAGE_ACCOUNT-NAME:
+    STORAGE_ACCOUNT_NAME:
       secretRef: storage-secret-{{ .Release.Name }}
       key: storageAccountName
-    STORAGE_ACCOUNT-KEY:
+    STORAGE_ACCOUNT_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
-    STORAGE_ACCOUNT-SECONDARY-KEY:
+    STORAGE_ACCOUNT_SECONDARY_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
   environment:
