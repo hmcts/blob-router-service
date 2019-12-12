@@ -13,11 +13,6 @@ spring:
   application:
     name: Blob Router Service
 
-storage:
-  account-name: ${STORAGE_ACCOUNT_NAME}
-  account-key: ${STORAGE_ACCOUNT_KEY} #Base 64 encoded
-  account-secondary-key: ${STORAGE_ACCOUNT_SECONDARY_KEY} #Base 64 encoded
-
 service:
   storage-config:
     - name: bulkscan
