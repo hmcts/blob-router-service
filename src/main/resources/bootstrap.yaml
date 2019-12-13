@@ -7,6 +7,6 @@ spring:
       name: reform-scan
       aliases:
         app-insights-instrumentation-key: azure.application-insights.instrumentation-key
-        storage-account-name: storage.account.name
-        storage-account-primary-key:  storage.account.key
-        storage-account-secondary-key:  storage.account-secondary.key
+        storage-account-name: storage.accountName
+        storage-account-primary-key:  storage.accountKey
+        storage-account-secondary-key:  storage.accountSecondaryKey
