@@ -31,9 +31,4 @@ service:
     - name: sscs
       sas-validity: 300 #In seconds
 
-storage:
-  account_name: ${storage.account_name}
-  account_key: ${storage.account_key}
-  account_secondary_key: ${storage.account_secondary_key}
-
 
