@@ -2,6 +2,7 @@ spring:
   cloud:
     propertiesvolume:
       prefixed: false
+      enabled: true
       paths: /mnt/secrets/reform-bulk-scan
       aliases:
         storage-account-name: storage.account_name
