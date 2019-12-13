@@ -6,5 +6,5 @@ spring:
       paths: /mnt/secrets/reform-bulk-scan
       aliases:
         storage-account-name: storage.account_name
-        storage-account-primary-key: storage.account_key
-        storage-account-secondary-key: storage.account_secondary_key
+        storage-account-primary-key: storage.account-key
+        storage-account-secondary-key: storage.account-secondary-key
