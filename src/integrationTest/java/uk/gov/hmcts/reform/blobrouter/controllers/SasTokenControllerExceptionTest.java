@@ -16,8 +16,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = SasTokenController.class)
 @ComponentScan(basePackages = "uk.gov.hmcts.reform.blobrouter")
 @TestPropertySource(properties = {
-    "storage.account-name = ",
-    "storage.account-key = "
+    "storage.account_name = ",
+    "storage.account_key = "
 })
 public class SasTokenControllerExceptionTest {
 
