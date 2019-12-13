@@ -24,15 +24,6 @@ sourceSets {
     resources.srcDir file('src/apiGatewayTest/resources')
   }
 
-  functionalTest {
-    java {
-      compileClasspath += main.output
-      runtimeClasspath += main.output
-      srcDir file('src/functionalTest/java')
-    }
-    resources.srcDir file('src/functionalTest/resources')
-  }
-
   integrationTest {
     java {
       compileClasspath += main.output
@@ -47,6 +38,15 @@ sourceSets {
       compileClasspath += main.output
       runtimeClasspath += main.output
       srcDir file('src/smokeTest/java')
+    }
+    resources.srcDir file('src/smokeTest/resources')
+  }
+
+  functionalTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+      srcDir file('src/functionalTest/java')
     }
     resources.srcDir file('src/smokeTest/resources')
   }
@@ -228,8 +228,7 @@ dependencies {
   integrationTestImplementation sourceSets.test.runtimeClasspath
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
-  functionalTestImplementation libraries.junit5
-  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
+  functionalTestImplementation sourceSets.smokeTest.runtimeClasspath
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation libraries.junit5
