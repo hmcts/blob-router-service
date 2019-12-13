@@ -31,3 +31,8 @@ service:
     - name: sscs
       sas-validity: 300 #In seconds
 
+storage:
+  account-name: ${STORAGE_ACCOUNT_NAME}
+  account-key: ${STORAGE_ACCOUNT_KEY}
+  account-secondary-key: ${STORAGE_ACCOUNT_SECONDARY_KEY}
+
