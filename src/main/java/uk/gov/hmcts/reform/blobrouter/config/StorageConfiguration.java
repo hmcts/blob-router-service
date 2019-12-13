@@ -10,8 +10,8 @@ public class StorageConfiguration {
 
     @Bean
     public StorageSharedKeyCredential getStorageSharedKeyCredential(
-        @Value("${storage.account-name}") String accountName,
-        @Value("${storage.account-key}") String accountKey
+        @Value("${storage.account_name}") String accountName,
+        @Value("${storage.account_key}") String accountKey
     ) {
         System.out.println("Account name " + accountName + " Account key " + accountKey);
         return new StorageSharedKeyCredential(accountName, accountKey);
