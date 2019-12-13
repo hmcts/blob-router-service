@@ -1,14 +1,4 @@
 java:
-  secrets:
-    STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
-    STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
-    STORAGE_ACCOUNT_SECONDARY_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
   environment:
   # Don't modify below here
   image: ${IMAGE_NAME}
