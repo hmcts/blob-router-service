@@ -62,8 +62,8 @@ class StorageContainerTaskTest extends StorageTestBase {
 
         // and
         String simpleLoggerName = StorageContainerTask.class.getSimpleName();
-        assertThat(output).contains(simpleLoggerName + " Started job");
-        assertThat(output).contains(simpleLoggerName + " Finished job");
+        assertThat(output).contains(simpleLoggerName + " Started " + StorageContainerTask.TASK_NAME + " job");
+        assertThat(output).contains(simpleLoggerName + " Finished " + StorageContainerTask.TASK_NAME + " job");
     }
 
     private static ServiceConfiguration.StorageConfig configure(String name, boolean enabled) {

@@ -11,6 +11,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class StorageContainerTask {
 
+    static final String TASK_NAME = "blob-router";
+
     private static final Logger LOGGER = getLogger(StorageContainerTask.class);
 
     private final BlobServiceAsyncClient storageClient;
@@ -28,7 +30,7 @@ public class StorageContainerTask {
     }
 
     public void run() {
-        LOGGER.info("Started job");
+        LOGGER.info("Started {} job", TASK_NAME);
 
         StorageClientManager
             .getAvailableContainers(storageClient, serviceConfiguration)
@@ -37,6 +39,6 @@ public class StorageContainerTask {
             .map(storageClient::getBlobContainerAsyncClient)
             .forEach(containerProcessor::process);
 
-        LOGGER.info("Finished job");
+        LOGGER.info("Finished {} job", TASK_NAME);
     }
 }
