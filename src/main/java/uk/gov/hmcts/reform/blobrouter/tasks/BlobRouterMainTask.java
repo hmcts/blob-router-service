@@ -9,17 +9,17 @@ import uk.gov.hmcts.reform.blobrouter.util.StorageClientManager;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class StorageContainerTask {
+public class BlobRouterMainTask {
 
     static final String TASK_NAME = "blob-router";
 
-    private static final Logger LOGGER = getLogger(StorageContainerTask.class);
+    private static final Logger LOGGER = getLogger(BlobRouterMainTask.class);
 
     private final BlobServiceAsyncClient storageClient;
     private final ContainerProcessor containerProcessor;
     private final ServiceConfiguration serviceConfiguration;
 
-    public StorageContainerTask(
+    public BlobRouterMainTask(
         BlobServiceAsyncClient storageClient,
         ContainerProcessor containerProcessor,
         ServiceConfiguration serviceConfiguration
