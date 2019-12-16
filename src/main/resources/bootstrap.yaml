@@ -4,6 +4,7 @@ spring:
       enabled: true
       prefixed: false
       paths: /mnt/secrets/reform-scan
+      name: reform-scan
       aliases:
         app-insights-instrumentation-key: azure.application-insights.instrumentation-key
         storage-account-name: storage.account-name
