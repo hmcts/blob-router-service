@@ -15,8 +15,6 @@ public class ContainerProcessor {
 
     private static final Logger LOGGER = getLogger(ContainerProcessor.class);
 
-    private static final BlobLeaseClientBuilder LEASE_CLIENT_BUILDER = new BlobLeaseClientBuilder();
-
     private final BlobProcessor blobProcessor;
 
     public ContainerProcessor(BlobProcessor blobProcessor) {
@@ -43,7 +41,7 @@ public class ContainerProcessor {
 
     private void processBlobs(BlobContainerAsyncClient containerClient, BlobItem blob) {
         BlobAsyncClient blobClient = containerClient.getBlobAsyncClient(blob.getName());
-        BlobLeaseAsyncClient blobLeaseClient = LEASE_CLIENT_BUILDER
+        BlobLeaseAsyncClient blobLeaseClient = new BlobLeaseClientBuilder()
             .blobAsyncClient(blobClient)
             .buildAsyncClient();
 

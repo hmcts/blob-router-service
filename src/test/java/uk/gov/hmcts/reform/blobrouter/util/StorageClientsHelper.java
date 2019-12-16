@@ -18,11 +18,11 @@ public final class StorageClientsHelper {
         "testAccountName", "dGVzdGtleQ=="
     );
 
-    private static final BlobServiceClientBuilder STORAGE_CLIENT_BUILDER = new BlobServiceClientBuilder();
-
-    private static final BlobLeaseClientBuilder LEASE_CLIENT_BUILDER = new BlobLeaseClientBuilder();
-
     private static final HttpClient HTTP_CLIENT = new StorageStubHttpClient();
+
+    private static BlobServiceClientBuilder STORAGE_CLIENT_BUILDER = new BlobServiceClientBuilder();
+
+    private static BlobLeaseClientBuilder LEASE_CLIENT_BUILDER = new BlobLeaseClientBuilder();
 
     private StorageClientsHelper() {
         // utility class construct
