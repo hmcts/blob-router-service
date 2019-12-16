@@ -7,7 +7,7 @@ import com.azure.storage.blob.specialized.BlobLeaseAsyncClient;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import org.slf4j.Logger;
 
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -25,41 +25,28 @@ public class ContainerProcessor {
 
     public void process(BlobContainerAsyncClient containerClient) {
         String containerName = containerClient.getBlobContainerName();
+        AtomicInteger atomInt = new AtomicInteger(0);
 
         LOGGER.info("Processing container {}", containerName);
 
         containerClient
             .listBlobs()
-            .buffer()
             .subscribe(
-                blobs -> processBlobs(containerClient, blobs),
-                null,
-                () -> LOGGER.info("Finished processing container {}", containerName)
+                blob -> {
+                    processBlobs(containerClient, blob);
+                    atomInt.updateAndGet(operand -> ++operand);
+                },
+                null, // error consumer. can be implemented later
+                () -> LOGGER.info("Finished processing container {}. Blobs found: {}", containerName, atomInt.get())
             );
     }
 
-    private void processBlobs(
-        BlobContainerAsyncClient containerClient,
-        List<BlobItem> blobs
-    ) {
-        long blobsFound = blobs
-            .stream()
-            .mapToInt(item -> {
-                BlobAsyncClient blobClient = containerClient.getBlobAsyncClient(item.getName());
-                BlobLeaseAsyncClient blobLeaseClient = LEASE_CLIENT_BUILDER
-                    .blobAsyncClient(blobClient)
-                    .buildAsyncClient();
+    private void processBlobs(BlobContainerAsyncClient containerClient, BlobItem blob) {
+        BlobAsyncClient blobClient = containerClient.getBlobAsyncClient(blob.getName());
+        BlobLeaseAsyncClient blobLeaseClient = LEASE_CLIENT_BUILDER
+            .blobAsyncClient(blobClient)
+            .buildAsyncClient();
 
-                blobProcessor.process(blobClient, blobLeaseClient, item);
-
-                return 1;
-            })
-            .sum();
-
-        LOGGER.info(
-            "Blobs found in {} container: {}",
-            containerClient.getBlobContainerName(),
-            blobsFound
-        );
+        blobProcessor.process(blobClient, blobLeaseClient, blob);
     }
 }

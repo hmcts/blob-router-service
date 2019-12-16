@@ -21,7 +21,7 @@ class BlobProcessorTest extends StorageTestBase {
 
     @DisplayName("Process single random blob")
     @Test
-    void should_process_single_blob(CapturedOutput output) {
+    void should_process_single_blob(CapturedOutput output) throws InterruptedException {
         // given
         BlobAsyncClient blobClient = StorageClientsHelper.getBlobClient(
             interceptorManager,
@@ -32,6 +32,7 @@ class BlobProcessorTest extends StorageTestBase {
 
         // when
         PROCESSOR.process(blobClient, StorageClientsHelper.getLeaseClient(blobClient), blob);
+        Thread.sleep(1000); // need to wait for subscriber to be notified
 
         // then
         assertThat(output).contains("Processing blob " + blob.getName() + " from container " + CONTAINER_NAME);

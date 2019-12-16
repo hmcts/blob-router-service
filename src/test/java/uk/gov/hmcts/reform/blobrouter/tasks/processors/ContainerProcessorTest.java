@@ -66,16 +66,8 @@ class ContainerProcessorTest extends StorageTestBase {
     private void assertOutputCapture(CapturedOutput output, String containerName, int blobCount) {
         String simpleLoggerName = ContainerProcessor.class.getSimpleName();
         assertThat(output).contains(simpleLoggerName + " Processing container " + containerName);
-        assertThat(output).contains(simpleLoggerName + " Finished processing container " + containerName);
-
-        if (blobCount > 0) {
-            assertThat(output).contains(
-                simpleLoggerName + " Blobs found in " + containerName + " container: " + blobCount
-            );
-        } else {
-            assertThat(output).doesNotContain(
-                simpleLoggerName + " Blobs found in " + containerName + " container: " + blobCount
-            );
-        }
+        assertThat(output).contains(
+            simpleLoggerName + " Finished processing container " + containerName + ". Blobs found: " + blobCount
+        );
     }
 }
