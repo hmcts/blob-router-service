@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 
 import static uk.gov.hmcts.reform.blobrouter.util.ResourceFilesHelper.getFileContents;
 
-class StorageHttpClient implements HttpClient {
+class StorageStubHttpClient implements HttpClient {
 
     private static final String LIST_CONTAINERS = "?comp=list";
     private static final String LIST_1_BLOB = "/bulkscan?include=&restype=container&comp=list";

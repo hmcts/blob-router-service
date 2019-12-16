@@ -22,7 +22,7 @@ public final class StorageClientsHelper {
 
     private static final BlobLeaseClientBuilder LEASE_CLIENT_BUILDER = new BlobLeaseClientBuilder();
 
-    private static final HttpClient HTTP_CLIENT = new StorageHttpClient();
+    private static final HttpClient HTTP_CLIENT = new StorageStubHttpClient();
 
     private StorageClientsHelper() {
         // utility class construct
