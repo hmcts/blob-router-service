@@ -12,8 +12,8 @@ import static uk.gov.hmcts.reform.blobrouter.util.ResourceFilesHelper.getFileCon
 class StorageStubHttpClient implements HttpClient {
 
     private static final String LIST_CONTAINERS = "?comp=list";
-    private static final String LIST_1_BLOB = "/bulkscan?include=&restype=container&comp=list";
-    private static final String LIST_0_BLOB = "/empty?include=&restype=container&comp=list";
+    private static final String LIST_ONE_BLOB = "/bulkscan?include=&restype=container&comp=list";
+    private static final String LIST_ZERO_BLOBS = "/empty?include=&restype=container&comp=list";
 
     @Override
     public Mono<HttpResponse> send(HttpRequest request) {
@@ -27,11 +27,11 @@ class StorageStubHttpClient implements HttpClient {
                 return Mono.just(
                     new MockHttpResponse(request, 200, getFileContents("storage/list-containers.json"))
                 );
-            case LIST_1_BLOB:
+            case LIST_ONE_BLOB:
                 return Mono.just(
                     new MockHttpResponse(request, 200, getFileContents("storage/list-blobs.json"))
                 );
-            case LIST_0_BLOB:
+            case LIST_ZERO_BLOBS:
                 return Mono.just(
                     new MockHttpResponse(request, 200, getFileContents("storage/list-empty-blobs.json"))
                 );
