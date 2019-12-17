@@ -20,8 +20,6 @@ class StorageStubHttpClient implements HttpClient {
         String path = request.getUrl().getPath();
         String query = request.getUrl().getQuery();
 
-        System.out.println("SEND: " + path + "?" + query);
-
         switch (path + "?" + query) {
             case LIST_CONTAINERS:
                 return Mono.just(
