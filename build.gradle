@@ -213,7 +213,7 @@ dependencies {
   // until library is updated, can safely remove extra definition on our own ^
   implementation group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: '0.0.5'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-webmvc-core', version: '1.2.18'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-webmvc-core', version: '1.2.21'
 
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
