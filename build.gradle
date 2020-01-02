@@ -175,7 +175,7 @@ dependencyCheck {
 
 dependencyManagement {
   dependencies {
-    dependencySet(group: 'com.google.guava', version: '28.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '28.2-jre') {
       entry 'guava'
     }
   }
