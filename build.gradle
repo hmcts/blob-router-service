@@ -178,6 +178,10 @@ dependencyManagement {
     dependencySet(group: 'com.google.guava', version: '28.2-jre') {
       entry 'guava'
     }
+    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.30') {
+      entry 'tomcat-embed-core'
+      entry 'tomcat-embed-websocket'
+    }
   }
 }
 
