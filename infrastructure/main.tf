@@ -22,7 +22,7 @@ data "azurerm_key_vault_secret" "cft_storage_account_primary_key" {
   name      = "storage-account-primary-key"
 }
 
-# Copy CFT storage account kets from bulk-scan key vault to reform-scan key vault
+# Copy CFT storage account secrets from bulk-scan key vault to reform-scan key vault
 data "azurerm_key_vault" "reform_scan_key_vault" {
   name = "${local.reform-scan-vault-name}"
   resource_group_name = "reform-scan-${var.env}"
