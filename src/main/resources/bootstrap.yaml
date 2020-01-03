@@ -10,3 +10,5 @@ spring:
         storage-account-name: storage.account-name
         storage-account-primary-key:  storage.account-key
         storage-account-secondary-key:  storage.account-secondary-key
+        bulkscan-storage-account-name: bulkscan.storage.account-name
+        bulkscan-storage-account-primary-key:  bulkscan.storage.account-key
