@@ -31,3 +31,14 @@ reformblobstorage:
     containers:
       - bulkscan
       - bulkscan-rejected
+
+cftblobstorage:
+  enabled: true
+  resourceGroup: reform-scan-aks
+  releaseNameOverride: cft-storage-secret-{{ .Release.Name }}
+  teamName: "BSP"
+  location: ukwest
+  setup:
+    containers:
+      - bulkscan
+      - bulkscan-rejected
