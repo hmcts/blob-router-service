@@ -34,7 +34,7 @@ reformblobstorage:
 
 cftblobstorage:
   enabled: true
-  resourceGroup: reform-scan-aks
+  resourceGroup: cft-scan-aks
   releaseNameOverride: cft-storage-secret-{{ .Release.Name }}
   teamName: "BSP"
   location: ukwest
