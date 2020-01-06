@@ -10,10 +10,10 @@ java:
       secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
     STORAGE_BULKSCAN_ACCOUNT_NAME:
-      secretRef: cft-storage-secret-{{ .Release.Name }}
+      secretRef: storage-secret-cft-{{ .Release.Name }}
       key: storageAccountName
     STORAGE_BULKSCAN_ACCOUNT_KEY:
-      secretRef: cft-storage-secret-{{ .Release.Name }}
+      secretRef: storage-secret-cft-{{ .Release.Name }}
       key: accessKey
   environment:
     SPRING_CLOUD_PROPERTIESVOLUME_ENABLED: false
@@ -35,7 +35,7 @@ reformblobstorage:
 cftblobstorage:
   enabled: true
   resourceGroup: reform-scan-aks
-  releaseNameOverride: cft-storage-secret-{{ .Release.Name }}
+  releaseNameOverride: cft-{{ .Release.Name }}
   teamName: "BSP"
   location: ukwest
   setup:
