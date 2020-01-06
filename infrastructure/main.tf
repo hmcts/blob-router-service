@@ -28,14 +28,14 @@ data "azurerm_key_vault" "reform_scan_key_vault" {
   resource_group_name = "reform-scan-${var.env}"
 }
 
-resource "azurerm_key_vault_secret" "bulk_scan_storage_account_name" {
-  name         = "bulk-scan-storage-account-name"
+resource "azurerm_key_vault_secret" "reform_bulk_scan_storage_account_name" {
+  name         = "reform-bulk-scan-storage-account-name"
   value        = "${data.azurerm_key_vault_secret.bulk_scan_storage_account_name.value}"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
 }
 
-resource "azurerm_key_vault_secret" "bulk_scan_storage_account_primary_key" {
-  name         = "bulk-scan-storage-account-primary-key"
+resource "azurerm_key_vault_secret" "reform_bulk_scan_storage_account_primary_key" {
+  name         = "reform-bulk-scan-storage-account-primary-key"
   value        = "${data.azurerm_key_vault_secret.bulk_scan_storage_account_primary_key.value}"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
 }
