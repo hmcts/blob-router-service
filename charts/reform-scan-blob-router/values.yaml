@@ -16,5 +16,3 @@ java:
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   enabled: false
-cftblobstorage:
-  enabled: false
