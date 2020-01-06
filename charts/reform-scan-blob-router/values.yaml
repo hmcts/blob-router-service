@@ -10,6 +10,8 @@ java:
         - storage-account-name
         - storage-account-primary-key
         - storage-account-secondary-key
+        - bulkscan-storage-account-name
+        - bulkscan-storage-account-primary-key
   environment:
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 blobstorage:
