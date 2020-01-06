@@ -9,13 +9,21 @@ java:
     STORAGE_ACCOUNT_SECONDARY_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
+    STORAGE_BULKSCAN_ACCOUNT_NAME:
+      secretRef: cft-storage-secret-{{ .Release.Name }}
+      key: storageAccountName
+    STORAGE_BULKSCAN_ACCOUNT_KEY:
+      secretRef: cft-storage-secret-{{ .Release.Name }}
+      key: accessKey
   environment:
+    SPRING_CLOUD_PROPERTIESVOLUME_ENABLED: false
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
   aadIdentityName:
 
-blobstorage:
+reformblobstorage:
+  enabled: true
   resourceGroup: reform-scan-aks
   teamName: "BSP"
   location: ukwest
@@ -23,4 +31,14 @@ blobstorage:
     containers:
       - bulkscan
       - bulkscan-rejected
+
+cftblobstorage:
   enabled: true
+  resourceGroup: reform-scan-aks
+  releaseNameOverride: cft-storage-secret-{{ .Release.Name }}
+  teamName: "BSP"
+  location: ukwest
+  setup:
+    containers:
+      - bulkscan
+      - bulkscan-rejected
