@@ -2,15 +2,19 @@ package uk.gov.hmcts.reform.blobrouter.util;
 
 import com.azure.storage.blob.BlobServiceAsyncClient;
 import com.azure.storage.blob.models.BlobContainerItem;
+import org.slf4j.Logger;
 import reactor.core.publisher.Flux;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 
 import java.util.Map;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public final class StorageClientManager {
 
-    private static final String REJECTED_CONTAINER_PREFIX = "rejected";
+    private static final Logger LOGGER = getLogger(StorageClientManager.class);
+
+    private static final String REJECTED_CONTAINER_SUFFIX = "rejected";
 
     private StorageClientManager() {
         // utility class constructor
@@ -22,7 +26,7 @@ public final class StorageClientManager {
     ) {
         return storageClient
             .listBlobContainers()
-            .filter(item -> !item.getName().endsWith(REJECTED_CONTAINER_PREFIX))
+            .filter(item -> !item.getName().endsWith(REJECTED_CONTAINER_SUFFIX))
             .filter(item -> isContainerEnabled(serviceConfiguration.getStorageConfig(), item.getName()));
     }
 
@@ -33,7 +37,8 @@ public final class StorageClientManager {
         if (storageConfiguration.containsKey(containerName)) {
             return storageConfiguration.get(containerName).isEnabled();
         } else {
-            throw new ServiceConfigNotFoundException("No service configuration found for " + containerName);
+            LOGGER.error("No service configuration found for '{}' container", containerName);
+            return false;
         }
     }
 }

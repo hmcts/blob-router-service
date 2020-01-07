@@ -22,9 +22,9 @@ class StorageStubHttpClient implements HttpClient {
             return Mono.just(
                 new MockHttpResponse(request, 200, getFileContents("storage/list-containers.json"))
             );
+        } else {
+            Assertions.fail("Request '" + request.getUrl() + "' is not set up");
+            return Mono.empty();
         }
-        Assertions.fail("Request '" + request.getUrl() + "' is not setup");
-
-        return Mono.empty();
     }
 }
