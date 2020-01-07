@@ -12,31 +12,19 @@ import static uk.gov.hmcts.reform.blobrouter.util.ResourceFilesHelper.getFileCon
 class StorageStubHttpClient implements HttpClient {
 
     private static final String LIST_CONTAINERS = "?comp=list";
-    private static final String LIST_ONE_BLOB = "/bulkscan?include=&restype=container&comp=list";
-    private static final String LIST_ZERO_BLOBS = "/empty?include=&restype=container&comp=list";
 
     @Override
     public Mono<HttpResponse> send(HttpRequest request) {
         String path = request.getUrl().getPath();
         String query = request.getUrl().getQuery();
 
-        switch (path + "?" + query) {
-            case LIST_CONTAINERS:
-                return Mono.just(
-                    new MockHttpResponse(request, 200, getFileContents("storage/list-containers.json"))
-                );
-            case LIST_ONE_BLOB:
-                return Mono.just(
-                    new MockHttpResponse(request, 200, getFileContents("storage/list-blobs.json"))
-                );
-            case LIST_ZERO_BLOBS:
-                return Mono.just(
-                    new MockHttpResponse(request, 200, getFileContents("storage/list-empty-blobs.json"))
-                );
-            default:
-                Assertions.fail("Request '" + request.getUrl() + "' is not setup");
-
-                return Mono.empty();
+        if (LIST_CONTAINERS.equals(path + "?" + query)) {
+            return Mono.just(
+                new MockHttpResponse(request, 200, getFileContents("storage/list-containers.json"))
+            );
         }
+        Assertions.fail("Request '" + request.getUrl() + "' is not setup");
+
+        return Mono.empty();
     }
 }
