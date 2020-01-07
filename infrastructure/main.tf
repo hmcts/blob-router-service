@@ -50,3 +50,44 @@ resource "azurerm_key_vault_secret" "bulkscan_storage_account_primary_key" {
 }
 
 # end region
+
+# region: error notification secrets from bulk scan
+
+data "azurerm_key_vault_secret" "bulk_scan_error_notifications_password" {
+  key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
+  name         = "error-notifications-password"
+}
+
+data "azurerm_key_vault_secret" "bulk_scan_error_notifications_url" {
+  key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
+  name         = "error-notifications-url"
+}
+
+data "azurerm_key_vault_secret" "bulk_scan_error_notifications_username" {
+  key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
+  name         = "error-notifications-username"
+}
+
+# end region
+
+# region: copy error notification secrets from bulk scan to reform scan
+
+resource "azurerm_key_vault_secret" "error_notifications_password" {
+  name         = "error-notifications-password"
+  value        = "${data.azurerm_key_vault_secret.bulk_scan_error_notifications_password.value}"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+}
+
+resource "azurerm_key_vault_secret" "error_notifications_url" {
+  name         = "error-notifications-url"
+  value        = "${data.azurerm_key_vault_secret.bulk_scan_error_notifications_url.value}"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+}
+
+resource "azurerm_key_vault_secret" "error_notifications_username" {
+  name         = "error-notifications-username"
+  value        = "${data.azurerm_key_vault_secret.bulk_scan_error_notifications_username.value}"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+}
+
+# end region
