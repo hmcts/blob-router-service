@@ -24,6 +24,7 @@ class ContainerProcessorTest extends StorageTestBase {
     }
 
     @Test
+    @SuppressWarnings("java:S2925")
     void should_find_blobs_and_process(CapturedOutput output) throws InterruptedException {
         // when
         containerProcessor.process(StorageClientsHelper.getContainerClient(interceptorManager, CONTAINER_WITH_BLOBS));

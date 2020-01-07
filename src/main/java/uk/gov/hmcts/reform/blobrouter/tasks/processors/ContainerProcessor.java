@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+@SuppressWarnings("java:S1135")
 public class ContainerProcessor {
 
     private static final Logger LOGGER = getLogger(ContainerProcessor.class);
@@ -32,6 +33,7 @@ public class ContainerProcessor {
             );
     }
 
+    @SuppressWarnings("java:S1172")
     private void processBlob(BlobItem blob) {
         // TODO: process blob
     }

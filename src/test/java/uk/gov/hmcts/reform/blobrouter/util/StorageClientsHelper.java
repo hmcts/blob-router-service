@@ -30,7 +30,7 @@ public final class StorageClientsHelper {
     public static BlobServiceAsyncClient getStorageClient(InterceptorManager interceptorManager) {
         return STORAGE_CLIENT_BUILDER
             .credential(STORAGE_CREDENTIALS)
-            .endpoint("http://httpbin.org")
+            .endpoint("http://httpbin.org") // HTTP request and response service
             .addPolicy(interceptorManager.getRecordPolicy())
             .httpClient(HTTP_CLIENT)
             .buildAsyncClient();
