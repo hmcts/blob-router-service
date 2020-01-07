@@ -23,7 +23,7 @@ public class ContainerProcessor {
 
     public void process(BlobContainerAsyncClient containerClient) {
         String containerName = containerClient.getBlobContainerName();
-        AtomicInteger atomInt = new AtomicInteger(0);
+        AtomicInteger processedBlobCount = new AtomicInteger(0);
 
         LOGGER.info("Processing container {}", containerName);
 
@@ -31,15 +31,17 @@ public class ContainerProcessor {
             .listBlobs()
             .subscribe(
                 blob -> {
-                    processBlobs(containerClient, blob);
-                    atomInt.updateAndGet(operand -> ++operand);
+                    processBlob(containerClient, blob);
+                    processedBlobCount.incrementAndGet();
                 },
                 null, // error consumer. can be implemented later
-                () -> LOGGER.info("Finished processing container {}. Blobs found: {}", containerName, atomInt.get())
+                () -> LOGGER.info(
+                    "Finished processing container {}. Blobs processed: {}", containerName, processedBlobCount.get()
+                )
             );
     }
 
-    private void processBlobs(BlobContainerAsyncClient containerClient, BlobItem blob) {
+    private void processBlob(BlobContainerAsyncClient containerClient, BlobItem blob) {
         BlobAsyncClient blobClient = containerClient.getBlobAsyncClient(blob.getName());
         BlobLeaseAsyncClient blobLeaseClient = new BlobLeaseClientBuilder()
             .blobAsyncClient(blobClient)

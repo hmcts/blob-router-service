@@ -22,14 +22,14 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(OutputCaptureExtension.class)
-class BlobRouterMainTaskTest extends StorageTestBase {
+class BlobDispatcherTaskTest extends StorageTestBase {
 
     private static ServiceConfiguration SERVICE_CONFIGURATION;
 
     @Mock
     private ContainerProcessor containerProcessor;
 
-    private BlobRouterMainTask task;
+    private BlobDispatcherTask task;
 
     @BeforeAll
     public static void setUpClass() {
@@ -48,7 +48,7 @@ class BlobRouterMainTaskTest extends StorageTestBase {
     protected void beforeTest() {
         BlobServiceAsyncClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
 
-        task = new BlobRouterMainTask(storageClient, containerProcessor, SERVICE_CONFIGURATION);
+        task = new BlobDispatcherTask(storageClient, containerProcessor, SERVICE_CONFIGURATION);
     }
 
     @DisplayName("Get all 4 configured containers and process only 1 available")
@@ -61,9 +61,9 @@ class BlobRouterMainTaskTest extends StorageTestBase {
         verify(containerProcessor, times(1)).process(any());
 
         // and
-        String simpleLoggerName = BlobRouterMainTask.class.getSimpleName();
-        assertThat(output).contains(simpleLoggerName + " Started " + BlobRouterMainTask.TASK_NAME + " job");
-        assertThat(output).contains(simpleLoggerName + " Finished " + BlobRouterMainTask.TASK_NAME + " job");
+        String simpleLoggerName = BlobDispatcherTask.class.getSimpleName();
+        assertThat(output).contains(simpleLoggerName + " Started " + BlobDispatcherTask.TASK_NAME + " job");
+        assertThat(output).contains(simpleLoggerName + " Finished " + BlobDispatcherTask.TASK_NAME + " job");
     }
 
     private static ServiceConfiguration.StorageConfig configure(String name, boolean enabled) {
