@@ -7,6 +7,7 @@ public class ErrorNotificationRequest {
     @JsonProperty("zip_file_name")
     public final String zipFileName;
 
+    // mandatory field from client. will/should be removed once agreed
     @JsonProperty("po_box")
     public final String poBox;
 
