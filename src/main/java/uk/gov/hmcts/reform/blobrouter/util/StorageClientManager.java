@@ -12,7 +12,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public final class StorageClientManager {
 
-    private static final Logger LOGGER = getLogger(StorageClientManager.class);
+    private static final Logger logger = getLogger(StorageClientManager.class);
 
     private static final String REJECTED_CONTAINER_SUFFIX = "rejected";
 
@@ -37,7 +37,7 @@ public final class StorageClientManager {
         if (storageConfiguration.containsKey(containerName)) {
             return storageConfiguration.get(containerName).isEnabled();
         } else {
-            LOGGER.error("No service configuration found for '{}' container", containerName);
+            logger.error("No service configuration found for '{}' container", containerName);
             return false;
         }
     }

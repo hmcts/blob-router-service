@@ -13,7 +13,7 @@ public class BlobDispatcherTask {
 
     static final String TASK_NAME = "blob-dispatcher";
 
-    private static final Logger LOGGER = getLogger(BlobDispatcherTask.class);
+    private static final Logger logger = getLogger(BlobDispatcherTask.class);
 
     private final BlobServiceAsyncClient storageClient;
     private final ContainerProcessor containerProcessor;
@@ -30,7 +30,7 @@ public class BlobDispatcherTask {
     }
 
     public void run() {
-        LOGGER.info("Started {} job", TASK_NAME);
+        logger.info("Started {} job", TASK_NAME);
 
         StorageClientManager
             .getAvailableContainers(storageClient, serviceConfiguration)
@@ -39,6 +39,6 @@ public class BlobDispatcherTask {
             .map(storageClient::getBlobContainerAsyncClient)
             .forEach(containerProcessor::process);
 
-        LOGGER.info("Finished {} job", TASK_NAME);
+        logger.info("Finished {} job", TASK_NAME);
     }
 }
