@@ -24,7 +24,7 @@ class ContainerProcessorTest extends StorageTestBase {
     }
 
     @Test
-    void should_find_one_blob_and_process(CapturedOutput output) throws InterruptedException {
+    void should_find_blobs_and_process(CapturedOutput output) throws InterruptedException {
         // when
         containerProcessor.process(StorageClientsHelper.getContainerClient(interceptorManager, CONTAINER_WITH_BLOBS));
         Thread.sleep(1000); // need to wait for subscriber to be notified
