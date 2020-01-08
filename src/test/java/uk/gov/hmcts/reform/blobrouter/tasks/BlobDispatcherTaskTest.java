@@ -9,6 +9,7 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerProcessor;
+import uk.gov.hmcts.reform.blobrouter.util.StorageTestBase;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(OutputCaptureExtension.class)
-class BlobDispatcherTaskTest {
+class BlobDispatcherTaskTest extends StorageTestBase {
 
     @Mock
     private ContainerProcessor containerProcessor;
