@@ -7,6 +7,9 @@ java:
       resourceGroup: reform-scan
       secrets:
         - app-insights-instrumentation-key
+        - error-notifications-password
+        - error-notifications-url
+        - error-notifications-username
         - storage-account-name
         - storage-account-primary-key
         - storage-account-secondary-key
