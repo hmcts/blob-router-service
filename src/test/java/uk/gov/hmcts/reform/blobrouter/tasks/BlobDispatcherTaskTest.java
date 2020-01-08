@@ -50,9 +50,7 @@ class BlobDispatcherTaskTest {
         verify(containerProcessor, times(1)).process(any());
 
         // and
-        String simpleLoggerName = BlobDispatcherTask.class.getSimpleName();
-        assertThat(output).contains(simpleLoggerName + " Started " + BlobDispatcherTask.TASK_NAME + " job");
-        assertThat(output).contains(simpleLoggerName + " Finished " + BlobDispatcherTask.TASK_NAME + " job");
+        assertOutputCapture(output);
     }
 
     @DisplayName("Get all 2 configured containers and do not process when all containers are disabled")
@@ -75,16 +73,20 @@ class BlobDispatcherTaskTest {
         verify(containerProcessor, never()).process(any()); // no available containers
 
         // and
-        String simpleLoggerName = BlobDispatcherTask.class.getSimpleName();
-        assertThat(output).contains(simpleLoggerName + " Started " + BlobDispatcherTask.TASK_NAME + " job");
-        assertThat(output).contains(simpleLoggerName + " Finished " + BlobDispatcherTask.TASK_NAME + " job");
+        assertOutputCapture(output);
     }
 
-    private static ServiceConfiguration.StorageConfig configure(String name, boolean enabled) {
+    private ServiceConfiguration.StorageConfig configure(String name, boolean enabled) {
         ServiceConfiguration.StorageConfig config = new ServiceConfiguration.StorageConfig();
         config.setSasValidity(300);
         config.setName(name);
         config.setEnabled(enabled);
         return config;
+    }
+
+    private void assertOutputCapture(CapturedOutput output) {
+        String simpleLoggerName = BlobDispatcherTask.class.getSimpleName();
+        assertThat(output).contains(simpleLoggerName + " Started " + BlobDispatcherTask.TASK_NAME + " job");
+        assertThat(output).contains(simpleLoggerName + " Finished " + BlobDispatcherTask.TASK_NAME + " job");
     }
 }
