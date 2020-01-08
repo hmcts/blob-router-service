@@ -17,7 +17,8 @@ java:
       key: accessKey
   environment:
     # prevent mounting the keyvault. remove this if you use any value from keyvault in preview.
-    SPRING_CLOUD_PROPERTIESVOLUME_ENABLED: false
+    # commenting below to test.
+    # SPRING_CLOUD_PROPERTIESVOLUME_ENABLED: false
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
