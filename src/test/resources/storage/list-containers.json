@@ -1,0 +1,16 @@
+{
+  "Containers": [
+    {
+      "Name": "bulkscan"
+    },
+    {
+      "Name": "bulkscan-rejected"
+    },
+    {
+      "Name": "disabled-service"
+    },
+    {
+      "Name": "disabled-service-rejected"
+    }
+  ]
+}
