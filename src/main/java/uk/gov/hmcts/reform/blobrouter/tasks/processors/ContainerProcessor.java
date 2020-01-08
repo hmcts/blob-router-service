@@ -1,10 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobContainerAsyncClient;
+import com.azure.storage.blob.BlobServiceAsyncClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -13,22 +12,24 @@ public class ContainerProcessor {
 
     private static final Logger logger = getLogger(ContainerProcessor.class);
 
-    public void process(BlobContainerAsyncClient containerClient) {
-        String containerName = containerClient.getBlobContainerName();
-        AtomicInteger processedBlobCount = new AtomicInteger(0);
+    private final BlobServiceAsyncClient storageClient;
 
+    public ContainerProcessor(BlobServiceAsyncClient storageClient) {
+        this.storageClient = storageClient;
+    }
+
+    public void process(String containerName) {
         logger.info("Processing container {}", containerName);
+
+        BlobContainerAsyncClient containerClient = storageClient.getBlobContainerAsyncClient(containerName);
 
         containerClient
             .listBlobs()
             .subscribe(
-                blob -> {
-                    processBlob(blob);
-                    processedBlobCount.incrementAndGet();
-                },
-                null, // TODO: error consumer
+                this::processBlob,
+                throwable -> logger.error("Error occurred while processing blob", throwable), // TODO: error consumer
                 () -> logger.info(
-                    "Finished processing container {}. Blobs processed: {}", containerName, processedBlobCount.get()
+                    "Finished processing container {}", containerName
                 )
             );
     }

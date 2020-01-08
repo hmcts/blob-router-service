@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
+import com.azure.storage.blob.BlobServiceAsyncClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -20,38 +21,39 @@ class ContainerProcessorTest extends StorageTestBase {
 
     private ContainerProcessor containerProcessor;
 
+    private BlobServiceAsyncClient storageClient;
+
     @Override
     protected void beforeTest() {
-        containerProcessor = new ContainerProcessor();
+        storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
+        containerProcessor = new ContainerProcessor(storageClient);
     }
 
     @Test
     void should_find_blobs_and_process(CapturedOutput output) throws InterruptedException {
         // when
-        containerProcessor.process(StorageClientsHelper.getContainerClient(interceptorManager, CONTAINER_WITH_BLOBS));
+        containerProcessor.process(CONTAINER_WITH_BLOBS);
         Thread.sleep(1000); // need to wait for subscriber to be notified
 
         // then
-        assertOutputCapture(output, CONTAINER_WITH_BLOBS, 1);
+        assertOutputCapture(output, CONTAINER_WITH_BLOBS);
     }
 
     @Test
     void should_not_find_any_blobs(CapturedOutput output) throws InterruptedException {
         // when
-        containerProcessor.process(
-            StorageClientsHelper.getContainerClient(interceptorManager, CONTAINER_WITHOUT_BLOBS)
-        );
+        containerProcessor.process(CONTAINER_WITHOUT_BLOBS);
         Thread.sleep(1000); // need to wait for subscriber to be notified
 
         // then
-        assertOutputCapture(output, CONTAINER_WITHOUT_BLOBS, 0);
+        assertOutputCapture(output, CONTAINER_WITHOUT_BLOBS);
     }
 
-    private void assertOutputCapture(CapturedOutput output, String containerName, int blobCount) {
+    private void assertOutputCapture(CapturedOutput output, String containerName) {
         String simpleLoggerName = ContainerProcessor.class.getSimpleName();
         assertThat(output).contains(simpleLoggerName + " Processing container " + containerName);
         assertThat(output).contains(
-            simpleLoggerName + " Finished processing container " + containerName + ". Blobs processed: " + blobCount
+            simpleLoggerName + " Finished processing container " + containerName
         );
     }
 }

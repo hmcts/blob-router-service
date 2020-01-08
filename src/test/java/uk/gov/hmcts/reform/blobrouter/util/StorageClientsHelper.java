@@ -30,7 +30,7 @@ public final class StorageClientsHelper {
     public static BlobServiceAsyncClient getStorageClient(InterceptorManager interceptorManager) {
         return STORAGE_CLIENT_BUILDER
             .credential(STORAGE_CREDENTIALS)
-            .endpoint("http://httpbin.org") // HTTP request and response service
+            .endpoint("http://httpbin.org") // Do not change the url. This url is validated in the Azure test library
             .addPolicy(interceptorManager.getRecordPolicy())
             .httpClient(HTTP_CLIENT)
             .buildAsyncClient();
