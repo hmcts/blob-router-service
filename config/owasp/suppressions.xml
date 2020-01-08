@@ -13,4 +13,23 @@
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
     <cve>CVE-2018-1258</cve>
   </suppress>
+
+  <suppress until="2021-01-05">
+    <notes><![CDATA[
+      This is only used for TESTING purposes.
+    ]]></notes>
+    <filePath regex="true">.*spring-cloud-contract-wiremock-2\.2\.1\.RELEASE\.jar</filePath>
+    <cve>CVE-2018-9116</cve>
+    <cve>CVE-2018-9117</cve>
+  </suppress>
+
+  <suppress until="2021-01-05">
+    <notes><![CDATA[
+      This is only used for TESTING purposes.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/handlebars\.js@4\.0\.4.*$</packageUrl>
+    <vulnerabilityName>A prototype pollution vulnerability in handlebars is exploitable if an attacker can control the template</vulnerabilityName>
+    <vulnerabilityName>Disallow calling helperMissing and blockHelperMissing directly</vulnerabilityName>
+    <vulnerabilityName>Prototype pollution</vulnerabilityName>
+  </suppress>
 </suppressions>
