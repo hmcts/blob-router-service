@@ -106,9 +106,41 @@ resource "azurerm_key_vault_secret" "error_notifications_username" {
 
 # endregion
 
+# region DB secrets
+resource "azurerm_key_vault_secret" "POSTGRES-USER" {
+  name         = "${var.component}-POSTGRES-USER"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.blob-router-db.user_name}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
+  name         = "${var.component}-POSTGRES-PASS"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.blob-router-db.postgresql_password}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
+  name         = "${var.component}-POSTGRES-HOST"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.blob-router-db.host_name}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
+  name         = "${var.component}-POSTGRES-PORT"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.blob-router-db.postgresql_listen_port}"
+}
+
+resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
+  name         = "${var.component}-POSTGRES-DATABASE"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.blob-router-db.postgresql_database}"
+}
+
 # Copy postgres password for flyway migration
 resource "azurerm_key_vault_secret" "flyway_password" {
   name         = "flyway-password"
-  value        = "${module.bulk-scan-db.postgresql_password}"
+  value        = "${module.blob-router-db.postgresql_password}"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
 }
+# endregion
