@@ -15,9 +15,14 @@ java:
     STORAGE_BULKSCAN_ACCOUNT_KEY:
       secretRef: storage-secret-cft-{{ .Release.Name }}
       key: accessKey
+  keyVaults:
+    reform-scan:
+      resourceGroup: reform-scan
+      secrets:
+        - error-notifications-password
+        - error-notifications-url
+        - error-notifications-username
   environment:
-    # prevent mounting the keyvault. remove this if you use any value from keyvault in preview.
-    SPRING_CLOUD_PROPERTIESVOLUME_ENABLED: false
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}

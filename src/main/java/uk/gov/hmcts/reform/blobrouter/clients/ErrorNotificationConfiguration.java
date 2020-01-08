@@ -18,8 +18,8 @@ public class ErrorNotificationConfiguration {
 
     @Bean
     public BasicAuthRequestInterceptor basicAuthRequestInterceptor(
-        @Value("${clients.error-notifications.username:username}") String username,
-        @Value("${clients.error-notifications.password:password}") String password
+        @Value("${clients.error-notifications.username}") String username,
+        @Value("${clients.error-notifications.password}") String password
     ) {
         return new BasicAuthRequestInterceptor(username, password, StandardCharsets.UTF_8);
     }
