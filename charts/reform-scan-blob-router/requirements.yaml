@@ -16,4 +16,4 @@ dependencies:
     alias: crimeblobstorage
     version: ~0.2.1
     repository: '@hmctspublic'
-    condition: cftblobstorage.enabled
+    condition: crimeblobstorage.enabled
