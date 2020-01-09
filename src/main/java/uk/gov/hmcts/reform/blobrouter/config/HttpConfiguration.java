@@ -41,5 +41,4 @@ public class HttpConfiguration {
             .setDefaultRequestConfig(config)
             .build();
     }
-
 }
