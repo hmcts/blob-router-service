@@ -15,9 +15,13 @@ java:
         - storage-account-secondary-key
         - bulkscan-storage-account-name
         - bulkscan-storage-account-primary-key
+        - crime-storage-account-name
+        - crime-storage-account-primary-key
   environment:
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   enabled: false
 cftblobstorage:
+  enabled: false
+crimeblobstorage:
   enabled: false
