@@ -291,7 +291,7 @@ flyway {
 
 task migratePostgresDatabase(type: FlywayMigrateTask) {
   baselineOnMigrate = true
-  if (project.hasProperty("dburl")) {
+  if (project.hasProperty("dburl")) { // set by jenkins
     url = "jdbc:postgresql://${dburl}"
   }
 }
