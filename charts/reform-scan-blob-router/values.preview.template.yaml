@@ -8,19 +8,19 @@ java:
       key: accessKey
     STORAGE_ACCOUNT_SECONDARY_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
-      key: accessSecondaryKey
+      key: accessKey
     STORAGE_BULKSCAN_ACCOUNT_NAME:
       secretRef: storage-secret-cft-{{ .Release.Name }}
-      key: cftStorageAccountName
+      key: storageAccountName
     STORAGE_BULKSCAN_ACCOUNT_KEY:
       secretRef: storage-secret-cft-{{ .Release.Name }}
-      key: cftAccessKey
+      key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
       secretRef: storage-secret-crime-{{ .Release.Name }}
-      key: crimeStorageAccountName
+      key: storageAccountName
     STORAGE_CRIME_ACCOUNT_KEY:
       secretRef: storage-secret-crime-{{ .Release.Name }}
-      key: crimeAccessKey
+      key: accessKey
   keyVaults:
     reform-scan:
       resourceGroup: reform-scan
