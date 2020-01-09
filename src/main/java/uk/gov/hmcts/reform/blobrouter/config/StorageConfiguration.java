@@ -18,7 +18,7 @@ public class StorageConfiguration {
         @Value("${storage.account-key}") String accountKey
     ) {
 
-        log.info("accountName: {}, accountKey: {}",accountName,accountKey);
+        log.info("accountName: {}, accountKey: {}", accountName, accountKey);
         return new StorageSharedKeyCredential(accountName, accountKey);
     }
 }
