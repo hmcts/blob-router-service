@@ -30,3 +30,6 @@ service:
       sas-validity: 300 #In seconds
     - name: sscs
       sas-validity: 300 #In seconds
+
+flyway:
+  skip-migrations: ${FLYWAY_SKIP_MIGRATIONS:false}

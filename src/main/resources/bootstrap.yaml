@@ -15,3 +15,4 @@ spring:
         storage-account-secondary-key:  storage.account-secondary-key
         bulkscan-storage-account-name: storage.bulkscan.account-name
         bulkscan-storage-account-primary-key:  storage.bulkscan.account-key
+        flyway-password: flyway.password
