@@ -23,6 +23,7 @@ java:
         - error-notifications-url
         - error-notifications-username
   environment:
+    FLYWAY_SKIP_MIGRATIONS: false
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
