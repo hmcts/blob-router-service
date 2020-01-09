@@ -12,7 +12,7 @@ class DummyTest {
 
     @Test
     void should_verify_being_dummy_test() {
-        assertThat("I am dummy").isNotBlank();
+        assertThat("I am dummy").isBlank();
     }
 
 
