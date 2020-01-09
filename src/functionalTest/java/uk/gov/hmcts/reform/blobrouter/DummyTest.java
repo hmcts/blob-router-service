@@ -7,7 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class DummyTest {
 
-    @Value("${storage.crime.account-name}")
     private String crimeAccountName;
 
     @Test
