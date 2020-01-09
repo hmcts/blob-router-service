@@ -15,6 +15,12 @@ java:
     STORAGE_BULKSCAN_ACCOUNT_KEY:
       secretRef: storage-secret-cft-{{ .Release.Name }}
       key: accessKey
+    STORAGE_CRIME_ACCOUNT_NAME:
+      secretRef: storage-secret-crime-{{ .Release.Name }}
+      key: storageAccountName
+    STORAGE_CRIME_ACCOUNT_KEY:
+      secretRef: storage-secret-crime-{{ .Release.Name }}
+      key: accessKey
   keyVaults:
     reform-scan:
       resourceGroup: reform-scan
@@ -51,3 +57,13 @@ cftblobstorage:
     containers:
       - bulkscan
       - bulkscan-rejected
+
+crimeblobstorage:
+  enabled: true
+  resourceGroup: reform-scan-aks
+  releaseNameOverride: crime-{{ .Release.Name }}
+  teamName: "BSP"
+  location: ukwest
+  setup:
+    containers:
+      - crime

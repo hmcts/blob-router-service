@@ -211,7 +211,7 @@ ext["rest-assured.version"] = '4.1.2'
 dependencies {
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.1.4'
 
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.0.1'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.1.0'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
@@ -238,10 +238,12 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
-  testImplementation group: 'com.azure', name: 'azure-core-test', version: '1.0.0'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
+  integrationTestImplementation group: 'com.azure', name: 'azure-core-test', version: '1.1.0', {
+    exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
+  }
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.1.RELEASE', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
