@@ -144,7 +144,7 @@ sonarqube {
     property "sonar.projectName", "Reform :: blob-router-service"
     property "sonar.projectKey", "uk.gov.hmcts.reform:blob-router-service"
     property "sonar.coverage.jacoco.xmlReportPaths", jacocoTestReport.reports.xml.destination.path
-    property 'sonar.exclusions', "**/config/**"
+    property 'sonar.exclusions', "**/config/**,**/data/model/**"
 
   }
 }
