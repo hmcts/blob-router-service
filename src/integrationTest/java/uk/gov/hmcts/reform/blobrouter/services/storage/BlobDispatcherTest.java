@@ -9,10 +9,7 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.time.Duration;
-import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -39,13 +36,11 @@ class BlobDispatcherTest extends TestBase {
     }
 
     @Test
-    void should_upload_blob_to_dedicated_container(CapturedOutput output) throws IOException {
-        try (ZipInputStream inputStream = new ZipInputStream(new ByteArrayInputStream(NEW_BLOB_NAME.getBytes()))) {
-            assertThatCode(() -> dispatcher
-                .dispatch(NEW_BLOB_NAME, inputStream, DESTINATION_CONTAINER)
-                .block(Duration.ofSeconds(2)) // max waiting time
-            ).doesNotThrowAnyException();
-        }
+    void should_upload_blob_to_dedicated_container(CapturedOutput output) {
+        assertThatCode(() -> dispatcher
+            .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), DESTINATION_CONTAINER)
+            .block(Duration.ofSeconds(2)) // max waiting time
+        ).doesNotThrowAnyException();
 
         assertThat(output).contains(
             "Finished uploading " + NEW_BLOB_NAME + " to " + DESTINATION_CONTAINER + " container"
