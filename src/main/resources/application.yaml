@@ -32,4 +32,4 @@ service:
       sas-validity: 300 #In seconds
 
 flyway:
-  skip-migrations: ${FLYWAY_SKIP_MIGRATIONS:false}
+  skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
