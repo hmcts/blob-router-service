@@ -30,10 +30,19 @@ java:
         - error-notifications-username
   environment:
     FLYWAY_SKIP_MIGRATIONS: false
+    FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.postgresqlDatabase}}"
+    FLYWAY_USER: "{{ .Values.postgresql.postgresqlUsername}}"
+    FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
   aadIdentityName:
+
+  postgresql:
+    enabled: true
+    postgresqlUsername: db_user
+    postgresqlPassword: db_pass
+    postgresqlDatabase: db
 
 reformblobstorage:
   enabled: true
