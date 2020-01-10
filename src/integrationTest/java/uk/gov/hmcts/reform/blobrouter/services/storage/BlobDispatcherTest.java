@@ -4,17 +4,12 @@ import com.azure.core.test.TestBase;
 import com.azure.storage.blob.BlobServiceAsyncClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import java.time.Duration;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-@ExtendWith(OutputCaptureExtension.class)
 class BlobDispatcherTest extends TestBase {
 
     private static final String NEW_BLOB_NAME = "new.blob";
@@ -36,14 +31,10 @@ class BlobDispatcherTest extends TestBase {
     }
 
     @Test
-    void should_upload_blob_to_dedicated_container(CapturedOutput output) {
+    void should_upload_blob_to_dedicated_container() {
         assertThatCode(() -> dispatcher
             .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), DESTINATION_CONTAINER)
             .block(Duration.ofSeconds(2)) // max waiting time
         ).doesNotThrowAnyException();
-
-        assertThat(output).contains(
-            "Finished uploading " + NEW_BLOB_NAME + " to " + DESTINATION_CONTAINER + " container"
-        );
     }
 }
