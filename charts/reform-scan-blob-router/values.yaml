@@ -17,7 +17,11 @@ java:
         - bulkscan-storage-account-primary-key
         - crime-storage-account-name
         - crime-storage-account-primary-key
+        - flyway-password
   environment:
+    FLYWAY_URL: jdbc:postgresql://blob_router-{{ .Values.global.environment }}.postgres.database.azure.com:5432/bulk_scan?sslmode=require
+    FLYWAY_USER: blob_router@blob_router-{{ .Values.global.environment }}
+    FLYWAY_SKIP_MIGRATIONS: true
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   enabled: false
