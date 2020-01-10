@@ -7,18 +7,13 @@ import com.azure.storage.blob.specialized.BlobLeaseAsyncClient;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
 import reactor.util.function.Tuples;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import java.nio.ByteBuffer;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-@ExtendWith(OutputCaptureExtension.class)
 public class BlobProcessorSubscriberTest extends TestBase {
 
     private static final String BLOB_NAME = "new.blob";
@@ -54,11 +49,7 @@ public class BlobProcessorSubscriberTest extends TestBase {
     }
 
     @Test
-    void should_log_error_and_not_throw_exception_when_process_receives_something_unexpected(CapturedOutput output) {
+    void should_log_error_and_not_throw_exception_when_process_receives_something_unexpected() {
         assertThatCode(() -> subscriber.onError(new RuntimeException("oh no"))).doesNotThrowAnyException();
-
-        assertThat(output).contains(
-            "Error occurred while processing " + BLOB_NAME + " blob from " + CONTAINER + " container"
-        );
     }
 }
