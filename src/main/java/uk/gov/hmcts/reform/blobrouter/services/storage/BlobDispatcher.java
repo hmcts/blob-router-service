@@ -2,8 +2,10 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobServiceAsyncClient;
+import com.azure.storage.blob.models.BlockBlobItem;
 import org.slf4j.Logger;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,12 +23,16 @@ public class BlobDispatcher {
         this.storageClient = storageClient;
     }
 
-    public void dispatch(String blobName, ZipInputStream inputStream, String destinationContainer) throws IOException {
+    public Mono<BlockBlobItem> dispatch(
+        String blobName,
+        ZipInputStream inputStream,
+        String destinationContainer
+    ) throws IOException {
         byte[] zip = inputStream.readAllBytes();
 
         logger.info("Uploading {} to {} container", blobName, destinationContainer);
 
-        getContainerClient(destinationContainer)
+        return getContainerClient(destinationContainer)
             .getBlobAsyncClient(blobName)
             .getBlockBlobAsyncClient()
             .upload(
@@ -42,8 +48,7 @@ public class BlobDispatcher {
             ))
             .doOnSuccess(uploadedBlob ->
                 logger.info("Finished uploading {} to {} container", blobName, destinationContainer)
-            )
-            .subscribe();
+            );
     }
 
     // will use different storageClient depending on container
