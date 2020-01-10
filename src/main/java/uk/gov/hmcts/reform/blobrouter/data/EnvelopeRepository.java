@@ -12,6 +12,7 @@ public interface EnvelopeRepository {
     List<Envelope> find(Status status, boolean isDeleted);
 
     /**
+     * Creates new envelope in DB. 
      * @return ID of newly created envelope.
      */
     UUID insert(NewEnvelope envelope);
