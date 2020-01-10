@@ -7,9 +7,7 @@ import org.slf4j.Logger;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.zip.ZipInputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -23,21 +21,15 @@ public class BlobDispatcher {
         this.storageClient = storageClient;
     }
 
-    public Mono<BlockBlobItem> dispatch(
-        String blobName,
-        ZipInputStream inputStream,
-        String destinationContainer
-    ) throws IOException {
-        byte[] zip = inputStream.readAllBytes();
-
+    public Mono<BlockBlobItem> dispatch(String blobName, byte[] blobContents, String destinationContainer) {
         logger.info("Uploading {} to {} container", blobName, destinationContainer);
 
         return getContainerClient(destinationContainer)
             .getBlobAsyncClient(blobName)
             .getBlockBlobAsyncClient()
             .upload(
-                Flux.just(ByteBuffer.wrap(zip)),
-                zip.length,
+                Flux.just(ByteBuffer.wrap(blobContents)),
+                blobContents.length,
                 false // overwrite flag
             )
             .doOnError(error -> logger.error(
