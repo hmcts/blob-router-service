@@ -11,12 +11,13 @@ import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.zip.ZipInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 @ExtendWith(OutputCaptureExtension.class)
-@SuppressWarnings("java:S2925") // ignore Thread.sleep() call in the tests
 class BlobDispatcherTest extends TestBase {
 
     private static final String NEW_BLOB_NAME = "new.blob";
@@ -38,12 +39,13 @@ class BlobDispatcherTest extends TestBase {
     }
 
     @Test
-    void should_upload_blob_to_dedicated_container(CapturedOutput output) throws IOException, InterruptedException {
+    void should_upload_blob_to_dedicated_container(CapturedOutput output) throws IOException {
         try (ZipInputStream inputStream = new ZipInputStream(new ByteArrayInputStream(NEW_BLOB_NAME.getBytes()))) {
-            dispatcher.dispatch(NEW_BLOB_NAME, inputStream, DESTINATION_CONTAINER);
+            assertThatCode(() -> dispatcher
+                .dispatch(NEW_BLOB_NAME, inputStream, DESTINATION_CONTAINER)
+                .block(Duration.ofSeconds(2)) // max waiting time
+            ).doesNotThrowAnyException();
         }
-
-        Thread.sleep(1000); // need to wait for subscriber to be notified
 
         assertThat(output).contains(
             "Finished uploading " + NEW_BLOB_NAME + " to " + DESTINATION_CONTAINER + " container"
