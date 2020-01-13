@@ -22,6 +22,7 @@ java:
     FLYWAY_URL: jdbc:postgresql://blob_router-{{ .Values.global.environment }}.postgres.database.azure.com:5432/bulk_scan?sslmode=require
     FLYWAY_USER: blob_router@blob_router-{{ .Values.global.environment }}
     FLYWAY_SKIP_MIGRATIONS: true
+    STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   enabled: false
