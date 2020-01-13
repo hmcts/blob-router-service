@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
@@ -15,6 +16,7 @@ import java.util.UUID;
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ActiveProfiles("db-test")
 @SpringBootTest
 public class EnvelopeRepositoryImplTest {
 

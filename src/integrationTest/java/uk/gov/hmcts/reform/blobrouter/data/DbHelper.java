@@ -1,9 +1,11 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+@Profile("db-test")
 @Component
 public class DbHelper {
 
