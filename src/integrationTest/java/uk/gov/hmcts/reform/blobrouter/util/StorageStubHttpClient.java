@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static uk.gov.hmcts.reform.blobrouter.util.ResourceFilesHelper.getFileContents;
 
@@ -18,12 +19,12 @@ class StorageStubHttpClient implements HttpClient {
     private static final String LIST_CONTAINERS = "?comp=list";
     private static final String LIST_ONE_BLOB = "/bulkscan?include=&restype=container&comp=list";
     private static final String LIST_ZERO_BLOBS = "/empty?include=&restype=container&comp=list";
-    private static final String UPLOAD_NEW_BLOB = "/bulkscan/new.blob?null";
+    private static final String UPLOAD_NEW_BLOB = "/bulkscan/new.blob?";
 
     @Override
     public Mono<HttpResponse> send(HttpRequest request) {
         String path = request.getUrl().getPath();
-        String query = request.getUrl().getQuery();
+        String query = Objects.toString(request.getUrl().getQuery(), "");
 
         switch (path + "?" + query) {
             case LIST_CONTAINERS:
