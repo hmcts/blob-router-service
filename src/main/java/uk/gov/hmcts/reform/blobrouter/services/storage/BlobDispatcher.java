@@ -1,13 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.storage.blob.BlobContainerAsyncClient;
-import com.azure.storage.blob.BlobServiceAsyncClient;
-import com.azure.storage.blob.models.BlockBlobItem;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
 import org.slf4j.Logger;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.nio.ByteBuffer;
+import java.io.ByteArrayInputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -15,36 +12,38 @@ public class BlobDispatcher {
 
     private static final Logger logger = getLogger(BlobDispatcher.class);
 
-    private final BlobServiceAsyncClient storageClient;
+    private final BlobServiceClient storageClient;
 
-    public BlobDispatcher(BlobServiceAsyncClient storageClient) {
+    public BlobDispatcher(BlobServiceClient storageClient) {
         this.storageClient = storageClient;
     }
 
-    public Mono<BlockBlobItem> dispatch(String blobName, byte[] blobContents, String destinationContainer) {
+    public void dispatch(String blobName, byte[] blobContents, String destinationContainer) {
         logger.info("Uploading {} to {} container", blobName, destinationContainer);
 
-        return getContainerClient(destinationContainer)
-            .getBlobAsyncClient(blobName)
-            .getBlockBlobAsyncClient()
-            .upload(
-                Flux.just(ByteBuffer.wrap(blobContents)),
-                blobContents.length,
-                false // overwrite flag
-            )
-            .doOnError(error -> logger.error(
+        try {
+            getContainerClient(destinationContainer)
+                .getBlobClient(blobName)
+                .getBlockBlobClient()
+                .upload(
+                    new ByteArrayInputStream(blobContents),
+                    blobContents.length,
+                    false // overwrite flag
+                );
+
+            logger.info("Finished uploading {} to {} container", blobName, destinationContainer);
+        } catch (Exception exception) {
+            logger.error(
                 "Error occurred while uploading {} to {} container",
                 blobName,
                 destinationContainer,
-                error
-            ))
-            .doOnSuccess(uploadedBlob ->
-                logger.info("Finished uploading {} to {} container", blobName, destinationContainer)
+                exception
             );
+        }
     }
 
     // will use different storageClient depending on container
-    private BlobContainerAsyncClient getContainerClient(String destinationContainer) {
-        return storageClient.getBlobContainerAsyncClient(destinationContainer);
+    private BlobContainerClient getContainerClient(String destinationContainer) {
+        return storageClient.getBlobContainerClient(destinationContainer);
     }
 }
