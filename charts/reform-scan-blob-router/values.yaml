@@ -23,7 +23,7 @@ java:
     DB_PORT:'5432'
     DB_NAME: blob_router
     DB_USER: blob_router@blob_router-{{ .Values.global.environment }}
-    DRAFT_STORE_DB_CONN_OPTIONS: ?sslmode=require
+    DB_CONN_OPTIONS: ?sslmode=require
 
     FLYWAY_URL: jdbc:postgresql://blob_router-{{ .Values.global.environment }}.postgres.database.azure.com:5432/bulk_scan?sslmode=require
     FLYWAY_USER: blob_router@blob_router-{{ .Values.global.environment }}
