@@ -4,8 +4,8 @@ import com.azure.core.http.HttpClient;
 import com.azure.core.test.InterceptorManager;
 import com.azure.core.test.TestMode;
 import com.azure.core.util.Configuration;
-import com.azure.storage.blob.BlobContainerAsyncClient;
-import com.azure.storage.blob.BlobServiceAsyncClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 
@@ -27,20 +27,20 @@ public final class StorageClientsHelper {
         Configuration.getGlobalConfiguration().put("AZURE_TEST_MODE", TestMode.RECORD.name());
     }
 
-    public static BlobServiceAsyncClient getStorageClient(InterceptorManager interceptorManager) {
+    public static BlobServiceClient getStorageClient(InterceptorManager interceptorManager) {
         return STORAGE_CLIENT_BUILDER
             .credential(STORAGE_CREDENTIALS)
             .endpoint("http://httpbin.org") // Do not change the url. This url is validated in the Azure test library
             .addPolicy(interceptorManager.getRecordPolicy())
             .httpClient(HTTP_CLIENT)
-            .buildAsyncClient();
+            .buildClient();
     }
 
-    public static BlobContainerAsyncClient getContainerClient(
+    public static BlobContainerClient getContainerClient(
         InterceptorManager interceptorManager,
         String containerName
     ) {
-        return getStorageClient(interceptorManager).getBlobContainerAsyncClient(containerName);
+        return getStorageClient(interceptorManager).getBlobContainerClient(containerName);
     }
 
 }
