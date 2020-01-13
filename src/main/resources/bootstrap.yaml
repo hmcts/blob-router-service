@@ -18,3 +18,4 @@ spring:
         crime-storage-account-name: storage.crime.account-name
         crime-storage-account-primary-key: storage.crime.account-key
         flyway-password: flyway.password
+        blob-router-POSTGRES-PASS: DB_PASSWORD

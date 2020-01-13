@@ -1,0 +1,2 @@
+ALTER TABLE envelopes
+ADD COLUMN created_at TIMESTAMP NOT NULL;
