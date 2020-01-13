@@ -3,18 +3,13 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 
-import java.util.Map;
-import java.util.UUID;
-
-import static java.util.stream.Collectors.toMap;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 
-@SuppressWarnings("java:S1135") // ignore TODOs. will be removed when blob deletion part is implemented
 public class ContainerCleaner {
 
     private static final Logger logger = getLogger(ContainerCleaner.class);
@@ -31,29 +26,52 @@ public class ContainerCleaner {
     }
 
     public void process(String containerName) {
-        logger.info("Deleting from container {}", containerName);
+        logger.info("Started deleting dispatched blobs from container {}", containerName);
 
-        Map<String, UUID> envelopesToDelete = envelopeRepository.find(DISPATCHED, false)
-            .stream()
-            .collect(toMap(env -> env.fileName, env -> env.id));
         BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
 
-        containerClient
-            .listBlobs()
-            .stream()
-            .map(BlobItem::getName)
-            .forEach(blobName -> {
-                tryToDeleteBlob(envelopesToDelete, containerClient, blobName);
+        envelopeRepository
+            .find(DISPATCHED, false)
+            .forEach(envelope -> {
+                tryToDeleteBlob(envelope, containerClient);
             });
+
+        logger.info("Finished deleting dispatched blobs from container {}", containerName);
     }
 
-    private void tryToDeleteBlob(Map<String, UUID> envelopesToDelete, BlobContainerClient containerClient, String blobName) {
-        BlobClient blob = containerClient.getBlobClient(blobName);
+    private void tryToDeleteBlob(
+        Envelope envelope,
+        BlobContainerClient containerClient
+    ) {
+        BlobClient blob = containerClient.getBlobClient(envelope.fileName);
 
-        if (envelopesToDelete.containsKey(blobName)) {
-            blob.delete();
-            envelopeRepository.markAsDeleted(envelopesToDelete.get(blobName));
-            logger.info("Deleted file {}", blobName);
+        if (blob == null) {
+            logger.error(
+                String.format(
+                    "Blob %s does not exist in container %s",
+                    envelope.fileName,
+                    containerClient.getBlobContainerName()
+                )
+            );
+        } else {
+            try {
+                blob.delete();
+                envelopeRepository.markAsDeleted(envelope.id);
+                logger.info(
+                    "Deleted dispatched blob {} from container {}",
+                    envelope.fileName,
+                    containerClient.getBlobContainerName()
+                );
+            } catch (Exception ex) {
+                logger.error(
+                    String.format(
+                        "Error deleting dispatched blob %s from container %s",
+                        envelope.fileName,
+                        containerClient.getBlobContainerName()
+                    ),
+                    ex
+                );
+            }
         }
     }
 }
