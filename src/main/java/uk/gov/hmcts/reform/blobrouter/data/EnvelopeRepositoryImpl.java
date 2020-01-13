@@ -17,9 +17,11 @@ import java.util.UUID;
 public class EnvelopeRepositoryImpl implements EnvelopeRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final EnvelopeMapper mapper;
 
-    public EnvelopeRepositoryImpl(NamedParameterJdbcTemplate jdbcTemplate) {
+    public EnvelopeRepositoryImpl(NamedParameterJdbcTemplate jdbcTemplate, EnvelopeMapper mapper) {
         this.jdbcTemplate = jdbcTemplate;
+        this.mapper = mapper;
     }
 
     public Optional<Envelope> find(UUID id) {
@@ -27,7 +29,7 @@ public class EnvelopeRepositoryImpl implements EnvelopeRepository {
             Envelope envelope = jdbcTemplate.queryForObject(
                 "SELECT * FROM envelopes WHERE id = :id",
                 new MapSqlParameterSource("id", id),
-                new EnvelopeMapper()
+                this.mapper
             );
             return Optional.of(envelope);
         } catch (EmptyResultDataAccessException ex) {
@@ -42,7 +44,7 @@ public class EnvelopeRepositoryImpl implements EnvelopeRepository {
             new MapSqlParameterSource()
                 .addValue("status", status.name())
                 .addValue("isDeleted", isDeleted),
-            new EnvelopeMapper()
+            this.mapper
         );
     }
 
@@ -59,7 +61,6 @@ public class EnvelopeRepositoryImpl implements EnvelopeRepository {
                 .addValue("fileCreatedAt", Timestamp.from(envelope.fileCreatedAt))
                 .addValue("status", envelope.status.name())
                 .addValue("dispatchedAt", Timestamp.from(envelope.dispatchedAt))
-                //.addValue("createdAt", Timestamp.from(clock.instant()))
         );
         return id;
     }
