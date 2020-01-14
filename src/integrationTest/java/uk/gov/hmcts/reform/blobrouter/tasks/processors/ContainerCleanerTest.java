@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import java.time.Instant;
-import java.util.UUID;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,15 +61,15 @@ class ContainerCleanerTest extends TestBase {
     @Test
     void should_find_blobs_and_delete(CapturedOutput output) throws Exception {
         // given
-        createEnvelope("file1.zip");
-        createEnvelope("file2.zip");
-        Thread.sleep(1000); // need to wait for subscriber to be notified
+        String[] fileNames = new String[]{"file1.zip", "file2.zip"};
+        createEnvelopes(fileNames);
 
         // when
         containerCleaner.process(CONTAINER_NAME);
+        Thread.sleep(1000); // need to wait for subscriber to be notified
 
         // then
-        assertOutputCapture(output, "file1.zip", "file2.zip");
+        assertOutputCapture(output, fileNames);
     }
 
     @Test
@@ -85,15 +84,17 @@ class ContainerCleanerTest extends TestBase {
         assertOutputCapture(output);
     }
 
-    private UUID createEnvelope(String fileName) {
-        NewEnvelope envelope = new NewEnvelope(
-            CONTAINER_NAME,
-            fileName,
-            Instant.now(),
-            Instant.now(),
-            DISPATCHED
-        );
-        return envelopeRepository.insert(envelope);
+    private void createEnvelopes(String... fileNames) {
+        for (String fileName : fileNames) {
+            NewEnvelope envelope = new NewEnvelope(
+                CONTAINER_NAME,
+                fileName,
+                Instant.now(),
+                Instant.now(),
+                DISPATCHED
+            );
+            envelopeRepository.insert(envelope);
+        }
     }
 
     private void assertOutputCapture(CapturedOutput output, String... fileNames) {
