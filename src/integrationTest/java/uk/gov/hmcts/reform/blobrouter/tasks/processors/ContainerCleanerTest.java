@@ -5,10 +5,8 @@ import com.azure.storage.blob.BlobServiceClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
@@ -27,7 +25,6 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 
 @ActiveProfiles("db-test")
 @SpringBootTest
-@ExtendWith(OutputCaptureExtension.class)
 class ContainerCleanerTest extends TestBase {
 
     private static final String CONTAINER_NAME = "bulkscan";
