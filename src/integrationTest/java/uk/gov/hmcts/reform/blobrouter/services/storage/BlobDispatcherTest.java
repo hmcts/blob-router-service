@@ -12,6 +12,7 @@ class BlobDispatcherTest extends TestBase {
 
     private static final String NEW_BLOB_NAME = "new.blob";
     private static final String DESTINATION_CONTAINER = "bulkscan";
+    private static final String BOGUS_CONTAINER = "bogus";
 
     private BlobDispatcher dispatcher;
 
@@ -32,6 +33,13 @@ class BlobDispatcherTest extends TestBase {
     void should_upload_blob_to_dedicated_container() {
         assertThatCode(() -> dispatcher
             .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), DESTINATION_CONTAINER)
+        ).doesNotThrowAnyException();
+    }
+
+    @Test
+    void should_catch_BlobStorageException_and_suppress_it() {
+        assertThatCode(() -> dispatcher
+            .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), BOGUS_CONTAINER)
         ).doesNotThrowAnyException();
     }
 }

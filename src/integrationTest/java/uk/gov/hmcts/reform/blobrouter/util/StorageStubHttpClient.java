@@ -26,6 +26,12 @@ class StorageStubHttpClient implements HttpClient {
         String path = request.getUrl().getPath();
         String query = Objects.toString(request.getUrl().getQuery(), "");
 
+        if (path.contains("bogus")) {
+            return Mono.just(
+                new MockHttpResponse(request, 400)
+            );
+        }
+
         switch (path + "?" + query) {
             case LIST_CONTAINERS:
                 return Mono.just(
