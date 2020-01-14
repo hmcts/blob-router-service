@@ -135,6 +135,37 @@ public class EnvelopeRepositoryImplTest {
         });
     }
 
+    @Test
+    void should_find_envelopes_by_container_and_file_name() {
+        // given
+        final String fileName = "foo.bar";
+        final String container = "bar";
+
+        // and
+        repo.insert(new NewEnvelope(container, fileName, now(), now(), Status.DISPATCHED));
+
+        // when
+        Optional<Envelope> result = repo.find(fileName, container);
+
+        // then
+        assertThat(result).hasValueSatisfying(envelope -> {
+            assertThat(envelope.fileName).isEqualTo(fileName);
+            assertThat(envelope.container).isEqualTo(container);
+        });
+    }
+
+    @Test
+    void should_return_empty_optional_when_envelope_for_given_container_and_file_name_does_not_exist() {
+        // given
+        repo.insert(new NewEnvelope("a", "b", now(), now(), Status.DISPATCHED));
+
+        // when
+        Optional<Envelope> result = repo.find("some_other_file_name", "some_other_container");
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
     private NewEnvelope newEnvelope(Status status) {
         return new NewEnvelope(
             "container",
