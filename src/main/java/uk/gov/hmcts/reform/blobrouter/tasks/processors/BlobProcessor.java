@@ -6,10 +6,15 @@ import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import org.slf4j.Logger;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.Instant;
+import java.util.UUID;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -19,16 +24,32 @@ public class BlobProcessor {
 
     private final BlobServiceClient storageClient;
     private final BlobDispatcher dispatcher;
+    private final EnvelopeRepository envelopeRepository;
 
     public BlobProcessor(
         BlobServiceClient storageClient,
-        BlobDispatcher dispatcher
+        BlobDispatcher dispatcher,
+        EnvelopeRepository envelopeRepository
     ) {
         this.storageClient = storageClient;
         this.dispatcher = dispatcher;
+        this.envelopeRepository = envelopeRepository;
     }
 
     public void process(String blobName, String containerName) {
+        envelopeRepository.find(blobName, containerName).ifPresentOrElse(
+            envelope -> logger.warn(
+                "Envelope already processed in system. ID: {}, filename: {}, container: {}, state: {}",
+                envelope.id,
+                envelope.fileName,
+                envelope.container,
+                envelope.status.name()
+            ),
+            () -> processBlob(blobName, containerName)
+        );
+    }
+
+    private void processBlob(String blobName, String containerName) {
         logger.info("Processing {} from {} container", blobName, containerName);
 
         BlobLeaseClient leaseClient = null;
@@ -45,8 +66,18 @@ public class BlobProcessor {
             byte[] rawBlob = tryToDownloadBlob(blobClient);
 
             dispatcher.dispatch(blobName, rawBlob, containerName);
+            UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
+                blobName,
+                containerName,
+                blobClient.getProperties().getCreationTime().toInstant()
+            ));
 
-            logger.info("Finished processing {} from {} container", blobName, containerName);
+            logger.info(
+                "Finished processing {} from {} container. New envelope ID: {}",
+                blobName,
+                containerName,
+                envelopeId
+            );
         } catch (Exception exception) {
             logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);
         } finally {
@@ -54,7 +85,7 @@ public class BlobProcessor {
         }
     }
 
-    public byte[] tryToDownloadBlob(BlobClient blobClient) throws IOException {
+    private byte[] tryToDownloadBlob(BlobClient blobClient) throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             blobClient.download(outputStream);
 
@@ -79,5 +110,15 @@ public class BlobProcessor {
                 exception
             );
         }
+    }
+
+    private NewEnvelope createNewEnvelope(String blobName, String containerName, Instant fileCreatedAt) {
+        return new NewEnvelope(
+            containerName,
+            blobName,
+            fileCreatedAt,
+            Instant.now(),
+            Status.DISPATCHED
+        );
     }
 }
