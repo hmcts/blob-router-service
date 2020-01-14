@@ -17,8 +17,8 @@ class StorageStubHttpClient implements HttpClient {
     private static final String LIST_ZERO_BLOBS = "/empty?include=&restype=container&comp=list";
     private static final String FILE_1 = "/bulkscan/file1.zip";
     private static final String FILE_3 = "/bulkscan/file3.zip";
-    private static final String FILE_5 = "/bulkscan/file5.zip";
-    private static final String FILE_6 = "/bulkscan/file6.zip";
+    private static final String FILE_5 = "/bulkscan/causes_404.zip";
+    private static final String FILE_6 = "/bulkscan/causes_500.zip";
 
     @Override
     public Mono<HttpResponse> send(HttpRequest request) {
@@ -40,7 +40,7 @@ class StorageStubHttpClient implements HttpClient {
                         method == HttpMethod.DELETE
                             ?
                             new MockHttpResponse(request, 202) :
-                            new MockHttpResponse(request, 200, getFileContents("storage/file2.json"))
+                            new MockHttpResponse(request, 200, getFileContents("storage/file3.json"))
                     );
                 case FILE_5:
                     return Mono.just(

@@ -93,7 +93,7 @@ class ContainerCleanerTest extends TestBase {
     @Test
     void should_handle_non_exiting_file() {
         // given
-        String[] dispatchedFileNames = new String[]{"file5.zip"};
+        String[] dispatchedFileNames = new String[]{"causes_404.zip"};
         createEnvelopes(DISPATCHED, dispatchedFileNames);
 
         // when
@@ -106,7 +106,7 @@ class ContainerCleanerTest extends TestBase {
     @Test
     void should_handle_server_error() {
         // given
-        String[] dispatchedFileNames = new String[]{"file6.zip"};
+        String[] dispatchedFileNames = new String[]{"causes_500.zip"};
         createEnvelopes(DISPATCHED, dispatchedFileNames);
 
         // when
