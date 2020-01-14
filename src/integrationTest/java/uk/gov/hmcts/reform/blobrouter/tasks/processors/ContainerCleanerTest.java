@@ -60,10 +60,11 @@ class ContainerCleanerTest extends TestBase {
     }
 
     @Test
-    void should_find_blobs_and_delete(CapturedOutput output) {
+    void should_find_blobs_and_delete(CapturedOutput output) throws Exception {
         // given
         createEnvelope("file1.zip");
         createEnvelope("file2.zip");
+        Thread.sleep(1000); // need to wait for subscriber to be notified
 
         // when
         containerCleaner.process(CONTAINER_NAME);
@@ -73,11 +74,12 @@ class ContainerCleanerTest extends TestBase {
     }
 
     @Test
-    void should_not_find_any_blobs(CapturedOutput output) {
+    void should_not_find_any_blobs(CapturedOutput output) throws Exception {
         // given
 
         // when
         containerCleaner.process(CONTAINER_NAME);
+        Thread.sleep(1000); // need to wait for subscriber to be notified
 
         // then
         assertOutputCapture(output);
