@@ -31,7 +31,7 @@ class ContainerProcessorTest extends TestBase {
 
     @Override
     protected void beforeTest() {
-        BlobServiceAsyncClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
+        BlobServiceAsyncClient storageClient = StorageClientsHelper.getStorageAsyncClient(interceptorManager);
         containerProcessor = new ContainerProcessor(storageClient);
     }
 

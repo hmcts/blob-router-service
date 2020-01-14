@@ -62,7 +62,10 @@ public class ContainerCleaner {
                     envelope.fileName,
                     containerClient.getBlobContainerName()
                 );
-            } catch (Exception ex) {
+            } catch (Throwable ex) {
+                logger.error("--------------");
+                ex.printStackTrace();
+                logger.error("--------------");
                 logger.error(
                     String.format(
                         "Error deleting dispatched blob %s from container %s",
