@@ -27,8 +27,7 @@ public class BlobDispatcher {
                 .getBlockBlobClient()
                 .upload(
                     new ByteArrayInputStream(blobContents),
-                    blobContents.length,
-                    false // overwrite flag
+                    blobContents.length
                 );
 
             logger.info("Finished uploading {} to {} container", blobName, destinationContainer);
