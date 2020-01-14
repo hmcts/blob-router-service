@@ -32,4 +32,13 @@
     <vulnerabilityName>Disallow calling helperMissing and blockHelperMissing directly</vulnerabilityName>
     <vulnerabilityName>Prototype pollution</vulnerabilityName>
   </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+      Use only in tests.
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.testcontainers/postgresql@.*$</packageUrl>
+    <cpe>cpe:/a:postgresql:postgresql</cpe>
+  </suppress>
+
 </suppressions>

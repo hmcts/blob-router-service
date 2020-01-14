@@ -31,16 +31,16 @@ public final class StorageClientsHelper {
         Configuration.getGlobalConfiguration().put("AZURE_TEST_MODE", TestMode.RECORD.name());
     }
 
-    public static BlobServiceAsyncClient getStorageAsyncClient(InterceptorManager interceptorManager) {
+    public static BlobServiceAsyncClient getStorageClient(InterceptorManager interceptorManager) {
         return STORAGE_CLIENT_BUILDER
             .credential(STORAGE_CREDENTIALS)
-            .endpoint(STORAGE_ENDPOINT_URL)
+            .endpoint("http://httpbin.org") // Do not change the url. This url is validated in the Azure test library
             .addPolicy(interceptorManager.getRecordPolicy())
             .httpClient(HTTP_CLIENT)
             .buildAsyncClient();
     }
 
-    public static BlobServiceClient getStorageClient(InterceptorManager interceptorManager) {
+    public static BlobServiceClient getStorageSyncClient(InterceptorManager interceptorManager) {
         return STORAGE_CLIENT_BUILDER
             .credential(STORAGE_CREDENTIALS)
             .endpoint(STORAGE_ENDPOINT_URL)
@@ -53,7 +53,7 @@ public final class StorageClientsHelper {
         InterceptorManager interceptorManager,
         String containerName
     ) {
-        return getStorageAsyncClient(interceptorManager).getBlobContainerAsyncClient(containerName);
+        return getStorageClient(interceptorManager).getBlobContainerAsyncClient(containerName);
     }
 
 }
