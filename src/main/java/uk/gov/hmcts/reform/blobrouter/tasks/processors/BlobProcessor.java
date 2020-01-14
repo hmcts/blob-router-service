@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import org.slf4j.Logger;
@@ -49,9 +50,7 @@ public class BlobProcessor {
         } catch (Exception exception) {
             logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);
         } finally {
-            if (leaseClient != null) {
-                leaseClient.releaseLease();
-            }
+            tryToReleaseLease(leaseClient, blobName, containerName);
         }
     }
 
@@ -60,6 +59,25 @@ public class BlobProcessor {
             blobClient.download(outputStream);
 
             return outputStream.toByteArray();
+        }
+    }
+
+    private void tryToReleaseLease(BlobLeaseClient leaseClient, String blobName, String containerName) {
+        try {
+            if (leaseClient != null) {
+                leaseClient.releaseLease();
+            }
+        } catch (BlobStorageException exception) {
+            // this will mean there was a problem acquiring lease in the first place
+            // or call to release the lease genuinely went wrong.
+            // warning as lease will expire anyway and normally should sort itself out
+            logger.warn(
+                "Could not release the lease with ID {}. Blob: {}, container: {}",
+                leaseClient.getLeaseId(),
+                blobName,
+                containerName,
+                exception
+            );
         }
     }
 }
