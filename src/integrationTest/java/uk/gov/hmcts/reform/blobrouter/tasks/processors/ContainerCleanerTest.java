@@ -70,7 +70,7 @@ class ContainerCleanerTest extends TestBase {
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
 
         // then
-        assertFilesIsDeleteState(true, dispatchedFileNames);
+        assertFilesInDeletedState(true, dispatchedFileNames);
     }
 
     @Test
@@ -85,8 +85,8 @@ class ContainerCleanerTest extends TestBase {
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
 
         // then
-        assertFilesIsDeleteState(true, dispatchedFileNames);
-        assertFilesIsDeleteState(false, rejectedFileNames);
+        assertFilesInDeletedState(true, dispatchedFileNames);
+        assertFilesInDeletedState(false, rejectedFileNames);
     }
 
     @Test
@@ -99,7 +99,7 @@ class ContainerCleanerTest extends TestBase {
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
 
         // then
-        assertFilesIsDeleteState(true, dispatchedFileNames);
+        assertFilesInDeletedState(true, dispatchedFileNames);
     }
 
     @Test
@@ -125,7 +125,7 @@ class ContainerCleanerTest extends TestBase {
         }
     }
 
-    private void assertFilesIsDeleteState(boolean isDeleted, String... fileNames) {
+    private void assertFilesInDeletedState(boolean isDeleted, String... fileNames) {
         for (String fileName : fileNames) {
             final Optional<Envelope> envelope = envelopeRepository.find(fileName, CONTAINER_NAME);
             assertThat(envelope.isPresent()).isTrue();
