@@ -12,11 +12,13 @@ import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
+import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -128,8 +130,9 @@ class ContainerCleanerTest extends TestBase {
 
     private void assertFilesIsDeleteState(boolean isDeleted, String... fileNames) {
         for (String fileName : fileNames) {
-            assertThat(envelopeRepository.find(fileName, CONTAINER_NAME).isPresent()).isTrue();
-            assertThat(envelopeRepository.find(fileName, CONTAINER_NAME).get().isDeleted).isEqualTo(isDeleted);
+            final Optional<Envelope> envelope = envelopeRepository.find(fileName, CONTAINER_NAME);
+            assertThat(envelope.isPresent()).isTrue();
+            assertThat(envelope.get().isDeleted).isEqualTo(isDeleted);
         }
     }
 }
