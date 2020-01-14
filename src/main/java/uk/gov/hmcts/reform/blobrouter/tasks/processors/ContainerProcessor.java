@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
-import com.azure.storage.blob.BlobContainerAsyncClient;
-import com.azure.storage.blob.BlobServiceAsyncClient;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
 
@@ -12,26 +12,26 @@ public class ContainerProcessor {
 
     private static final Logger logger = getLogger(ContainerProcessor.class);
 
-    private final BlobServiceAsyncClient storageClient;
+    private final BlobServiceClient storageClient;
 
-    public ContainerProcessor(BlobServiceAsyncClient storageClient) {
+    public ContainerProcessor(BlobServiceClient storageClient) {
         this.storageClient = storageClient;
     }
 
     public void process(String containerName) {
         logger.info("Processing container {}", containerName);
 
-        BlobContainerAsyncClient containerClient = storageClient.getBlobContainerAsyncClient(containerName);
+        try {
+            BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
 
-        containerClient
-            .listBlobs()
-            .subscribe(
-                this::processBlob,
-                throwable -> logger.error("Error occurred while processing blob", throwable), // TODO: error consumer
-                () -> logger.info(
-                    "Finished processing container {}", containerName
-                )
-            );
+            containerClient
+                .listBlobs()
+                .forEach(this::processBlob);
+
+            logger.info("Finished processing container {}", containerName);
+        } catch (Exception exception) {
+            logger.error("Error occurred while processing {} container", containerName, exception);
+        }
     }
 
     @SuppressWarnings("java:S1172")

@@ -11,10 +11,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import java.time.Instant;
@@ -22,6 +22,7 @@ import java.time.Instant;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 
 @ActiveProfiles("db-test")
 @SpringBootTest
@@ -38,8 +39,6 @@ class ContainerCleanerTest extends TestBase {
     @Autowired
     private DbHelper dbHelper;
 
-    private static DockerComposeContainer dockerComposeContainer;
-
     @BeforeAll
     static void setUpTestMode() {
         StorageClientsHelper.setAzureTestMode();
@@ -54,22 +53,8 @@ class ContainerCleanerTest extends TestBase {
 
     @Override
     protected void beforeTest() {
-        BlobServiceClient storageClient = StorageClientsHelper.getStorageSyncClient(interceptorManager);
+        BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
         containerCleaner = new ContainerCleaner(storageClient, envelopeRepository);
-    }
-
-    @Test
-    void should_find_blobs_and_delete(CapturedOutput output) throws Exception {
-        // given
-        String[] fileNames = new String[]{"file1.zip", "file2.zip"};
-        createEnvelopes(fileNames);
-
-        // when
-        containerCleaner.process(CONTAINER_NAME);
-        Thread.sleep(5000); // need to wait for subscriber to be notified
-
-        // then
-        assertOutputCapture(output, fileNames);
     }
 
     @Test
@@ -84,16 +69,63 @@ class ContainerCleanerTest extends TestBase {
         assertOutputCapture(output);
     }
 
-    private void createEnvelopes(String... fileNames) {
+    @Test
+    void should_find_blobs_and_delete(CapturedOutput output) throws Exception {
+        // given
+        String[] dispatchedFileNames = new String[]{"file1.zip", "file2.zip"};
+        createEnvelopes(DISPATCHED, dispatchedFileNames);
+
+        // when
+        containerCleaner.process(CONTAINER_NAME);
+        Thread.sleep(5000); // need to wait for subscriber to be notified
+
+        // then
+        assertOutputCapture(output, dispatchedFileNames);
+        assertFilesIsDeleteState(true, dispatchedFileNames);
+    }
+
+    @Test
+    void should_delete_only_dispatched_blobs(CapturedOutput output) throws Exception {
+        // given
+        String[] dispatchedFileNames = new String[]{"file1.zip", "file2.zip"};
+        String[] rejectedFileNames = new String[]{"file3.zip", "file4.zip"};
+        createEnvelopes(DISPATCHED, dispatchedFileNames);
+        createEnvelopes(REJECTED, rejectedFileNames);
+
+        // when
+        containerCleaner.process(CONTAINER_NAME);
+        Thread.sleep(5000); // need to wait for subscriber to be notified
+
+        // then
+        assertOutputCapture(output, dispatchedFileNames);
+        assertOutputCaptureDoesNotContain(output, rejectedFileNames);
+        assertFilesIsDeleteState(true, dispatchedFileNames);
+        assertFilesIsDeleteState(false, rejectedFileNames);
+    }
+
+    private void createEnvelopes(Status status, String... fileNames) {
         for (String fileName : fileNames) {
             NewEnvelope envelope = new NewEnvelope(
                 CONTAINER_NAME,
                 fileName,
                 Instant.now(),
                 Instant.now(),
-                DISPATCHED
+                status
             );
             envelopeRepository.insert(envelope);
+        }
+    }
+
+    private void assertFilesIsDeleteState(boolean isDeleted, String... fileNames) {
+        for (String fileName : fileNames) {
+            assertThat(envelopeRepository.find(fileName, CONTAINER_NAME).isPresent()).isTrue();
+            assertThat(envelopeRepository.find(fileName, CONTAINER_NAME).get().isDeleted).isEqualTo(isDeleted);
+        }
+    }
+
+    private void assertOutputCaptureDoesNotContain(CapturedOutput output, String[] fileNames) {
+        for (String fileName : fileNames) {
+            assertThat(output).doesNotContain(fileName);
         }
     }
 
