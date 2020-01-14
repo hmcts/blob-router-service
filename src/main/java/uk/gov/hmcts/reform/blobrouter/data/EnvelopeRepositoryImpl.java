@@ -37,6 +37,23 @@ public class EnvelopeRepositoryImpl implements EnvelopeRepository {
         }
     }
 
+    public Optional<Envelope> find(String fileName, String container) {
+        try {
+            Envelope envelope = jdbcTemplate.queryForObject(
+                "SELECT * FROM envelopes"
+                    + " WHERE file_name = :fileName"
+                    + " AND container = :container",
+                new MapSqlParameterSource()
+                    .addValue("fileName", fileName)
+                    .addValue("container", container),
+                this.mapper
+            );
+            return Optional.of(envelope);
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
+
     @Override
     public List<Envelope> find(Status status, boolean isDeleted) {
         return jdbcTemplate.query(
