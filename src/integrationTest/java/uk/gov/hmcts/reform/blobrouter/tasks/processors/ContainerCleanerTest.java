@@ -94,7 +94,7 @@ class ContainerCleanerTest extends TestBase {
         return envelopeRepository.insert(envelope);
     }
 
-    private void assertOutputCapture(CapturedOutput output, String ... fileNames) {
+    private void assertOutputCapture(CapturedOutput output, String... fileNames) {
         String simpleLoggerName = ContainerCleaner.class.getSimpleName();
         assertThat(output).contains(
             simpleLoggerName + " Started deleting dispatched blobs from container " + CONTAINER_NAME

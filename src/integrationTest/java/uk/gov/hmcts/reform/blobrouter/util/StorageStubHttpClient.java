@@ -28,13 +28,15 @@ class StorageStubHttpClient implements HttpClient {
             switch (path) {
                 case FILE_1:
                     return Mono.just(
-                        method == HttpMethod.DELETE ?
+                        method == HttpMethod.DELETE
+                            ?
                             new MockHttpResponse(request, 202) :
                             new MockHttpResponse(request, 200, getFileContents("storage/file1.json"))
                     );
                 case FILE_2:
                     return Mono.just(
-                        method == HttpMethod.DELETE ?
+                        method == HttpMethod.DELETE
+                            ?
                             new MockHttpResponse(request, 202) :
                             new MockHttpResponse(request, 200, getFileContents("storage/file2.json"))
                     );
