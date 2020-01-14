@@ -66,7 +66,7 @@ class ContainerCleanerTest extends TestBase {
 
         // when
         containerCleaner.process(CONTAINER_NAME);
-        Thread.sleep(1000); // need to wait for subscriber to be notified
+        Thread.sleep(5000); // need to wait for subscriber to be notified
 
         // then
         assertOutputCapture(output, fileNames);
