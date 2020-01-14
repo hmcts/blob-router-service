@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
 import net.javacrumbs.shedlock.core.LockProvider;
-import net.javacrumbs.shedlock.provider.jdbc.JdbcLockProvider;
+import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration.FlywayConfiguration;
@@ -21,6 +21,6 @@ public class ShedLockConfig {
 
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
-        return new JdbcLockProvider(dataSource);
+        return new JdbcTemplateLockProvider(dataSource);
     }
 }
