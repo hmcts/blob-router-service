@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobStorageException;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
@@ -45,33 +47,41 @@ public class ContainerCleaner {
     ) {
         BlobClient blob = containerClient.getBlobClient(envelope.fileName);
 
-        if (blob == null) {
-            logger.error(
-                String.format(
-                    "Blob %s does not exist in container %s",
-                    envelope.fileName,
-                    containerClient.getBlobContainerName()
-                )
+        try {
+            blob.delete();
+            envelopeRepository.markAsDeleted(envelope.id);
+            logger.info(
+                "Deleted dispatched blob {} from container {}",
+                envelope.fileName,
+                containerClient.getBlobContainerName()
             );
-        } else {
-            try {
-                blob.delete();
-                envelopeRepository.markAsDeleted(envelope.id);
-                logger.info(
-                    "Deleted dispatched blob {} from container {}",
-                    envelope.fileName,
-                    containerClient.getBlobContainerName()
-                );
-            } catch (Throwable ex) {
+        } catch (BlobStorageException ex) {
+            if (ex.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
                 logger.error(
                     String.format(
-                        "Error deleting dispatched blob %s from container %s",
+                        "Blob %s does not exist in container %s",
                         envelope.fileName,
                         containerClient.getBlobContainerName()
                     ),
                     ex
                 );
+                envelopeRepository.markAsDeleted(envelope.id);
+            } else {
+                logException(envelope, containerClient, ex);
             }
+        } catch (Exception ex) {
+            logException(envelope, containerClient, ex);
         }
+    }
+
+    private void logException(Envelope envelope, BlobContainerClient containerClient, Exception ex) {
+        logger.error(
+            String.format(
+                "Error deleting dispatched blob %s from container %s",
+                envelope.fileName,
+                containerClient.getBlobContainerName()
+            ),
+            ex
+        );
     }
 }

@@ -16,7 +16,9 @@ class StorageStubHttpClient implements HttpClient {
     private static final String LIST_ONE_BLOB = "/bulkscan?include=&restype=container&comp=list";
     private static final String LIST_ZERO_BLOBS = "/empty?include=&restype=container&comp=list";
     private static final String FILE_1 = "/bulkscan/file1.zip";
-    private static final String FILE_2 = "/bulkscan/file2.zip";
+    private static final String FILE_3 = "/bulkscan/file3.zip";
+    private static final String FILE_5 = "/bulkscan/file5.zip";
+    private static final String FILE_6 = "/bulkscan/file6.zip";
 
     @Override
     public Mono<HttpResponse> send(HttpRequest request) {
@@ -33,12 +35,20 @@ class StorageStubHttpClient implements HttpClient {
                             new MockHttpResponse(request, 202) :
                             new MockHttpResponse(request, 200, getFileContents("storage/file1.json"))
                     );
-                case FILE_2:
+                case FILE_3:
                     return Mono.just(
                         method == HttpMethod.DELETE
                             ?
                             new MockHttpResponse(request, 202) :
                             new MockHttpResponse(request, 200, getFileContents("storage/file2.json"))
+                    );
+                case FILE_5:
+                    return Mono.just(
+                            new MockHttpResponse(request, 404)
+                    );
+                case FILE_6:
+                    return Mono.just(
+                            new MockHttpResponse(request, 500)
                     );
                 default:
                     Assertions.fail("Request '" + request.getUrl() + "' is not set up");
