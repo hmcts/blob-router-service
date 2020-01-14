@@ -37,29 +37,18 @@ data "azurerm_key_vault" "reform_scan_key_vault" {
 
 # region: storage secrets from bulk scan
 
-data "azurerm_key_vault_secret" "bulk_scan_storage_account_name" {
+data "azurerm_key_vault_secret" "bulk_scan_storage_connection_string" {
   key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
-  name         = "storage-account-name"
-}
-
-data "azurerm_key_vault_secret" "bulk_scan_storage_account_primary_key" {
-  key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
-  name         = "storage-account-primary-key"
+  name         = "storage-account-connection-string"
 }
 
 # endregion
 
 # region: copy CFT storage account secrets from bulk-scan key vault to reform-scan key vault
 
-resource "azurerm_key_vault_secret" "bulkscan_storage_account_name" {
-  name         = "bulkscan-storage-account-name"
-  value        = "${data.azurerm_key_vault_secret.bulk_scan_storage_account_name.value}"
-  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
-}
-
-resource "azurerm_key_vault_secret" "bulkscan_storage_account_primary_key" {
-  name         = "bulkscan-storage-account-primary-key"
-  value        = "${data.azurerm_key_vault_secret.bulk_scan_storage_account_primary_key.value}"
+resource "azurerm_key_vault_secret" "bulkscan_storage_connection_string" {
+  name         = "bulkscan-storage-connection-string"
+  value        = "${data.azurerm_key_vault_secret.bulk_scan_storage_connection_string.value}"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
 }
 
