@@ -30,11 +30,13 @@ public class BlobProcessor {
     public void process(String blobName, String containerName) {
         logger.info("Processing {} from {} container", blobName, containerName);
 
+        BlobLeaseClient leaseClient = null;
+
         try {
             BlobClient blobClient = storageClient
                 .getBlobContainerClient(containerName)
                 .getBlobClient(blobName);
-            BlobLeaseClient leaseClient = new BlobLeaseClientBuilder()
+            leaseClient = new BlobLeaseClientBuilder()
                 .blobClient(blobClient)
                 .buildClient();
 
@@ -43,11 +45,13 @@ public class BlobProcessor {
 
             dispatcher.dispatch(blobName, rawBlob, containerName);
 
-            leaseClient.releaseLease();
-
             logger.info("Finished processing {} from {} container", blobName, containerName);
         } catch (Exception exception) {
             logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);
+        } finally {
+            if (leaseClient != null) {
+                leaseClient.releaseLease();
+            }
         }
     }
 
