@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -31,6 +33,7 @@ class BlobProcessorTest {
     @Mock BlobClient blobClient;
     @Mock BlobProperties blobProperties;
     @Mock BlobDispatcher blobDispatcher;
+    @Mock BlobLeaseClient blobLeaseClient;
     @Mock EnvelopeRepository envelopeRepo;
 
     BlobProcessor blobProcessor;
@@ -41,7 +44,8 @@ class BlobProcessorTest {
             this.blobServiceClient,
             this.blobDispatcher,
             this.readinessChecker,
-            this.envelopeRepo
+            this.envelopeRepo,
+            blobClient -> blobLeaseClient
         );
     }
 
