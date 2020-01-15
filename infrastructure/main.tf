@@ -21,7 +21,6 @@ module "blob-router-db" {
   subscription       = "${var.subscription}"
 
   app_settings = {
-    DELETE_DISPATCHED_FILES_ENABLED = "${var.delete_dispatched_files_enabled}"
     DELETE_DISPATCHED_FILES_CRON    = "${var.delete_dispatched_files_cron}"
   }
 }

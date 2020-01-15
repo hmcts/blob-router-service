@@ -31,10 +31,6 @@ variable "location_db" {
 }
 
 # region delete rejected files
-variable "delete_dispatched_files_enabled" {
-  default = "false"
-}
-
 variable "delete_dispatched_files_cron" {
   default = "0 0 7 * * *"
 }

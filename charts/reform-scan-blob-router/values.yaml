@@ -28,7 +28,6 @@ java:
     FLYWAY_USER: blob_router@reform-scan-blob-router-{{ .Values.global.environment }}
     FLYWAY_SKIP_MIGRATIONS: true
 
-    DELETE_DISPATCHED_FILES_ENABLED: "true"
     DELETE_DISPATCHED_FILES_CRON: "0 0/10 * * * *"
 
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
