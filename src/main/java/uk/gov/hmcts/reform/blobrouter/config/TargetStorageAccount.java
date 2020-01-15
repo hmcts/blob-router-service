@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
-public enum BlobDestination {
+public enum TargetStorageAccount {
     BULKSCAN,
     CRIME
 }

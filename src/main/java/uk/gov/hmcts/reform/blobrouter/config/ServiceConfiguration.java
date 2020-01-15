@@ -25,7 +25,7 @@ public class ServiceConfiguration {
     public static class StorageConfig {
         private String name;
         private int sasValidity;
-        private BlobDestination blobDestination;
+        private TargetStorageAccount targetStorageAccount;
         private boolean isEnabled = true;
 
         public String getName() {
@@ -52,12 +52,12 @@ public class ServiceConfiguration {
             isEnabled = enabled;
         }
 
-        public BlobDestination getBlobDestination() {
-            return blobDestination;
+        public TargetStorageAccount getTargetStorageAccount() {
+            return targetStorageAccount;
         }
 
-        public void setBlobDestination(BlobDestination blobDestination) {
-            this.blobDestination = blobDestination;
+        public void setTargetStorageAccount(TargetStorageAccount targetStorageAccount) {
+            this.targetStorageAccount = targetStorageAccount;
         }
     }
 }
