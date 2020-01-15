@@ -23,6 +23,10 @@ public final class StorageClientsHelper {
         // utility class construct
     }
 
+    /**
+     * By default it is set to PLAYBACK and requires more obscure setup.
+     * With RECORD it is easier to read through test scenarios.
+     */
     public static void setAzureTestMode() {
         Configuration.getGlobalConfiguration().put("AZURE_TEST_MODE", TestMode.RECORD.name());
     }

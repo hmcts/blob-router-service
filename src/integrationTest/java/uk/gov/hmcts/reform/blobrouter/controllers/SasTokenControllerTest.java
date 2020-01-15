@@ -7,10 +7,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 
 import java.util.Map;
@@ -23,12 +21,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = SasTokenController.class)
 @ComponentScan(basePackages = "uk.gov.hmcts.reform.blobrouter")
-public class SasTokenControllerTest {
+public class SasTokenControllerTest extends ControllerTestBase {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean private EnvelopeRepository envelopeRepo;
 
     @Test
     public void should_generate_sas_token_when_service_is_configured() throws Exception {
