@@ -23,19 +23,26 @@ service:
   storage-config:
     - name: bulkscan
       sas-validity: 300 #In seconds
+      target-storage-account: bulkscan
     - name: cmc
       sas-validity: 300 #In seconds
+      target-storage-account: bulkscan
     - name: crime
       sas-validity: 300 #In seconds
       enabled: ${CRIME_ENABLED:false}
+      target-storage-account: crime
     - name: divorce
       sas-validity: 300 #In seconds
+      target-storage-account: bulkscan
     - name: finrem
       sas-validity: 300 #In seconds
+      target-storage-account: bulkscan
     - name: probate
       sas-validity: 300 #In seconds
+      target-storage-account: bulkscan
     - name: sscs
       sas-validity: 300 #In seconds
+      target-storage-account: bulkscan
 
 flyway:
   skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}

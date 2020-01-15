@@ -25,6 +25,7 @@ public class ServiceConfiguration {
     public static class StorageConfig {
         private String name;
         private int sasValidity;
+        private TargetStorageAccount targetStorageAccount;
         private boolean isEnabled = true;
 
         public String getName() {
@@ -49,6 +50,14 @@ public class ServiceConfiguration {
 
         public void setEnabled(boolean enabled) {
             isEnabled = enabled;
+        }
+
+        public TargetStorageAccount getTargetStorageAccount() {
+            return targetStorageAccount;
+        }
+
+        public void setTargetStorageAccount(TargetStorageAccount targetStorageAccount) {
+            this.targetStorageAccount = targetStorageAccount;
         }
     }
 }
