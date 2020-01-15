@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import static java.time.Instant.now;
@@ -34,6 +35,8 @@ class BlobProcessorTest extends TestBase {
     private EnvelopeRepository envelopeRepository;
     @Autowired
     private DbHelper dbHelper;
+    @Autowired
+    private LeaseClientProvider leaseClientProvider;
 
     private BlobDispatcher dispatcher;
     private BlobProcessor blobProcessor;
@@ -53,7 +56,7 @@ class BlobProcessorTest extends TestBase {
         // set up processor
         BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
         dispatcher = spy(new BlobDispatcher(storageClient));
-        blobProcessor = new BlobProcessor(storageClient, dispatcher, envelopeRepository);
+        blobProcessor = new BlobProcessor(storageClient, dispatcher, envelopeRepository, leaseClientProvider);
     }
 
     @Test
