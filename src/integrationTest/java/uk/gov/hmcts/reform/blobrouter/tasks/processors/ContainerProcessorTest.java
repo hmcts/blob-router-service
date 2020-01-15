@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -23,6 +24,9 @@ class ContainerProcessorTest extends TestBase {
     @Autowired
     private EnvelopeRepository envelopeRepository;
 
+    @Autowired
+    private LeaseClientProvider leaseClientProvider;
+
     private ContainerProcessor containerProcessor;
 
     @BeforeAll
@@ -36,7 +40,12 @@ class ContainerProcessorTest extends TestBase {
     protected void beforeTest() {
         BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
         BlobDispatcher dispatcher = new BlobDispatcher(storageClient);
-        BlobProcessor blobProcessor = new BlobProcessor(storageClient, dispatcher, envelopeRepository);
+        BlobProcessor blobProcessor = new BlobProcessor(
+            storageClient,
+            dispatcher,
+            envelopeRepository,
+            leaseClientProvider
+        );
         containerProcessor = new ContainerProcessor(storageClient, blobProcessor);
     }
 
