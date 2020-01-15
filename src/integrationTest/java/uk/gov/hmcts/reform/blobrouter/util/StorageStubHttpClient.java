@@ -16,6 +16,7 @@ import static uk.gov.hmcts.reform.blobrouter.util.ResourceFilesHelper.getFileCon
 
 class StorageStubHttpClient implements HttpClient {
 
+    private static final String BLOB_PROPERTIES = "HEAD /bulkscan/new.blob?";
     private static final String DOWNLOAD_BLOB = "GET /bulkscan/new.blob?";
     private static final String LEASE_BLOB = "PUT /bulkscan/new.blob?comp=lease";
     private static final String LIST_CONTAINERS = "GET ?comp=list";
@@ -37,9 +38,11 @@ class StorageStubHttpClient implements HttpClient {
         }
 
         switch (method + " " + path + "?" + query) {
+            case BLOB_PROPERTIES:
             case DOWNLOAD_BLOB:
                 headers.put("ETag", "0x8D761B5AF5CA061");
                 headers.put("Last-Modified", "Tue, 05 Nov 2019 06:02:05 GMT");
+                headers.put("x-ms-creation-time", "Tue, 05 Nov 2019 06:02:05 GMT");
 
                 return Mono.just(
                     new MockHttpResponse(request, 200, new HttpHeaders(headers))
