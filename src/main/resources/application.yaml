@@ -40,5 +40,7 @@ service:
 flyway:
   skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
 
+storage-blob-processing-delay-in-minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES}
+
 scheduling:
   lock_at_most_for: PT10M # 10 minutes in ISO-8601
