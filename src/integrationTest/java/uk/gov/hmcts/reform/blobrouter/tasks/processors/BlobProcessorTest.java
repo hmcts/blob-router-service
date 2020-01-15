@@ -63,7 +63,14 @@ class BlobProcessorTest extends TestBase {
         BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
         dispatcher = spy(new BlobDispatcher(storageClient));
         when(readinessChecker.isReady(any())).thenReturn(true); // disable processing delay.
-        blobProcessor = new BlobProcessor(storageClient, dispatcher, readinessChecker, envelopeRepository, leaseClientProvider);
+
+        blobProcessor = new BlobProcessor(
+            storageClient,
+            dispatcher,
+            readinessChecker,
+            envelopeRepository,
+            leaseClientProvider
+        );
     }
 
     @Test
