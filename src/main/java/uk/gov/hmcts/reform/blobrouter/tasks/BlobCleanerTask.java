@@ -28,12 +28,12 @@ public class BlobCleanerTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        getAvailableContainers().forEach(containerCleaner::process);
+        getAvailableContainerNames().forEach(containerCleaner::process);
 
         logger.info("Finished {} job", TASK_NAME);
     }
 
-    private Stream<String> getAvailableContainers() {
+    private Stream<String> getAvailableContainerNames() {
         return serviceConfiguration.getStorageConfig()
             .values()
             .stream()

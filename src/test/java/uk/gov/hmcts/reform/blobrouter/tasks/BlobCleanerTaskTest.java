@@ -9,9 +9,9 @@ import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerCleaner;
 
 import static java.util.Arrays.asList;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class BlobCleanerTaskTest {
@@ -26,7 +26,7 @@ class BlobCleanerTaskTest {
 
     @DisplayName("Get all configured containers and process only 1 available container")
     @Test
-    void should_get_all_containers_but_process_only_available_ones() {
+    void should_process_all_enabled_containers_and_should_not_process_any_disabled_container() {
         // given
         ServiceConfiguration serviceConfiguration = new ServiceConfiguration();
         serviceConfiguration.setStorageConfig(
@@ -41,7 +41,8 @@ class BlobCleanerTaskTest {
         task.run();
 
         // then
-        verify(containerCleaner).process(any());
+        verify(containerCleaner).process("bulkscan");
+        verifyNoMoreInteractions(containerCleaner);
     }
 
     @DisplayName("Get all 2 configured containers and do not process when all containers are disabled")
@@ -61,7 +62,7 @@ class BlobCleanerTaskTest {
         task.run();
 
         // then
-        verify(containerCleaner, never()).process(any()); // no available containers
+        verifyNoInteractions(containerCleaner); // no available containers
     }
 
     private ServiceConfiguration.StorageConfig configure(String name, boolean enabled) {

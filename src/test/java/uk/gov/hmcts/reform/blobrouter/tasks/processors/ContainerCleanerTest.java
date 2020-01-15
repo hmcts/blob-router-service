@@ -74,6 +74,18 @@ class ContainerCleanerTest {
     }
 
     @Test
+    void should_handle_repository_exception() {
+        // given
+        given(envelopeRepository.find(DISPATCHED, false)).willThrow(new RuntimeException("msg"));
+
+        // when
+        containerCleaner.process(CONTAINER_NAME);
+
+        // then
+        verifyNoInteractions(containerClient);
+    }
+
+    @Test
     void should_find_blobs_delete_and_update_in_db() {
         // given
         given(envelopeRepository.find(DISPATCHED, false))

@@ -32,11 +32,15 @@ public class ContainerCleaner {
 
         final BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
 
-        envelopeRepository
-            .find(DISPATCHED, false)
-            .forEach(envelope -> {
-                tryToDeleteBlob(envelope, containerClient);
-            });
+        try {
+            envelopeRepository
+                .find(DISPATCHED, false)
+                .forEach(envelope -> {
+                    tryToDeleteBlob(envelope, containerClient);
+                });
+        } catch (Exception ex) {
+            logger.error("Error deleting blobs in container {}", containerName, ex);
+        }
 
         logger.info("Finished deleting dispatched blobs from container {}", containerName);
     }
