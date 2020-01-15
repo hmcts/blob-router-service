@@ -14,8 +14,6 @@ import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
-import java.util.UUID;
-
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -89,7 +87,7 @@ class BlobProcessorTest extends TestBase {
             now().plusSeconds(100),
             Status.REJECTED
         );
-        UUID id = envelopeRepository.insert(newEnvelope);
+        envelopeRepository.insert(newEnvelope);
 
         // when
         blobProcessor.process(NEW_BLOB_NAME, CONTAINER);
