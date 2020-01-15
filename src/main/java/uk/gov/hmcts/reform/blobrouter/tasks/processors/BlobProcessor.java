@@ -4,13 +4,13 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
-import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import org.slf4j.Logger;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,17 +27,20 @@ public class BlobProcessor {
     private final BlobDispatcher dispatcher;
     private final BlobReadinessChecker readinessChecker;
     private final EnvelopeRepository envelopeRepository;
+    private final LeaseClientProvider leaseClientProvider;
 
     public BlobProcessor(
         BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
         BlobReadinessChecker readinessChecker,
-        EnvelopeRepository envelopeRepository
+        EnvelopeRepository envelopeRepository,
+        LeaseClientProvider leaseClientProvider
     ) {
         this.storageClient = storageClient;
         this.dispatcher = dispatcher;
         this.readinessChecker = readinessChecker;
         this.envelopeRepository = envelopeRepository;
+        this.leaseClientProvider = leaseClientProvider;
     }
 
     public void process(String blobName, String containerName) {
@@ -66,9 +69,7 @@ public class BlobProcessor {
                 .getBlobClient(blobName);
 
             if (this.readinessChecker.isReady(blobClient.getProperties().getCreationTime().toInstant())) {
-                leaseClient = new BlobLeaseClientBuilder()
-                    .blobClient(blobClient)
-                    .buildClient();
+                leaseClient = leaseClientProvider.get(blobClient);
 
                 leaseClient.acquireLease(60);
                 byte[] rawBlob = tryToDownloadBlob(blobClient);
