@@ -13,7 +13,7 @@ public class BlobReadinessChecker {
     private final int delayInMinutes;
 
     public BlobReadinessChecker(
-        @Value("storage-blob-processing-delay-in-minutes") int delayInMinutes
+        @Value("${storage-blob-processing-delay-in-minutes}") int delayInMinutes
     ) {
         Validate.isTrue(delayInMinutes >= 0, "Delay cannot be a negative number");
 
