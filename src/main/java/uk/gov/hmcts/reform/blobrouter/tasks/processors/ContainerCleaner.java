@@ -30,7 +30,7 @@ public class ContainerCleaner {
     public void process(String containerName) {
         logger.info("Started deleting dispatched blobs from container {}", containerName);
 
-        BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
+        final BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
 
         envelopeRepository
             .find(DISPATCHED, false)
