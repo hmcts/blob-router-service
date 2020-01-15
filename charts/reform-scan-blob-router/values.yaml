@@ -13,20 +13,19 @@ java:
         - storage-account-name
         - storage-account-primary-key
         - storage-account-secondary-key
-        - bulkscan-storage-account-name
-        - bulkscan-storage-account-primary-key
-        - crime-storage-account-name
-        - crime-storage-account-primary-key
+        - bulkscan-storage-connection-string
+        - crime-storage-connection-string
         - flyway-password
+        - blob-router-POSTGRES-PASS
   environment:
-    DB_HOST: blob_router-{{ .Values.global.environment }}.postgres.database.azure.com
+    DB_HOST: reform-scan-blob-router-{{ .Values.global.environment }}.postgres.database.azure.com
     DB_PORT: '5432'
     DB_NAME: blob_router
-    DB_USER: blob_router@blob_router-{{ .Values.global.environment }}
+    DB_USER: blob_router@reform-scan-blob-router-{{ .Values.global.environment }}
     DB_CONN_OPTIONS: ?sslmode=require
 
-    FLYWAY_URL: jdbc:postgresql://blob_router-{{ .Values.global.environment }}.postgres.database.azure.com:5432/bulk_scan?sslmode=require
-    FLYWAY_USER: blob_router@blob_router-{{ .Values.global.environment }}
+    FLYWAY_URL: jdbc:postgresql://reform-scan-blob-router-{{ .Values.global.environment }}.postgres.database.azure.com:5432/blob_router?sslmode=require
+    FLYWAY_USER: blob_router@reform-scan-blob-router-{{ .Values.global.environment }}
     FLYWAY_SKIP_MIGRATIONS: true
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
