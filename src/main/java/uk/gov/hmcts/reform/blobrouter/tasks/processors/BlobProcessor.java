@@ -40,7 +40,7 @@ public class BlobProcessor {
         envelopeRepository
             .find(blobName, containerName)
             .ifPresentOrElse(
-                envelope -> logger.warn(
+                envelope -> logger.info(
                     "Envelope already processed in system, skipping. ID: {}, filename: {}, container: {}, state: {}",
                     envelope.id,
                     envelope.fileName,
