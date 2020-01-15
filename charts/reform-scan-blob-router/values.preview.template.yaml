@@ -35,6 +35,8 @@ java:
     DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     DB_CONN_OPTIONS: ""
 
+    DELETE_DISPATCHED_FILES_ENABLED: "false"
+
     FLYWAY_SKIP_MIGRATIONS: false
     FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.postgresqlDatabase}}"
     FLYWAY_USER: "{{ .Values.postgresql.postgresqlUsername}}"

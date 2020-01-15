@@ -29,3 +29,14 @@ variable "location_db" {
   type    = "string"
   default = "UK South"
 }
+
+# region delete rejected files
+variable "delete_dispatched_files_enabled" {
+  default = "false"
+}
+
+variable "delete_dispatched_files_cron" {
+  default = "0 0 7 * * *"
+}
+
+# endregion

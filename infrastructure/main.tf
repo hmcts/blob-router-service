@@ -19,6 +19,11 @@ module "blob-router-db" {
   sku_tier           = "GeneralPurpose"
   common_tags        = "${var.common_tags}"
   subscription       = "${var.subscription}"
+
+  app_settings = {
+    DELETE_DISPATCHED_FILES_ENABLED = "${var.delete_dispatched_files_enabled}"
+    DELETE_DISPATCHED_FILES_CRON    = "${var.delete_dispatched_files_cron}"
+  }
 }
 
 # region: key vault definitions
