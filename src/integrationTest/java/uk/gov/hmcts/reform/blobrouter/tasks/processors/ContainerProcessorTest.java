@@ -4,17 +4,24 @@ import com.azure.core.test.TestBase;
 import com.azure.storage.blob.BlobServiceClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 
-@ExtendWith(MockitoExtension.class)
+@ActiveProfiles("db-test")
+@SpringBootTest
 class ContainerProcessorTest extends TestBase {
 
     private static final String CONTAINER_WITH_BLOBS = "bulkscan";
     private static final String CONTAINER_WITHOUT_BLOBS = "empty";
+
+    @Autowired
+    private EnvelopeRepository envelopeRepository;
 
     private ContainerProcessor containerProcessor;
 
@@ -28,7 +35,9 @@ class ContainerProcessorTest extends TestBase {
     @Override
     protected void beforeTest() {
         BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
-        containerProcessor = new ContainerProcessor(storageClient);
+        BlobDispatcher dispatcher = new BlobDispatcher(storageClient);
+        BlobProcessor blobProcessor = new BlobProcessor(storageClient, dispatcher, envelopeRepository);
+        containerProcessor = new ContainerProcessor(storageClient, blobProcessor);
     }
 
     @Test
