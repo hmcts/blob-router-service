@@ -37,16 +37,18 @@ public class BlobProcessor {
     }
 
     public void process(String blobName, String containerName) {
-        envelopeRepository.find(blobName, containerName).ifPresentOrElse(
-            envelope -> logger.warn(
-                "Envelope already processed in system. ID: {}, filename: {}, container: {}, state: {}",
-                envelope.id,
-                envelope.fileName,
-                envelope.container,
-                envelope.status.name()
-            ),
-            () -> processBlob(blobName, containerName)
-        );
+        envelopeRepository
+            .find(blobName, containerName)
+            .ifPresentOrElse(
+                envelope -> logger.warn(
+                    "Envelope already processed in system, skipping. ID: {}, filename: {}, container: {}, state: {}",
+                    envelope.id,
+                    envelope.fileName,
+                    envelope.container,
+                    envelope.status.name()
+                ),
+                () -> processBlob(blobName, containerName)
+            );
     }
 
     private void processBlob(String blobName, String containerName) {
