@@ -261,6 +261,8 @@ dependencies {
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation libraries.junit5
   functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.14.0'
+  functionalTestImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
+  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation libraries.junit5
