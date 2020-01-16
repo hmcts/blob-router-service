@@ -56,4 +56,4 @@ scheduling:
       enabled: true
       cron: ${DELETE_DISPATCHED_FILES_CRON}
     scan:
-      delay: 30000 # In milliseconds
+      delay: ${TASK_SCAN_DELAY:30000} # In milliseconds
