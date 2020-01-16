@@ -4,7 +4,7 @@ import com.azure.storage.blob.BlobServiceClient;
 
 import java.io.ByteArrayInputStream;
 
-public class StorageHelper {
+public final class StorageHelper {
 
     private StorageHelper() {
         // utility class

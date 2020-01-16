@@ -13,7 +13,7 @@ import java.util.zip.ZipOutputStream;
 
 import static com.google.common.io.Resources.getResource;
 
-public class ZipFileHelper {
+public final class ZipFileHelper {
 
     private ZipFileHelper() {
         // utility class
