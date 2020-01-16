@@ -5,15 +5,19 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.jupiter.api.BeforeEach;
 import uk.gov.hmcts.reform.blobrouter.config.TestConfiguration;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 
 public abstract class FunctionalTestBase {
+
+    private static final DateTimeFormatter FILE_NAME_DATE_TIME_FORMAT =
+        DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss");
 
     protected TestConfiguration config;
     protected BlobServiceClient blobRouterStorageClient;
@@ -59,8 +63,9 @@ public abstract class FunctionalTestBase {
 
     protected String randomFileName() {
         return String.format(
-            "%s_15-01-2020-00-00-00.test.zip",
-            ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE)
+            "%s_%s.test.zip",
+            ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE),
+            LocalDateTime.now().format(FILE_NAME_DATE_TIME_FORMAT)
         );
     }
 }
