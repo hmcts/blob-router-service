@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
@@ -24,7 +23,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ActiveProfiles("db-test")
 @SpringBootTest
@@ -34,9 +32,8 @@ class BlobProcessorTest extends TestBase {
     private static final String CONTAINER = "bulkscan";
     private static final String BOGUS_CONTAINER = "bogus";
 
-    @MockBean
+    @Autowired
     private BlobReadinessChecker readinessChecker;
-
     @Autowired
     private EnvelopeRepository envelopeRepository;
     @Autowired
@@ -62,7 +59,6 @@ class BlobProcessorTest extends TestBase {
         // set up processor
         BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
         dispatcher = spy(new BlobDispatcher(storageClient));
-        when(readinessChecker.isReady(any())).thenReturn(true); // disable processing delay.
 
         blobProcessor = new BlobProcessor(
             storageClient,
