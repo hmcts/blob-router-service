@@ -20,10 +20,7 @@ public class StorageHelper {
             .getBlobContainerClient(containerName)
             .getBlobClient(fileName)
             .getBlockBlobClient()
-            .upload(
-                new ByteArrayInputStream(fileContent), fileContent.length, false
-            )
-        ;
+            .upload(new ByteArrayInputStream(fileContent), fileContent.length, false);
     }
 
     public static boolean blobExists(
