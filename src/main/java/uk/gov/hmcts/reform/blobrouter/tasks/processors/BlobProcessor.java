@@ -4,12 +4,13 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
-import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import org.slf4j.Logger;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,16 +25,22 @@ public class BlobProcessor {
 
     private final BlobServiceClient storageClient;
     private final BlobDispatcher dispatcher;
+    private final BlobReadinessChecker readinessChecker;
     private final EnvelopeRepository envelopeRepository;
+    private final LeaseClientProvider leaseClientProvider;
 
     public BlobProcessor(
         BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
-        EnvelopeRepository envelopeRepository
+        BlobReadinessChecker readinessChecker,
+        EnvelopeRepository envelopeRepository,
+        LeaseClientProvider leaseClientProvider
     ) {
         this.storageClient = storageClient;
         this.dispatcher = dispatcher;
+        this.readinessChecker = readinessChecker;
         this.envelopeRepository = envelopeRepository;
+        this.leaseClientProvider = leaseClientProvider;
     }
 
     public void process(String blobName, String containerName) {
@@ -60,26 +67,35 @@ public class BlobProcessor {
             BlobClient blobClient = storageClient
                 .getBlobContainerClient(containerName)
                 .getBlobClient(blobName);
-            leaseClient = new BlobLeaseClientBuilder()
-                .blobClient(blobClient)
-                .buildClient();
 
-            leaseClient.acquireLease(60);
-            byte[] rawBlob = tryToDownloadBlob(blobClient);
+            Instant blobCreationDate = blobClient.getProperties().getCreationTime().toInstant();
 
-            dispatcher.dispatch(blobName, rawBlob, containerName);
-            UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
-                blobName,
-                containerName,
-                blobClient.getProperties().getCreationTime().toInstant()
-            ));
+            if (this.readinessChecker.isReady(blobCreationDate)) {
+                leaseClient = leaseClientProvider.get(blobClient);
 
-            logger.info(
-                "Finished processing {} from {} container. New envelope ID: {}",
-                blobName,
-                containerName,
-                envelopeId
-            );
+                leaseClient.acquireLease(60);
+                byte[] rawBlob = tryToDownloadBlob(blobClient);
+
+                dispatcher.dispatch(blobName, rawBlob, containerName);
+                UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
+                    blobName,
+                    containerName,
+                    blobCreationDate
+                ));
+
+                logger.info(
+                    "Finished processing {} from {} container. New envelope ID: {}",
+                    blobName,
+                    containerName,
+                    envelopeId
+                );
+            } else {
+                logger.info(
+                    "Blob not ready to be processed yet, skipping. File name: {}. Container: {}",
+                    blobName,
+                    containerName
+                );
+            }
         } catch (Exception exception) {
             logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);
         } finally {

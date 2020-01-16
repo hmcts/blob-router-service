@@ -16,7 +16,7 @@ import java.util.UUID;
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ActiveProfiles("db-test")
+@ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
 public class EnvelopeRepositoryImplTest {
 

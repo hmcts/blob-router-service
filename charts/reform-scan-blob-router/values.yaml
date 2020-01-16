@@ -27,7 +27,11 @@ java:
     FLYWAY_URL: jdbc:postgresql://reform-scan-blob-router-{{ .Values.global.environment }}.postgres.database.azure.com:5432/blob_router?sslmode=require
     FLYWAY_USER: blob_router@reform-scan-blob-router-{{ .Values.global.environment }}
     FLYWAY_SKIP_MIGRATIONS: true
+
+    DELETE_DISPATCHED_FILES_CRON: "0 0/10 * * * *"
+
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
+    CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   enabled: false
