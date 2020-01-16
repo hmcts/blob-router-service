@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 
@@ -27,17 +28,20 @@ public class BlobProcessor {
 
     private final BlobServiceClient storageClient;
     private final BlobDispatcher dispatcher;
+    private final BlobReadinessChecker readinessChecker;
     private final EnvelopeRepository envelopeRepository;
     private final LeaseClientProvider leaseClientProvider;
 
     public BlobProcessor(
         @Qualifier("storage-client") BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
+        BlobReadinessChecker readinessChecker,
         EnvelopeRepository envelopeRepository,
         LeaseClientProvider leaseClientProvider
     ) {
         this.storageClient = storageClient;
         this.dispatcher = dispatcher;
+        this.readinessChecker = readinessChecker;
         this.envelopeRepository = envelopeRepository;
         this.leaseClientProvider = leaseClientProvider;
     }
@@ -67,24 +71,34 @@ public class BlobProcessor {
                 .getBlobContainerClient(containerName)
                 .getBlobClient(blobName);
 
-            leaseClient = leaseClientProvider.get(blobClient);
+            Instant blobCreationDate = blobClient.getProperties().getCreationTime().toInstant();
 
-            leaseClient.acquireLease(60);
-            byte[] rawBlob = tryToDownloadBlob(blobClient);
+            if (this.readinessChecker.isReady(blobCreationDate)) {
+                leaseClient = leaseClientProvider.get(blobClient);
 
-            dispatcher.dispatch(blobName, rawBlob, containerName);
-            UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
-                blobName,
-                containerName,
-                blobClient.getProperties().getCreationTime().toInstant()
-            ));
+                leaseClient.acquireLease(60);
+                byte[] rawBlob = tryToDownloadBlob(blobClient);
 
-            logger.info(
-                "Finished processing {} from {} container. New envelope ID: {}",
-                blobName,
-                containerName,
-                envelopeId
-            );
+                dispatcher.dispatch(blobName, rawBlob, containerName);
+                UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
+                    blobName,
+                    containerName,
+                    blobCreationDate
+                ));
+
+                logger.info(
+                    "Finished processing {} from {} container. New envelope ID: {}",
+                    blobName,
+                    containerName,
+                    envelopeId
+                );
+            } else {
+                logger.info(
+                    "Blob not ready to be processed yet, skipping. File name: {}. Container: {}",
+                    blobName,
+                    containerName
+                );
+            }
         } catch (Exception exception) {
             logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);
         } finally {
