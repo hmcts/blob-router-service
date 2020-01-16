@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
@@ -20,6 +21,9 @@ class ContainerProcessorTest extends TestBase {
 
     private static final String CONTAINER_WITH_BLOBS = "bulkscan";
     private static final String CONTAINER_WITHOUT_BLOBS = "empty";
+
+    @Autowired
+    private BlobReadinessChecker readinessChecker;
 
     @Autowired
     private EnvelopeRepository envelopeRepository;
@@ -43,6 +47,7 @@ class ContainerProcessorTest extends TestBase {
         BlobProcessor blobProcessor = new BlobProcessor(
             storageClient,
             dispatcher,
+            readinessChecker,
             envelopeRepository,
             leaseClientProvider
         );
