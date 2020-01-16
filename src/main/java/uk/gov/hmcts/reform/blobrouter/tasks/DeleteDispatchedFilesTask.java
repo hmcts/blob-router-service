@@ -17,16 +17,16 @@ import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 @Component
 @ConditionalOnProperty(value = "scheduling.task.delete-dispatched-files.enabled")
 @EnableConfigurationProperties(ServiceConfiguration.class)
-public class BlobCleanerTask {
+public class DeleteDispatchedFilesTask {
 
     private static final String TASK_NAME = "blob-cleaner";
 
-    private static final Logger logger = getLogger(BlobCleanerTask.class);
+    private static final Logger logger = getLogger(DeleteDispatchedFilesTask.class);
 
     private final ContainerCleaner containerCleaner;
     private final ServiceConfiguration serviceConfiguration;
 
-    public BlobCleanerTask(
+    public DeleteDispatchedFilesTask(
         ContainerCleaner containerCleaner,
         ServiceConfiguration serviceConfiguration
     ) {
