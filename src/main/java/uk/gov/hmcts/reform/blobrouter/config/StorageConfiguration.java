@@ -29,7 +29,10 @@ public class StorageConfiguration {
 
     @Bean("storage-client")
     public BlobServiceClient getStorageClient(StorageSharedKeyCredential credentials) {
-        return new BlobServiceClientBuilder().credential(credentials).buildClient();
+        return new BlobServiceClientBuilder()
+            .credential(credentials)
+            .endpoint(String.format("https://%s.blob.core.windows.net", credentials.getAccountName()))
+            .buildClient();
     }
 
     @Bean("bulkscan-storage-client")
