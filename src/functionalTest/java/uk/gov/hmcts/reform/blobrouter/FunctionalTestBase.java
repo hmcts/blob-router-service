@@ -16,15 +16,14 @@ import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 
 public abstract class FunctionalTestBase {
 
+    protected static TestConfiguration config = new TestConfiguration();
+
     private static final DateTimeFormatter FILE_NAME_DATE_TIME_FORMAT =
         DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss");
 
-    protected TestConfiguration config;
     protected BlobServiceClient blobRouterStorageClient;
 
     protected void setUp() {
-        this.config = new TestConfiguration();
-
         StorageSharedKeyCredential blobRouterStorageCredential = new StorageSharedKeyCredential(
             config.sourceStorageAccountName,
             config.sourceStorageAccountKey
