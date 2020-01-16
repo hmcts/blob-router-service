@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,11 +54,7 @@ class BlobProcessorTest {
         // given
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
 
-        given(blobServiceClient.getBlobContainerClient(any())).willReturn(containerClient);
-        given(containerClient.getBlobClient(any())).willReturn(blobClient);
-        given(blobClient.getProperties()).willReturn(blobProperties);
-        given(blobProperties.getCreationTime()).willReturn(blobCreationTime);
-        given(envelopeRepo.find(any(), any())).willReturn(Optional.empty());
+        blobExists(blobCreationTime);
 
         // file is NOT ready to be processed
         given(readinessChecker.isReady(any())).willReturn(false);
@@ -74,12 +71,7 @@ class BlobProcessorTest {
     void should_process_file_if_it_is_ready() {
         // given
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
-
-        given(blobServiceClient.getBlobContainerClient(any())).willReturn(containerClient);
-        given(containerClient.getBlobClient(any())).willReturn(blobClient);
-        given(blobClient.getProperties()).willReturn(blobProperties);
-        given(blobProperties.getCreationTime()).willReturn(blobCreationTime);
-        given(envelopeRepo.find(any(), any())).willReturn(Optional.empty());
+        blobExists(blobCreationTime);
 
         // file IS ready to be processed
         given(readinessChecker.isReady(any())).willReturn(true);
@@ -89,6 +81,14 @@ class BlobProcessorTest {
 
         // then
         verify(readinessChecker).isReady(eq(blobCreationTime.toInstant()));
-        verify(blobDispatcher).dispatch(any(), any(), any());
+        verify(blobDispatcher, times(1)).dispatch(any(), any(), any());
+    }
+
+    private void blobExists(OffsetDateTime time) {
+        given(blobServiceClient.getBlobContainerClient(any())).willReturn(containerClient);
+        given(containerClient.getBlobClient(any())).willReturn(blobClient);
+        given(blobClient.getProperties()).willReturn(blobProperties);
+        given(blobProperties.getCreationTime()).willReturn(time);
+        given(envelopeRepo.find(any(), any())).willReturn(Optional.empty());
     }
 }
