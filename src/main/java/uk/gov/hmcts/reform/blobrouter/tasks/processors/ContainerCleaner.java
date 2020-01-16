@@ -6,31 +6,33 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 
+//@Component
 public class ContainerCleaner {
 
     private static final Logger logger = getLogger(ContainerCleaner.class);
 
-    private final BlobServiceClient storageClient;
+    private final BlobServiceClient bulkscanStorageClient;
     private final EnvelopeRepository envelopeRepository;
 
     public ContainerCleaner(
-        BlobServiceClient storageClient,
+        @Qualifier("bulkscan-storage-client")BlobServiceClient bulkscanStorageClient,
         EnvelopeRepository envelopeRepository
     ) {
-        this.storageClient = storageClient;
+        this.bulkscanStorageClient = bulkscanStorageClient;
         this.envelopeRepository = envelopeRepository;
     }
 
     public void process(String containerName) {
         logger.info("Started deleting dispatched blobs from container {}", containerName);
 
-        final BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
+        final BlobContainerClient containerClient = bulkscanStorageClient.getBlobContainerClient(containerName);
 
         try {
             envelopeRepository

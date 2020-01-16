@@ -1,13 +1,19 @@
 package uk.gov.hmcts.reform.blobrouter.tasks;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
+import org.springframework.scheduling.annotation.Scheduled;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerCleaner;
 
 import java.util.stream.Stream;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
+//@Component
+//@ConditionalOnProperty(value = "scheduling.task.delete-dispatched-files.enabled")
+//@EnableConfigurationProperties(ServiceConfiguration.class)
 public class BlobCleanerTask {
 
     private static final String TASK_NAME = "blob-cleaner";
@@ -25,6 +31,8 @@ public class BlobCleanerTask {
         this.serviceConfiguration = serviceConfiguration;
     }
 
+    @Scheduled(cron = "${scheduling.task.delete-dispatched-files.cron}", zone = EUROPE_LONDON)
+    @SchedulerLock(name = "delete-dispatched-files")
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
