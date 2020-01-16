@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,16 @@ public class StorageConfiguration {
         @Value("${storage.account-key}") String accountKey
     ) {
         return new StorageSharedKeyCredential(accountName, accountKey);
+    }
+
+    // not used as needs test context so it can actually be build
+    @Bean({
+        "storage-client",
+        "bulkscan-storage-client",
+        "crime-storage-client"
+    })
+    public BlobServiceClient getStorageClient(StorageSharedKeyCredential credentials) {
+        return new BlobServiceClientBuilder().credential(credentials).buildClient();
     }
 
     @Bean
