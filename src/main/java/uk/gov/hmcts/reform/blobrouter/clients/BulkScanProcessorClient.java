@@ -14,7 +14,7 @@ public class BulkScanProcessorClient {
 
     public BulkScanProcessorClient(
         RestTemplate restTemplate,
-        @Value("bulk-scan-processor-url") String bulkScanProcessorUrl
+        @Value("${bulk-scan-processor-url}") String bulkScanProcessorUrl
     ) {
         System.out.println("bulkScanProcessorUrl " + bulkScanProcessorUrl);
         this.restTemplate = restTemplate;
