@@ -19,21 +19,21 @@ public class ContainerCleaner {
 
     private static final Logger logger = getLogger(ContainerCleaner.class);
 
-    private final BlobServiceClient bulkscanStorageClient;
+    private final BlobServiceClient storageClient;
     private final EnvelopeRepository envelopeRepository;
 
     public ContainerCleaner(
-        @Qualifier("storage-client")BlobServiceClient bulkscanStorageClient,
+        @Qualifier("storage-client")BlobServiceClient storageClient,
         EnvelopeRepository envelopeRepository
     ) {
-        this.bulkscanStorageClient = bulkscanStorageClient;
+        this.storageClient = storageClient;
         this.envelopeRepository = envelopeRepository;
     }
 
     public void process(String containerName) {
         logger.info("Started deleting dispatched blobs from container {}", containerName);
 
-        final BlobContainerClient containerClient = bulkscanStorageClient.getBlobContainerClient(containerName);
+        final BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
 
         try {
             envelopeRepository
