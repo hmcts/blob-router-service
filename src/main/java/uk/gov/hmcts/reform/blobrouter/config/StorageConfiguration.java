@@ -27,6 +27,11 @@ public class StorageConfiguration {
         return blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();
     }
 
+    @Bean("storage-client")
+    public BlobServiceClient getStorageClient(StorageSharedKeyCredential credentials) {
+        return new BlobServiceClientBuilder().credential(credentials).buildClient();
+    }
+
     @Bean("bulkscan-storage-client")
     public static BlobServiceClient getBulkScanStorageClient(
         @Value("${storage.bulkscan.connection-string}") String connectionString

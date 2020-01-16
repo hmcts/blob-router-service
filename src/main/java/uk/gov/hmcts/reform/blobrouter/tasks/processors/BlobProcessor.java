@@ -5,6 +5,8 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
@@ -18,6 +20,7 @@ import java.util.UUID;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+@Component
 public class BlobProcessor {
 
     private static final Logger logger = getLogger(BlobProcessor.class);
@@ -28,7 +31,7 @@ public class BlobProcessor {
     private final LeaseClientProvider leaseClientProvider;
 
     public BlobProcessor(
-        BlobServiceClient storageClient,
+        @Qualifier("storage-client") BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
         EnvelopeRepository envelopeRepository,
         LeaseClientProvider leaseClientProvider
