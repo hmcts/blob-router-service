@@ -68,7 +68,9 @@ public class BlobProcessor {
                 .getBlobContainerClient(containerName)
                 .getBlobClient(blobName);
 
-            if (this.readinessChecker.isReady(blobClient.getProperties().getCreationTime().toInstant())) {
+            Instant blobCreationDate = blobClient.getProperties().getCreationTime().toInstant();
+
+            if (this.readinessChecker.isReady(blobCreationDate)) {
                 leaseClient = leaseClientProvider.get(blobClient);
 
                 leaseClient.acquireLease(60);
@@ -78,7 +80,7 @@ public class BlobProcessor {
                 UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
                     blobName,
                     containerName,
-                    blobClient.getProperties().getCreationTime().toInstant()
+                    blobCreationDate
                 ));
 
                 logger.info(
