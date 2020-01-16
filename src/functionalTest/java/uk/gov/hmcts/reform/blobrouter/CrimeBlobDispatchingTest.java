@@ -20,8 +20,11 @@ public class CrimeBlobDispatchingTest extends FunctionalTestBase {
 
     private BlobServiceClient crimeStorageClient;
 
+    @Override
     @BeforeEach
-    void setUp() {
+    protected void setUp() {
+        super.setUp();
+
         this.crimeStorageClient = new BlobServiceClientBuilder()
             .connectionString(config.crimeStorageConnectionString)
             .buildClient();

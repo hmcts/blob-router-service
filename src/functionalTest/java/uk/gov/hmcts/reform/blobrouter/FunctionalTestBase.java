@@ -16,11 +16,9 @@ import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 public abstract class FunctionalTestBase {
 
     protected TestConfiguration config;
-
     protected BlobServiceClient blobRouterStorageClient;
 
-    @BeforeEach
-    void setUp() {
+    protected void setUp() {
         this.config = new TestConfiguration();
 
         StorageSharedKeyCredential blobRouterStorageCredential = new StorageSharedKeyCredential(
