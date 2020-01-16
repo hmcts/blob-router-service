@@ -46,6 +46,7 @@ java:
 
     STORAGE_BULKSCAN_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_BULKSCAN_ACCOUNT_NAME);AccountKey=$(STORAGE_BULKSCAN_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
     STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
+    RETRIEVE_SAS_FROM_PROCESSOR: false
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
