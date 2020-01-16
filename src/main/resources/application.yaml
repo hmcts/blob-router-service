@@ -53,7 +53,7 @@ scheduling:
   lock_at_most_for: PT10M # 10 minutes in ISO-8601
   task:
     delete-dispatched-files:
-      enabled: false
+      enabled: true
       cron: ${DELETE_DISPATCHED_FILES_CRON}
     scan:
       delay: ${TASK_SCAN_DELAY:30000} # In milliseconds

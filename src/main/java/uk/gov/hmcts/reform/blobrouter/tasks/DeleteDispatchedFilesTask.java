@@ -19,7 +19,7 @@ import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 @EnableConfigurationProperties(ServiceConfiguration.class)
 public class DeleteDispatchedFilesTask {
 
-    private static final String TASK_NAME = "blob-cleaner";
+    private static final String TASK_NAME = "delete-dispatched-files";
 
     private static final Logger logger = getLogger(DeleteDispatchedFilesTask.class);
 
