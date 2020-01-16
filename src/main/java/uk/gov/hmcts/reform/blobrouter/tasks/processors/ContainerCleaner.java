@@ -23,7 +23,7 @@ public class ContainerCleaner {
     private final EnvelopeRepository envelopeRepository;
 
     public ContainerCleaner(
-        @Qualifier("storage-client")BlobServiceClient storageClient,
+        @Qualifier("storage-client") BlobServiceClient storageClient,
         EnvelopeRepository envelopeRepository
     ) {
         this.storageClient = storageClient;
