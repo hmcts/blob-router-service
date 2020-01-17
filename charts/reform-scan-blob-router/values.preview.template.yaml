@@ -48,7 +48,7 @@ java:
     STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
   # Don't modify below here
   image: ${IMAGE_NAME}
-  ingressHost: ${SERVICE_FQDN}
+  ingressHost: ""
   aadIdentityName:
 
   postgresql:
@@ -92,6 +92,8 @@ crimeblobstorage:
 bulkscanprocessor:
   enabled: true
   java:
+    releaseNameOverride: "{{ .Release.Name }}-bsp"
+    ingressHost: bulk-scan-processor-pr.service.core-compute-pr.internal
     secrets:
       STORAGE_ACCOUNT_NAME:
         secretRef: storage-secret-cft-{{ .Release.Name }}
