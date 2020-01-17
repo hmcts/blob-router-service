@@ -25,7 +25,7 @@ public class BulkScanProcessorClientTest {
     private BulkScanProcessorClient client;
 
     @Test
-    public void should_return_sas_token_with_when_everything_is_ok_with_request() throws JsonProcessingException {
+    public void should_return_sas_token_when_everything_is_ok() throws JsonProcessingException {
 
         SasTokenResponse expected = new SasTokenResponse("187*2@(*&^%$£@12");
 
