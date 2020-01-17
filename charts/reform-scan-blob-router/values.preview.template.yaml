@@ -104,29 +104,20 @@ bulkscanprocessor:
         key: accessKey
     environment:
       STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
-      QUEUE_ENVELOPE_SEND: "$(SB_CONN_STRING);EntityPath=envelopes"
-      QUEUE_NOTIFICATIONS_SEND: "$(SB_CONN_STRING);EntityPath=notifications"
-      QUEUE_NOTIFICATIONS_READ: "$(SB_CONN_STRING);EntityPath=notifications"
-      QUEUE_PROCESSED_ENVELOPES_READ: "$(SB_CONN_STRING);EntityPath=processed-envelopes"
-      PROCESSED_ENVELOPES_QUEUE_WRITE_CONN_STRING: "${SB_CONN_STRING};EntityPath=processed-envelopes"
-      SCAN_ENABLED: "true"
-      SCAN_DELAY: "4000"
-      REUPLOAD_ENABLED: "true"
-      REUPLOAD_DELAY: "4000"
-      SPRING_MAIL_HOST: "false"
-      NOTIFICATIONS_TO_ORCHESTRATOR_TASK_ENABLED: "true"
-      NOTIFICATIONS_TO_ORCHESTRATOR_TASK_DELAY: "3000"
-      BULK_SCANNING_DB_USER_NAME: "{{ .Values.global.postgresqlUsername}}"
-      BULK_SCANNING_DB_PASSWORD: "{{ .Values.global.postgresqlPassword}}"
-      BULK_SCANNING_DB_NAME: "bulk_scan"
-      BULK_SCANNING_DB_HOST: "{{ .Release.Name }}-postgresql"
-      BULK_SCANNING_DB_PORT: "5432"
-      FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/bulk_scan"
-      FLYWAY_USER: "{{ .Values.global.postgresqlUsername}}"
-      FLYWAY_PASSWORD: "{{ .Values.global.postgresqlPassword}}"
-      FLYWAY_NOOP_STRATEGY: "false"
-      PROCESS_PAYMENTS_ENABLED: "false"
-      S2S_SECRET: AAAAAAAAAAAAAAAA
-      S2S_URL: "http://{{ .Release.Name }}-s2s"
-      DOCUMENT_MANAGEMENT_URL: "http://{{ .Release.Name }}-dm-store"
-      DELETE_REJECTED_FILES_ENABLED: "false"
+    keyVaults:
+      "bulk-scan":
+        secrets:
+          - processor-POSTGRES-PASS
+          - s2s-secret
+          - flyway-password
+          - envelopes-queue-send-connection-string
+          - notifications-queue-send-connection-string
+          - notifications-queue-listen-connection-string
+          - processed-envelopes-queue-listen-connection-string
+          - app-insights-instrumentation-key
+          - reports-email-username
+          - reports-email-password
+          - reports-recipients
+          - error-notifications-url
+          - error-notifications-username
+          - error-notifications-password
