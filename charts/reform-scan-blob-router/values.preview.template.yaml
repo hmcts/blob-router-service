@@ -89,3 +89,15 @@ crimeblobstorage:
   setup:
     containers:
       - crime
+bulkscanprocessor:
+  enabled: true
+  java:
+    secrets:
+      STORAGE_ACCOUNT_NAME:
+        secretRef: storage-secret-cft-{{ .Release.Name }}
+        key: storageAccountName
+      STORAGE_KEY:
+        secretRef: storage-secret-cft-{{ .Release.Name }}
+        key: accessKey
+    environment:
+      STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"

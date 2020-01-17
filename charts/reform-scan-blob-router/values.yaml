@@ -42,3 +42,5 @@ cftblobstorage:
   enabled: false
 crimeblobstorage:
   enabled: false
+bulkscanprocessor:
+  enabled: false
