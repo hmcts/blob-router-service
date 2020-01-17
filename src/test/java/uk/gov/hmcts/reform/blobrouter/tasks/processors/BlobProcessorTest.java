@@ -64,7 +64,7 @@ class BlobProcessorTest {
 
         // then
         verify(readinessChecker).isReady(eq(blobCreationTime.toInstant()));
-        verify(blobDispatcher, never()).dispatch(any(), any(), any());
+        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
     }
 
     @Test
@@ -81,7 +81,7 @@ class BlobProcessorTest {
 
         // then
         verify(readinessChecker).isReady(eq(blobCreationTime.toInstant()));
-        verify(blobDispatcher, times(1)).dispatch(any(), any(), any());
+        verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
     }
 
     private void blobExists(OffsetDateTime time) {
