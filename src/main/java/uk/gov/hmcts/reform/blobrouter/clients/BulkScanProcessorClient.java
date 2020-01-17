@@ -7,14 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @FeignClient(
-    name = "bulk-scan-processor",
+    name = "bulk-scan-processor-client",
     url = "${bulk-scan-processor-url}"
 )
 public interface BulkScanProcessorClient {
 
-    @GetMapping(value = "/token/{container}",
-        consumes = APPLICATION_JSON_VALUE,
-        produces = APPLICATION_JSON_VALUE
-    )
+    @GetMapping(value = "/token/{container}", consumes = APPLICATION_JSON_VALUE)
     SasTokenResponse getSasToken(@PathVariable String container);
 }
