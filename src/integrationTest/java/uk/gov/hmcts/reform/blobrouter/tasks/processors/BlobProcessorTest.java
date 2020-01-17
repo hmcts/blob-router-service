@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobServiceClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
@@ -20,9 +21,12 @@ import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 
 @ActiveProfiles("db-test")
 @SpringBootTest
@@ -58,7 +62,9 @@ class BlobProcessorTest extends TestBase {
 
         // set up processor
         BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
-        dispatcher = spy(new BlobDispatcher(storageClient));
+        BlobServiceClientProvider blobServiceClientProvider = mock(BlobServiceClientProvider.class);
+        given(blobServiceClientProvider.get(any(), any())).willReturn(storageClient);
+        dispatcher = spy(new BlobDispatcher(blobServiceClientProvider));
 
         blobProcessor = new BlobProcessor(
             storageClient,
@@ -106,6 +112,6 @@ class BlobProcessorTest extends TestBase {
         blobProcessor.process(NEW_BLOB_NAME, CONTAINER);
 
         // then
-        verify(dispatcher, never()).dispatch(eq(NEW_BLOB_NAME), any(), eq(CONTAINER));
+        verify(dispatcher, never()).dispatch(eq(NEW_BLOB_NAME), any(), eq(CONTAINER), eq(BULKSCAN));
     }
 }

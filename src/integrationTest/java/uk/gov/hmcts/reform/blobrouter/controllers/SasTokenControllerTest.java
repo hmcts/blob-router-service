@@ -7,9 +7,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobServiceClientProvider;
 
 import java.util.Map;
 
@@ -25,6 +27,9 @@ public class SasTokenControllerTest extends ControllerTestBase {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private BlobServiceClientProvider blobServiceClientProvider;
 
     @Test
     public void should_generate_sas_token_when_service_is_configured() throws Exception {

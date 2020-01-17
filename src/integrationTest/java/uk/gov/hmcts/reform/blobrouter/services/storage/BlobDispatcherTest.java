@@ -7,6 +7,10 @@ import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 
 class BlobDispatcherTest extends TestBase {
 
@@ -25,21 +29,23 @@ class BlobDispatcherTest extends TestBase {
 
     @Override
     protected void beforeTest() {
+        BlobServiceClientProvider blobServiceClientProvider = mock(BlobServiceClientProvider.class);
         BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
-        dispatcher = new BlobDispatcher(storageClient);
+        given(blobServiceClientProvider.get(any(), any())).willReturn(storageClient);
+        dispatcher = new BlobDispatcher(blobServiceClientProvider);
     }
 
     @Test
     void should_upload_blob_to_dedicated_container() {
         assertThatCode(() -> dispatcher
-            .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), DESTINATION_CONTAINER)
+            .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), DESTINATION_CONTAINER, BULKSCAN)
         ).doesNotThrowAnyException();
     }
 
     @Test
     void should_catch_BlobStorageException_and_suppress_it() {
         assertThatCode(() -> dispatcher
-            .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), BOGUS_CONTAINER)
+            .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), BOGUS_CONTAINER, BULKSCAN)
         ).doesNotThrowAnyException();
     }
 }
