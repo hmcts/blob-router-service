@@ -38,13 +38,6 @@ public class StorageConfiguration {
             .buildClient();
     }
 
-    @Bean("bulkscan-storage-client")
-    public static BlobServiceClient getBulkScanStorageClient(
-        @Value("${storage.bulkscan.connection-string}") String connectionString
-    ) {
-        return new BlobServiceClientBuilder().connectionString(connectionString).buildClient();
-    }
-
     @Bean("crime-storage-client")
     public static BlobServiceClient getCrimeStorageClient(
         @Value("${storage.crime.connection-string}") String connectionString
