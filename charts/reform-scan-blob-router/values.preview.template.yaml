@@ -92,7 +92,7 @@ crimeblobstorage:
 bulkscanprocessor:
   enabled: true
   java:
-    aadIdentityName: bsp
+    aadIdentityName:
     releaseNameOverride: "{{ .Release.Name }}-bsp"
     ingressHost: bulk-scan-processor-pr.service.core-compute-pr.internal
     secrets:
