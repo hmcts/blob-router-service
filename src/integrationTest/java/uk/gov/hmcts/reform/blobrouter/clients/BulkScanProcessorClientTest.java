@@ -2,12 +2,12 @@ package uk.gov.hmcts.reform.blobrouter.clients;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import feign.FeignException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.client.HttpClientErrorException;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.badRequest;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -15,7 +15,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @AutoConfigureWireMock(port = 0)
 @ActiveProfiles("integration-test")
@@ -46,12 +45,12 @@ public class BulkScanProcessorClientTest {
         stubWithResponse("notFoundService", badRequest());
 
         // when
-        HttpClientErrorException.BadRequest exception = catchThrowableOfType(
+        FeignException.BadRequest exception = catchThrowableOfType(
             () -> client.getSasToken("notFoundService"),
-            HttpClientErrorException.BadRequest.class
+            FeignException.BadRequest.class
         );
 
-        assertThat(exception.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(exception.status()).isEqualTo(400);
 
     }
 

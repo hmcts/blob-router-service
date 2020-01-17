@@ -1,35 +1,20 @@
 package uk.gov.hmcts.reform.blobrouter.clients;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
-@Component
-public class BulkScanProcessorClient {
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-    private final RestTemplate restTemplate;
+@FeignClient(
+    name = "bulk-scan-processor",
+    url = "${bulk-scan-processor-url}"
+)
+public interface BulkScanProcessorClient {
 
-    private final String bulkScanProcessorUrl;
-
-    public BulkScanProcessorClient(
-        RestTemplate restTemplate,
-        @Value("${bulk-scan-processor-url}") String bulkScanProcessorUrl
-    ) {
-        this.restTemplate = restTemplate;
-        this.bulkScanProcessorUrl = bulkScanProcessorUrl;
-    }
-
-    public SasTokenResponse getSasToken(String container) {
-
-        String url =
-            UriComponentsBuilder
-                .fromHttpUrl(bulkScanProcessorUrl)
-                .path("/token/")
-                .path(container)
-                .build()
-                .toString();
-
-        return restTemplate.getForObject(url, SasTokenResponse.class);
-    }
+    @GetMapping(value = "/token/{container}",
+        consumes = APPLICATION_JSON_VALUE,
+        produces = APPLICATION_JSON_VALUE
+    )
+    SasTokenResponse getSasToken(@PathVariable String container);
 }
