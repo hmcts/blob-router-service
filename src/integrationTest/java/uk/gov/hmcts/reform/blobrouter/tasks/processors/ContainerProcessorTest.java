@@ -10,10 +10,14 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobServiceClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 @ActiveProfiles("db-test")
 @SpringBootTest
@@ -43,7 +47,9 @@ class ContainerProcessorTest extends TestBase {
     @Override
     protected void beforeTest() {
         BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
-        BlobDispatcher dispatcher = new BlobDispatcher(storageClient);
+        BlobServiceClientProvider blobServiceClientProvider = mock(BlobServiceClientProvider.class);
+        given(blobServiceClientProvider.get(any(), any())).willReturn(storageClient);
+        BlobDispatcher dispatcher = new BlobDispatcher(blobServiceClientProvider);
         BlobProcessor blobProcessor = new BlobProcessor(
             storageClient,
             dispatcher,
