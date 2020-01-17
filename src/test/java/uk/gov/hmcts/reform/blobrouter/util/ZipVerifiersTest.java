@@ -167,7 +167,7 @@ class ZipVerifiersTest {
     @Test
     void should_handle_zip_with_valid_signature() throws Exception {
         byte[] validZip = toByteArray(getResource("signature/valid_test_envelope.zip")); // inner zip
-        byte[] validSignature = toByteArray(getResource("signature/valid_test_envelope.zip"));
+        byte[] validSignature = toByteArray(getResource("signature/test_signature"));
         String publicKey =
             Base64.getEncoder().encodeToString(toByteArray(getResource("signature/test_public_key.der")));
 
