@@ -41,7 +41,7 @@ public class BulkScanProcessorClientTest {
 
     @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
-
+        // given
         stubWithResponse("notFoundService", badRequest());
 
         // when
@@ -49,7 +49,7 @@ public class BulkScanProcessorClientTest {
             () -> client.getSasToken("notFoundService"),
             FeignException.BadRequest.class
         );
-
+        // then
         assertThat(exception.status()).isEqualTo(400);
 
     }
