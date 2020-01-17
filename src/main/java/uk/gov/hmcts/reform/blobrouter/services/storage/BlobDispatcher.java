@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
@@ -17,9 +16,7 @@ public class BlobDispatcher {
 
     private final BlobServiceClient bulkscanStorageClient;
 
-    public BlobDispatcher(
-        @Qualifier("bulkscan-storage-client") BlobServiceClient bulkscanStorageClient
-    ) {
+    public BlobDispatcher(BlobServiceClient bulkscanStorageClient) {
         this.bulkscanStorageClient = bulkscanStorageClient;
     }
 

@@ -24,7 +24,7 @@ def vaultSecrets = [
     secret('storage-account-secondary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
 
-    secret('bulkscan-storage-connection-string', 'STORAGE_BULKSCAN_CONNECTION_STRING'),
+    secret('bulkscan-storage-account-name', 'STORAGE_BULKSCAN_ACCOUNT_NAME'),
     secret('crime-storage-connection-string', 'STORAGE_CRIME_CONNECTION_STRING')
   ]
 ]
@@ -72,6 +72,7 @@ withPipeline(type, product, component) {
   // Vars needed for smoke / functional testing
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://reformscan.aat.platform.hmcts.net'
+  env.STORAGE_BULKSCAN_URL = 'https://bulkscan.aat.platform.hmcts.net'
 
   before('smoketest:preview') {
     withAksClient('nonprod') {
@@ -91,10 +92,8 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
       env.TEST_STORAGE_ACCOUNT_KEY = previewAccountKey(kubectl, storageSecret, namespace)
 
-      env.STORAGE_BULKSCAN_CONNECTION_STRING = storageAccountConnectionString(
-        previewAccountName(kubectl, bulkScanStorageAccountSecret, namespace),
-        previewAccountKey(kubectl, bulkScanStorageAccountSecret, namespace)
-      )
+      def bulkScanStorageAccountName = previewAccountName(kubectl, bulkScanStorageAccountSecret, namespace)
+      env.STORAGE_BULKSCAN_URL = "https://${bulkScanStorageAccountName}.blob.core.windows.net"
 
       env.STORAGE_CRIME_CONNECTION_STRING = storageAccountConnectionString(
         previewAccountName(kubectl, crimeStorageAccountSecret, namespace),
