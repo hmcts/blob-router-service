@@ -28,8 +28,14 @@ public class StorageConfiguration {
     }
 
     @Bean("storage-client")
-    public BlobServiceClient getStorageClient(StorageSharedKeyCredential credentials) {
-        return new BlobServiceClientBuilder().credential(credentials).buildClient();
+    public BlobServiceClient getStorageClient(
+        StorageSharedKeyCredential credentials,
+        @Value("${storage.url}") String storageUrl
+    ) {
+        return new BlobServiceClientBuilder()
+            .credential(credentials)
+            .endpoint(storageUrl)
+            .buildClient();
     }
 
     @Bean("bulkscan-storage-client")
