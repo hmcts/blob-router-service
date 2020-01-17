@@ -23,8 +23,7 @@ def vaultSecrets = [
 
     secret('storage-account-secondary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
-
-    secret('bulkscan-storage-account-name', 'STORAGE_BULKSCAN_ACCOUNT_NAME'),
+    
     secret('crime-storage-connection-string', 'STORAGE_CRIME_CONNECTION_STRING')
   ]
 ]
