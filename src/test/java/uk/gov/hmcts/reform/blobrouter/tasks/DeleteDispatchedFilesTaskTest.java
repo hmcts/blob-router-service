@@ -14,14 +14,14 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
-class BlobCleanerTaskTest {
+class DeleteDispatchedFilesTaskTest {
     @Mock
     private ContainerCleaner containerCleaner;
 
-    private BlobCleanerTask task;
+    private DeleteDispatchedFilesTask task;
 
     void setUp(ServiceConfiguration serviceConfiguration) {
-        task = new BlobCleanerTask(containerCleaner, serviceConfiguration);
+        task = new DeleteDispatchedFilesTask(containerCleaner, serviceConfiguration);
     }
 
     @DisplayName("Get all configured containers and process only 1 available container")
