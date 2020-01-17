@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.hmcts.reform.blobrouter.clients.errornotifications.ErrorNotificationClient;
+import uk.gov.hmcts.reform.blobrouter.clients.errornotifications.ErrorNotificationRequest;
+import uk.gov.hmcts.reform.blobrouter.clients.errornotifications.ErrorNotificationResponse;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.created;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
