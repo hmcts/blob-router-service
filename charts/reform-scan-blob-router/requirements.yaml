@@ -21,4 +21,4 @@ dependencies:
     alias: bulkscanprocessor
     version: ~0.2.16
     repository: '@hmctspublic'
-    condition: crimeblobstorage.enabled
+    condition: bulkscanprocessor.enabled
