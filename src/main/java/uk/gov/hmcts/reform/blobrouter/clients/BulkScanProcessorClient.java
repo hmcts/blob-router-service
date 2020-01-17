@@ -16,18 +16,16 @@ public class BulkScanProcessorClient {
         RestTemplate restTemplate,
         @Value("${bulk-scan-processor-url}") String bulkScanProcessorUrl
     ) {
-        System.out.println("bulkScanProcessorUrl " + bulkScanProcessorUrl);
         this.restTemplate = restTemplate;
         this.bulkScanProcessorUrl = bulkScanProcessorUrl;
     }
-
 
     public SasTokenResponse getSasToken(String container) {
 
         String url =
             UriComponentsBuilder
                 .fromHttpUrl(bulkScanProcessorUrl)
-                .path("/token")
+                .path("/token/")
                 .path(container)
                 .build()
                 .toString();
