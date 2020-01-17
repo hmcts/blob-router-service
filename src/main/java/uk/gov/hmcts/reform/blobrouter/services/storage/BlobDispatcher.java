@@ -17,9 +17,7 @@ public class BlobDispatcher {
 
     private final BlobServiceClient bulkscanStorageClient;
 
-    public BlobDispatcher(
-        @Qualifier("bulkscan-storage-client") BlobServiceClient bulkscanStorageClient
-    ) {
+    public BlobDispatcher(BlobServiceClient bulkscanStorageClient) {
         this.bulkscanStorageClient = bulkscanStorageClient;
     }
 
