@@ -12,6 +12,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 )
 public interface BulkScanProcessorClient {
 
-    @GetMapping(value = "/token/{container}", consumes = APPLICATION_JSON_VALUE)
-    SasTokenResponse getSasToken(@PathVariable String container);
+    @GetMapping(value = "/token/{service}", consumes = APPLICATION_JSON_VALUE)
+    SasTokenResponse getSasToken(@PathVariable String service);
 }

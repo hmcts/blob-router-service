@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.clients;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
 import feign.FeignException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class BulkScanProcessorClientTest {
         SasTokenResponse expected = new SasTokenResponse("187*2@(*&^%$£@12");
 
         // given
-        stubWithResponse("sscs", okJson("{\"sas_token\":\"187*2@(*&^%$£@12\"}"));
+        stubFor(get("/token/sscs").willReturn(okJson("{\"sas_token\":\"187*2@(*&^%$£@12\"}")));
 
         // when
         SasTokenResponse sasResponse = client.getSasToken("sscs");
@@ -42,7 +41,7 @@ public class BulkScanProcessorClientTest {
     @Test
     public void should_throw_exception_when_requested_service_is_not_configured() throws Exception {
         // given
-        stubWithResponse("notFoundService", badRequest());
+        stubFor(get("/token/notFoundService").willReturn(badRequest()));
 
         // when
         FeignException.BadRequest exception = catchThrowableOfType(
@@ -54,7 +53,4 @@ public class BulkScanProcessorClientTest {
 
     }
 
-    private void stubWithResponse(String service, ResponseDefinitionBuilder builder) {
-        stubFor(get("/token/" + service).willReturn(builder));
-    }
 }
