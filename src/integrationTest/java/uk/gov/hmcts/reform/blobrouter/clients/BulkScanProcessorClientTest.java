@@ -26,9 +26,6 @@ public class BulkScanProcessorClientTest {
     @Autowired
     private BulkScanProcessorClient client;
 
-    @Autowired
-    private ObjectMapper mapper;
-
     @Test
     public void should_return_sas_token_with_when_everything_is_ok_with_request() throws JsonProcessingException {
 
