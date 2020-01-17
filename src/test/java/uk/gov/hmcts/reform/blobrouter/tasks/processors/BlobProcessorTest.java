@@ -20,6 +20,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -65,6 +66,23 @@ class BlobProcessorTest {
         // then
         verify(readinessChecker).isReady(eq(blobCreationTime.toInstant()));
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
+    }
+
+    @Test
+    void should_not_store_envelope_in_db_when_upload_failed() {
+        // given
+        blobExists(OffsetDateTime.now());
+        given(readinessChecker.isReady(any())).willReturn(true);
+
+        willThrow(new RuntimeException("Test exception"))
+            .given(blobDispatcher)
+            .dispatch(any(), any(), any(), any());
+
+        // when
+        blobProcessor.process("envelope.zip", "container1");
+
+        // then
+        verify(envelopeRepo, never()).insert(any());
     }
 
     @Test

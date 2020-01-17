@@ -28,30 +28,20 @@ public class BlobDispatcher {
     ) {
         logger.info("Uploading {} to {} container. Storage: {}", blobName, destinationContainer, targetStorageAccount);
 
-        try {
-            getContainerClient(targetStorageAccount, destinationContainer)
-                .getBlobClient(blobName)
-                .getBlockBlobClient()
-                .upload(
-                    new ByteArrayInputStream(blobContents),
-                    blobContents.length
-                );
+        getContainerClient(targetStorageAccount, destinationContainer)
+            .getBlobClient(blobName)
+            .getBlockBlobClient()
+            .upload(
+                new ByteArrayInputStream(blobContents),
+                blobContents.length
+            );
 
-            logger.info(
-                "Finished uploading {} to {} container. Storage: {}",
-                blobName,
-                destinationContainer,
-                targetStorageAccount
-            );
-        } catch (Exception exception) {
-            logger.error(
-                "Error occurred while uploading {} to {} container. Storage: {}",
-                blobName,
-                destinationContainer,
-                exception,
-                targetStorageAccount
-            );
-        }
+        logger.info(
+            "Finished uploading {} to {} container. Storage: {}",
+            blobName,
+            destinationContainer,
+            targetStorageAccount
+        );
     }
 
     // will use different storageClient depending on container
