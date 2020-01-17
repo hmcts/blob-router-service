@@ -8,15 +8,19 @@ import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -24,6 +28,8 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest {
@@ -82,12 +88,16 @@ class BlobProcessorTest {
         blobProcessor.process("envelope.zip", "container1");
 
         // then
+        verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq("container1"), eq(BULKSCAN));
         verify(envelopeRepo, never()).insert(any());
     }
 
     @Test
     void should_process_file_if_it_is_ready() {
         // given
+        String fileName = "envelope1.zip";
+        String containerName = "container1";
+
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
         blobExists(blobCreationTime);
 
@@ -95,11 +105,20 @@ class BlobProcessorTest {
         given(readinessChecker.isReady(any())).willReturn(true);
 
         // when
-        blobProcessor.process("hello.zip", "my_container");
+        blobProcessor.process(fileName, containerName);
 
         // then
         verify(readinessChecker).isReady(eq(blobCreationTime.toInstant()));
         verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
+
+        ArgumentCaptor<NewEnvelope> newEnvelopeArgumentCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
+        verify(envelopeRepo).insert(newEnvelopeArgumentCaptor.capture());
+
+        assertThat(newEnvelopeArgumentCaptor.getValue().fileName).isEqualTo(fileName);
+        assertThat(newEnvelopeArgumentCaptor.getValue().container).isEqualTo(containerName);
+        assertThat(newEnvelopeArgumentCaptor.getValue().dispatchedAt).isBeforeOrEqualTo(Instant.now());
+        assertThat(newEnvelopeArgumentCaptor.getValue().fileCreatedAt).isBeforeOrEqualTo(Instant.now());
+        assertThat(newEnvelopeArgumentCaptor.getValue().status).isEqualTo(DISPATCHED);
     }
 
     private void blobExists(OffsetDateTime time) {
