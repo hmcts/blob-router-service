@@ -85,7 +85,7 @@ class BlobProcessorTest {
             .dispatch(any(), any(), any(), any());
 
         // when
-        blobProcessor.process("envelope.zip", "container1");
+        blobProcessor.process("envelope1.zip", "container1");
 
         // then
         verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq("container1"), eq(BULKSCAN));
