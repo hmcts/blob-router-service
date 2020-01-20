@@ -183,6 +183,9 @@ dependencyManagement {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
+    dependencySet(group: 'org.testcontainers', version: '1.12.4') {
+      entry 'database-commons' // not tagged to latest. once sorted - remove this section
+    }
   }
 }
 
