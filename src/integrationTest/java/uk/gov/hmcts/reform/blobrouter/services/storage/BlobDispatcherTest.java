@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.test.TestBase;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobStorageException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
@@ -43,9 +44,9 @@ class BlobDispatcherTest extends TestBase {
     }
 
     @Test
-    void should_catch_BlobStorageException_and_suppress_it() {
+    void should_rethrow_exceptions() {
         assertThatCode(() -> dispatcher
             .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), BOGUS_CONTAINER, BULKSCAN)
-        ).doesNotThrowAnyException();
+        ).isInstanceOf(BlobStorageException.class);
     }
 }
