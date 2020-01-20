@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
-import org.apache.commons.lang3.Validate;
+// few libraries shadowing commons lang3. after revert swagger v3 -> v2 it has gone but we can "borrow" here
+import com.microsoft.applicationinsights.core.dependencies.apachecommons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
