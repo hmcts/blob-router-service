@@ -55,11 +55,12 @@ public class EnvelopeRepositoryImpl implements EnvelopeRepository {
     }
 
     @Override
-    public List<Envelope> find(Status status, boolean isDeleted) {
+    public List<Envelope> find(Status status, String container, boolean isDeleted) {
         return jdbcTemplate.query(
-            "SELECT * FROM envelopes WHERE status = :status AND is_deleted = :isDeleted",
+            "SELECT * FROM envelopes WHERE status = :status AND container = :container AND is_deleted = :isDeleted",
             new MapSqlParameterSource()
                 .addValue("status", status.name())
+                .addValue("container", container)
                 .addValue("isDeleted", isDeleted),
             this.mapper
         );

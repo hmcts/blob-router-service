@@ -38,7 +38,7 @@ public class ContainerCleaner {
             final BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
 
             envelopeRepository
-                .find(DISPATCHED, false)
+                .find(DISPATCHED, containerName, false)
                 .forEach(envelope -> {
                     tryToDeleteBlob(envelope, containerClient);
                 });
