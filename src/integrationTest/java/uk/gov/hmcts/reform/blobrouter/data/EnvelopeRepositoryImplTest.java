@@ -93,15 +93,16 @@ public class EnvelopeRepositoryImplTest {
     @Test
     void should_find_not_deleted_envelopes_by_status() {
         // given
-        repo.insert(newEnvelope(Status.DISPATCHED));
-        repo.insert(newEnvelope(Status.DISPATCHED));
-        repo.insert(newEnvelope(Status.DISPATCHED));
-        repo.insert(newEnvelope(Status.REJECTED));
-        repo.insert(newEnvelope(Status.REJECTED));
+        String container = "container1";
+        repo.insert(newEnvelope(Status.DISPATCHED, container));
+        repo.insert(newEnvelope(Status.DISPATCHED, container));
+        repo.insert(newEnvelope(Status.DISPATCHED, container));
+        repo.insert(newEnvelope(Status.REJECTED, container));
+        repo.insert(newEnvelope(Status.REJECTED, container));
 
         // when
-        List<Envelope> dispatched = repo.find(Status.DISPATCHED, false);
-        List<Envelope> rejected = repo.find(Status.REJECTED, false);
+        List<Envelope> dispatched = repo.find(Status.DISPATCHED, container, false);
+        List<Envelope> rejected = repo.find(Status.REJECTED, container, false);
 
         // then
         assertThat(dispatched).hasSize(3);
@@ -109,15 +110,31 @@ public class EnvelopeRepositoryImplTest {
     }
 
     @Test
+    void should_find_envelopes_only_for_the_requested_container() {
+        // given
+        String containerName = "container1";
+        repo.insert(newEnvelope(Status.DISPATCHED, containerName));
+        repo.insert(newEnvelope(Status.DISPATCHED, "other-container"));
+
+        // when
+        List<Envelope> found = repo.find(Status.DISPATCHED, containerName, false);
+
+        // then
+        assertThat(found).hasSize(1);
+        assertThat(found.get(0).container).isEqualTo(containerName);
+    }
+
+    @Test
     void should_find_deleted_envelopes_by_status() {
         // given
-        NewEnvelope envelope = newEnvelope(Status.DISPATCHED);
+        String containerName = "container1";
+        NewEnvelope envelope = newEnvelope(Status.DISPATCHED, containerName);
         UUID id = repo.insert(envelope);
         repo.markAsDeleted(id);
 
         // when
-        List<Envelope> deleted = repo.find(Status.DISPATCHED, true);
-        List<Envelope> notDeleted = repo.find(Status.DISPATCHED, false);
+        List<Envelope> deleted = repo.find(Status.DISPATCHED, containerName, true);
+        List<Envelope> notDeleted = repo.find(Status.DISPATCHED, containerName, false);
 
         // then
         assertThat(deleted).hasSize(1);
@@ -166,9 +183,9 @@ public class EnvelopeRepositoryImplTest {
         assertThat(result).isEmpty();
     }
 
-    private NewEnvelope newEnvelope(Status status) {
+    private NewEnvelope newEnvelope(Status status, String container) {
         return new NewEnvelope(
-            "container",
+            container,
             UUID.randomUUID().toString(),
             now(),
             now().plusSeconds(100),
