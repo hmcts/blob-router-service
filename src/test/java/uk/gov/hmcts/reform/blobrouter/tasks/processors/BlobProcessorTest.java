@@ -34,22 +34,14 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest {
 
-    @Mock
-    BlobReadinessChecker readinessChecker;
-    @Mock
-    BlobServiceClient blobServiceClient;
-    @Mock
-    BlobContainerClient containerClient;
-    @Mock
-    BlobClient blobClient;
-    @Mock
-    BlobProperties blobProperties;
-    @Mock
-    BlobDispatcher blobDispatcher;
-    @Mock
-    BlobLeaseClient blobLeaseClient;
-    @Mock
-    EnvelopeRepository envelopeRepo;
+    @Mock BlobReadinessChecker readinessChecker;
+    @Mock BlobServiceClient blobServiceClient;
+    @Mock BlobContainerClient containerClient;
+    @Mock BlobClient blobClient;
+    @Mock BlobProperties blobProperties;
+    @Mock BlobDispatcher blobDispatcher;
+    @Mock BlobLeaseClient blobLeaseClient;
+    @Mock EnvelopeRepository envelopeRepo;
 
     BlobProcessor blobProcessor;
 
