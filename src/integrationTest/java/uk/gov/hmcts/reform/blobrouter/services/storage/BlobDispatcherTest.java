@@ -26,7 +26,7 @@ class BlobDispatcherTest extends TestBase {
     private BlobDispatcher dispatcher;
 
     @Mock
-    BlobContainerClientProvider blobServiceClientProvider;
+    BlobContainerClientProvider blobContainerClientProvider;
 
     @BeforeAll
     static void setUpTestMode() {
@@ -37,7 +37,7 @@ class BlobDispatcherTest extends TestBase {
 
     @Override
     protected void beforeTest() {
-        dispatcher = new BlobDispatcher(blobServiceClientProvider);
+        dispatcher = new BlobDispatcher(blobContainerClientProvider);
     }
 
     @Test
@@ -45,7 +45,7 @@ class BlobDispatcherTest extends TestBase {
         BlobContainerClient containerClient =
             StorageClientsHelper.getContainerClient(interceptorManager, DESTINATION_CONTAINER);
 
-        given(blobServiceClientProvider.get(any(), any())).willReturn(containerClient);
+        given(blobContainerClientProvider.get(any(), any())).willReturn(containerClient);
 
         assertThatCode(() -> dispatcher
             .dispatch(NEW_BLOB_NAME, NEW_BLOB_NAME.getBytes(), DESTINATION_CONTAINER, BULKSCAN)
@@ -55,7 +55,7 @@ class BlobDispatcherTest extends TestBase {
     @Test
     void should_rethrow_exceptions() {
         willThrow(new BlobStorageException("test exception", null, null))
-            .given(blobServiceClientProvider)
+            .given(blobContainerClientProvider)
             .get(any(), any());
 
         assertThatCode(() -> dispatcher
