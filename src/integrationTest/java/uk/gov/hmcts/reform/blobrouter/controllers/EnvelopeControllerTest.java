@@ -56,7 +56,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     }
 
     @Test
-    void should_return_null_if_envelope_for_given_file_name_and_container_does_not_exist() throws Exception {
+    void should_return_404_if_envelope_for_given_file_name_and_container_does_not_exist() throws Exception {
         final String fileName = "hello.zip";
         final String container = "foo";
 
