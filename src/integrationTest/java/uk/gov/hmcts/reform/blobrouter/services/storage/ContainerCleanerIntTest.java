@@ -11,13 +11,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.testcontainers.containers.DockerComposeContainer;
-import uk.gov.hmcts.reform.blobrouter.config.IntegrationTest;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
@@ -34,8 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 
-@IntegrationTest
-@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("db-test")
 @ExtendWith(OutputCaptureExtension.class)
 public class ContainerCleanerIntTest {
@@ -96,41 +93,47 @@ public class ContainerCleanerIntTest {
 
     @Test
     public void should_find_blobs_and_delete() {
-        assertThat(containerClient.listBlobs()).isEmpty();
-
+        // given
         String[] dispatchedFileNames = new String[]{TEST_1, TEST_3};
 
         uploadFilesToStorage(dispatchedFileNames);
-        createEnvelopes(DISPATCHED, dispatchedFileNames);
 
+        // ensure files have been uploaded
         assertThat(containerClient.listBlobs()).hasSize(dispatchedFileNames.length);
         assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
             .containsExactlyInAnyOrder(dispatchedFileNames);
 
+        createEnvelopes(DISPATCHED, dispatchedFileNames);
+
+        // when
         containerCleaner.process(CONTAINER_NAME);
 
+        // then
         assertThat(containerClient.listBlobs()).isEmpty();
         assertFilesIsDeleteState(true, dispatchedFileNames);
     }
 
     @Test
     public void should_delete_only_dispatched_blobs() {
-        assertThat(containerClient.listBlobs()).isEmpty();
-
+        // given
         String[] dispatchedFileNames = new String[]{TEST_1, TEST_3};
         String[] rejectedFileNames = new String[]{TEST_2, TEST_4};
 
         uploadFilesToStorage(dispatchedFileNames);
         uploadFilesToStorage(rejectedFileNames);
-        createEnvelopes(DISPATCHED, dispatchedFileNames);
-        createEnvelopes(REJECTED, rejectedFileNames);
 
+        // ensure files have been uploaded
         assertThat(containerClient.listBlobs()).hasSize(dispatchedFileNames.length + rejectedFileNames.length);
         assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
             .containsExactlyInAnyOrder((String[]) addAll(dispatchedFileNames, rejectedFileNames));
 
+        createEnvelopes(DISPATCHED, dispatchedFileNames);
+        createEnvelopes(REJECTED, rejectedFileNames);
+
+        // when
         containerCleaner.process(CONTAINER_NAME);
 
+        // then
         assertThat(containerClient.listBlobs()).hasSize(rejectedFileNames.length);
         assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
             .containsExactlyInAnyOrder(rejectedFileNames);
@@ -140,15 +143,23 @@ public class ContainerCleanerIntTest {
 
     @Test
     public void should_handle_non_existing_file() {
-        assertThat(containerClient.listBlobs()).isEmpty();
-
-        String[] dispatchedFileNames = new String[]{TEST_1};
+        // given
+        // 2 envelopes in the database
+        String[] dispatchedFileNames = new String[]{TEST_1, TEST_3};
         createEnvelopes(DISPATCHED, dispatchedFileNames);
 
-        assertThat(containerClient.listBlobs()).isEmpty();
+        // but only 1 file uploaded
+        uploadFilesToStorage(TEST_1);
 
+        // ensure file have been uploaded
+        assertThat(containerClient.listBlobs()).hasSize(1);
+        assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
+            .containsExactlyInAnyOrder(TEST_1);
+
+        // when
         containerCleaner.process(CONTAINER_NAME);
 
+        // then
         assertThat(containerClient.listBlobs()).isEmpty();
         assertFilesIsDeleteState(true, dispatchedFileNames);
     }
