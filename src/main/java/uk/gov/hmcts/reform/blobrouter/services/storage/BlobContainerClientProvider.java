@@ -32,6 +32,7 @@ public class BlobContainerClientProvider {
                 return new BlobContainerClientBuilder()
                     .sasToken(bulkScanSasTokenClient.getSasToken(containerName).sasToken)
                     .endpoint(bulkScanStorageUrl)
+                    .containerName(containerName)
                     .buildClient();
             case CRIME:
                 return crimeClient;
