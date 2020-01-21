@@ -3,7 +3,7 @@ plugins {
   id 'checkstyle'
   id 'pmd'
   id 'jacoco'
-  id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+  id 'io.spring.dependency-management' version '1.0.9.RELEASE'
   id 'org.springframework.boot' version '2.2.2.RELEASE'
   id 'org.owasp.dependencycheck' version '5.3.0'
   id 'com.github.ben-manes.versions' version '0.27.0'
@@ -195,7 +195,7 @@ repositories {
 
 def versions = [
   junit           : '5.5.2',
-  junitPlatform   : '1.5.2',
+  junitPlatform   : '1.6.0',
   reformLogging   : '5.1.1',
   springBoot      : springBoot.class.package.implementationVersion
 ]
@@ -218,7 +218,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.1.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.1.0'
 
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.1.0'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.2.0'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
@@ -234,7 +234,9 @@ dependencies {
   // until library is updated, can safely remove extra definition on our own ^
   implementation group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: '0.0.5'
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-webmvc-core', version: '1.2.26'
+  implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+  implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.9' // can be removed once openapi is used
+//  implementation group: 'org.springdoc', name: 'springdoc-openapi-webmvc-core', version: '1.2.26'
 
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
