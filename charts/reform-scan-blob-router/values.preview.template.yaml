@@ -111,7 +111,7 @@ bulkscanprocessor:
       STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
       BULK_SCANNING_DB_USER_NAME: "{{ .Values.global.postgresqlUsername}}"
       BULK_SCANNING_DB_PASSWORD: "{{ .Values.global.postgresqlPassword}}"
-      BULK_SCANNING_DB_NAME: "{{ .Values.global.postgresqlDatabase}}"
+      BULK_SCANNING_DB_NAME: bulk_scan
       BULK_SCANNING_DB_HOST: "{{ .Release.Name }}-postgresql"
       FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/bulk_scan"
       FLYWAY_USER: "{{ .Values.global.postgresqlUsername}}"
