@@ -32,18 +32,4 @@ public class IntegrationContextInitializer implements ApplicationContextInitiali
     public Options options(@Value("${wiremock.port}") int port) {
         return WireMockConfiguration.options().port(port).notifier(new Slf4jNotifier(false));
     }
-
-//    @Bean(name = "processed-envelopes-completor")
-//    @Profile(SERVICE_BUS_STUB)
-//    public MessageAutoCompletor processedEnvelopesCompletor() {
-//        return mock(MessageAutoCompletor.class);
-//    }
-//
-//    @Bean
-//    @Profile(STORAGE_STUB)
-//    public CloudBlobClient getCloudBlobClient() throws InvalidKeyException, URISyntaxException {
-//        return CloudStorageAccount
-//            .parse("UseDevelopmentStorage=true")
-//            .createCloudBlobClient();
-//    }
 }
