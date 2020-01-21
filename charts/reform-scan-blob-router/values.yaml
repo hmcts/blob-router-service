@@ -13,7 +13,6 @@ java:
         - storage-account-name
         - storage-account-primary-key
         - storage-account-secondary-key
-        - bulkscan-storage-connection-string
         - crime-storage-connection-string
         - flyway-password
         - blob-router-POSTGRES-PASS
@@ -32,6 +31,7 @@ java:
     TASK_SCAN_DELAY: "4000" # in millis
 
     STORAGE_URL: https://reformscan.{{ .Values.global.environment }}.platform.hmcts.net
+    STORAGE_BULKSCAN_URL: https://bulkscan.{{ .Values.global.environment }}.platform.hmcts.net
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
     STORAGE_BLOB_SIGNATURE_ALGORITHM: "sha256withrsa"
     STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"

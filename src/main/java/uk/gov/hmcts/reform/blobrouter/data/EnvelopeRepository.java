@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface EnvelopeRepository {
 
-    List<Envelope> find(Status status, boolean isDeleted);
+    List<Envelope> find(Status status, String container, boolean isDeleted);
 
     Optional<Envelope> find(String fileName, String container);
 

@@ -7,6 +7,7 @@ import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
@@ -79,7 +80,8 @@ public class BlobProcessor {
                 leaseClient.acquireLease(60);
                 byte[] rawBlob = tryToDownloadBlob(blobClient);
 
-                dispatcher.dispatch(blobName, rawBlob, containerName);
+                // target storage account will be retrieved from configuration when Crime blob processing is supported
+                dispatcher.dispatch(blobName, rawBlob, containerName, TargetStorageAccount.BULKSCAN);
                 UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
                     blobName,
                     containerName,

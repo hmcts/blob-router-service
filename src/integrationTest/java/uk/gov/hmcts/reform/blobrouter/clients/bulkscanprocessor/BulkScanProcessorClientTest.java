@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.clients;
+package uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.FeignException;
