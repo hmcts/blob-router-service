@@ -9,7 +9,7 @@ public class TestConfiguration {
     public final String sourceStorageAccountKey;
     public final String sourceStorageAccountUrl;
 
-    public final String bulkScanStorageConnectionString;
+    public final String bulkScanStorageUrl;
     public final String crimeStorageConnectionString;
 
     public final String crimeDestinationContainer;
@@ -22,7 +22,7 @@ public class TestConfiguration {
         this.sourceStorageAccountKey = config.getString("source-storage-account-key");
         this.sourceStorageAccountUrl = config.getString("source-storage-account-url");
 
-        this.bulkScanStorageConnectionString = config.getString("bulkscan-storage-connection-string");
+        this.bulkScanStorageUrl = config.getString("bulkscan-storage-url");
 
         this.crimeStorageConnectionString = config.getString("crime-storage-connection-string");
         this.crimeDestinationContainer = config.getString("crime-source-container");

@@ -6,10 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobServiceClientProvider;
 
 import java.util.Map;
 
@@ -19,12 +21,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = SasTokenController.class)
-@ComponentScan(basePackages = "uk.gov.hmcts.reform.blobrouter")
+@AutoConfigureMockMvc
+@SpringBootTest
 public class SasTokenControllerTest extends ControllerTestBase {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private BlobServiceClientProvider blobServiceClientProvider;
 
     @Test
     public void should_generate_sas_token_when_service_is_configured() throws Exception {

@@ -13,7 +13,6 @@ spring:
         storage-account-name: storage.account-name
         storage-account-primary-key:  storage.account-key
         storage-account-secondary-key:  storage.account-secondary-key
-        bulkscan-storage-connection-string: storage.bulkscan.connection-string
         crime-storage-connection-string: storage.crime.connection-string
         flyway-password: flyway.password
         blob-router-POSTGRES-PASS: DB_PASSWORD
