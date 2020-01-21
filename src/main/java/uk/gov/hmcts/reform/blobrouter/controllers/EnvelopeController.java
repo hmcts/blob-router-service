@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
 
 @RestController
 @RequestMapping(path = "/envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -20,12 +21,26 @@ public class EnvelopeController {
     }
 
     @GetMapping()
-    public Envelope findEnvelope(
+    public EnvelopeInfo findEnvelope(
         @RequestParam("file_name") String fileName,
         @RequestParam("container") String container
     ) {
         return envelopesRepo
             .find(fileName, container)
+            .map(this::toResponse)
             .orElseThrow(EnvelopeNotFoundException::new);
+    }
+
+    private EnvelopeInfo toResponse(Envelope dbEnvelope) {
+        return new EnvelopeInfo(
+            dbEnvelope.id,
+            dbEnvelope.container,
+            dbEnvelope.fileName,
+            dbEnvelope.createdAt,
+            dbEnvelope.fileCreatedAt,
+            dbEnvelope.dispatchedAt,
+            dbEnvelope.status,
+            dbEnvelope.isDeleted
+        );
     }
 }
