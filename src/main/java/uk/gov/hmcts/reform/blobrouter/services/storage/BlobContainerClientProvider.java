@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,14 +9,14 @@ import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcesso
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
 @Service
-public class BlobServiceClientProvider {
+public class BlobContainerClientProvider {
 
-    private final BlobServiceClient crimeClient;
+    private final BlobContainerClient crimeClient;
     private final BulkScanProcessorClient bulkScanSasTokenClient;
     private final String bulkScanStorageUrl;
 
-    public BlobServiceClientProvider(
-        @Qualifier("crime-storage-client") BlobServiceClient crimeClient,
+    public BlobContainerClientProvider(
+        @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
         BulkScanProcessorClient bulkScanSasTokenClient,
         @Value("${storage.bulkscan.url}") String bulkScanStorageUrl
     ) {
@@ -25,11 +25,11 @@ public class BlobServiceClientProvider {
         this.bulkScanStorageUrl = bulkScanStorageUrl;
     }
 
-    public BlobServiceClient get(TargetStorageAccount targetStorageAccount, String containerName) {
+    public BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
         switch (targetStorageAccount) {
             case BULKSCAN:
                 // retrieving a SAS token every time we're getting a client, but this will be cached in the future
-                return new BlobServiceClientBuilder()
+                return new BlobContainerClientBuilder()
                     .sasToken(bulkScanSasTokenClient.getSasToken(containerName).sasToken)
                     .endpoint(bulkScanStorageUrl)
                     .buildClient();
