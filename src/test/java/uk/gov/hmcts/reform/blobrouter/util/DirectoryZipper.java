@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.util;
 
-import com.microsoft.applicationinsights.boot.dependencies.google.common.io.Files;
+import com.google.common.io.Files;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.microsoft.applicationinsights.core.dependencies.apachecommons.io.IOUtils.toByteArray;
-import static com.microsoft.applicationinsights.core.dependencies.google.common.io.Resources.getResource;
+import static com.google.common.io.Resources.getResource;
+import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.blobrouter.util.SigningHelper.signWithSha256Rsa;

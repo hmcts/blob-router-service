@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.util;
 
-import com.microsoft.applicationinsights.core.dependencies.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet;
+
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -15,8 +16,8 @@ import java.util.Base64;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
-import static com.microsoft.applicationinsights.core.dependencies.apachecommons.io.IOUtils.toByteArray;
-import static com.microsoft.applicationinsights.core.dependencies.google.common.io.Resources.getResource;
+import static com.google.common.io.Resources.getResource;
+import static com.google.common.io.Resources.toByteArray;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -151,7 +152,6 @@ class ZipVerifiersTest {
             .hasMessage(INVALID_SIGNATURE_MESSAGE);
     }
 
-
     @Test
     void should_not_verify_valid_zip_with_wrong_public_key_successfully() throws Exception {
         byte[] zipBytes = zipDir("signature/sample_valid_content");
@@ -165,25 +165,38 @@ class ZipVerifiersTest {
     }
 
     @Test
-    void should_handle_zip_with_valid_signature() throws Exception {
-        byte[] validZip = toByteArray(getResource("signature/valid_test_envelope.zip")); // inner zip
-        byte[] validSignature = toByteArray(getResource("signature/test_signature"));
-        String publicKey =
-            Base64.getEncoder().encodeToString(toByteArray(getResource("signature/test_public_key.der")));
+    void should_handle_sample_prod_signature() throws Exception {
+        byte[] prodZip = toByteArray(getResource("signature/prod_test_envelope.zip")); // inner zip
+        byte[] prodSignature = toByteArray(getResource("signature/prod_test_signature"));
+        String prodPublicKey =
+            Base64.getEncoder().encodeToString(toByteArray(getResource("signature/prod_public_key.der")));
 
         assertThatCode(() ->
-            ZipVerifiers.verifySignature(publicKey, validZip, validSignature)
+            ZipVerifiers.verifySignature(prodPublicKey, prodZip, prodSignature)
         ).doesNotThrowAnyException();
     }
 
     @Test
-    void should_not_verify_signature_using_wrong_pub_key_for_file_signed_using_private_key()
+    void should_verify_signature_using_nonprod_public_key_for_file_signed_using_nonprod_private_key()
         throws Exception {
-        byte[] validZip = toByteArray(getResource("signature/valid_test_envelope.zip")); // inner zip
-        byte[] validSignature = toByteArray(getResource("signature/valid_test_envelope.zip"));
+        byte[] nonprodZip = toByteArray(getResource("signature/nonprod_envelope.zip")); // inner zip
+        byte[] nonprodSignature = toByteArray(getResource("signature/nonprod_envelope_signature"));
+        String nonprodPublicKey =
+            Base64.getEncoder().encodeToString(toByteArray(getResource("nonprod_public_key.der")));
+
+        assertThatCode(() ->
+            ZipVerifiers.verifySignature(nonprodPublicKey, nonprodZip, nonprodSignature)
+        ).doesNotThrowAnyException();
+    }
+
+    @Test
+    void should_not_verify_signature_using_wrong_pub_key_for_file_signed_using_nonprod_private_key()
+        throws Exception {
+        byte[] nonprodZip = toByteArray(getResource("signature/nonprod_envelope.zip")); // inner zip
+        byte[] nonprodSignature = toByteArray(getResource("signature/nonprod_envelope_signature"));
 
         assertThatThrownBy(() ->
-            ZipVerifiers.verifySignature(invalidPublicKeyBase64, validZip, validSignature)
+            ZipVerifiers.verifySignature(publicKeyBase64, nonprodZip, nonprodSignature)
         )
             .isInstanceOf(DocSignatureFailureException.class)
             .hasMessage(INVALID_SIGNATURE_MESSAGE);

@@ -1,7 +1,8 @@
 package uk.gov.hmcts.reform.blobrouter.util;
 
-import com.microsoft.applicationinsights.core.dependencies.google.common.io.Resources;
-import org.apache.commons.lang3.StringUtils;
+import com.google.common.base.Strings;
+import com.google.common.io.Resources;
+
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
@@ -24,8 +25,8 @@ import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.microsoft.applicationinsights.core.dependencies.google.common.io.ByteStreams.toByteArray;
-import static com.microsoft.applicationinsights.core.dependencies.google.common.io.Resources.getResource;
+import static com.google.common.io.ByteStreams.toByteArray;
+import static com.google.common.io.Resources.getResource;
 import static java.util.Arrays.asList;
 
 /**
@@ -194,7 +195,7 @@ public class ZipVerifiers {
         ) {
             try {
                 String publicKeyBase64 = null;
-                if (StringUtils.isNotEmpty(publicKeyDerFile) && !"none".equalsIgnoreCase(publicKeyDerFile)) {
+                if (!Strings.isNullOrEmpty(publicKeyDerFile) && !"none".equalsIgnoreCase(publicKeyDerFile)) {
                     if (cachedPublicKeyFile != null && publicKeyDerFile.equals(cachedPublicKeyFile.derFilename)) {
                         publicKeyBase64 = cachedPublicKeyFile.publicKeyBase64;
                     } else {
