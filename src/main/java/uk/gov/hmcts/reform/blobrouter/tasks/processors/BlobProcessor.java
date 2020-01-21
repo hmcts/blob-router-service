@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
@@ -30,14 +30,14 @@ public class BlobProcessor {
     private final BlobServiceClient storageClient;
     private final BlobDispatcher dispatcher;
     private final BlobReadinessChecker readinessChecker;
-    private final EnvelopeRepository envelopeRepository;
+    private final EnvelopeRepositoryImpl envelopeRepository;
     private final LeaseClientProvider leaseClientProvider;
 
     public BlobProcessor(
         @Qualifier("storage-client") BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
         BlobReadinessChecker readinessChecker,
-        EnvelopeRepository envelopeRepository,
+        EnvelopeRepositoryImpl envelopeRepository,
         LeaseClientProvider leaseClientProvider
     ) {
         this.storageClient = storageClient;

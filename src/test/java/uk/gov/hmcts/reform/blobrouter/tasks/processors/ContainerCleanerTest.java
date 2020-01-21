@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
@@ -37,7 +37,7 @@ class ContainerCleanerTest {
     private ContainerCleaner containerCleaner;
 
     @Mock
-    private EnvelopeRepository envelopeRepository;
+    private EnvelopeRepositoryImpl envelopeRepository;
 
     @Mock
     private BlobServiceClient storageClient;
