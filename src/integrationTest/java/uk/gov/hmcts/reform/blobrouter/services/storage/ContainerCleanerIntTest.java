@@ -99,7 +99,6 @@ public class ContainerCleanerIntTest {
         uploadFilesToStorage(dispatchedFileNames);
 
         // ensure files have been uploaded
-        assertThat(containerClient.listBlobs()).hasSize(dispatchedFileNames.length);
         assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
             .containsExactlyInAnyOrder(dispatchedFileNames);
 
@@ -123,7 +122,6 @@ public class ContainerCleanerIntTest {
         uploadFilesToStorage(rejectedFileNames);
 
         // ensure files have been uploaded
-        assertThat(containerClient.listBlobs()).hasSize(dispatchedFileNames.length + rejectedFileNames.length);
         assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
             .containsExactlyInAnyOrder((String[]) addAll(dispatchedFileNames, rejectedFileNames));
 
@@ -134,7 +132,6 @@ public class ContainerCleanerIntTest {
         containerCleaner.process(CONTAINER_NAME);
 
         // then
-        assertThat(containerClient.listBlobs()).hasSize(rejectedFileNames.length);
         assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
             .containsExactlyInAnyOrder(rejectedFileNames);
         assertFilesIsDeleteState(true, dispatchedFileNames);
