@@ -58,7 +58,7 @@ java:
     postgresqlDatabase: db
     initdbScripts:
       init.sql: |-
-        CREATE DATABASE "bulk_scan" WITH OWNER = hmcts ENCODING = 'UTF-8' CONNECTION LIMIT = -1;
+        CREATE DATABASE "bulk_scan" WITH OWNER = db_user ENCODING = 'UTF-8' CONNECTION LIMIT = -1;
 reformblobstorage:
   enabled: true
   resourceGroup: reform-scan-aks
