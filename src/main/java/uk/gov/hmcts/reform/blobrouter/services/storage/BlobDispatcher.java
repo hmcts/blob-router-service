@@ -14,10 +14,10 @@ public class BlobDispatcher {
 
     private static final Logger logger = getLogger(BlobDispatcher.class);
 
-    private final BlobServiceClientProvider blobServiceClientProvider;
+    private final BlobContainerClientProvider blobContainerClientProvider;
 
-    public BlobDispatcher(BlobServiceClientProvider blobServiceClientProvider) {
-        this.blobServiceClientProvider = blobServiceClientProvider;
+    public BlobDispatcher(BlobContainerClientProvider blobContainerClientProvider) {
+        this.blobContainerClientProvider = blobContainerClientProvider;
     }
 
     public void dispatch(
@@ -49,8 +49,6 @@ public class BlobDispatcher {
         TargetStorageAccount targetStorageAccount,
         String destinationContainer
     ) {
-        return blobServiceClientProvider
-            .get(targetStorageAccount, destinationContainer)
-            .getBlobContainerClient(destinationContainer);
+        return blobContainerClientProvider.get(targetStorageAccount, destinationContainer);
     }
 }

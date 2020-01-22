@@ -18,9 +18,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
-public class EnvelopeRepositoryImplTest {
+public class EnvelopeRepositoryTest {
 
-    @Autowired private EnvelopeRepositoryImpl repo;
+    @Autowired private EnvelopeRepository repo;
     @Autowired private DbHelper dbHelper;
 
     @BeforeEach
