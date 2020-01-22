@@ -10,10 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.context.ActiveProfiles;
 import org.testcontainers.containers.DockerComposeContainer;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
@@ -34,7 +32,6 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("db-test")
-@ExtendWith(OutputCaptureExtension.class)
 public class ContainerCleanerIntTest {
     private static final String CONTAINER_NAME = "bulkscan";
 
