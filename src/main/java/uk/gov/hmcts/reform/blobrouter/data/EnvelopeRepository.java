@@ -14,12 +14,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public class EnvelopeRepositoryImpl {
+public class EnvelopeRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeMapper mapper;
 
-    public EnvelopeRepositoryImpl(NamedParameterJdbcTemplate jdbcTemplate, EnvelopeMapper mapper) {
+    public EnvelopeRepository(NamedParameterJdbcTemplate jdbcTemplate, EnvelopeMapper mapper) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
     }
