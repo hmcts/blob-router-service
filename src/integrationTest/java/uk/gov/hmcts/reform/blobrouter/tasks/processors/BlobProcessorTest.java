@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
@@ -40,7 +40,7 @@ class BlobProcessorTest extends TestBase {
     @Autowired
     private BlobReadinessChecker readinessChecker;
     @Autowired
-    private EnvelopeRepository envelopeRepository;
+    private EnvelopeRepositoryImpl envelopeRepository;
     @Autowired
     private DbHelper dbHelper;
     @Autowired

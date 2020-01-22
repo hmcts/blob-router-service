@@ -8,7 +8,7 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -20,11 +20,11 @@ public class ContainerCleaner {
     private static final Logger logger = getLogger(ContainerCleaner.class);
 
     private final BlobServiceClient storageClient;
-    private final EnvelopeRepository envelopeRepository;
+    private final EnvelopeRepositoryImpl envelopeRepository;
 
     public ContainerCleaner(
         @Qualifier("storage-client") BlobServiceClient storageClient,
-        EnvelopeRepository envelopeRepository
+        EnvelopeRepositoryImpl envelopeRepository
     ) {
         this.storageClient = storageClient;
         this.envelopeRepository = envelopeRepository;

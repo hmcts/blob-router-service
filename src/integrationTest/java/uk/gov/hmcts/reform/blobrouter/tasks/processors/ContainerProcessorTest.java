@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -28,7 +28,7 @@ class ContainerProcessorTest extends TestBase {
     private BlobReadinessChecker readinessChecker;
 
     @Autowired
-    private EnvelopeRepository envelopeRepository;
+    private EnvelopeRepositoryImpl envelopeRepository;
 
     @Autowired
     private LeaseClientProvider leaseClientProvider;

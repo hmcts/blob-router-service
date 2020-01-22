@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public class EnvelopeRepositoryImpl implements EnvelopeRepository {
+public class EnvelopeRepositoryImpl {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeMapper mapper;
@@ -54,7 +54,6 @@ public class EnvelopeRepositoryImpl implements EnvelopeRepository {
         }
     }
 
-    @Override
     public List<Envelope> find(Status status, String container, boolean isDeleted) {
         return jdbcTemplate.query(
             "SELECT * FROM envelopes WHERE status = :status AND container = :container AND is_deleted = :isDeleted",
@@ -66,7 +65,6 @@ public class EnvelopeRepositoryImpl implements EnvelopeRepository {
         );
     }
 
-    @Override
     public UUID insert(NewEnvelope envelope) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
@@ -83,7 +81,6 @@ public class EnvelopeRepositoryImpl implements EnvelopeRepository {
         return id;
     }
 
-    @Override
     public int markAsDeleted(UUID id) {
         return jdbcTemplate.update(
             "UPDATE envelopes "
