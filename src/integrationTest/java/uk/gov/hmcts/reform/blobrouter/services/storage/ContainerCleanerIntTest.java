@@ -5,6 +5,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
+import com.google.common.collect.Iterables;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,9 +24,10 @@ import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import java.io.File;
 import java.time.Instant;
+import java.util.List;
 
 import static com.azure.core.test.TestBase.setupClass;
-import static org.apache.commons.lang.ArrayUtils.addAll;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
@@ -91,13 +93,13 @@ public class ContainerCleanerIntTest {
     @Test
     public void should_find_blobs_and_delete() {
         // given
-        String[] dispatchedFileNames = new String[]{TEST_1, TEST_3};
+        List<String> dispatchedFileNames = asList(TEST_1, TEST_3);
 
         uploadFilesToStorage(dispatchedFileNames);
 
         // ensure files have been uploaded
         assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
-            .containsExactlyInAnyOrder(dispatchedFileNames);
+            .containsExactlyInAnyOrderElementsOf(dispatchedFileNames);
 
         createEnvelopes(DISPATCHED, dispatchedFileNames);
 
@@ -112,15 +114,15 @@ public class ContainerCleanerIntTest {
     @Test
     public void should_delete_only_dispatched_blobs() {
         // given
-        String[] dispatchedFileNames = new String[]{TEST_1, TEST_3};
-        String[] rejectedFileNames = new String[]{TEST_2, TEST_4};
+        List<String> dispatchedFileNames = asList(TEST_1, TEST_3);
+        List<String> rejectedFileNames = asList(TEST_2, TEST_4);
 
         uploadFilesToStorage(dispatchedFileNames);
         uploadFilesToStorage(rejectedFileNames);
 
         // ensure files have been uploaded
         assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
-            .containsExactlyInAnyOrder((String[]) addAll(dispatchedFileNames, rejectedFileNames));
+            .containsExactlyInAnyOrderElementsOf(Iterables.concat(dispatchedFileNames, rejectedFileNames));
 
         createEnvelopes(DISPATCHED, dispatchedFileNames);
         createEnvelopes(REJECTED, rejectedFileNames);
@@ -130,7 +132,7 @@ public class ContainerCleanerIntTest {
 
         // then
         assertThat(containerClient.listBlobs().stream().map(BlobItem::getName))
-            .containsExactlyInAnyOrder(rejectedFileNames);
+            .containsExactlyInAnyOrderElementsOf(rejectedFileNames);
         assertFilesIsDeleteState(true, dispatchedFileNames);
         assertFilesIsDeleteState(false, rejectedFileNames);
     }
@@ -139,11 +141,11 @@ public class ContainerCleanerIntTest {
     public void should_handle_non_existing_file() {
         // given
         // 2 envelopes in the database
-        String[] dispatchedFileNames = new String[]{TEST_1, TEST_3};
+        List<String> dispatchedFileNames = asList(TEST_1, TEST_3);
         createEnvelopes(DISPATCHED, dispatchedFileNames);
 
         // but only 1 file uploaded
-        uploadFilesToStorage(TEST_1);
+        uploadFilesToStorage(asList(TEST_1));
 
         // ensure file have been uploaded
         assertThat(containerClient.listBlobs()).hasSize(1);
@@ -158,14 +160,14 @@ public class ContainerCleanerIntTest {
         assertFilesIsDeleteState(true, dispatchedFileNames);
     }
 
-    private void uploadFilesToStorage(String... fileNames) {
-        for (String fileName: fileNames) {
+    private void uploadFilesToStorage(List<String> fileNames) {
+        for (String fileName : fileNames) {
             BlobClient blobClient = containerClient.getBlobClient(fileName);
             blobClient.uploadFromFile("src/integrationTest/resources/storage/" + fileName);
         }
     }
 
-    private void createEnvelopes(Status status, String... fileNames) {
+    private void createEnvelopes(Status status, List<String> fileNames) {
         for (String fileName : fileNames) {
             NewEnvelope envelope = new NewEnvelope(
                 CONTAINER_NAME,
@@ -178,7 +180,7 @@ public class ContainerCleanerIntTest {
         }
     }
 
-    private void assertFilesIsDeleteState(boolean isDeleted, String... fileNames) {
+    private void assertFilesIsDeleteState(boolean isDeleted, List<String> fileNames) {
         for (String fileName : fileNames) {
             assertThat(envelopeRepository.find(fileName, CONTAINER_NAME).isPresent()).isTrue();
             assertThat(envelopeRepository.find(fileName, CONTAINER_NAME).get().isDeleted).isEqualTo(isDeleted);
