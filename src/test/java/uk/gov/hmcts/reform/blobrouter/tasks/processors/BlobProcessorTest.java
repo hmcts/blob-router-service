@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepositoryImpl;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -41,7 +41,7 @@ class BlobProcessorTest {
     @Mock BlobProperties blobProperties;
     @Mock BlobDispatcher blobDispatcher;
     @Mock BlobLeaseClient blobLeaseClient;
-    @Mock EnvelopeRepositoryImpl envelopeRepo;
+    @Mock EnvelopeRepository envelopeRepo;
 
     BlobProcessor blobProcessor;
 
