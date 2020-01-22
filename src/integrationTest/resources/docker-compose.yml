@@ -1,0 +1,8 @@
+version: '2'
+services:
+  azure-storage:
+    image: arafato/azurite:2.6.5
+    ports:
+        - 10000:10000
+    environment:
+        - executable=blob
