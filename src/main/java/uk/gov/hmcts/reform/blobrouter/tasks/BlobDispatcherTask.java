@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerProcessor;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
