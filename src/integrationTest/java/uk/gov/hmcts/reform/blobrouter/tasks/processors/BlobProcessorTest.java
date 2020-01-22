@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.core.test.TestBase;
+import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,8 +13,8 @@ import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
-import uk.gov.hmcts.reform.blobrouter.services.storage.BlobServiceClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
@@ -61,10 +62,15 @@ class BlobProcessorTest extends TestBase {
         dbHelper.deleteAll();
 
         // set up processor
+        BlobContainerClientProvider blobContainerClientProvider = mock(BlobContainerClientProvider.class);
+
+        BlobContainerClient blobContainerClient =
+            StorageClientsHelper.getContainerClient(interceptorManager, CONTAINER);
+
+        given(blobContainerClientProvider.get(any(), any())).willReturn(blobContainerClient);
+        dispatcher = spy(new BlobDispatcher(blobContainerClientProvider));
+
         BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
-        BlobServiceClientProvider blobServiceClientProvider = mock(BlobServiceClientProvider.class);
-        given(blobServiceClientProvider.get(any(), any())).willReturn(storageClient);
-        dispatcher = spy(new BlobDispatcher(blobServiceClientProvider));
 
         blobProcessor = new BlobProcessor(
             storageClient,

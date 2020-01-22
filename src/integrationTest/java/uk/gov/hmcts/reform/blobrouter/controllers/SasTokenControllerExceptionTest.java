@@ -8,7 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
-import uk.gov.hmcts.reform.blobrouter.services.storage.BlobServiceClientProvider;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -27,7 +27,7 @@ public class SasTokenControllerExceptionTest extends ControllerTestBase {
     private MockMvc mockMvc;
 
     @MockBean
-    private BlobServiceClientProvider blobServiceClientProvider;
+    private BlobContainerClientProvider blobContainerClientProvider;
 
     @Test
     public void should_throw_exception_when_storage_is_not_configured() throws Exception {

@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
@@ -39,9 +41,9 @@ public class StorageConfiguration {
     }
 
     @Bean("crime-storage-client")
-    public static BlobServiceClient getCrimeStorageClient(
+    public static BlobContainerClient getCrimeStorageClient(
         @Value("${storage.crime.connection-string}") String connectionString
     ) {
-        return new BlobServiceClientBuilder().connectionString(connectionString).buildClient();
+        return new BlobContainerClientBuilder().connectionString(connectionString).buildClient();
     }
 }
