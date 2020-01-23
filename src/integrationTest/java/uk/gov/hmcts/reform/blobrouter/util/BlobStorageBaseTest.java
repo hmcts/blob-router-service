@@ -42,5 +42,4 @@ public abstract class BlobStorageBaseTest {
     protected void deleteContainer() {
         storageClient.deleteBlobContainer(CONTAINER_NAME);
     }
-
 }
