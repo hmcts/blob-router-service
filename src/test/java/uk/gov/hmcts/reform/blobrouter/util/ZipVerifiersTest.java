@@ -59,6 +59,21 @@ class ZipVerifiersTest {
     }
 
     @Test
+    void should_throw_exception_for_invalid_public_key() throws Exception {
+        byte[] test1PdfBytes = toByteArray(getResource("test.pdf"));
+        byte[] test1SigPdfBytes = toByteArray(getResource("signature/test.pdf.sig"));
+
+
+        String invalidPublicKey = Base64.getEncoder().encodeToString(
+            toByteArray(getResource("signature/invalid_public_key_format.der"))
+        );
+
+        assertThatThrownBy(() ->
+            ZipVerifiers.verifySignature(invalidPublicKey, test1PdfBytes, test1SigPdfBytes)
+        ).isInstanceOf(SignatureValidationException.class);
+    }
+
+    @Test
     void should_not_verify_other_file_successfully() throws Exception {
         byte[] test2PdfBytes = toByteArray(getResource("test1.pdf"));
         byte[] test1SigPdfBytes = toByteArray(getResource("signature/test.pdf.sig"));
