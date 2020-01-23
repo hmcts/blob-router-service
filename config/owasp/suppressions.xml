@@ -3,7 +3,7 @@
   <suppress>
     <notes><![CDATA[ Hard dependency from azure-storage library ]]></notes>
     <cpe regex="true">cpe:\/a:netty:netty:(1\.0\.0|0\.9\.1)</cpe>
-    <cpe regex="true">cpe:\/a:apache:groovy:(2\.5\.8)</cpe>
+    <cpe regex="true">cpe:\/a:apache:groovy:(2\.5\.9)</cpe>
     <cpe regex="true">cpe:\/a:apache:sling:(0\.1\.0)</cpe>
   </suppress>
   <suppress until="2020-01-31">
