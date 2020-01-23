@@ -20,13 +20,11 @@ import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerCleaner;
-import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
 
 import java.io.File;
 import java.time.Instant;
 import java.util.List;
 
-import static com.azure.core.test.TestBase.setupClass;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
@@ -34,7 +32,7 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("db-test")
-public class ContainerCleanerIntTest {
+public class ContainerCleanerTest {
     private static final String CONTAINER_NAME = "bulkscan";
 
     private static final String TEST_1 = "test1.zip";
@@ -57,9 +55,7 @@ public class ContainerCleanerIntTest {
     private DbHelper dbHelper;
 
     @BeforeAll
-    static void setUpTestMode() {
-        StorageClientsHelper.setAzureTestMode();
-        setupClass();
+    static void beforeAll() {
 
         dockerComposeContainer =
             new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
@@ -68,7 +64,7 @@ public class ContainerCleanerIntTest {
     }
 
     @AfterAll
-    static void tearDownTestMode() {
+    static void afterAll() {
         dockerComposeContainer.stop();
     }
 
