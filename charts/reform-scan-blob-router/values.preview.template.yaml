@@ -68,6 +68,11 @@ reformblobstorage:
     containers:
       - bulkscan
       - bulkscan-rejected
+      - cmc
+      - divorce
+      - finrem
+      - probate
+      - sscs
       - crime
       - crime-rejected
 
