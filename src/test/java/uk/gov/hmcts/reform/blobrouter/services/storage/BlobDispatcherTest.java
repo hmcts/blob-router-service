@@ -52,15 +52,15 @@ class BlobDispatcherTest {
         dispatcher.dispatch(blobName, blobContent, container, BULKSCAN);
 
         // then
-        ArgumentCaptor<ByteArrayInputStream> argument = ArgumentCaptor.forClass(ByteArrayInputStream.class);
+        ArgumentCaptor<ByteArrayInputStream> data = ArgumentCaptor.forClass(ByteArrayInputStream.class);
 
         verify(blockBlobClient)
             .upload(
-                argument.capture(),
+                data.capture(),
                 eq(Long.valueOf(blobContent.length))
             );
 
-        assertThat(argument.getValue().readAllBytes()).isEqualTo(blobContent);
+        assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);
     }
 
     @Test
