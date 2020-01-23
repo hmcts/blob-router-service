@@ -1,13 +1,13 @@
 package uk.gov.hmcts.reform.blobrouter.util;
 
 import com.google.common.collect.ImmutableSet;
-
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -128,6 +128,17 @@ class ZipVerifiersTest {
     }
 
     @Test
+    void should_not_verify_signature_when_algorithm_is_none() throws Exception {
+        byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
+        ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
+            new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64, "hello.zip", "x"
+        );
+        assertThatCode(
+            () -> ZipVerifiers.noOpVerification(zipStreamWithSig)
+        ).doesNotThrowAnyException();
+    }
+
+    @Test
     void should_verify_valid_test_zip_successfully() throws Exception {
         byte[] zipBytes = zipDir("signature/sample_valid_content");
         byte[] signature = signWithSha256Rsa(
@@ -213,6 +224,15 @@ class ZipVerifiersTest {
             .isInstanceOf(DocSignatureFailureException.class)
             .hasMessage(INVALID_SIGNATURE_MESSAGE)
             .hasCauseInstanceOf(SignatureException.class);
+    }
+
+    @Test
+    void should_throw_exception_for_unrecognised_algorithm() {
+        assertThatThrownBy(() ->
+            ZipVerifiers.getPreprocessor("xyz") // only supports "sha256withrsa" and "none" values
+        )
+            .isInstanceOf(SignatureValidationException.class)
+            .hasMessage("Undefined signature verification algorithm");
     }
 
 }

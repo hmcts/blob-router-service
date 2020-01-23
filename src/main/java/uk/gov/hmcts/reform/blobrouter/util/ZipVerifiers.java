@@ -1,8 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.util;
 
-import com.google.common.base.Strings;
-import com.google.common.io.Resources;
-
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
@@ -26,7 +23,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
-import static com.google.common.io.Resources.getResource;
 import static java.util.Arrays.asList;
 
 /**
@@ -156,24 +152,11 @@ public class ZipVerifiers {
         }
     }
 
-    public static class PublicKeyFile {
-        public final String derFilename;
-        public final String publicKeyBase64;
-
-        public PublicKeyFile(String derFilename, String publicKeyBase64) {
-            this.derFilename = derFilename;
-            this.publicKeyBase64 = publicKeyBase64;
-        }
-
-    }
-
     public static class ZipStreamWithSignature {
         public final ZipInputStream zipInputStream;
         public final String publicKeyBase64;
         public final String zipFileName;
         public final String container;
-
-        private static PublicKeyFile cachedPublicKeyFile;
 
         public ZipStreamWithSignature(
             ZipInputStream zipInputStream,
@@ -187,30 +170,5 @@ public class ZipVerifiers {
             this.container = container;
         }
 
-        public static ZipStreamWithSignature fromKeyfile(
-            ZipInputStream zipInputStream,
-            String publicKeyDerFile,
-            String zipFileName,
-            String container
-        ) {
-            try {
-                String publicKeyBase64 = null;
-                if (!Strings.isNullOrEmpty(publicKeyDerFile) && !"none".equalsIgnoreCase(publicKeyDerFile)) {
-                    if (cachedPublicKeyFile != null && publicKeyDerFile.equals(cachedPublicKeyFile.derFilename)) {
-                        publicKeyBase64 = cachedPublicKeyFile.publicKeyBase64;
-                    } else {
-                        publicKeyBase64 =
-                            Base64.getEncoder().encodeToString(
-                                Resources.toByteArray(getResource(publicKeyDerFile))
-                            );
-                        cachedPublicKeyFile = new PublicKeyFile(publicKeyDerFile, publicKeyBase64);
-                    }
-                }
-
-                return new ZipStreamWithSignature(zipInputStream, publicKeyBase64, zipFileName, container);
-            } catch (IOException e) {
-                throw new SignatureValidationException(e);
-            }
-        }
     }
 }
