@@ -10,7 +10,7 @@ import org.testcontainers.containers.DockerComposeContainer;
 import java.io.File;
 
 /**
- * Spins up test blob container on Docker.
+ * Spins up test blob storage on Docker.
  */
 public abstract class BlobStorageBaseTest {
 
