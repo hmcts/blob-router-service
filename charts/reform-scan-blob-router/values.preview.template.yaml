@@ -44,8 +44,10 @@ java:
     FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
 
-    STORAGE_BULKSCAN_URL: "https://$(STORAGE_BULKSCAN_ACCOUNT_NAME).blob.core.windows.net"
+    STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
     STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
+
+    BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
