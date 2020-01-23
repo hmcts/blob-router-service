@@ -32,7 +32,7 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("db-test")
-public class ContainerCleanerIntTest {
+public class ContainerCleanerTest {
     private static final String CONTAINER_NAME = "bulkscan";
 
     private static final String TEST_1 = "test1.zip";
