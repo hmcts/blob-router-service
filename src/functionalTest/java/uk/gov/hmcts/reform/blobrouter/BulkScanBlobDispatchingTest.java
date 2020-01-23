@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter;
 
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -19,6 +20,12 @@ import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.uploadFile;
 public class BulkScanBlobDispatchingTest extends FunctionalTestBase {
 
     private static final String CONTAINER = "bulkscan";
+
+    @BeforeEach
+    @Override
+    protected void setUp() {
+        super.setUp();
+    }
 
     @Test
     void should_move_blob_to_bulkscan_storage() throws Exception {
