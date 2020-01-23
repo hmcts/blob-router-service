@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerProcessor;
 
-import java.util.stream.Stream;
+import java.util.Collections;
+import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -36,17 +38,20 @@ public class BlobDispatcherTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        getAvailableContainers().forEach(containerProcessor::process);
+        List<String> containers = getAvailableContainers();
+        Collections.shuffle(containers);
+        containers.forEach(containerProcessor::process);
 
         logger.info("Finished {} job", TASK_NAME);
     }
 
-    private Stream<String> getAvailableContainers() {
+    private List<String> getAvailableContainers() {
         return serviceConfiguration.getStorageConfig()
             .values()
             .stream()
             .filter(ServiceConfiguration.StorageConfig::isEnabled)
-            .map(ServiceConfiguration.StorageConfig::getName);
+            .map(ServiceConfiguration.StorageConfig::getName)
+            .collect(toList());
     }
 
 }
