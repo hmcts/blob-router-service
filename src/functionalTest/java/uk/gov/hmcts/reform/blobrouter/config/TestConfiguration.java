@@ -5,6 +5,8 @@ import com.typesafe.config.ConfigFactory;
 
 public class TestConfiguration {
 
+    public final String blobRouterUrl;
+
     public final String sourceStorageAccountName;
     public final String sourceStorageAccountKey;
     public final String sourceStorageAccountUrl;
@@ -17,6 +19,8 @@ public class TestConfiguration {
 
     public TestConfiguration() {
         Config config = ConfigFactory.load();
+
+        this.blobRouterUrl = config.getString("blob-router-url");
 
         this.sourceStorageAccountName = config.getString("source-storage-account-name");
         this.sourceStorageAccountKey = config.getString("source-storage-account-key");
