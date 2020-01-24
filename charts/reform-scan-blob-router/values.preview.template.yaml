@@ -9,12 +9,6 @@ java:
     STORAGE_ACCOUNT_SECONDARY_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
-    STORAGE_BULKSCAN_ACCOUNT_NAME:
-      secretRef: storage-secret-cft-{{ .Release.Name }}
-      key: storageAccountName
-    STORAGE_BULKSCAN_ACCOUNT_KEY:
-      secretRef: storage-secret-cft-{{ .Release.Name }}
-      key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
       secretRef: storage-secret-crime-{{ .Release.Name }}
       key: storageAccountName
@@ -75,17 +69,6 @@ reformblobstorage:
       - sscs
       - crime
       - crime-rejected
-
-cftblobstorage:
-  enabled: true
-  resourceGroup: reform-scan-aks
-  releaseNameOverride: cft-{{ .Release.Name }}
-  teamName: "BSP"
-  location: ukwest
-  setup:
-    containers:
-      - bulkscan
-      - bulkscan-rejected
 
 crimeblobstorage:
   enabled: true
