@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.google.common.collect.Iterables;
 import org.junit.jupiter.api.AfterEach;
@@ -28,6 +29,8 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 @ActiveProfiles("db-test")
 public class ContainerCleanerTest extends BlobStorageBaseTest {
 
+    private static final String CONTAINER_NAME = "bulkscan";
+
     private static final String TEST_1 = "test1.zip";
     private static final String TEST_2 = "test2.zip";
     private static final String TEST_3 = "test3.zip";
@@ -41,17 +44,19 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
     @Autowired
     private DbHelper dbHelper;
 
+    BlobContainerClient containerClient;
+
     @BeforeEach
     void setUp() {
         dbHelper.deleteAll();
-        createContainer();
+        containerClient = createContainer(CONTAINER_NAME);
 
         containerCleaner = new ContainerCleaner(storageClient, envelopeRepository);
     }
 
     @AfterEach
     void tearDown() {
-        deleteContainer();
+        deleteContainer(CONTAINER_NAME);
     }
 
     @Test
