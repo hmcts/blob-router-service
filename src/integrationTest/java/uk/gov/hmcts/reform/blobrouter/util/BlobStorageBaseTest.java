@@ -14,8 +14,6 @@ import java.io.File;
  */
 public abstract class BlobStorageBaseTest {
 
-    protected static final String CONTAINER_NAME = "bulkscan";
-
     private static DockerComposeContainer dockerComposeContainer;
     protected static BlobServiceClient storageClient;
 

@@ -29,6 +29,8 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 @ActiveProfiles("db-test")
 public class ContainerCleanerTest extends BlobStorageBaseTest {
 
+    private static final String CONTAINER_NAME = "bulkscan";
+
     private static final String TEST_1 = "test1.zip";
     private static final String TEST_2 = "test2.zip";
     private static final String TEST_3 = "test3.zip";
@@ -47,14 +49,14 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
     @BeforeEach
     void setUp() {
         dbHelper.deleteAll();
-        containerClient = createContainer("bulkscan");
+        containerClient = createContainer(CONTAINER_NAME);
 
         containerCleaner = new ContainerCleaner(storageClient, envelopeRepository);
     }
 
     @AfterEach
     void tearDown() {
-        deleteContainer("bulkscan");
+        deleteContainer(CONTAINER_NAME);
     }
 
     @Test
