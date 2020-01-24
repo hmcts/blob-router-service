@@ -71,7 +71,6 @@ withPipeline(type, product, component) {
   // Vars needed for smoke / functional testing
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://reformscan.aat.platform.hmcts.net'
-  env.STORAGE_BULKSCAN_URL = 'https://bulkscan.aat.platform.hmcts.net'
 
   before('smoketest:preview') {
     withAksClient('nonprod') {
