@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.google.common.collect.Iterables;
 import org.junit.jupiter.api.AfterEach;
@@ -41,17 +42,19 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
     @Autowired
     private DbHelper dbHelper;
 
+    BlobContainerClient containerClient;
+
     @BeforeEach
     void setUp() {
         dbHelper.deleteAll();
-        createContainer();
+        containerClient = createContainer("bulkscan");
 
         containerCleaner = new ContainerCleaner(storageClient, envelopeRepository);
     }
 
     @AfterEach
     void tearDown() {
-        deleteContainer();
+        deleteContainer("bulkscan");
     }
 
     @Test

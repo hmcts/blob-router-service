@@ -17,9 +17,7 @@ public abstract class BlobStorageBaseTest {
     protected static final String CONTAINER_NAME = "bulkscan";
 
     private static DockerComposeContainer dockerComposeContainer;
-
-    protected BlobServiceClient storageClient;
-    protected BlobContainerClient containerClient;
+    protected static BlobServiceClient storageClient;
 
     @BeforeAll
     protected static void startBlobStorage() {
@@ -27,6 +25,8 @@ public abstract class BlobStorageBaseTest {
             new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
                 .withExposedService("azure-storage", 10000);
         dockerComposeContainer.start();
+
+        storageClient = new BlobServiceClientBuilder().connectionString("UseDevelopmentStorage=true").buildClient();
     }
 
     @AfterAll
@@ -34,12 +34,11 @@ public abstract class BlobStorageBaseTest {
         dockerComposeContainer.stop();
     }
 
-    protected void createContainer() {
-        storageClient = new BlobServiceClientBuilder().connectionString("UseDevelopmentStorage=true").buildClient();
-        containerClient = storageClient.createBlobContainer(CONTAINER_NAME);
+    protected BlobContainerClient createContainer(String containerName) {
+        return storageClient.createBlobContainer(containerName);
     }
 
-    protected void deleteContainer() {
-        storageClient.deleteBlobContainer(CONTAINER_NAME);
+    protected void deleteContainer(String containerName) {
+        storageClient.deleteBlobContainer(containerName);
     }
 }
