@@ -47,8 +47,8 @@ final class DirectoryZipper {
     }
 
     private static byte[] zipItems(List<ZipItem> items) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+        var outputStream = new ByteArrayOutputStream();
+        try (var zos = new ZipOutputStream(outputStream)) {
 
             for (ZipItem item : items) {
                 zos.putNextEntry(new ZipEntry(item.name));

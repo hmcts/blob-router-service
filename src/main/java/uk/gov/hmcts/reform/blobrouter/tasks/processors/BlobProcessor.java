@@ -109,7 +109,7 @@ public class BlobProcessor {
     }
 
     private byte[] tryToDownloadBlob(BlobClient blobClient) throws IOException {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+        try (var outputStream = new ByteArrayOutputStream()) {
             blobClient.download(outputStream);
 
             return outputStream.toByteArray();

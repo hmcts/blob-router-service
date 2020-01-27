@@ -28,7 +28,7 @@ class DeleteDispatchedFilesTaskTest {
     @Test
     void should_process_all_enabled_containers_and_should_not_process_any_disabled_container() {
         // given
-        ServiceConfiguration serviceConfiguration = new ServiceConfiguration();
+        var serviceConfiguration = new ServiceConfiguration();
         serviceConfiguration.setStorageConfig(
             asList(
                 configure("bulkscan", true),
@@ -49,7 +49,7 @@ class DeleteDispatchedFilesTaskTest {
     @Test
     void should_not_call_container_processor_when_no_available_containers_found() {
         // given
-        ServiceConfiguration serviceConfiguration = new ServiceConfiguration();
+        var serviceConfiguration = new ServiceConfiguration();
         serviceConfiguration.setStorageConfig(
             asList(
                 configure("bulkscan", false),

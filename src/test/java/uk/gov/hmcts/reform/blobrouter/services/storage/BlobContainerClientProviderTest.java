@@ -45,7 +45,7 @@ public class BlobContainerClientProviderTest {
     @Test
     void should_retrieve_sas_token_for_bulk_scan_storage() {
         String containerName = "container123";
-        SasTokenResponse sasTokenResponse = new SasTokenResponse("token1");
+        var sasTokenResponse = new SasTokenResponse("token1");
         given(bulkScanProcessorClient.getSasToken(any())).willReturn(sasTokenResponse);
         BlobContainerClient client = blobContainerClientProvider.get(TargetStorageAccount.BULKSCAN, containerName);
 
