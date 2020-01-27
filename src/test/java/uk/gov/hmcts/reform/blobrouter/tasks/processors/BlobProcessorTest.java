@@ -125,7 +125,7 @@ class BlobProcessorTest {
         given(blobServiceClient.getBlobContainerClient(any())).willReturn(containerClient);
         given(containerClient.getBlobClient(any())).willReturn(blobClient);
         given(blobClient.getProperties()).willReturn(blobProperties);
-        given(blobProperties.getCreationTime()).willReturn(time);
+        given(blobProperties.getLastModified()).willReturn(time);
         given(envelopeRepo.find(any(), any())).willReturn(Optional.empty());
     }
 }
