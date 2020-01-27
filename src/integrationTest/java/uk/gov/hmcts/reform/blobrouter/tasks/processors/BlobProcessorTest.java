@@ -24,7 +24,7 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 @ActiveProfiles("db-test")
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-public class BlobProcessor2Test extends BlobStorageBaseTest {
+public class BlobProcessorTest extends BlobStorageBaseTest {
 
     @Mock BlobContainerClientProvider containerClientProvider;
 
