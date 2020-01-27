@@ -29,17 +29,6 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    void should_return_empty_optional_if_envelope_does_not_exist() {
-        // given no envelopes in DB
-
-        // when
-        Optional<Envelope> envelope = repo.find(UUID.randomUUID());
-
-        // then
-        assertThat(envelope).isEmpty();
-    }
-
-    @Test
     void should_save_and_read_envelope_by_id() {
         // given
         var newEnvelope = new NewEnvelope(
