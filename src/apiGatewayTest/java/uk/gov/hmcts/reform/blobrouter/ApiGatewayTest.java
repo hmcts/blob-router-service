@@ -44,7 +44,7 @@ class ApiGatewayTest {
         // create tmp file for valid certificate retrieved from key vault
         validJavaKeyStore = File.createTempFile("appGW", "test");
 
-        try (FileOutputStream fos = new FileOutputStream(validJavaKeyStore)) {
+        try (var fos = new FileOutputStream(validJavaKeyStore)) {
             fos.write(Base64.getDecoder().decode(CONFIG.getString("client.valid-key-store.content")));
         }
     }

@@ -30,7 +30,7 @@ class BlobDispatcherTaskTest {
     @Test
     void should_get_all_containers_but_process_only_available_ones() {
         // given
-        ServiceConfiguration serviceConfiguration = new ServiceConfiguration();
+        var serviceConfiguration = new ServiceConfiguration();
         serviceConfiguration.setStorageConfig(
             asList(
                 configure("bulkscan", true),
@@ -50,7 +50,7 @@ class BlobDispatcherTaskTest {
     @Test
     void should_not_call_container_processor_when_no_available_containers_found() {
         // given
-        ServiceConfiguration serviceConfiguration = new ServiceConfiguration();
+        var serviceConfiguration = new ServiceConfiguration();
         serviceConfiguration.setStorageConfig(
             asList(
                 configure("bulkscan", false),

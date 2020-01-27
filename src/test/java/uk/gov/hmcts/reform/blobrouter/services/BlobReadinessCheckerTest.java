@@ -12,7 +12,7 @@ class BlobReadinessCheckerTest {
     @Test
     void should_only_allow_processing_files_after_required_time_passed() {
         int delayInMinutes = 10;
-        BlobReadinessChecker checker = new BlobReadinessChecker(delayInMinutes);
+        var checker = new BlobReadinessChecker(delayInMinutes);
 
         assertThat(checker.isReady(now().minus(0, MINUTES))).isFalse();
         assertThat(checker.isReady(now().minus(5, MINUTES))).isFalse();
@@ -23,7 +23,7 @@ class BlobReadinessCheckerTest {
 
     @Test
     void should_allow_processing_all_files_if_delay_is_set_to_zero() {
-        BlobReadinessChecker checker = new BlobReadinessChecker(0);
+        var checker = new BlobReadinessChecker(0);
 
         assertThat(checker.isReady(now().minus(0, MINUTES))).isTrue();
         assertThat(checker.isReady(now().minus(5, MINUTES))).isTrue();

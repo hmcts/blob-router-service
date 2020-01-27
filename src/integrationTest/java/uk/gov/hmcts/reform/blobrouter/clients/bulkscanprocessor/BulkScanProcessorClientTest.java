@@ -26,7 +26,7 @@ public class BulkScanProcessorClientTest {
     @Test
     public void should_return_sas_token_when_everything_is_ok() throws JsonProcessingException {
 
-        SasTokenResponse expected = new SasTokenResponse("187*2@(*&^%$£@12");
+        var expected = new SasTokenResponse("187*2@(*&^%$£@12");
 
         // given
         stubFor(get("/token/sscs").willReturn(okJson("{\"sas_token\":\"187*2@(*&^%$£@12\"}")));

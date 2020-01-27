@@ -34,7 +34,7 @@ class SasTokenGeneratorServiceTest {
             )
         );
 
-        StorageSharedKeyCredential storageCredentials = new StorageSharedKeyCredential(
+        var storageCredentials = new StorageSharedKeyCredential(
             "testAccountName", "dGVzdGtleQ=="
         );
 
