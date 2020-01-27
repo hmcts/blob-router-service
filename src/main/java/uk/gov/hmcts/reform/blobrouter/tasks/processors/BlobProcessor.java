@@ -72,7 +72,7 @@ public class BlobProcessor {
                 .getBlobContainerClient(containerName)
                 .getBlobClient(blobName);
 
-            Instant blobCreationDate = blobClient.getProperties().getCreationTime().toInstant();
+            Instant blobCreationDate = blobClient.getProperties().getLastModified().toInstant();
 
             if (this.readinessChecker.isReady(blobCreationDate)) {
                 leaseClient = leaseClientProvider.get(blobClient);
