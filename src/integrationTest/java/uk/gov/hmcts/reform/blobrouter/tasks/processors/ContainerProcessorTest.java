@@ -20,7 +20,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
     @Mock BlobProcessor blobProcessor;
 
     @Test
-    void should_read_files_from_provided_container() {
+    void should_read_files_from_provided_container_and_call_blob_processor() {
         // given
         var containerName = "my-container";
 
