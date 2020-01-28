@@ -15,7 +15,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class BlobSignatureVerifier {
 
-    private static final Logger logger = getLogger(BlobProcessor.class);
+    private static final Logger logger = getLogger(BlobSignatureVerifier.class);
 
     private final String signatureAlg;
     private final String publicKeyDerFilename;
