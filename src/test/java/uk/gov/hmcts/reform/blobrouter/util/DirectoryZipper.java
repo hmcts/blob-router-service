@@ -16,7 +16,7 @@ import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.blobrouter.util.SigningHelper.signWithSha256Rsa;
 
-final class DirectoryZipper {
+public final class DirectoryZipper {
 
     /**
      * Zips files from given directory. Files in resulting archive are NOT wrapped in a directory.
@@ -33,7 +33,7 @@ final class DirectoryZipper {
     /**
      * Zips files from given directory, generates a signature for the resulting archive and then zips both file.
      */
-    static byte[] zipAndSignDir(String dirName, String signingKeyName) throws Exception {
+    public static byte[] zipAndSignDir(String dirName, String signingKeyName) throws Exception {
 
         byte[] innerZip = zipDir(dirName);
         byte[] signature = signWithSha256Rsa(innerZip, toByteArray(getResource(signingKeyName)));
