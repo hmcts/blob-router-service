@@ -124,7 +124,8 @@ class ZipVerifiersTest {
         var zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
             new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64
         );
-        assertThat(ZipVerifiers.verifyZipSignature(zipStreamWithSig)).isTrue();
+        ZipInputStream zis = ZipVerifiers.verifyZipSignature(zipStreamWithSig);
+        assertThat(zis).isNotNull();
     }
 
     @Test
