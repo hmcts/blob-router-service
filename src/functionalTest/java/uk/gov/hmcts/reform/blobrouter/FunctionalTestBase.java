@@ -24,7 +24,7 @@ public abstract class FunctionalTestBase {
     protected BlobServiceClient blobRouterStorageClient;
 
     protected void setUp() {
-        StorageSharedKeyCredential blobRouterStorageCredential = new StorageSharedKeyCredential(
+        var blobRouterStorageCredential = new StorageSharedKeyCredential(
             config.sourceStorageAccountName,
             config.sourceStorageAccountKey
         );

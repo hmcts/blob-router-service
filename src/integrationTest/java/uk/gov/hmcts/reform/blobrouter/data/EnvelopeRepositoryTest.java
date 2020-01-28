@@ -31,7 +31,7 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_save_and_read_envelope_by_id() {
         // given
-        NewEnvelope newEnvelope = new NewEnvelope(
+        var newEnvelope = new NewEnvelope(
             "container",
             "hello.zip",
             now(),
@@ -60,7 +60,7 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_mark_existing_envelope_as_deleted() {
         // given
-        NewEnvelope newEnvelope = new NewEnvelope(
+        var newEnvelope = new NewEnvelope(
             "container",
             "hello.zip",
             now(),

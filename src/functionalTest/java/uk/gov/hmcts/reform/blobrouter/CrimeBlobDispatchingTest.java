@@ -37,11 +37,11 @@ public class CrimeBlobDispatchingTest extends FunctionalTestBase {
         String fileName = randomFileName();
 
         byte[] internalZipContent = toByteArray(
-            getResource("test-data/envelope/crime/envelope.zip")
+            getResource("test-data/envelope/envelope.zip")
         );
 
         byte[] wrappingZipContent = createZipArchive(
-            asList("test-data/envelope/crime/envelope.zip", "test-data/envelope/crime/signature")
+            asList("test-data/envelope/envelope.zip", "test-data/envelope/signature")
         );
 
         // when
