@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.util;
 
-import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -86,7 +85,7 @@ class ZipVerifiersTest {
 
     @Test
     void should_verify_2_valid_filenames_successfully() {
-        Set<String> files = ImmutableSet.of(
+        Set<String> files = Set.of(
             ZipVerifiers.DOCUMENTS_ZIP,
             ZipVerifiers.SIGNATURE_SIG
         );
@@ -96,7 +95,7 @@ class ZipVerifiersTest {
 
     @Test
     void should_not_verify_more_than_2_files_successfully() {
-        Set<String> files = ImmutableSet.of(
+        Set<String> files = Set.of(
             ZipVerifiers.DOCUMENTS_ZIP,
             ZipVerifiers.SIGNATURE_SIG,
             "signature2"
@@ -109,7 +108,7 @@ class ZipVerifiersTest {
 
     @Test
     void should_not_verify_invalid_filenames_successfully() {
-        Set<String> files = ImmutableSet.of(
+        Set<String> files = Set.of(
             ZipVerifiers.DOCUMENTS_ZIP,
             "signature.sig"
         );
