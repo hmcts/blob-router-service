@@ -27,10 +27,10 @@ import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 
 /**
- * Signed zip archive verification utilities. Currently verifies with sha256withrsa algorithm:
- * <ul>
- * <li>sha256withrsa = sha256 + rsa signature verification</li>
- * </ul>
+ * Signed zip archive verification utilities.
+ * Currently verifies with sha256withrsa algorithm:
+ * sha256withrsa = sha256 + rsa signature verification.
+ *
  * With the obvious exclusion of the no verification case, a signed zip
  * archive must include 2 files named envelope.zip and signature. The
  * former is the archive content while the latter is the signature the
