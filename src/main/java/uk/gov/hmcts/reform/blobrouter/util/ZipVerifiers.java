@@ -168,24 +168,20 @@ public class ZipVerifiers {
     public static class ZipStreamWithSignature {
         public final ZipInputStream zipInputStream;
         public final String publicKeyBase64;
-        public final String container;
 
         private static PublicKeyFile cachedPublicKeyFile;
 
         public ZipStreamWithSignature(
             ZipInputStream zipInputStream,
-            String publicKeyBase64,
-            String container
+            String publicKeyBase64
         ) {
             this.zipInputStream = zipInputStream;
             this.publicKeyBase64 = publicKeyBase64;
-            this.container = container;
         }
 
         public static ZipStreamWithSignature fromKeyfile(
             ZipInputStream zipInputStream,
-            String publicKeyDerFile,
-            String container
+            String publicKeyDerFile
         ) {
             try {
                 String publicKeyBase64 = null;
@@ -201,7 +197,7 @@ public class ZipVerifiers {
                     }
                 }
 
-                return new ZipStreamWithSignature(zipInputStream, publicKeyBase64, container);
+                return new ZipStreamWithSignature(zipInputStream, publicKeyBase64);
             } catch (IOException e) {
                 throw new SignatureValidationException(e);
             }

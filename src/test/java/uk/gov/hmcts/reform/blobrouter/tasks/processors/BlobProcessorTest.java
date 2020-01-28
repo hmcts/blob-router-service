@@ -84,7 +84,7 @@ class BlobProcessorTest {
         // given
         blobExists(OffsetDateTime.now());
         given(readinessChecker.isReady(any())).willReturn(true);
-        given(signatureVerifier.verifyZipSignature(any(), any(), any())).willReturn(true);
+        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
 
         willThrow(new RuntimeException("Test exception"))
             .given(blobDispatcher)
@@ -109,7 +109,7 @@ class BlobProcessorTest {
 
         // file IS ready to be processed
         given(readinessChecker.isReady(any())).willReturn(true);
-        given(signatureVerifier.verifyZipSignature(any(), any(), any())).willReturn(true);
+        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
 
         // when
         blobProcessor.process(fileName, containerName);
@@ -139,7 +139,7 @@ class BlobProcessorTest {
 
         // file IS ready to be processed
         given(readinessChecker.isReady(any())).willReturn(true);
-        given(signatureVerifier.verifyZipSignature(any(), any(), any())).willReturn(false);
+        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(false);
 
         // when
         blobProcessor.process(fileName, containerName);

@@ -85,7 +85,7 @@ public class BlobProcessor {
                 byte[] rawBlob = tryToDownloadBlob(blobClient);
 
                 // Verify Zip signature
-                boolean validSignature = signatureVerifier.verifyZipSignature(blobName, containerName, rawBlob);
+                boolean validSignature = signatureVerifier.verifyZipSignature(blobName, rawBlob);
 
                 if (validSignature) {
                     // target storage account will be retrieved from configuration
@@ -105,13 +105,13 @@ public class BlobProcessor {
                         envelopeId
                     );
                 } else {
+                    logger.warn("Invalid signature. Blob name: {} container: {}", blobName, containerName);
                     envelopeRepository.insert(createNewEnvelope(
                         blobName,
                         containerName,
                         blobCreationDate,
                         Status.REJECTED
                     ));
-                    // TODO move to rejected container
                     // TODO send notification to Exela
                 }
             } else {

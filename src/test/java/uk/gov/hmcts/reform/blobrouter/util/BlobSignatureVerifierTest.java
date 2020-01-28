@@ -16,7 +16,7 @@ class BlobSignatureVerifierTest {
 
     @BeforeEach
     void setUp() {
-        this.signatureVerifier = new BlobSignatureVerifier("sha256withrsa", "signature/public_key.der");
+        this.signatureVerifier = new BlobSignatureVerifier("sha256withrsa", "signature/test_public_key.der");
     }
 
     @Test
@@ -25,7 +25,7 @@ class BlobSignatureVerifierTest {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
 
         // then
-        assertThat(signatureVerifier.verifyZipSignature("test.zip", "testContainer", zipBytes)).isTrue();
+        assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isTrue();
     }
 
     @Test
@@ -34,7 +34,7 @@ class BlobSignatureVerifierTest {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
 
         // then
-        assertThat(signatureVerifier.verifyZipSignature("test.zip", "testContainer", zipBytes)).isFalse();
+        assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isFalse();
     }
 
 }

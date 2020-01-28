@@ -38,7 +38,7 @@ class ZipVerifiersTest {
     static void setUp() throws IOException {
         publicKeyBase64 =
             Base64.getEncoder().encodeToString(
-                toByteArray(getResource("signature/public_key.der"))
+                toByteArray(getResource("signature/test_public_key.der"))
             );
 
         invalidPublicKeyBase64 =
@@ -124,7 +124,7 @@ class ZipVerifiersTest {
 
 
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
-            new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64, "some_container"
+            new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64
         );
         ZipInputStream zis = ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig);
         assertThat(zis).isNotNull();
@@ -135,7 +135,7 @@ class ZipVerifiersTest {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
 
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
-            new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64, "x"
+            new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64
         );
         assertThrows(
             DocSignatureFailureException.class,
@@ -148,7 +148,7 @@ class ZipVerifiersTest {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
 
         ZipVerifiers.ZipStreamWithSignature zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
-            new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64, "x"
+            new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64
         );
         assertThatCode(
             () -> ZipVerifiers.noOpVerification(zipStreamWithSig)
