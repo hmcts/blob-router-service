@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.blobrouter;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -18,7 +17,6 @@ import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArc
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.uploadFile;
 
-@Disabled("Functionality not available on bulk scan end")
 public class BulkScanBlobDispatchingTest extends FunctionalTestBase {
 
     private static final String CONTAINER = "bulkscan";
