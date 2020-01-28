@@ -124,8 +124,7 @@ class ZipVerifiersTest {
         var zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
             new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64
         );
-        ZipInputStream zis = ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig);
-        assertThat(zis).isNotNull();
+        assertThat(ZipVerifiers.verifyZipSignature(zipStreamWithSig)).isTrue();
     }
 
     @Test
@@ -137,7 +136,7 @@ class ZipVerifiersTest {
         );
         assertThrows(
             DocSignatureFailureException.class,
-            () -> ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig)
+            () -> ZipVerifiers.verifyZipSignature(zipStreamWithSig)
         );
     }
 
@@ -227,15 +226,6 @@ class ZipVerifiersTest {
             .isInstanceOf(DocSignatureFailureException.class)
             .hasMessage(INVALID_SIGNATURE_MESSAGE)
             .hasCauseInstanceOf(SignatureException.class);
-    }
-
-    @Test
-    void should_throw_exception_for_unrecognised_algorithm() {
-        assertThatThrownBy(() ->
-            ZipVerifiers.getPreprocessor("xyz") // only supports "sha256withrsa"
-        )
-            .isInstanceOf(SignatureValidationException.class)
-            .hasMessage("Undefined signature verification algorithm");
     }
 
     @Test

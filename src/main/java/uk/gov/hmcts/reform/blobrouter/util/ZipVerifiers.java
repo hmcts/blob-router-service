@@ -5,7 +5,6 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -19,7 +18,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -29,7 +27,7 @@ import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 
 /**
- * Signed zip archive verification utilities. Currently 2 modes are supported:
+ * Signed zip archive verification utilities. Currently verifies with sha256withrsa algorithm:
  * <ul>
  * <li>sha256withrsa = sha256 + rsa signature verification</li>
  * </ul>
@@ -71,23 +69,12 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static Function<ZipStreamWithSignature, ZipInputStream> getPreprocessor(
-        String signatureAlgorithm
-    ) {
-        if ("sha256withrsa".equalsIgnoreCase(signatureAlgorithm)) {
-            return ZipVerifiers::sha256WithRsaVerification;
-        }
-        throw new SignatureValidationException("Undefined signature verification algorithm");
-    }
-
-    static ZipInputStream sha256WithRsaVerification(ZipStreamWithSignature zipWithSignature)
+    public static boolean verifyZipSignature(ZipStreamWithSignature zipWithSignature)
         throws DocSignatureFailureException {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
 
         verifyFileNames(zipEntries.keySet());
-        verifySignature(zipWithSignature.publicKeyBase64, zipEntries);
-
-        return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
+        return verifySignature(zipWithSignature.publicKeyBase64, zipEntries);
     }
 
     private static Map<String, byte[]> extractZipEntries(ZipInputStream zis) {
@@ -112,15 +99,15 @@ public class ZipVerifiers {
         }
     }
 
-    private static void verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
-        verifySignature(
+    private static boolean verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
+        return verifySignature(
             publicKeyBase64,
             entries.get(DOCUMENTS_ZIP),
             entries.get(SIGNATURE_SIG)
         );
     }
 
-    public static void verifySignature(String publicKeyBase64, byte[] data, byte[] signed) {
+    public static boolean verifySignature(String publicKeyBase64, byte[] data, byte[] signed) {
         PublicKey publicKey = decodePublicKey(publicKeyBase64);
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
@@ -129,6 +116,7 @@ public class ZipVerifiers {
             if (!signature.verify(signed)) {
                 throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE);
             }
+            return true;
         } catch (SignatureException e) {
             throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE, e);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
