@@ -38,7 +38,7 @@ public class BlobSignatureVerifier {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
             return false;
         } catch (IOException ex) {
-            logger.info("Error occurred when verifying signature. Bob name: {}", blobName, ex);
+            logger.info("Error occurred when verifying signature. Blob name: {}", blobName, ex);
             return false;
         }
     }
