@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -10,29 +11,45 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
+import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
+
+import java.io.ByteArrayInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
+import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipAndSignDir;
 
 @ActiveProfiles("db-test")
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-public class BlobProcessorTest extends BlobStorageBaseTest {
+class BlobProcessorTest extends BlobStorageBaseTest {
 
     @Mock BlobContainerClientProvider containerClientProvider;
 
     @Autowired EnvelopeRepository envelopeRepo;
     @Autowired BlobReadinessChecker readinessChecker;
 
+    @Autowired
+    private DbHelper dbHelper;
+
+    @AfterEach
+    void tearDown() {
+        dbHelper.deleteAll();
+        deleteContainer("source");
+        deleteContainer("target");
+    }
+
     @Test
-    void should_copy_file_from_source_to_target_container() {
+    void should_copy_file_from_source_to_target_container() throws Exception {
         // given
         var sourceContainer = "source";
         var targetContainer = "target";
@@ -50,14 +67,17 @@ public class BlobProcessorTest extends BlobStorageBaseTest {
                 dispatcher,
                 readinessChecker,
                 envelopeRepo,
-                blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient()
+                blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient(),
+                new BlobSignatureVerifier("sha256withrsa", "signing/test_public_key.der")
             );
 
         var blobName = "hello.zip";
+        byte[] bytes = zipAndSignDir("storage/valid", "signing/test_private_key.der");
 
         sourceContainerClient
             .getBlobClient(blobName)
-            .uploadFromFile("src/integrationTest/resources/storage/test1.zip");
+            .getBlockBlobClient()
+            .upload(new ByteArrayInputStream(bytes), bytes.length);
 
         // when
         blobProcessor.process(blobName, sourceContainer);
@@ -71,5 +91,45 @@ public class BlobProcessorTest extends BlobStorageBaseTest {
         assertThat(envelopeRepo.find(blobName, sourceContainer))
             .as("Envelope in the DB has been created")
             .hasValueSatisfying(envelope -> assertThat(envelope.status).isEqualTo(DISPATCHED));
+    }
+
+    @Test
+    void should_not_process_blob_when_signature_verification_fails() throws Exception {
+        // given
+        var sourceContainer = "source";
+        var targetContainer = "target";
+
+        BlobContainerClient sourceContainerClient = createContainer(sourceContainer);
+        BlobContainerClient targetContainerClient = createContainer(targetContainer);
+
+        // configure Dispatcher to always send files to docker target container.
+        var dispatcher = new BlobDispatcher(containerClientProvider);
+
+        var blobProcessor =
+            new BlobProcessor(
+                storageClient,
+                dispatcher,
+                readinessChecker,
+                envelopeRepo,
+                blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient(),
+                new BlobSignatureVerifier("sha256withrsa", "signing/test_public_key.der")
+            );
+
+        var blobName = "hello.zip";
+        byte[] bytes = zipAndSignDir("storage/valid", "signing/some_other_private_key.der"); // invalid private key
+        sourceContainerClient
+            .getBlobClient(blobName)
+            .getBlockBlobClient()
+            .upload(new ByteArrayInputStream(bytes), bytes.length);
+
+        // when
+        blobProcessor.process(blobName, sourceContainer);
+
+        // then
+        assertThat(targetContainerClient.listBlobs()).isEmpty();
+
+        assertThat(envelopeRepo.find(blobName, sourceContainer))
+            .as("Envelope in the DB has been created")
+            .hasValueSatisfying(envelope -> assertThat(envelope.status).isEqualTo(REJECTED));
     }
 }

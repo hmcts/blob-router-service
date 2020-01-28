@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
+import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
 import java.time.Instant;
@@ -28,8 +29,10 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest {
@@ -42,6 +45,7 @@ class BlobProcessorTest {
     @Mock BlobDispatcher blobDispatcher;
     @Mock BlobLeaseClient blobLeaseClient;
     @Mock EnvelopeRepository envelopeRepo;
+    @Mock BlobSignatureVerifier signatureVerifier;
 
     BlobProcessor blobProcessor;
 
@@ -52,7 +56,8 @@ class BlobProcessorTest {
             this.blobDispatcher,
             this.readinessChecker,
             this.envelopeRepo,
-            blobClient -> blobLeaseClient
+            blobClient -> blobLeaseClient,
+            this.signatureVerifier
         );
     }
 
@@ -79,6 +84,7 @@ class BlobProcessorTest {
         // given
         blobExists(OffsetDateTime.now());
         given(readinessChecker.isReady(any())).willReturn(true);
+        given(signatureVerifier.verifyZipSignature(any(), any(), any())).willReturn(true);
 
         willThrow(new RuntimeException("Test exception"))
             .given(blobDispatcher)
@@ -95,14 +101,15 @@ class BlobProcessorTest {
     @Test
     void should_process_file_if_it_is_ready() {
         // given
-        String fileName = "envelope1.zip";
-        String containerName = "container1";
-
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
         blobExists(blobCreationTime);
 
+        String fileName = "envelope1.zip";
+        String containerName = "container1";
+
         // file IS ready to be processed
         given(readinessChecker.isReady(any())).willReturn(true);
+        given(signatureVerifier.verifyZipSignature(any(), any(), any())).willReturn(true);
 
         // when
         blobProcessor.process(fileName, containerName);
@@ -119,6 +126,36 @@ class BlobProcessorTest {
         assertThat(newEnvelopeArgumentCaptor.getValue().dispatchedAt).isBeforeOrEqualTo(Instant.now());
         assertThat(newEnvelopeArgumentCaptor.getValue().fileCreatedAt).isBeforeOrEqualTo(Instant.now());
         assertThat(newEnvelopeArgumentCaptor.getValue().status).isEqualTo(DISPATCHED);
+    }
+
+    @Test
+    void should_reject_file_if_signature_verification_fails() {
+        // given
+        OffsetDateTime blobCreationTime = OffsetDateTime.now();
+        blobExists(blobCreationTime);
+
+        String fileName = "envelope1.zip";
+        String containerName = "container1";
+
+        // file IS ready to be processed
+        given(readinessChecker.isReady(any())).willReturn(true);
+        given(signatureVerifier.verifyZipSignature(any(), any(), any())).willReturn(false);
+
+        // when
+        blobProcessor.process(fileName, containerName);
+
+        // then
+        verify(readinessChecker).isReady(eq(blobCreationTime.toInstant()));
+        verifyNoInteractions(blobDispatcher);
+
+        ArgumentCaptor<NewEnvelope> newEnvelopeArgumentCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
+        verify(envelopeRepo).insert(newEnvelopeArgumentCaptor.capture());
+
+        assertThat(newEnvelopeArgumentCaptor.getValue().fileName).isEqualTo(fileName);
+        assertThat(newEnvelopeArgumentCaptor.getValue().container).isEqualTo(containerName);
+        assertThat(newEnvelopeArgumentCaptor.getValue().dispatchedAt).isBeforeOrEqualTo(Instant.now());
+        assertThat(newEnvelopeArgumentCaptor.getValue().fileCreatedAt).isBeforeOrEqualTo(Instant.now());
+        assertThat(newEnvelopeArgumentCaptor.getValue().status).isEqualTo(REJECTED);
     }
 
     private void blobExists(OffsetDateTime time) {

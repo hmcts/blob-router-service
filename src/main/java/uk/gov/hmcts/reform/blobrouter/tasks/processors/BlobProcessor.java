@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
+import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 
@@ -32,19 +33,22 @@ public class BlobProcessor {
     private final BlobReadinessChecker readinessChecker;
     private final EnvelopeRepository envelopeRepository;
     private final LeaseClientProvider leaseClientProvider;
+    private final BlobSignatureVerifier signatureVerifier;
 
     public BlobProcessor(
         @Qualifier("storage-client") BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
         BlobReadinessChecker readinessChecker,
         EnvelopeRepository envelopeRepository,
-        LeaseClientProvider leaseClientProvider
+        LeaseClientProvider leaseClientProvider,
+        BlobSignatureVerifier signatureVerifier
     ) {
         this.storageClient = storageClient;
         this.dispatcher = dispatcher;
         this.readinessChecker = readinessChecker;
         this.envelopeRepository = envelopeRepository;
         this.leaseClientProvider = leaseClientProvider;
+        this.signatureVerifier = signatureVerifier;
     }
 
     public void process(String blobName, String containerName) {
@@ -80,20 +84,36 @@ public class BlobProcessor {
                 leaseClient.acquireLease(60);
                 byte[] rawBlob = tryToDownloadBlob(blobClient);
 
-                // target storage account will be retrieved from configuration when Crime blob processing is supported
-                dispatcher.dispatch(blobName, rawBlob, containerName, TargetStorageAccount.BULKSCAN);
-                UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
-                    blobName,
-                    containerName,
-                    blobCreationDate
-                ));
+                // Verify Zip signature
+                boolean validSignature = signatureVerifier.verifyZipSignature(blobName, containerName, rawBlob);
 
-                logger.info(
-                    "Finished processing {} from {} container. New envelope ID: {}",
-                    blobName,
-                    containerName,
-                    envelopeId
-                );
+                if (validSignature) {
+                    // target storage account will be retrieved from configuration
+                    // when Crime blob processing is supported
+                    dispatcher.dispatch(blobName, rawBlob, containerName, TargetStorageAccount.BULKSCAN);
+                    UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
+                        blobName,
+                        containerName,
+                        blobCreationDate,
+                        Status.DISPATCHED
+                    ));
+
+                    logger.info(
+                        "Finished processing {} from {} container. New envelope ID: {}",
+                        blobName,
+                        containerName,
+                        envelopeId
+                    );
+                } else {
+                    envelopeRepository.insert(createNewEnvelope(
+                        blobName,
+                        containerName,
+                        blobCreationDate,
+                        Status.REJECTED
+                    ));
+                    // TODO move to rejected container
+                    // TODO send notification to Exela
+                }
             } else {
                 logger.info(
                     "Blob not ready to be processed yet, skipping. File name: {}. Container: {}",
@@ -135,13 +155,13 @@ public class BlobProcessor {
         }
     }
 
-    private NewEnvelope createNewEnvelope(String blobName, String containerName, Instant fileCreatedAt) {
+    private NewEnvelope createNewEnvelope(String blobName, String containerName, Instant fileCreatedAt, Status status) {
         return new NewEnvelope(
             containerName,
             blobName,
             fileCreatedAt,
             Instant.now(),
-            Status.DISPATCHED
+            status
         );
     }
 }
