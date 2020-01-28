@@ -65,6 +65,16 @@ public class EnvelopeRepository {
         );
     }
 
+    public List<Envelope> find(Status status, boolean isDeleted) {
+        return jdbcTemplate.query(
+            "SELECT * FROM envelopes WHERE status = :status AND is_deleted = :isDeleted",
+            new MapSqlParameterSource()
+                .addValue("status", status.name())
+                .addValue("isDeleted", isDeleted),
+            this.mapper
+        );
+    }
+
     public UUID insert(NewEnvelope envelope) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
