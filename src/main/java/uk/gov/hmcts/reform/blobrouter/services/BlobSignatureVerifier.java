@@ -30,8 +30,7 @@ public class BlobSignatureVerifier {
 
     public boolean verifyZipSignature(String blobName, byte[] rawBlob) {
         try (var zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
-            ZipVerifiers.ZipStreamWithSignature zipWithSignature =
-                ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename);
+            var zipWithSignature = ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename);
 
             ZipVerifiers.getPreprocessor(signatureAlg).apply(zipWithSignature);
             return true;
