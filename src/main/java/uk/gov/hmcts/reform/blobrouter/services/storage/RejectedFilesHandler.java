@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
@@ -16,6 +17,7 @@ import java.util.List;
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 
+@Component
 public class RejectedFilesHandler {
 
     private static final Logger logger = getLogger(RejectedFilesHandler.class);
