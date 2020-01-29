@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
@@ -62,20 +63,20 @@ class RejectedFilesHandlerTest {
         given(blobServiceClient.getBlobContainerClient("c2")).willReturn(normalContainer2);
         given(normalContainer2.getBlobClient("f2")).willReturn(normalBlob2);
 
-
         given(blobServiceClient.getBlobContainerClient("c1-rejected")).willReturn(rejectedContainer1);
         given(rejectedContainer1.getBlobClient("f1")).willReturn(rejectedBlob1);
-        given(rejectedBlob1.getBlockBlobClient()).willReturn(rejectedBlockBlob1);
+        lenient().when(rejectedBlob1.getBlockBlobClient()).thenReturn(rejectedBlockBlob1);
 
         given(blobServiceClient.getBlobContainerClient("c2-rejected")).willReturn(rejectedContainer2);
         given(rejectedContainer2.getBlobClient("f2")).willReturn(rejectedBlob2);
-        given(rejectedBlob2.getBlockBlobClient()).willReturn(rejectedBlockBlob2);
+        lenient().when(rejectedBlob2.getBlockBlobClient()).thenReturn(rejectedBlockBlob2);
     }
 
     @Test
     void should_handle_rejected_files() {
         // given
-        // everything works
+        given(normalBlob1.exists()).willReturn(true);
+        given(normalBlob2.exists()).willReturn(true);
 
         // when
         mover.handle();
@@ -94,6 +95,9 @@ class RejectedFilesHandlerTest {
     @Test
     void should_continue_moving_files_after_failure() {
         // given
+        given(normalBlob1.exists()).willReturn(true);
+        given(normalBlob2.exists()).willReturn(true);
+
         doThrow(RuntimeException.class)
             .when(normalBlob1)
             .delete();
@@ -107,5 +111,20 @@ class RejectedFilesHandlerTest {
         verify(repo).markAsDeleted(envelope2.id);
 
         verify(repo, never()).markAsDeleted(envelope1.id);
+    }
+
+    @Test
+    void should_handle_files_that_were_already_removed() {
+        // given
+        given(normalBlob1.exists()).willReturn(false);
+        given(normalBlob2.exists()).willReturn(true);
+
+        // when
+        mover.handle();
+
+        // then
+        verify(rejectedBlockBlob1, never()).upload(any(), anyLong());
+        verify(normalBlob1, never()).delete();
+        verify(repo).markAsDeleted(envelope1.id);
     }
 }

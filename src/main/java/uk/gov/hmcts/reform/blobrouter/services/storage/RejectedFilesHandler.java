@@ -60,10 +60,19 @@ public class RejectedFilesHandler {
                             BlobClient sourceBlob = sourceContainer.getBlobClient(envelope.fileName);
                             BlobClient targetBlob = targetContainer.getBlobClient(envelope.fileName);
 
-                            byte[] blobContent = download(sourceBlob);
-                            upload(targetBlob, blobContent);
-                            sourceBlob.delete();
-                            envelopeRepository.markAsDeleted(envelope.id);
+                            if (!sourceBlob.exists()) {
+                                logger.error(
+                                    "File already deleted. File name: {}. Container: {}",
+                                    envelope.fileName,
+                                    container
+                                );
+                                envelopeRepository.markAsDeleted(envelope.id);
+                            } else {
+                                byte[] blobContent = download(sourceBlob);
+                                upload(targetBlob, blobContent);
+                                sourceBlob.delete();
+                                envelopeRepository.markAsDeleted(envelope.id);
+                            }
 
                         } catch (Exception exc) {
                             logger.error(
