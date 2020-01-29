@@ -102,13 +102,8 @@ class RejectedFilesHandlerTest extends BlobStorageBaseTest {
         assertSoftly(softly -> {
             softly
                 .assertThat(normalContainer.listBlobs())
-                .as("File should be removed from normal container")
+                .as("File should be removed from source container")
                 .hasSize(0);
-
-            softly
-                .assertThat(rejectedContainer.listBlobs().stream().map(BlobItem::getName))
-                .as("File should be moved to rejected container")
-                .containsExactly(blobName);
 
             softly
                 .assertThat(envelopeRepo.find(blobName, "hello"))
