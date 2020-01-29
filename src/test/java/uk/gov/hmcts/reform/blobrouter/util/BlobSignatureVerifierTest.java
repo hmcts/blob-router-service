@@ -16,7 +16,7 @@ class BlobSignatureVerifierTest {
 
     @BeforeEach
     void setUp() {
-        this.signatureVerifier = new BlobSignatureVerifier("sha256withrsa", "signature/test_public_key.der");
+        this.signatureVerifier = new BlobSignatureVerifier("signature/test_public_key.der");
     }
 
     @Test
