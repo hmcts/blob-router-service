@@ -40,7 +40,7 @@ public class RejectedFilesMover {
             .keySet()
             .forEach(container -> {
 
-                logger.info("Moving rejected files from a container {}", container);
+                logger.info("Moving rejected files from container {}", container);
 
                 var sourceContainer = storageClient.getBlobContainerClient(container);
                 var targetContainer = storageClient.getBlobContainerClient(container + REJECTED_CONTAINER_SUFFIX);
@@ -54,8 +54,8 @@ public class RejectedFilesMover {
                             BlobClient sourceBlob = sourceContainer.getBlobClient(envelope.fileName);
                             BlobClient targetBlob = targetContainer.getBlobClient(envelope.fileName);
 
-                            byte[] blobContents = download(sourceBlob);
-                            upload(targetBlob, blobContents);
+                            byte[] blobContent = download(sourceBlob);
+                            upload(targetBlob, blobContent);
                             sourceBlob.delete();
                             envelopeRepository.markAsDeleted(envelope.id);
 
