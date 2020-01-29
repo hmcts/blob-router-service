@@ -98,9 +98,9 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
       env.TEST_STORAGE_ACCOUNT_KEY = previewAccountKey(kubectl, storageSecret, namespace)
 
-      env.TEST_VALID_KEY_STORE = previewAccountKey(kubectl, storageSecret, namespace)
-      env.TEST_VALID_KEY_STORE_PASSWORD = previewAccountKey(kubectl, storageSecret, namespace)
-      env.TEST_SUBSCRIPTION_KEY = previewAccountKey(kubectl, storageSecret, namespace)
+      secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
+      secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
+      secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
       env.STORAGE_CRIME_CONNECTION_STRING = storageAccountConnectionString(
         previewAccountName(kubectl, crimeStorageAccountSecret, namespace),
