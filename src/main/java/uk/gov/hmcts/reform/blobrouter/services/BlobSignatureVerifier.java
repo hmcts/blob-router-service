@@ -20,7 +20,7 @@ public class BlobSignatureVerifier {
     private final String publicKeyDerFilename;
 
     public BlobSignatureVerifier(
-        @Value("${storage-public-key-der-file}") String publicKeyDerFilename
+        @Value("${public-key-der-file}") String publicKeyDerFilename
     ) {
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
