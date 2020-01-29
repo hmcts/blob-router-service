@@ -124,7 +124,7 @@ class ZipVerifiersTest {
         var zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
             new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64
         );
-        ZipInputStream zis = ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig);
+        ZipInputStream zis = ZipVerifiers.verifyZipSignature(zipStreamWithSig);
         assertThat(zis).isNotNull();
     }
 
@@ -137,7 +137,7 @@ class ZipVerifiersTest {
         );
         assertThrows(
             DocSignatureFailureException.class,
-            () -> ZipVerifiers.sha256WithRsaVerification(zipStreamWithSig)
+            () -> ZipVerifiers.verifyZipSignature(zipStreamWithSig)
         );
     }
 
@@ -230,15 +230,6 @@ class ZipVerifiersTest {
     }
 
     @Test
-    void should_throw_exception_for_unrecognised_algorithm() {
-        assertThatThrownBy(() ->
-            ZipVerifiers.getPreprocessor("xyz") // only supports "sha256withrsa"
-        )
-            .isInstanceOf(SignatureValidationException.class)
-            .hasMessage("Undefined signature verification algorithm");
-    }
-
-    @Test
     void should_return_cached_public_key_file_for_same_public_key_file_name() throws Exception {
         byte[] zipFile1 = zipDir("signature/sample_valid_content");
         byte[] zipFile2 = zipDir("signature/valid_content");
@@ -280,5 +271,4 @@ class ZipVerifiersTest {
 
         assertThat(zipStreamWithSignature.publicKeyBase64).isNull();
     }
-
 }

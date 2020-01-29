@@ -19,7 +19,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -29,13 +28,11 @@ import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 
 /**
- * Signed zip archive verification utilities. Currently 2 modes are supported:
- * <ul>
- * <li>sha256withrsa = sha256 + rsa signature verification</li>
- * </ul>
- * With the obvious exclusion of the no verification case, a signed zip
- * archive must include 2 files named envelope.zip and signature. The
- * former is the archive content while the latter is the signature the
+ * Signed zip archive verification utilities.
+ * Currently verifies with sha256withrsa algorithm:
+ * sha256withrsa = sha256 + rsa signature verification.
+ * A signed zip archive must include 2 files named envelope.zip and signature.
+ * The former is the archive content while the latter is the signature the
  * archive has to be verified against.
  * <p>
  * Some openssl commands related to sha256withrsa signatures:
@@ -71,16 +68,7 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static Function<ZipStreamWithSignature, ZipInputStream> getPreprocessor(
-        String signatureAlgorithm
-    ) {
-        if ("sha256withrsa".equalsIgnoreCase(signatureAlgorithm)) {
-            return ZipVerifiers::sha256WithRsaVerification;
-        }
-        throw new SignatureValidationException("Undefined signature verification algorithm");
-    }
-
-    static ZipInputStream sha256WithRsaVerification(ZipStreamWithSignature zipWithSignature)
+    public static ZipInputStream verifyZipSignature(ZipStreamWithSignature zipWithSignature)
         throws DocSignatureFailureException {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
 

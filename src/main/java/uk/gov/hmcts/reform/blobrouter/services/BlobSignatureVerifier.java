@@ -17,14 +17,11 @@ public class BlobSignatureVerifier {
 
     private static final Logger logger = getLogger(BlobSignatureVerifier.class);
 
-    private final String signatureAlg;
     private final String publicKeyDerFilename;
 
     public BlobSignatureVerifier(
-        @Value("${storage-signature-algorithm}") String signatureAlg,
         @Value("${public-key-der-file}") String publicKeyDerFilename
     ) {
-        this.signatureAlg = signatureAlg;
         this.publicKeyDerFilename = publicKeyDerFilename;
     }
 
@@ -32,7 +29,7 @@ public class BlobSignatureVerifier {
         try (var zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
             var zipWithSignature = ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename);
 
-            ZipVerifiers.getPreprocessor(signatureAlg).apply(zipWithSignature);
+            ZipVerifiers.verifyZipSignature(zipWithSignature);
             return true;
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
