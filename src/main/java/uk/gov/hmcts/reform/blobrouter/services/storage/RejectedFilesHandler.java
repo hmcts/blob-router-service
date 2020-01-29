@@ -74,7 +74,7 @@ public class RejectedFilesHandler {
                 envelopeRepository.markAsDeleted(envelope.id);
             } else {
                 byte[] blobContent = download(sourceBlob);
-                upload(targetBlob, blobContent);
+                upload(targetBlob, blobContent, loggingContext);
                 sourceBlob.delete();
                 envelopeRepository.markAsDeleted(envelope.id);
                 logger.info("Rejected file successfully handled. " + loggingContext);
@@ -91,12 +91,13 @@ public class RejectedFilesHandler {
         }
     }
 
-    private void upload(BlobClient blobClient, byte[] blobContent) {
+    private void upload(BlobClient blobClient, byte[] blobContent, String loggingContext) {
         blobClient
             .getBlockBlobClient()
             .upload(
                 new ByteArrayInputStream(blobContent),
                 blobContent.length
             );
+        logger.info("File successfully uploaded to rejected container. " + loggingContext);
     }
 }
