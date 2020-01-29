@@ -33,6 +33,7 @@ class RejectedFilesMoverTest extends BlobStorageBaseTest {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
     void should_handle_rejected_files() {
         // given
         BlobContainerClient normalContainer = createContainer("sample-container");
