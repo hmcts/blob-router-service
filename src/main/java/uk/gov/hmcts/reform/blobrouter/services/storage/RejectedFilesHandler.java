@@ -67,7 +67,7 @@ public class RejectedFilesHandler {
 
                         } catch (Exception exc) {
                             logger.error(
-                                "Error moving file to rejected container. File name: {}. Container: {}",
+                                "Error handling rejected file. File name: {}. Container: {}",
                                 envelope.fileName,
                                 container,
                                 exc
