@@ -29,7 +29,13 @@ public class RejectedFilesHandler {
         this.envelopeRepository = envelopeRepository;
     }
 
-    void run() {
+    /**
+     * Handles files that were rejected. Ie:
+     * - moves files to container for rejected files
+     * - removes files from the original container
+     * - marks envelopes in the DB as deleted
+     */
+    public void handle() {
         List<Envelope> rejectedEnvelopes = envelopeRepository.find(Status.REJECTED, false);
 
         logger.info("Found {} rejected envelopes", rejectedEnvelopes.size());

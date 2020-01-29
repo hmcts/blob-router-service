@@ -78,7 +78,7 @@ class RejectedFilesHandlerTest {
         // everything works
 
         // when
-        mover.run();
+        mover.handle();
 
         // then
         verify(rejectedBlockBlob1).upload(any(), anyLong());
@@ -99,7 +99,7 @@ class RejectedFilesHandlerTest {
             .delete();
 
         // when
-        mover.run();
+        mover.handle();
 
         // then second files should get processed anyway...
         verify(rejectedBlockBlob2).upload(any(), anyLong());

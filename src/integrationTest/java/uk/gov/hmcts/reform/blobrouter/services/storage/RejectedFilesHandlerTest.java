@@ -48,7 +48,7 @@ class RejectedFilesHandlerTest extends BlobStorageBaseTest {
         envelopeRepo.insert(new NewEnvelope("sample-container", "hello.zip", now(), now(), Status.REJECTED));
 
         // when
-        mover.run();
+        mover.handle();
 
         // then
         assertSoftly(softly -> {
