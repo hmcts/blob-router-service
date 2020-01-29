@@ -77,8 +77,8 @@ public class RejectedFilesHandler {
                 upload(targetBlob, blobContent);
                 sourceBlob.delete();
                 envelopeRepository.markAsDeleted(envelope.id);
+                logger.info("Rejected file successfully handled. " + loggingContext);
             }
-
         } catch (Exception exc) {
             logger.error("Error handling rejected file. " + loggingContext);
         }
