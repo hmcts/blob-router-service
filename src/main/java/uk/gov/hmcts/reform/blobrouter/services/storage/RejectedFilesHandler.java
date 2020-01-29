@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import org.slf4j.Logger;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
@@ -44,41 +45,43 @@ public class RejectedFilesHandler {
             .stream()
             .collect(groupingBy(e -> e.container))
             .forEach((container, envelopes) -> {
-
                 logger.info("Moving rejected files from container {}", container);
 
                 var sourceContainer = storageClient.getBlobContainerClient(container);
                 var targetContainer = storageClient.getBlobContainerClient(container + REJECTED_CONTAINER_SUFFIX);
 
-                envelopes.forEach(envelope -> {
-                    try {
-                        BlobClient sourceBlob = sourceContainer.getBlobClient(envelope.fileName);
-                        BlobClient targetBlob = targetContainer.getBlobClient(envelope.fileName);
-
-                        if (!sourceBlob.exists()) {
-                            logger.error(
-                                "File already deleted. File name: {}. Container: {}",
-                                envelope.fileName,
-                                container
-                            );
-                            envelopeRepository.markAsDeleted(envelope.id);
-                        } else {
-                            byte[] blobContent = download(sourceBlob);
-                            upload(targetBlob, blobContent);
-                            sourceBlob.delete();
-                            envelopeRepository.markAsDeleted(envelope.id);
-                        }
-
-                    } catch (Exception exc) {
-                        logger.error(
-                            "Error handling rejected file. File name: {}. Container: {}",
-                            envelope.fileName,
-                            container,
-                            exc
-                        );
-                    }
-                });
+                envelopes.forEach(envelope -> handleEnvelope(sourceContainer, targetContainer, envelope));
             });
+    }
+
+    private void handleEnvelope(
+        BlobContainerClient sourceContainer,
+        BlobContainerClient targetContainer,
+        Envelope envelope
+    ) {
+        String loggingContext = String.format(
+            "File name: %s. Container: %s",
+            envelope.fileName,
+            sourceContainer.getBlobContainerName()
+        );
+
+        try {
+            BlobClient sourceBlob = sourceContainer.getBlobClient(envelope.fileName);
+            BlobClient targetBlob = targetContainer.getBlobClient(envelope.fileName);
+
+            if (!sourceBlob.exists()) {
+                logger.error("File already deleted. " + loggingContext);
+                envelopeRepository.markAsDeleted(envelope.id);
+            } else {
+                byte[] blobContent = download(sourceBlob);
+                upload(targetBlob, blobContent);
+                sourceBlob.delete();
+                envelopeRepository.markAsDeleted(envelope.id);
+            }
+
+        } catch (Exception exc) {
+            logger.error("Error handling rejected file. " + loggingContext);
+        }
     }
 
     private byte[] download(BlobClient blobClient) throws IOException {
