@@ -43,46 +43,41 @@ public class RejectedFilesHandler {
         rejectedEnvelopes
             .stream()
             .collect(groupingBy(e -> e.container))
-            .keySet()
-            .forEach(container -> {
+            .forEach((container, envelopes) -> {
 
                 logger.info("Moving rejected files from container {}", container);
 
                 var sourceContainer = storageClient.getBlobContainerClient(container);
                 var targetContainer = storageClient.getBlobContainerClient(container + REJECTED_CONTAINER_SUFFIX);
 
-                rejectedEnvelopes
-                    .stream()
-                    .collect(groupingBy(env -> env.container))
-                    .get(container)
-                    .forEach(envelope -> {
-                        try {
-                            BlobClient sourceBlob = sourceContainer.getBlobClient(envelope.fileName);
-                            BlobClient targetBlob = targetContainer.getBlobClient(envelope.fileName);
+                envelopes.forEach(envelope -> {
+                    try {
+                        BlobClient sourceBlob = sourceContainer.getBlobClient(envelope.fileName);
+                        BlobClient targetBlob = targetContainer.getBlobClient(envelope.fileName);
 
-                            if (!sourceBlob.exists()) {
-                                logger.error(
-                                    "File already deleted. File name: {}. Container: {}",
-                                    envelope.fileName,
-                                    container
-                                );
-                                envelopeRepository.markAsDeleted(envelope.id);
-                            } else {
-                                byte[] blobContent = download(sourceBlob);
-                                upload(targetBlob, blobContent);
-                                sourceBlob.delete();
-                                envelopeRepository.markAsDeleted(envelope.id);
-                            }
-
-                        } catch (Exception exc) {
+                        if (!sourceBlob.exists()) {
                             logger.error(
-                                "Error handling rejected file. File name: {}. Container: {}",
+                                "File already deleted. File name: {}. Container: {}",
                                 envelope.fileName,
-                                container,
-                                exc
+                                container
                             );
+                            envelopeRepository.markAsDeleted(envelope.id);
+                        } else {
+                            byte[] blobContent = download(sourceBlob);
+                            upload(targetBlob, blobContent);
+                            sourceBlob.delete();
+                            envelopeRepository.markAsDeleted(envelope.id);
                         }
-                    });
+
+                    } catch (Exception exc) {
+                        logger.error(
+                            "Error handling rejected file. File name: {}. Container: {}",
+                            envelope.fileName,
+                            container,
+                            exc
+                        );
+                    }
+                });
             });
     }
 
