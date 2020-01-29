@@ -55,7 +55,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
                 readinessChecker,
                 envelopeRepo,
                 blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient(),
-                new BlobSignatureVerifier("sha256withrsa", "signing/test_public_key.der")
+                new BlobSignatureVerifier("signing/test_public_key.der")
             );
 
         var blobName = "hello.zip";
