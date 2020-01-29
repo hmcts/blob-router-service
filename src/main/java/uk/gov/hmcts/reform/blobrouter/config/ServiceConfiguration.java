@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
 
 @ConfigurationProperties(prefix = "service")
 public class ServiceConfiguration {
@@ -25,7 +26,12 @@ public class ServiceConfiguration {
     public static class StorageConfig {
         private String name;
         private int sasValidity;
+
+        @NotNull
         private TargetStorageAccount targetStorageAccount;
+
+        @NotNull String targetContainer;
+
         private boolean isEnabled = true;
 
         public String getName() {
@@ -58,6 +64,14 @@ public class ServiceConfiguration {
 
         public void setTargetStorageAccount(TargetStorageAccount targetStorageAccount) {
             this.targetStorageAccount = targetStorageAccount;
+        }
+
+        public String getTargetContainer() {
+            return targetContainer;
+        }
+
+        public void setTargetContainer(String targetContainer) {
+            this.targetContainer = targetContainer;
         }
     }
 }
