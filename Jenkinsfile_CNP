@@ -19,6 +19,14 @@ def vaultSecrets = [
     secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
     secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
 
+    // Base64-encoded PKCS 12 key store containing private key and certificate known to the API, but expired
+    secret('test-expired-key-store', 'TEST_EXPIRED_KEY_STORE'),
+    secret('test-expired-key-store-password', 'TEST_EXPIRED_KEY_STORE_PASSWORD'),
+
+    // Base64-encoded PKCS12 key store containing private key and certificate known to the API, but not yet valid
+    secret('test-not-yet-valid-key-store', 'TEST_NOT_YET_VALID_KEY_STORE'),
+    secret('test-not-yet-valid-key-store-password', 'TEST_NOT_YET_VALID_KEY_STORE_PASSWORD'),
+
     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
     secret('storage-account-secondary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
