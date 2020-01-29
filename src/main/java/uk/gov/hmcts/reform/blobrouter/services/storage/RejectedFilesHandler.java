@@ -45,12 +45,14 @@ public class RejectedFilesHandler {
             .stream()
             .collect(groupingBy(e -> e.container))
             .forEach((container, envelopes) -> {
-                logger.info("Moving rejected files from container {}", container);
+                logger.info("Started moving rejected files from container {}", container);
 
                 var sourceContainer = storageClient.getBlobContainerClient(container);
                 var targetContainer = storageClient.getBlobContainerClient(container + REJECTED_CONTAINER_SUFFIX);
 
                 envelopes.forEach(envelope -> handleEnvelope(sourceContainer, targetContainer, envelope));
+
+                logger.info("Finished moving rejected files from container {}", container);
             });
     }
 
