@@ -79,6 +79,7 @@ withPipeline(type, product, component) {
   // Vars needed for smoke / functional testing
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://reformscan.aat.platform.hmcts.net'
+  env.API_GATEWAY_URL = "https://core-api-mgmt-aat.azure-api.net/reform-scan"
 
   before('smoketest:preview') {
     withAksClient('nonprod') {
@@ -96,7 +97,10 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_NAME = previewAccountName(kubectl, storageSecret, namespace)
       env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
       env.TEST_STORAGE_ACCOUNT_KEY = previewAccountKey(kubectl, storageSecret, namespace)
-      env.API_GATEWAY_URL = "https://core-api-mgmt-${env}.azure-api.net/reform-scan"
+
+      env.TEST_VALID_KEY_STORE = previewAccountKey(kubectl, storageSecret, namespace)
+      env.TEST_VALID_KEY_STORE_PASSWORD = previewAccountKey(kubectl, storageSecret, namespace)
+      env.TEST_SUBSCRIPTION_KEY = previewAccountKey(kubectl, storageSecret, namespace)
 
       env.STORAGE_CRIME_CONNECTION_STRING = storageAccountConnectionString(
         previewAccountName(kubectl, crimeStorageAccountSecret, namespace),
