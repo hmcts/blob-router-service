@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 
 @ExtendWith(MockitoExtension.class)
-class RejectedFilesMoverTest {
+class RejectedFilesHandlerTest {
 
     @Mock BlobServiceClient blobServiceClient;
     @Mock EnvelopeRepository repo;
@@ -48,11 +48,11 @@ class RejectedFilesMoverTest {
     final Envelope envelope1 = new Envelope(UUID.randomUUID(), "c1", "f1", now(), now(), null, REJECTED, false);
     final Envelope envelope2 = new Envelope(UUID.randomUUID(), "c2", "f2", now(), now(), null, REJECTED, false);
 
-    RejectedFilesMover mover;
+    RejectedFilesHandler mover;
 
     @BeforeEach
     void setUp() {
-        mover = new RejectedFilesMover(blobServiceClient, repo);
+        mover = new RejectedFilesHandler(blobServiceClient, repo);
 
         given(repo.find(REJECTED, false)).willReturn(asList(envelope1, envelope2));
 

@@ -15,16 +15,16 @@ import java.util.List;
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class RejectedFilesMover {
+public class RejectedFilesHandler {
 
-    private static final Logger logger = getLogger(RejectedFilesMover.class);
+    private static final Logger logger = getLogger(RejectedFilesHandler.class);
 
     private static final String REJECTED_CONTAINER_SUFFIX = "-rejected";
 
     private final BlobServiceClient storageClient;
     private final EnvelopeRepository envelopeRepository;
 
-    public RejectedFilesMover(BlobServiceClient storageClient, EnvelopeRepository envelopeRepository) {
+    public RejectedFilesHandler(BlobServiceClient storageClient, EnvelopeRepository envelopeRepository) {
         this.storageClient = storageClient;
         this.envelopeRepository = envelopeRepository;
     }

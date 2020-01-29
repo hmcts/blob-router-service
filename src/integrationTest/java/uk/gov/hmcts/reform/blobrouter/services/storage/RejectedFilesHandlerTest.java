@@ -19,17 +19,17 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("db-test")
-class RejectedFilesMoverTest extends BlobStorageBaseTest {
+class RejectedFilesHandlerTest extends BlobStorageBaseTest {
 
     @Autowired EnvelopeRepository envelopeRepo;
     @Autowired DbHelper dbHelper;
 
-    RejectedFilesMover mover;
+    RejectedFilesHandler mover;
 
     @BeforeEach
     void setUp() {
         dbHelper.deleteAll();
-        mover = new RejectedFilesMover(storageClient, envelopeRepo);
+        mover = new RejectedFilesHandler(storageClient, envelopeRepo);
     }
 
     @Test
