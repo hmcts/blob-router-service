@@ -36,6 +36,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class BlobProcessor {
 
     private static final Logger logger = getLogger(BlobProcessor.class);
+
+    // name of the zip entry (in a blob) that contains the envelope
     private static final String ENVELOPE_ENTRY_NAME = "envelope.zip";
 
     private final BlobServiceClient storageClient;
@@ -44,6 +46,8 @@ public class BlobProcessor {
     private final EnvelopeRepository envelopeRepository;
     private final LeaseClientProvider leaseClientProvider;
     private final BlobSignatureVerifier signatureVerifier;
+
+    // container-specific configuration, by container name
     private final Map<String, ServiceConfiguration.StorageConfig> storageConfig;
 
     public BlobProcessor(
@@ -103,7 +107,7 @@ public class BlobProcessor {
                 if (validSignature) {
                     ServiceConfiguration.StorageConfig containerConfig = storageConfig.get(containerName);
                     TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
-                    String targetContainerName = containerConfig.getTargetContainer();
+                    var targetContainerName = containerConfig.getTargetContainer();
 
                     dispatcher.dispatch(
                         blobName,
@@ -133,6 +137,7 @@ public class BlobProcessor {
                         blobCreationDate,
                         Status.REJECTED
                     ));
+                    // TODO send notification to Exela
                 }
             } else {
                 logger.info(
@@ -158,7 +163,7 @@ public class BlobProcessor {
     }
 
     private byte[] extractEnvelopeContent(byte[] blobContent) throws IOException {
-        try (ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(blobContent))) {
+        try (var zipStream = new ZipInputStream(new ByteArrayInputStream(blobContent))) {
             ZipEntry entry = null;
 
             while ((entry = zipStream.getNextEntry()) != null) {

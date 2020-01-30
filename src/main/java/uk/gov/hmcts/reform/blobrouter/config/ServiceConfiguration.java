@@ -30,7 +30,8 @@ public class ServiceConfiguration {
         @NotNull
         private TargetStorageAccount targetStorageAccount;
 
-        @NotNull String targetContainer;
+        @NotNull
+        private String targetContainer;
 
         private boolean isEnabled = true;
 

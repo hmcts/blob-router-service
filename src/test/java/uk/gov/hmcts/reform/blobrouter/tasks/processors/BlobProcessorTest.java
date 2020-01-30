@@ -5,7 +5,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
-import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,6 +23,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -170,8 +170,8 @@ class BlobProcessorTest {
     void should_upload_the_downloaded_blob_when_target_account_is_bulk_scan() {
         // given
         blobExists();
-        String sourceContainerName = "sourceContainer1";
-        String targetContainerName = "targetContainer1";
+        var sourceContainerName = "sourceContainer1";
+        var targetContainerName = "targetContainer1";
 
         setupContainerConfig(sourceContainerName, targetContainerName, BULKSCAN);
 
@@ -179,7 +179,7 @@ class BlobProcessorTest {
         given(readinessChecker.isReady(any())).willReturn(true);
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
 
-        String fileName = "envelope1.zip";
+        var fileName = "envelope1.zip";
 
         // when
         newBlobProcessor().process(fileName, sourceContainerName);
@@ -193,15 +193,15 @@ class BlobProcessorTest {
     void should_upload_extracted_envelope_when_target_account_is_crime() {
         // given
         blobExists();
-        String sourceContainerName = "sourceContainer1";
-        String targetContainerName = "targetContainer1";
+        var sourceContainerName = "sourceContainer1";
+        var targetContainerName = "targetContainer1";
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file, ready to be processed
         given(readinessChecker.isReady(any())).willReturn(true);
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
-        String fileName = "envelope1.zip";
+        var fileName = "envelope1.zip";
 
         // when
         newBlobProcessor().process(fileName, sourceContainerName);
@@ -262,7 +262,7 @@ class BlobProcessorTest {
         containerConfig.setTargetContainer(targetContainer);
         containerConfig.setTargetStorageAccount(targetStorageAccount);
 
-        given(serviceConfiguration.getStorageConfig()).willReturn(ImmutableMap.of(sourceContainer, containerConfig));
+        given(serviceConfiguration.getStorageConfig()).willReturn(Map.of(sourceContainer, containerConfig));
     }
 
     private BlobProcessor newBlobProcessor() {
