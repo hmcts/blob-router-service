@@ -32,7 +32,11 @@ def vaultSecrets = [
     secret('storage-account-secondary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
     secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
 
-    secret('crime-storage-connection-string', 'STORAGE_CRIME_CONNECTION_STRING')
+    secret('crime-storage-connection-string', 'STORAGE_CRIME_CONNECTION_STRING'),
+
+    secret('test-subscription-key', 'TEST_VALID_KEY_STORE'),
+    secret('test-valid-key-store', 'TEST_VALID_KEY_STORE_PASSWORD'),
+    secret('test-valid-key-store-password', 'TEST_SUBSCRIPTION_KEY')
   ]
 ]
 
@@ -97,10 +101,6 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_NAME = previewAccountName(kubectl, storageSecret, namespace)
       env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
       env.TEST_STORAGE_ACCOUNT_KEY = previewAccountKey(kubectl, storageSecret, namespace)
-
-      env.TEST_VALID_KEY_STORE = previewAccountKey(kubectl, storageSecret, namespace)
-      env.TEST_VALID_KEY_STORE_PASSWORD = previewAccountKey(kubectl, storageSecret, namespace)
-      env.TEST_SUBSCRIPTION_KEY = previewAccountKey(kubectl, storageSecret, namespace)
 
       env.STORAGE_CRIME_CONNECTION_STRING = storageAccountConnectionString(
         previewAccountName(kubectl, crimeStorageAccountSecret, namespace),
