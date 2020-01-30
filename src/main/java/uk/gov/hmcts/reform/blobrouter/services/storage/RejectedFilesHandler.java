@@ -71,6 +71,10 @@ public class RejectedFilesHandler {
             BlobClient sourceBlob = sourceContainer.getBlobClient(envelope.fileName);
             BlobClient targetBlob = targetContainer.getBlobClient(envelope.fileName);
 
+            if (targetBlob.exists()) {
+                targetBlob.createSnapshot();
+            }
+
             if (!sourceBlob.exists()) {
                 logger.error("File already deleted. " + loggingContext);
                 envelopeRepository.markAsDeleted(envelope.id);
@@ -98,7 +102,8 @@ public class RejectedFilesHandler {
             .getBlockBlobClient()
             .upload(
                 new ByteArrayInputStream(blobContent),
-                blobContent.length
+                blobContent.length,
+                true
             );
         logger.info("File successfully uploaded to rejected container. " + loggingContext);
     }

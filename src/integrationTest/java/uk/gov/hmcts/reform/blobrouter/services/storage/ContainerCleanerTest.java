@@ -56,7 +56,7 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
 
     @AfterEach
     void tearDown() {
-        deleteContainer(CONTAINER_NAME);
+        deleteAllContainers();
     }
 
     @Test
