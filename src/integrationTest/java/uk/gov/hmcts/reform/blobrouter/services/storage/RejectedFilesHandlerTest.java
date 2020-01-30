@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobListDetails;
@@ -18,7 +17,6 @@ import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
