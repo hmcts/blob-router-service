@@ -52,7 +52,13 @@ class BlobProcessorTest {
     private static final TargetStorageAccount TARGET_STORAGE_ACCOUNT = BULKSCAN;
 
     private static final byte[] INTERNAL_ENVELOPE_CONTENT = "envelope content is irrelevant".getBytes();
-    private static final byte[] BLOB_CONTENT = getBlobContent(INTERNAL_ENVELOPE_CONTENT);
+    private static final byte[] BLOB_CONTENT =
+        getBlobContent(
+            Map.of(
+                "envelope.zip", INTERNAL_ENVELOPE_CONTENT,
+                "signature", "content irrelevant".getBytes()
+            )
+        );
 
     @Mock BlobReadinessChecker readinessChecker;
     @Mock BlobServiceClient blobServiceClient;
@@ -69,7 +75,7 @@ class BlobProcessorTest {
     void should_not_process_file_if_it_is_not_ready_yet() {
         // given
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
-        blobExists(blobCreationTime, false);
+        blobExists(blobCreationTime, null);
 
         // file is NOT ready to be processed
         given(readinessChecker.isReady(any())).willReturn(false);
@@ -108,7 +114,7 @@ class BlobProcessorTest {
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
-        blobExists(blobCreationTime, true);
+        blobExists(blobCreationTime, BLOB_CONTENT);
 
         String fileName = "envelope1.zip";
         String containerName = SOURCE_CONTAINER;
@@ -140,7 +146,7 @@ class BlobProcessorTest {
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
-        blobExists(blobCreationTime, true);
+        blobExists(blobCreationTime, BLOB_CONTENT);
 
         String fileName = "envelope1.zip";
         String containerName = "container1";
@@ -211,18 +217,64 @@ class BlobProcessorTest {
             .dispatch(eq(fileName), aryEq(INTERNAL_ENVELOPE_CONTENT), eq(targetContainerName), eq(CRIME));
     }
 
-    private static byte[] getBlobContent(byte[] internalEnvelopeContent) {
+    @Test
+    void should_not_upload_to_crime_when_blob_is_not_zip() {
+        // given
+        blobExists(OffsetDateTime.now(), "not zip file's content".getBytes());
+
+        var sourceContainerName = "sourceContainer1";
+        var targetContainerName = "targetContainer1";
+
+        setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
+
+        // valid file, ready to be processed
+        given(readinessChecker.isReady(any())).willReturn(true);
+        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
+        var fileName = "envelope1.zip";
+
+        // when
+        newBlobProcessor().process(fileName, sourceContainerName);
+
+        // then
+        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
+    }
+
+    @Test
+    void should_not_upload_to_crime_when_blob_does_not_contain_envelope_entry() {
+        // given
+        // blob contains signature file only
+        blobExists(OffsetDateTime.now(), getBlobContent(Map.of("signature", "test".getBytes())));
+
+        var sourceContainerName = "sourceContainer1";
+        var targetContainerName = "targetContainer1";
+
+        setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
+
+        // valid file, ready to be processed
+        given(readinessChecker.isReady(any())).willReturn(true);
+        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
+        var fileName = "envelope1.zip";
+
+        // when
+        newBlobProcessor().process(fileName, sourceContainerName);
+
+        // then
+        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
+    }
+
+    private static byte[] getBlobContent(Map<String, byte[]> zipEntries) {
         try (
             var outputStream = new ByteArrayOutputStream();
             var zipOutputStream = new ZipOutputStream(outputStream)
         ) {
-            zipOutputStream.putNextEntry(new ZipEntry("envelope.zip"));
-            zipOutputStream.write(internalEnvelopeContent);
-            zipOutputStream.closeEntry();
+            for (var entry : zipEntries.entrySet()) {
+                var fileName = entry.getKey();
+                var fileBytes = entry.getValue();
 
-            zipOutputStream.putNextEntry(new ZipEntry("signature"));
-            zipOutputStream.write("signature content is irrelevant".getBytes());
-            zipOutputStream.closeEntry();
+                zipOutputStream.putNextEntry(new ZipEntry(fileName));
+                zipOutputStream.write(fileBytes);
+                zipOutputStream.closeEntry();
+            }
 
             return outputStream.toByteArray();
         } catch (IOException e) {
@@ -231,24 +283,28 @@ class BlobProcessorTest {
     }
 
     private void blobExists() {
-        blobExists(OffsetDateTime.now(), true);
+        blobExists(OffsetDateTime.now(), BLOB_CONTENT);
     }
 
-    private void blobExists(OffsetDateTime time, boolean setupContent) {
+    private void blobExists(OffsetDateTime time, byte[] contentToDownload) {
         given(blobServiceClient.getBlobContainerClient(any())).willReturn(containerClient);
         given(containerClient.getBlobClient(any())).willReturn(blobClient);
         given(blobClient.getProperties()).willReturn(blobProperties);
 
-        if (setupContent) {
-            will(invocation -> {
-                OutputStream outputStream = (OutputStream) invocation.getArguments()[0];
-                outputStream.write(BLOB_CONTENT);
-                return null;
-            }).given(blobClient).download(any());
+        if (contentToDownload != null) {
+            setupDownloadedBlobContent(contentToDownload);
         }
 
         given(blobProperties.getLastModified()).willReturn(time);
         given(envelopeRepo.find(any(), any())).willReturn(Optional.empty());
+    }
+
+    private void setupDownloadedBlobContent(byte[] content) {
+        will(invocation -> {
+            OutputStream outputStream = (OutputStream) invocation.getArguments()[0];
+            outputStream.write(content);
+            return null;
+        }).given(blobClient).download(any());
     }
 
     private void setupContainerConfig(
