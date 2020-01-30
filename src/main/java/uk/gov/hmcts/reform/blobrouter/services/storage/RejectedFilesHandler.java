@@ -100,7 +100,8 @@ public class RejectedFilesHandler {
             .getBlockBlobClient()
             .upload(
                 new ByteArrayInputStream(blobContent),
-                blobContent.length
+                blobContent.length,
+                true
             );
         logger.info("File successfully uploaded to rejected container. " + loggingContext);
     }

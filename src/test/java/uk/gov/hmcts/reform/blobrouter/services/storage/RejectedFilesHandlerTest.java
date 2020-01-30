@@ -18,6 +18,7 @@ import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
@@ -82,8 +83,8 @@ class RejectedFilesHandlerTest {
         mover.handle();
 
         // then
-        verify(rejectedBlockBlob1).upload(any(), anyLong());
-        verify(rejectedBlockBlob2).upload(any(), anyLong());
+        verify(rejectedBlockBlob1).upload(any(), anyLong(), eq(true));
+        verify(rejectedBlockBlob2).upload(any(), anyLong(), eq(true));
 
         verify(normalBlob1).delete();
         verify(normalBlob2).delete();
@@ -106,7 +107,7 @@ class RejectedFilesHandlerTest {
         mover.handle();
 
         // then second files should get processed anyway...
-        verify(rejectedBlockBlob2).upload(any(), anyLong());
+        verify(rejectedBlockBlob2).upload(any(), anyLong(), eq(true));
         verify(normalBlob2).delete();
         verify(repo).markAsDeleted(envelope2.id);
 
@@ -123,7 +124,7 @@ class RejectedFilesHandlerTest {
         mover.handle();
 
         // then
-        verify(rejectedBlockBlob1, never()).upload(any(), anyLong());
+        verify(rejectedBlockBlob1, never()).upload(any(), anyLong(), eq(true));
         verify(normalBlob1, never()).delete();
         verify(repo).markAsDeleted(envelope1.id);
     }

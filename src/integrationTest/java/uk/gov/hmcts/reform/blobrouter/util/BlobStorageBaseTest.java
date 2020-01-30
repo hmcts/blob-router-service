@@ -8,6 +8,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.testcontainers.containers.DockerComposeContainer;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Spins up test blob storage on Docker.
@@ -16,6 +18,8 @@ public abstract class BlobStorageBaseTest {
 
     private static DockerComposeContainer dockerComposeContainer;
     protected static BlobServiceClient storageClient;
+
+    private Set<String> createdContainers = new HashSet<>();
 
     @BeforeAll
     protected static void startBlobStorage() {
@@ -33,10 +37,11 @@ public abstract class BlobStorageBaseTest {
     }
 
     protected BlobContainerClient createContainer(String containerName) {
+        createdContainers.add(containerName);
         return storageClient.createBlobContainer(containerName);
     }
 
-    protected void deleteContainer(String containerName) {
-        storageClient.deleteBlobContainer(containerName);
+    protected void deleteAllContainers() {
+        this.createdContainers.forEach(container -> storageClient.deleteBlobContainer(container));
     }
 }
