@@ -183,6 +183,33 @@ public class EnvelopeRepositoryTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void should_find_envelopes_by_status() {
+        //given
+        addEnvelope("C1", "f1", Status.DISPATCHED, false);
+        addEnvelope("C1", "f2", Status.REJECTED, false);
+        addEnvelope("C1", "f3", Status.DISPATCHED, true);
+        addEnvelope("C1", "f4", Status.REJECTED, true);
+
+        addEnvelope("C2", "f5", Status.DISPATCHED, false);
+        addEnvelope("C2", "f6", Status.REJECTED, false);
+        addEnvelope("C2", "f7", Status.DISPATCHED, true);
+        addEnvelope("C2", "f8", Status.REJECTED, true);
+
+        // then
+        assertThat(repo.find(Status.DISPATCHED, false)).extracting(env -> env.fileName).containsExactly("f1", "f5");
+        assertThat(repo.find(Status.DISPATCHED, true)).extracting(env -> env.fileName).containsExactly("f3", "f7");
+        assertThat(repo.find(Status.REJECTED, false)).extracting(env -> env.fileName).containsExactly("f2", "f6");
+        assertThat(repo.find(Status.REJECTED, true)).extracting(env -> env.fileName).containsExactly("f4", "f8");
+    }
+
+    private void addEnvelope(String container, String fileName, Status status, boolean isDeleted) {
+        UUID id = repo.insert(new NewEnvelope(container, fileName, now(), now(), status));
+        if (isDeleted) {
+            repo.markAsDeleted(id);
+        }
+    }
+
     private NewEnvelope newEnvelope(Status status, String container) {
         return new NewEnvelope(
             container,

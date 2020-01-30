@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.util;
 
+import org.apache.commons.lang3.StringUtils;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
@@ -18,22 +19,20 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
+import static com.google.common.io.Resources.getResource;
+import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 
 /**
- * Signed zip archive verification utilities. Currently 2 modes are supported:
- * <ul>
- * <li>none = no signature verification</li>
- * <li>sha256withrsa = sha256 + rsa signature verification</li>
- * </ul>
- * With the obvious exclusion of the no verification case, a signed zip
- * archive must include 2 files named envelope.zip and signature. The
- * former is the archive content while the latter is the signature the
+ * Signed zip archive verification utilities.
+ * Currently verifies with sha256withrsa algorithm:
+ * sha256withrsa = sha256 + rsa signature verification.
+ * A signed zip archive must include 2 files named envelope.zip and signature.
+ * The former is the archive content while the latter is the signature the
  * archive has to be verified against.
  * <p>
  * Some openssl commands related to sha256withrsa signatures:
@@ -69,22 +68,7 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static Function<ZipStreamWithSignature, ZipInputStream> getPreprocessor(
-        String signatureAlgorithm
-    ) {
-        if ("sha256withrsa".equalsIgnoreCase(signatureAlgorithm)) {
-            return ZipVerifiers::sha256WithRsaVerification;
-        } else if ("none".equalsIgnoreCase(signatureAlgorithm)) {
-            return ZipVerifiers::noOpVerification;
-        }
-        throw new SignatureValidationException("Undefined signature verification algorithm");
-    }
-
-    static ZipInputStream noOpVerification(ZipStreamWithSignature zipWithSignature) {
-        return zipWithSignature.zipInputStream;
-    }
-
-    static ZipInputStream sha256WithRsaVerification(ZipStreamWithSignature zipWithSignature)
+    public static ZipInputStream verifyZipSignature(ZipStreamWithSignature zipWithSignature)
         throws DocSignatureFailureException {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
 
@@ -152,23 +136,47 @@ public class ZipVerifiers {
         }
     }
 
+    public static class PublicKeyFile {
+        public final String derFilename;
+        public final String publicKeyBase64;
+
+        public PublicKeyFile(String derFilename, String publicKeyBase64) {
+            this.derFilename = derFilename;
+            this.publicKeyBase64 = publicKeyBase64;
+        }
+    }
+
     public static class ZipStreamWithSignature {
         public final ZipInputStream zipInputStream;
         public final String publicKeyBase64;
-        public final String zipFileName;
-        public final String container;
+
+        private static PublicKeyFile cachedPublicKeyFile;
 
         public ZipStreamWithSignature(
             ZipInputStream zipInputStream,
-            String publicKeyBase64,
-            String zipFileName,
-            String container
+            String publicKeyBase64
         ) {
             this.zipInputStream = zipInputStream;
             this.publicKeyBase64 = publicKeyBase64;
-            this.zipFileName = zipFileName;
-            this.container = container;
         }
 
+        public static ZipStreamWithSignature fromKeyfile(
+            ZipInputStream zipInputStream,
+            String publicKeyDerFile
+        ) {
+            try {
+                String publicKeyBase64 = null;
+                if (cachedPublicKeyFile != null && publicKeyDerFile.equals(cachedPublicKeyFile.derFilename)) {
+                    publicKeyBase64 = cachedPublicKeyFile.publicKeyBase64;
+                } else if (StringUtils.isNotEmpty(publicKeyDerFile)) {
+                    publicKeyBase64 = Base64.getEncoder().encodeToString(toByteArray(getResource(publicKeyDerFile)));
+                    cachedPublicKeyFile = new PublicKeyFile(publicKeyDerFile, publicKeyBase64);
+                }
+
+                return new ZipStreamWithSignature(zipInputStream, publicKeyBase64);
+            } catch (IOException e) {
+                throw new SignatureValidationException(e);
+            }
+        }
     }
 }

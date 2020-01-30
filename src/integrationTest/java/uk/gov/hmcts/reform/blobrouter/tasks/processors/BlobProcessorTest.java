@@ -12,19 +12,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
+import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
+
+import java.io.ByteArrayInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipAndSignDir;
 
 @ActiveProfiles("db-test")
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-public class BlobProcessorTest extends BlobStorageBaseTest {
+class BlobProcessorTest extends BlobStorageBaseTest {
 
     @Mock BlobContainerClientProvider containerClientProvider;
 
@@ -32,7 +36,7 @@ public class BlobProcessorTest extends BlobStorageBaseTest {
     @Autowired BlobReadinessChecker readinessChecker;
 
     @Test
-    void should_copy_file_from_source_to_target_container() {
+    void should_copy_file_from_source_to_target_container() throws Exception {
         // given
         var sourceContainer = "source";
         var targetContainer = "target";
@@ -50,14 +54,17 @@ public class BlobProcessorTest extends BlobStorageBaseTest {
                 dispatcher,
                 readinessChecker,
                 envelopeRepo,
-                blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient()
+                blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient(),
+                new BlobSignatureVerifier("signing/test_public_key.der")
             );
 
         var blobName = "hello.zip";
+        byte[] bytes = zipAndSignDir("storage/valid", "signing/test_private_key.der");
 
         sourceContainerClient
             .getBlobClient(blobName)
-            .uploadFromFile("src/integrationTest/resources/storage/test1.zip");
+            .getBlockBlobClient()
+            .upload(new ByteArrayInputStream(bytes), bytes.length);
 
         // when
         blobProcessor.process(blobName, sourceContainer);
