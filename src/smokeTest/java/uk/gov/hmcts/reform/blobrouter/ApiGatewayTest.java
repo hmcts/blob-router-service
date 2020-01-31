@@ -133,7 +133,8 @@ class ApiGatewayTest {
         File clientKeyStore,
         String clientKeyStorePassword
     ) {
-        System.out.println("-----------getSslConfigForClientCertificate " + clientKeyStore.getName() + " " +  clientKeyStorePassword.length());
+        System.out.println("-----------getSslConfigForClientCertificate " + clientKeyStore.getName() + " "
+                               +  clientKeyStorePassword.length());
         return RestAssured.config().sslConfig(
             new SSLConfig()
                 .allowAllHostnames()
