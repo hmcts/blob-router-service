@@ -136,7 +136,7 @@ public class GetSasTokenTest {
     }
 
     private KeyStoreWithPassword getClientKeyStore(String base64Content, String password) throws Exception {
-        byte[] rawContent = Base64.getDecoder().decode(base64Content);
+        byte[] rawContent = Base64.getMimeDecoder().decode(base64Content);
 
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         keyStore.load(new ByteArrayInputStream(rawContent), password.toCharArray());
