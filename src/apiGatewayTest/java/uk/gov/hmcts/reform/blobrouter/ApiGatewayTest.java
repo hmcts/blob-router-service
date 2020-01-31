@@ -53,7 +53,6 @@ class ApiGatewayTest {
     void should_accept_request_with_valid_certificate_and_subscription_key() {
         Response response = callSasTokenEndpoint(getValidClientKeyStore(), SUBSCRIPTION_KEY);
 
-        assertThat(response.body().asString()).isEqualTo("Abcd");
         assertThat(response.getStatusCode()).isEqualTo(200);
         assertThat(response.body().jsonPath().getString("sas_token")).isNotEmpty();
     }
