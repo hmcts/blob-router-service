@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.core.util.Configuration;
+import com.azure.core.http.ProxyOptions;
+import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+
+import java.net.InetSocketAddress;
 
 @Service
 public class BlobContainerClientProvider {
@@ -31,14 +34,17 @@ public class BlobContainerClientProvider {
             case BULKSCAN:
                 // retrieving a SAS token every time we're getting a client, but this will be cached in the future
                 return new BlobContainerClientBuilder()
-                    .configuration(Configuration
-                        .getGlobalConfiguration()
-                        // testing
-                        .put(Configuration.PROPERTY_HTTP_PROXY, "proxyout.reform.hmcts.net:8080")
-                        .put(Configuration.PROPERTY_HTTPS_PROXY, "proxyout.reform.hmcts.net:8080")
-                    )
                     .sasToken(bulkScanSasTokenClient.getSasToken(containerName).sasToken)
                     .endpoint(bulkScanStorageUrl)
+                    .httpClient(
+                        // this client is the only client built. and is built by default
+                        new NettyAsyncHttpClientBuilder()
+                            .proxy(new ProxyOptions(
+                                ProxyOptions.Type.HTTP,
+                                InetSocketAddress.createUnresolved("proxyout.reform.hmcts.net", 8080)
+                            ))
+                            .build()
+                    )
                     .containerName(containerName)
                     .buildClient();
             case CRIME:
