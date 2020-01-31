@@ -130,22 +130,8 @@ public class GetSasTokenTest {
 
     private KeyStoreWithPassword getValidClientKeyStore() throws Exception {
         return getClientKeyStore(
-            config.getString("client.valid-key-store.content"),
-            config.getString("client.valid-key-store.password")
-        );
-    }
-
-    private KeyStoreWithPassword getExpiredClientKeyStore() throws Exception {
-        return getClientKeyStore(
-            config.getString("client.expired-key-store.content"),
-            config.getString("client.expired-key-store.password")
-        );
-    }
-
-    private KeyStoreWithPassword getNotYetValidClientKeyStore() throws Exception {
-        return getClientKeyStore(
-            config.getString("client.not-yet-valid-key-store.content"),
-            config.getString("client.not-yet-valid-key-store.password")
+            config.resolve().getString("client.valid-key-store.content"),
+            config.resolve().getString("client.valid-key-store.password")
         );
     }
 
@@ -175,19 +161,19 @@ public class GetSasTokenTest {
     }
 
     private String getValidSubscriptionKey() {
-        String subscriptionKey = config.getString("client.subscription-key");
+        String subscriptionKey = config.resolve().getString("client.subscription-key");
         assertThat(subscriptionKey).as("Subscription key").isNotEmpty();
         return subscriptionKey;
     }
 
     private String getApiGatewayUrl() {
-        String apiUrl = config.getString("api.gateway-url");
+        String apiUrl = config.resolve().getString("api.gateway-url");
         assertThat(apiUrl).as("API gateway URL").isNotEmpty();
         return apiUrl;
     }
 
     private String getSasTokenEndpointPath() {
-        return "/token/" + config.getString("container.name");
+        return "/token/bulkscan";
     }
 
     private static class KeyStoreWithPassword {
