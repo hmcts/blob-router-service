@@ -43,13 +43,13 @@ public class CrimeBlobDispatchingTest extends FunctionalTestBase {
         );
 
         // when
-        uploadFile(blobRouterStorageClient, config.crimeDestinationContainer, fileName, wrappingZipContent);
+        uploadFile(blobRouterStorageClient, config.crimeSourceContainer, fileName, wrappingZipContent);
 
         // then
         await("Wait for the blob to disappear from source container")
             .atMost(2, TimeUnit.MINUTES)
             .until(
-                () -> !blobExists(blobRouterStorageClient, config.crimeSourceContainer, fileName)
+                () -> !blobExists(blobRouterStorageClient, config.crimeDestinationContainer, fileName)
             );
 
         assertBlobIsPresentInStorage(
