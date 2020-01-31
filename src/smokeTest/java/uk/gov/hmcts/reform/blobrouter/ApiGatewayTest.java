@@ -108,23 +108,19 @@ class ApiGatewayTest {
         RequestSpecification request = RestAssured.given().baseUri(API_URL);
 
         if (clientKeyStore != null) {
-            System.out.println("-----------clientKeyStore != null");
             request = request.config(
                 getSslConfigForClientCertificate(
                     clientKeyStore.javaKeyStore,
                     clientKeyStore.password
                 )
             );
-        } else {
-            System.out.println("-----------clientKeyStore == null");
         }
 
         if (subscriptionKey != null) {
-            System.out.println("-----------subscriptionKey != null");
             request = request.header(SUBSCRIPTION_KEY_HEADER_NAME, subscriptionKey);
-        } else {
-            System.out.println("-----------subscriptionKey == null");
         }
+
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 
         return request.get(SAS_TOKEN_ENDPOINT);
     }
