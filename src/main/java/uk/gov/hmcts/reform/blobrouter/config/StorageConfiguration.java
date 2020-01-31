@@ -44,6 +44,7 @@ public class StorageConfiguration {
     public static BlobContainerClient getCrimeStorageClient(
         @Value("${storage.crime.connection-string}") String connectionString
     ) {
+        System.out.println("Crime connection string: " + connectionString);
         return new BlobContainerClientBuilder().connectionString(connectionString).buildClient();
     }
 }

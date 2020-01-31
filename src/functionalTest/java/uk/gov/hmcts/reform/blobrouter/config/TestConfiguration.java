@@ -28,5 +28,9 @@ public class TestConfiguration {
         this.crimeStorageConnectionString = config.getString("crime-storage-connection-string");
         this.crimeSourceContainer = config.getString("crime-source-container");
         this.crimeDestinationContainer = config.getString("crime-destination-container");
+
+        System.out.println("Crime storage connection string: " + crimeStorageConnectionString);
+        System.out.println("Crime source container: " + crimeSourceContainer);
+        System.out.println("Crime destination container: " + crimeDestinationContainer);
     }
 }
