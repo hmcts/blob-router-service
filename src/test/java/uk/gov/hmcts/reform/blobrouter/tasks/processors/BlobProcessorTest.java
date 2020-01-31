@@ -312,7 +312,7 @@ class BlobProcessorTest {
         String targetContainer,
         TargetStorageAccount targetStorageAccount
     ) {
-        ServiceConfiguration.StorageConfig containerConfig = new ServiceConfiguration.StorageConfig();
+        var containerConfig = new ServiceConfiguration.StorageConfig();
         containerConfig.setEnabled(true);
         containerConfig.setName(sourceContainer);
         containerConfig.setTargetContainer(targetContainer);
