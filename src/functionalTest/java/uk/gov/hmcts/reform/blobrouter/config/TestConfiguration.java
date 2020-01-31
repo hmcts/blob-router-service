@@ -32,5 +32,9 @@ public class TestConfiguration {
         System.out.println("Crime storage connection string: " + crimeStorageConnectionString);
         System.out.println("Crime source container: " + crimeSourceContainer);
         System.out.println("Crime destination container: " + crimeDestinationContainer);
+
+        System.out.println("Source account name: " + sourceStorageAccountName);
+        System.out.println("Source account key: " + sourceStorageAccountKey);
+        System.out.println("Source account url: " + sourceStorageAccountUrl);
     }
 }

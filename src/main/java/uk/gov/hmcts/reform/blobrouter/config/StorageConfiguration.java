@@ -21,6 +21,8 @@ public class StorageConfiguration {
         @Value("${storage.account-name}") String accountName,
         @Value("${storage.account-key}") String accountKey
     ) {
+        System.out.println("Source storage account name: " + accountName);
+        System.out.println("Source storage account key: " + accountKey);
         return new StorageSharedKeyCredential(accountName, accountKey);
     }
 
@@ -34,6 +36,9 @@ public class StorageConfiguration {
         StorageSharedKeyCredential credentials,
         @Value("${storage.url}") String storageUrl
     ) {
+        System.out.println("Source storage account name: " + credentials.getAccountName());
+        System.out.println("Source storage account url: " + storageUrl);
+
         return new BlobServiceClientBuilder()
             .credential(credentials)
             .endpoint(storageUrl)
