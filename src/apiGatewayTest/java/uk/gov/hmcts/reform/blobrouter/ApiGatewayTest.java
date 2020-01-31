@@ -45,7 +45,7 @@ class ApiGatewayTest {
         validJavaKeyStore = File.createTempFile("appGW", "test");
 
         try (var fos = new FileOutputStream(validJavaKeyStore)) {
-            fos.write(Base64.getDecoder().decode(CONFIG.getString("client.valid-key-store.content")));
+            fos.write(Base64.getMimeDecoder().decode(CONFIG.getString("client.valid-key-store.content")));
         }
     }
 
