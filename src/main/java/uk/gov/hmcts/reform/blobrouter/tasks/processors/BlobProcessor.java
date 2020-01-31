@@ -105,7 +105,6 @@ public class BlobProcessor {
                         envelopeId
                     );
                 } else {
-                    logger.error("Invalid signature. Blob name: {} container: {}", blobName, containerName);
                     UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
                         blobName,
                         containerName,
@@ -113,8 +112,11 @@ public class BlobProcessor {
                         Status.REJECTED
                     ));
 
-                    logger.info(
-                        "Rejected Blob. Name {} container {}. Envelope ID: {}", blobName, containerName, envelopeId
+                    logger.error(
+                        "Invalid signature. Rejected Blob name {} container {} New envelope ID: {}",
+                        blobName,
+                        containerName,
+                        envelopeId
                     );
                     // TODO send notification to Exela
                 }
