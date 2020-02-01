@@ -23,7 +23,7 @@ public class GetSasTokenTest {
     private static final String SUBSCRIPTION_KEY_HEADER_NAME = "Ocp-Apim-Subscription-Key";
     private static final String PASSWORD_FOR_UNRECOGNISED_CLIENT_CERT = "testcert";
 
-    private final Config config = ConfigFactory.parseResources("application1.conf");
+    private final Config config = ConfigFactory.load();
 
     @Test
     public void should_accept_request_with_valid_certificate_and_subscription_key() throws Exception {
@@ -130,8 +130,8 @@ public class GetSasTokenTest {
 
     private KeyStoreWithPassword getValidClientKeyStore() throws Exception {
         return getClientKeyStore(
-            config.resolve().getString("client.valid-key-store.content"),
-            config.resolve().getString("client.valid-key-store.password")
+            config.resolve().getString("test-valid-key-store"),
+            config.resolve().getString("test-valid-key-store-password")
         );
     }
 
@@ -161,13 +161,13 @@ public class GetSasTokenTest {
     }
 
     private String getValidSubscriptionKey() {
-        String subscriptionKey = config.resolve().getString("client.subscription-key");
+        String subscriptionKey = config.resolve().getString("test-subscription-key");
         assertThat(subscriptionKey).as("Subscription key").isNotEmpty();
         return subscriptionKey;
     }
 
     private String getApiGatewayUrl() {
-        String apiUrl = config.resolve().getString("api.gateway-url");
+        String apiUrl = config.resolve().getString("api-gateway-url");
         assertThat(apiUrl).as("API gateway URL").isNotEmpty();
         return apiUrl;
     }
