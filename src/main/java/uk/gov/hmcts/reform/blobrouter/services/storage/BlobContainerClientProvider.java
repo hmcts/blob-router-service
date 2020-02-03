@@ -41,15 +41,6 @@ public class BlobContainerClientProvider {
                     .sasToken(bulkScanSasTokenClient.getSasToken(containerName).sasToken)
                     .endpoint(bulkScanStorageUrl)
                     .configuration(config)
-                    .httpClient(
-                        // this client is the only client built. and is built by default
-                        new NettyAsyncHttpClientBuilder()
-                            .proxy(new ProxyOptions(
-                                ProxyOptions.Type.HTTP,
-                                InetSocketAddress.createUnresolved("proxyout.reform.hmcts.net", 8080)
-                            ))
-                            .build()
-                    )
                     .containerName(containerName)
                     .buildClient();
             case CRIME:
