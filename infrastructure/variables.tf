@@ -29,3 +29,7 @@ variable "location_db" {
   type    = "string"
   default = "UK South"
 }
+
+variable "deployment_namespace" {
+  default = ""
+}
