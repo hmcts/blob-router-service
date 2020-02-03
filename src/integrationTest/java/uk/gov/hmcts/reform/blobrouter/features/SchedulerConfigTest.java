@@ -48,7 +48,7 @@ public class SchedulerConfigTest {
 
     @Test
     public void should_integrate_with_shedlock() throws Exception {
-        ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
+        var configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
 
         // wait for asynchronous run of the scheduled task in background
         Thread.sleep(2000);
