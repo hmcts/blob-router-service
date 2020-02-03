@@ -88,7 +88,7 @@ public class RejectedFilesHandler {
                 logger.info("Rejected file successfully handled. " + loggingContext);
             }
         } catch (Exception exc) {
-            logger.error("Error handling rejected file. " + loggingContext, exc);
+            logger.error("Error handling rejected file. {}", loggingContext, exc);
         }
     }
 
