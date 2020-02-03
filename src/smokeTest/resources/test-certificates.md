@@ -1,6 +1,6 @@
 ### Test certificates
 
-[unrecognised-client-certificate.pfx](unrecognised-client-certificate.jks) is a Java key store containing a test
+[unrecognised-client-certificate.pfx] is a Java key store containing a test
 SSL client certificate (and the corresponding private key) that should not be recognised by the API (gateway).
 The purpose of this key store is to be used in tests, in order to verify that HTTPS requests with this certificate are rejected.
 
@@ -15,7 +15,7 @@ openssl pkcs12 -export -in cert.pem -inkey private.pem -out unrecognised-client-
 To convert to Java key store:
 
 ```bash
-keytool -importkeystore -srckeystore unrecognised-client-certificate.pfx -srcstoretype pkcs12 -destkeystore unrecognised-client-certificate.jks -deststoretype pkcs12
+keytool -importkeystore -srckeystore unrecognised-client-certificate.pfx -srcstoretype pkcs12 -destkeystore -deststoretype pkcs12
 ```
 
 The key store was created with password `testcert`.
