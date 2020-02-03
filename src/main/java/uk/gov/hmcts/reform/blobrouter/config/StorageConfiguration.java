@@ -42,8 +42,12 @@ public class StorageConfiguration {
 
     @Bean("crime-storage-client")
     public static BlobContainerClient getCrimeStorageClient(
-        @Value("${storage.crime.connection-string}") String connectionString
+        @Value("${storage.crime.connection-string}") String connectionString,
+        @Value("${CRIME_DESTINATION_CONTAINER}") String containerName
     ) {
-        return new BlobContainerClientBuilder().connectionString(connectionString).buildClient();
+        return new BlobContainerClientBuilder()
+            .connectionString(connectionString)
+            .containerName(containerName)
+            .buildClient();
     }
 }
