@@ -8,7 +8,6 @@ import io.restassured.config.SSLConfig;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -24,7 +23,6 @@ import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
 class ApiGatewayTest {
 
     private static final String SUBSCRIPTION_KEY_HEADER_NAME = "Ocp-Apim-Subscription-Key";
@@ -47,7 +45,7 @@ class ApiGatewayTest {
         validJavaKeyStore = File.createTempFile("appGW", "test");
 
         try (var fos = new FileOutputStream(validJavaKeyStore)) {
-            fos.write(Base64.getMimeDecoder().decode(CONFIG.getString("client.valid-key-store.content")));
+            fos.write(Base64.getDecoder().decode(CONFIG.getString("client.valid-key-store.content")));
         }
     }
 
