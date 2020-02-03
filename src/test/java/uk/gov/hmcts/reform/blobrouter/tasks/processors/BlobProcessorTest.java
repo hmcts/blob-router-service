@@ -11,6 +11,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
@@ -312,9 +313,9 @@ class BlobProcessorTest {
         String targetContainer,
         TargetStorageAccount targetStorageAccount
     ) {
-        var containerConfig = new ServiceConfiguration.StorageConfig();
+        var containerConfig = new StorageConfigItem();
         containerConfig.setEnabled(true);
-        containerConfig.setName(sourceContainer);
+        containerConfig.setSourceContainer(sourceContainer);
         containerConfig.setTargetContainer(targetContainer);
         containerConfig.setTargetStorageAccount(targetStorageAccount);
 

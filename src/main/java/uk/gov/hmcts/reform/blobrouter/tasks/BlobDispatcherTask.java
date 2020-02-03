@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerProcessor;
 
 import java.util.Collections;
@@ -49,8 +50,8 @@ public class BlobDispatcherTask {
         return serviceConfiguration.getStorageConfig()
             .values()
             .stream()
-            .filter(ServiceConfiguration.StorageConfig::isEnabled)
-            .map(ServiceConfiguration.StorageConfig::getName)
+            .filter(StorageConfigItem::isEnabled)
+            .map(StorageConfigItem::getSourceContainer)
             .collect(toList());
     }
 

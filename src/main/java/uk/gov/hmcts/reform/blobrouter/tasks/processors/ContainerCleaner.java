@@ -6,7 +6,6 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
@@ -23,7 +22,7 @@ public class ContainerCleaner {
     private final EnvelopeRepository envelopeRepository;
 
     public ContainerCleaner(
-        @Qualifier("storage-client") BlobServiceClient storageClient,
+        BlobServiceClient storageClient,
         EnvelopeRepository envelopeRepository
     ) {
         this.storageClient = storageClient;
