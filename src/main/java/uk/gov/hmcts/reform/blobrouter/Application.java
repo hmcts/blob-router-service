@@ -10,6 +10,11 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 public class Application {
 
     public static void main(final String[] args) {
+        System.setProperty("http.proxyHost", "proxyout.reform.hmcts.net");
+        System.setProperty("http.proxyPort", "8080");
+
+        System.setProperty("https.proxyHost", "proxyout.reform.hmcts.net");
+        System.setProperty("https.proxyPort", "8080");
         SpringApplication.run(Application.class, args);
     }
 }
