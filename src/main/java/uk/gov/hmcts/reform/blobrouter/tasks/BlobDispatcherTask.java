@@ -51,7 +51,7 @@ public class BlobDispatcherTask {
             .values()
             .stream()
             .filter(StorageConfig::isEnabled)
-            .map(StorageConfig::getName)
+            .map(StorageConfig::getSourceContainer)
             .collect(toList());
     }
 

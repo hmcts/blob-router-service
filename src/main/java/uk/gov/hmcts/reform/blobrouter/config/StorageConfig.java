@@ -3,24 +3,19 @@ package uk.gov.hmcts.reform.blobrouter.config;
 import javax.validation.constraints.NotNull;
 
 public class StorageConfig {
-    private String name;
+
     private int sasValidity;
 
     @NotNull
     private TargetStorageAccount targetStorageAccount;
 
     @NotNull
+    private String sourceContainer;
+
+    @NotNull
     private String targetContainer;
 
     private boolean isEnabled = true;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public int getSasValidity() {
         return sasValidity;
@@ -44,6 +39,14 @@ public class StorageConfig {
 
     public void setTargetStorageAccount(TargetStorageAccount targetStorageAccount) {
         this.targetStorageAccount = targetStorageAccount;
+    }
+
+    public String getSourceContainer() {
+        return sourceContainer;
+    }
+
+    public void setSourceContainer(String sourceContainer) {
+        this.sourceContainer = sourceContainer;
     }
 
     public String getTargetContainer() {

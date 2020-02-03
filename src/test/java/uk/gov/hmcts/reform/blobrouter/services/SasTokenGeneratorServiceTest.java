@@ -86,7 +86,7 @@ class SasTokenGeneratorServiceTest {
     private static StorageConfig cfg(String name, int validity, boolean enabled) {
         StorageConfig config = new StorageConfig();
         config.setSasValidity(validity);
-        config.setName(name);
+        config.setSourceContainer(name);
         config.setEnabled(enabled);
         return config;
     }

@@ -19,7 +19,7 @@ public class ServiceConfiguration {
     public void setStorageConfig(List<StorageConfig> storageConfig) {
         this.storageConfig = storageConfig
             .stream()
-            .collect(Collectors.toMap(StorageConfig::getName, Function.identity()));
+            .collect(Collectors.toMap(StorageConfig::getSourceContainer, Function.identity()));
     }
 
 }

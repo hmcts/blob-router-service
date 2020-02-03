@@ -69,7 +69,7 @@ class DeleteDispatchedFilesTaskTest {
     private StorageConfig configure(String name, boolean enabled) {
         StorageConfig config = new StorageConfig();
         config.setSasValidity(300);
-        config.setName(name);
+        config.setSourceContainer(name);
         config.setEnabled(enabled);
         return config;
     }

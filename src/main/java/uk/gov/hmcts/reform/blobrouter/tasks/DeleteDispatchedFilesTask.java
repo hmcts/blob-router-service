@@ -50,7 +50,7 @@ public class DeleteDispatchedFilesTask {
             .values()
             .stream()
             .filter(StorageConfig::isEnabled)
-            .map(StorageConfig::getName);
+            .map(StorageConfig::getSourceContainer);
     }
 
 }

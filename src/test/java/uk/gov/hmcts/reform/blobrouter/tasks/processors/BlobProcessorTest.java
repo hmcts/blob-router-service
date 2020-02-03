@@ -315,7 +315,7 @@ class BlobProcessorTest {
     ) {
         var containerConfig = new StorageConfig();
         containerConfig.setEnabled(true);
-        containerConfig.setName(sourceContainer);
+        containerConfig.setSourceContainer(sourceContainer);
         containerConfig.setTargetContainer(targetContainer);
         containerConfig.setTargetStorageAccount(targetStorageAccount);
 
