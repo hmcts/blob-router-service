@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.config.StorageConfig;
+import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerCleaner;
 
 import java.util.stream.Stream;
@@ -49,8 +49,8 @@ public class DeleteDispatchedFilesTask {
         return serviceConfiguration.getStorageConfig()
             .values()
             .stream()
-            .filter(StorageConfig::isEnabled)
-            .map(StorageConfig::getSourceContainer);
+            .filter(StorageConfigItem::isEnabled)
+            .map(StorageConfigItem::getSourceContainer);
     }
 
 }

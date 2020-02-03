@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.config.StorageConfig;
+import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerProcessor;
 
 import static java.util.Arrays.asList;
@@ -67,8 +67,8 @@ class BlobDispatcherTaskTest {
         verify(containerProcessor, never()).process(any()); // no available containers
     }
 
-    private StorageConfig configure(String name, boolean enabled) {
-        StorageConfig config = new StorageConfig();
+    private StorageConfigItem configure(String name, boolean enabled) {
+        StorageConfigItem config = new StorageConfigItem();
         config.setSasValidity(300);
         config.setSourceContainer(name);
         config.setEnabled(enabled);

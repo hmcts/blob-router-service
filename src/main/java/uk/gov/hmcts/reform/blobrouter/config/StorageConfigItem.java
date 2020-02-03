@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.config;
 
 import javax.validation.constraints.NotNull;
 
-public class StorageConfig {
+public class StorageConfigItem {
 
     private int sasValidity;
 

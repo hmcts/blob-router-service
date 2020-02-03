@@ -10,16 +10,16 @@ import java.util.stream.Collectors;
 @ConfigurationProperties(prefix = "service")
 public class ServiceConfiguration {
 
-    private Map<String, StorageConfig> storageConfig;
+    private Map<String, StorageConfigItem> storageConfig;
 
-    public Map<String, StorageConfig> getStorageConfig() {
+    public Map<String, StorageConfigItem> getStorageConfig() {
         return storageConfig;
     }
 
-    public void setStorageConfig(List<StorageConfig> storageConfig) {
-        this.storageConfig = storageConfig
+    public void setStorageConfig(List<StorageConfigItem> storageConfigItems) {
+        this.storageConfig = storageConfigItems
             .stream()
-            .collect(Collectors.toMap(StorageConfig::getSourceContainer, Function.identity()));
+            .collect(Collectors.toMap(StorageConfigItem::getSourceContainer, Function.identity()));
     }
 
 }

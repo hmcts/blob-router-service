@@ -6,7 +6,7 @@ import com.azure.storage.common.implementation.StorageImplUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.config.StorageConfig;
+import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
@@ -83,8 +83,8 @@ class SasTokenGeneratorServiceTest {
             .hasMessage("Unable to generate SAS token for service " + VALID_SERVICE);
     }
 
-    private static StorageConfig cfg(String name, int validity, boolean enabled) {
-        StorageConfig config = new StorageConfig();
+    private static StorageConfigItem cfg(String name, int validity, boolean enabled) {
+        StorageConfigItem config = new StorageConfigItem();
         config.setSasValidity(validity);
         config.setSourceContainer(name);
         config.setEnabled(enabled);
