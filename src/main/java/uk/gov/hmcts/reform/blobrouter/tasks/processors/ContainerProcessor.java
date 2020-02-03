@@ -17,7 +17,7 @@ public class ContainerProcessor {
     private final BlobProcessor blobProcessor;
 
     public ContainerProcessor(
-        @Qualifier("storage-client") BlobServiceClient storageClient,
+        BlobServiceClient storageClient,
         BlobProcessor blobProcessor
     ) {
         this.storageClient = storageClient;
