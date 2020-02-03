@@ -17,7 +17,9 @@ import static org.mockito.Mockito.verify;
 @TestPropertySource(
     properties = {
         "scheduling.task.delete-dispatched-files.enabled=true",
-        "scheduling.task.delete-dispatched-files.cron: */1 * * * * *"
+        "scheduling.task.delete-dispatched-files.cron: */1 * * * * *",
+        "scheduling.task.handle-rejected-files.enabled=true",
+        "scheduling.task.handle-rejected-files.cron: */1 * * * * *"
     }
 )
 @Profile("integration-test")
@@ -37,7 +39,8 @@ public class SchedulerConfigTest {
         assertThat(configCaptor.getAllValues())
             .extracting(lc -> lc.getName())
             .containsOnly(
-                "delete-dispatched-files"
+                "delete-dispatched-files",
+                "handle-rejected-files"
             );
     }
 }
