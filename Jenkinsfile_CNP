@@ -24,15 +24,7 @@ def combinedSecrets = [
      secret('storage-account-secondary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
      secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
 
-     secret('crime-storage-connection-string', 'STORAGE_CRIME_CONNECTION_STRING'),
-     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
-     secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
-     secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
-
-     // smoke test secrets
-     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
-     secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
-     secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD')
+     secret('crime-storage-connection-string', 'STORAGE_CRIME_CONNECTION_STRING')
    ]
  ]
 
