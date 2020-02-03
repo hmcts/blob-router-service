@@ -5,7 +5,6 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
@@ -52,7 +51,7 @@ public class BlobProcessor {
     private final Map<String, StorageConfigItem> storageConfig;
 
     public BlobProcessor(
-        @Qualifier("storage-client") BlobServiceClient storageClient,
+        BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
         BlobReadinessChecker readinessChecker,
         EnvelopeRepository envelopeRepository,

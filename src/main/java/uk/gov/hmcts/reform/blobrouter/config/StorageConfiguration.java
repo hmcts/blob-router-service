@@ -29,7 +29,7 @@ public class StorageConfiguration {
         return blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();
     }
 
-    @Bean("storage-client")
+    @Bean
     public BlobServiceClient getStorageClient(
         StorageSharedKeyCredential credentials,
         @Value("${storage.url}") String storageUrl
