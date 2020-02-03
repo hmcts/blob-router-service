@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
@@ -34,12 +35,13 @@ class BlobProcessorTest extends BlobStorageBaseTest {
 
     @Autowired EnvelopeRepository envelopeRepo;
     @Autowired BlobReadinessChecker readinessChecker;
+    @Autowired ServiceConfiguration serviceConfiguration;
 
     @Test
     void should_copy_file_from_source_to_target_container() throws Exception {
         // given
-        var sourceContainer = "source";
-        var targetContainer = "target";
+        var sourceContainer = "bulkscan";
+        var targetContainer = "bulkscan-target";
 
         BlobContainerClient sourceContainerClient = createContainer(sourceContainer);
         BlobContainerClient targetContainerClient = createContainer(targetContainer);
@@ -55,7 +57,8 @@ class BlobProcessorTest extends BlobStorageBaseTest {
                 readinessChecker,
                 envelopeRepo,
                 blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient(),
-                new BlobSignatureVerifier("signing/test_public_key.der")
+                new BlobSignatureVerifier("signing/test_public_key.der"),
+                serviceConfiguration
             );
 
         var blobName = "hello.zip";
