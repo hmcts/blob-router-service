@@ -13,7 +13,7 @@ def component = "blob-router"
 
 def channel = '#bsp-build-notices'
 
-def vaultSecrets = [
+def combinedSecrets = [
    'reform-scan-${env}': [
      // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
      secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
@@ -33,6 +33,11 @@ def vaultSecrets = [
      secret('storage-account-name', 'TEST_STORAGE_ACCOUNT_NAME'),
 
      secret('crime-storage-connection-string', 'STORAGE_CRIME_CONNECTION_STRING'),
+     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
+     secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
+     secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
+
+     // smoke test secrets
      secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
      secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
      secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD')
@@ -84,7 +89,7 @@ withPipeline(type, product, component) {
   disableLegacyDeployment()
 
   onNonPR() {
-    loadVaultSecrets(vaultSecrets)
+    loadVaultSecrets(combinedSecrets)
   }
 
   onPR(){
