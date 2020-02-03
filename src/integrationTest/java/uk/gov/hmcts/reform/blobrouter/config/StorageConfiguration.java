@@ -24,10 +24,7 @@ public class StorageConfiguration {
     }
 
     // not used as needs test context so it can actually be build
-    @Bean({
-        "storage-client",
-        "bulkscan-storage-client"
-    })
+    @Bean()
     public BlobServiceClient getStorageClient(StorageSharedKeyCredential credentials) {
         return new BlobServiceClientBuilder().credential(credentials).buildClient();
     }

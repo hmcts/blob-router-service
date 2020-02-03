@@ -95,6 +95,30 @@ public class GetSasTokenTest {
         assertThat(response.body().asString()).contains("Resource not found");
     }
 
+    @Test
+    public void should_reject_request_with_expired_client_certificate() throws Exception {
+        Response response = callSasTokenEndpoint(
+            getExpiredClientKeyStore(),
+            getValidSubscriptionKey()
+        )
+            .thenReturn();
+
+        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
+    }
+
+    @Test
+    public void should_reject_request_with_not_yet_valid_client_certificate() throws Exception {
+        Response response = callSasTokenEndpoint(
+            getNotYetValidClientKeyStore(),
+            getValidSubscriptionKey()
+        )
+            .thenReturn();
+
+        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
+    }
+
     private Response callSasTokenEndpoint(
         KeyStoreWithPassword clientKeyStore,
         String subscriptionKey
@@ -132,6 +156,20 @@ public class GetSasTokenTest {
         return getClientKeyStore(
             config.resolve().getString("test-valid-key-store"),
             config.resolve().getString("test-valid-key-store-password")
+        );
+    }
+
+    private KeyStoreWithPassword getExpiredClientKeyStore() throws Exception {
+        return getClientKeyStore(
+            config.resolve().getString("test-expired-key-store"),
+            config.resolve().getString("test-expired-key-store-password")
+        );
+    }
+
+    private KeyStoreWithPassword getNotYetValidClientKeyStore() throws Exception {
+        return getClientKeyStore(
+            config.resolve().getString("test-not-yet-valid-key-store"),
+            config.resolve().getString("test-not-yet-valid-key-store-password")
         );
     }
 
