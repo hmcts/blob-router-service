@@ -21,32 +21,32 @@ spring:
 
 service:
   storage-config:
-    - name: bulkscan
+    - source-container: bulkscan
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
       target-container: bulkscan
-    - name: cmc
+    - source-container: cmc
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
       target-container: cmc
-    - name: crime
+    - source-container: crime
       sas-validity: 300 #In seconds
       enabled: ${CRIME_ENABLED:false}
       target-storage-account: crime
       target-container: ${CRIME_DESTINATION_CONTAINER}
-    - name: divorce
+    - source-container: divorce
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
       target-container: divorce
-    - name: finrem
+    - source-container: finrem
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
       target-container: finrem
-    - name: probate
+    - source-container: probate
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
       target-container: probate
-    - name: sscs
+    - source-container: sscs
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
       target-container: sscs
