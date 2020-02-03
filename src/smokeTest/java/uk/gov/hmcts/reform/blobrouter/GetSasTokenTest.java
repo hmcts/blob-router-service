@@ -27,31 +27,31 @@ public class GetSasTokenTest {
     private static final String SUBSCRIPTION_KEY_HEADER_NAME = "Ocp-Apim-Subscription-Key";
     private static final String PASSWORD_FOR_UNRECOGNISED_CLIENT_CERT = "testcert";
     private static final String SAS_TOKEN_ENDPOINT_PATH = "/token/bulkscan";
-    private static final String PKCS_12 = "PKCS12";
+    private static final String KEY_STORE_TYPE = "PKCS12";
 
-    private static Config CONFIG;
-    private static String API_GATEWAY_URL;
-    private static KeyStoreWithPassword VALID_CLIENT_KEY_STORE;
-    private static KeyStoreWithPassword UNRECOGNIZED_CLIENT_KEY_STORE;
-    private static KeyStoreWithPassword EXPIRED_CLIENT_KEY_STORE;
-    private static KeyStoreWithPassword NOT_YET_VALID_CLIENT_KEY_STORE;
-    private static String VALID_SUBSCRIPTION_KEY;
+    private static Config config;
+    private static String apiGatewayUrl;
+    private static KeyStoreWithPassword validClientKeyStore;
+    private static KeyStoreWithPassword unrecognizedClientKeyStore;
+    private static KeyStoreWithPassword expiredClientKeyStore;
+    private static KeyStoreWithPassword notYetValidClientKeyStore;
+    private static String validSubscriptionKey;
 
     @BeforeAll
     static void loadConfig() throws Exception {
-        CONFIG = ConfigFactory.load();
-        API_GATEWAY_URL = getApiGatewayUrl();
-        VALID_CLIENT_KEY_STORE = getValidClientKeyStore();
-        UNRECOGNIZED_CLIENT_KEY_STORE = getUnrecognisedClientKeyStore();
-        EXPIRED_CLIENT_KEY_STORE = getExpiredClientKeyStore();
-        NOT_YET_VALID_CLIENT_KEY_STORE = getNotYetValidClientKeyStore();
-        VALID_SUBSCRIPTION_KEY = getValidSubscriptionKey();
+        config = ConfigFactory.load();
+        apiGatewayUrl = getApiGatewayUrl();
+        validClientKeyStore = getValidClientKeyStore();
+        unrecognizedClientKeyStore = getUnrecognisedClientKeyStore();
+        expiredClientKeyStore = getExpiredClientKeyStore();
+        notYetValidClientKeyStore = getNotYetValidClientKeyStore();
+        validSubscriptionKey = getValidSubscriptionKey();
     }
 
     @Test
     void should_accept_request_with_valid_certificate_and_subscription_key() throws Exception {
         Response response =
-            callSasTokenEndpoint(VALID_CLIENT_KEY_STORE, VALID_SUBSCRIPTION_KEY)
+            callSasTokenEndpoint(validClientKeyStore, validSubscriptionKey)
                 .thenReturn();
 
         assertThat(response.getStatusCode()).isEqualTo(OK.value());
@@ -61,7 +61,7 @@ public class GetSasTokenTest {
     @Test
     void should_reject_request_with_invalid_subscription_key() throws Exception {
         Response response = callSasTokenEndpoint(
-            VALID_CLIENT_KEY_STORE,
+            validClientKeyStore,
             "invalid-subscription-key123"
         )
             .thenReturn();
@@ -73,7 +73,7 @@ public class GetSasTokenTest {
     @Test
     void should_reject_request_lacking_subscription_key() throws Exception {
         Response response = callSasTokenEndpoint(
-            VALID_CLIENT_KEY_STORE,
+            validClientKeyStore,
             null
         )
             .thenReturn();
@@ -85,8 +85,8 @@ public class GetSasTokenTest {
     @Test
     void should_reject_request_with_unrecognised_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
-            UNRECOGNIZED_CLIENT_KEY_STORE,
-            VALID_SUBSCRIPTION_KEY
+            unrecognizedClientKeyStore,
+            validSubscriptionKey
         )
             .thenReturn();
 
@@ -99,7 +99,7 @@ public class GetSasTokenTest {
         Response response =
             callSasTokenEndpoint(
                 null,
-                VALID_SUBSCRIPTION_KEY
+                validSubscriptionKey
             )
                 .thenReturn();
 
@@ -111,8 +111,8 @@ public class GetSasTokenTest {
     void should_not_expose_http_version() {
         Response response = RestAssured
             .given()
-            .baseUri(API_GATEWAY_URL.replace("https://", "http://"))
-            .header(SUBSCRIPTION_KEY_HEADER_NAME, VALID_SUBSCRIPTION_KEY)
+            .baseUri(apiGatewayUrl.replace("https://", "http://"))
+            .header(SUBSCRIPTION_KEY_HEADER_NAME, validSubscriptionKey)
             .when()
             .get(SAS_TOKEN_ENDPOINT_PATH)
             .thenReturn();
@@ -124,8 +124,8 @@ public class GetSasTokenTest {
     @Test
     void should_reject_request_with_expired_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
-            EXPIRED_CLIENT_KEY_STORE,
-            VALID_SUBSCRIPTION_KEY
+            expiredClientKeyStore,
+            validSubscriptionKey
         )
             .thenReturn();
 
@@ -136,8 +136,8 @@ public class GetSasTokenTest {
     @Test
     void should_reject_request_with_not_yet_valid_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
-            NOT_YET_VALID_CLIENT_KEY_STORE,
-            VALID_SUBSCRIPTION_KEY
+            notYetValidClientKeyStore,
+            validSubscriptionKey
         )
             .thenReturn();
 
@@ -149,7 +149,7 @@ public class GetSasTokenTest {
         KeyStoreWithPassword clientKeyStore,
         String subscriptionKey
     ) throws Exception {
-        RequestSpecification request = RestAssured.given().baseUri(API_GATEWAY_URL);
+        RequestSpecification request = RestAssured.given().baseUri(apiGatewayUrl);
 
         if (clientKeyStore != null) {
             request = request.config(
@@ -180,36 +180,36 @@ public class GetSasTokenTest {
 
     private static KeyStoreWithPassword getValidClientKeyStore() throws Exception {
         return getClientKeyStore(
-            CONFIG.resolve().getString("test-valid-key-store"),
-            CONFIG.resolve().getString("test-valid-key-store-password")
+            config.resolve().getString("test-valid-key-store"),
+            config.resolve().getString("test-valid-key-store-password")
         );
     }
 
     private static KeyStoreWithPassword getExpiredClientKeyStore() throws Exception {
         return getClientKeyStore(
-            CONFIG.resolve().getString("test-expired-key-store"),
-            CONFIG.resolve().getString("test-expired-key-store-password")
+            config.resolve().getString("test-expired-key-store"),
+            config.resolve().getString("test-expired-key-store-password")
         );
     }
 
     private static KeyStoreWithPassword getNotYetValidClientKeyStore() throws Exception {
         return getClientKeyStore(
-            CONFIG.resolve().getString("test-not-yet-valid-key-store"),
-            CONFIG.resolve().getString("test-not-yet-valid-key-store-password")
+            config.resolve().getString("test-not-yet-valid-key-store"),
+            config.resolve().getString("test-not-yet-valid-key-store-password")
         );
     }
 
     private static KeyStoreWithPassword getClientKeyStore(String base64Content, String password) throws Exception {
         byte[] rawContent = Base64.getMimeDecoder().decode(base64Content);
 
-        KeyStore keyStore = KeyStore.getInstance(PKCS_12);
+        KeyStore keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
         keyStore.load(new ByteArrayInputStream(rawContent), password.toCharArray());
 
         return new KeyStoreWithPassword(keyStore, password);
     }
 
     private static KeyStoreWithPassword getUnrecognisedClientKeyStore() throws Exception {
-        KeyStore keyStore = KeyStore.getInstance(PKCS_12);
+        KeyStore keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
 
         try (
             InputStream keyStoreStream =
@@ -225,13 +225,13 @@ public class GetSasTokenTest {
     }
 
     private static String getValidSubscriptionKey() {
-        String subscriptionKey = CONFIG.resolve().getString("test-subscription-key");
+        String subscriptionKey = config.resolve().getString("test-subscription-key");
         assertThat(subscriptionKey).as("Subscription key").isNotEmpty();
         return subscriptionKey;
     }
 
     private static String getApiGatewayUrl() {
-        String apiUrl = CONFIG.resolve().getString("api-gateway-url");
+        String apiUrl = config.resolve().getString("api-gateway-url");
         assertThat(apiUrl).as("API gateway URL").isNotEmpty();
         return apiUrl;
     }
