@@ -8,8 +8,6 @@ import com.azure.storage.blob.models.ListBlobsOptions;
 import org.slf4j.Logger;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 
-import java.time.Duration;
-
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
 
@@ -22,17 +20,14 @@ public class RejectedContainerCleaner {
 
     private final BlobServiceClient storageClient;
     private final RejectedBlobChecker blobChecker;
-    private final Duration ttl;
 
     // region constructor
     public RejectedContainerCleaner(
         BlobServiceClient storageClient,
-        RejectedBlobChecker blobChecker,
-        Duration ttl
+        RejectedBlobChecker blobChecker
     ) {
         this.storageClient = storageClient;
         this.blobChecker = blobChecker;
-        this.ttl = ttl;
     }
     // endregion
 
