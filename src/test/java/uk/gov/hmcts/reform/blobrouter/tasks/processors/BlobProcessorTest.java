@@ -230,10 +230,9 @@ class BlobProcessorTest {
         // valid file, ready to be processed
         given(readinessChecker.isReady(any())).willReturn(true);
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
-        var fileName = "envelope1.zip";
 
         // when
-        newBlobProcessor().process(fileName, sourceContainerName);
+        newBlobProcessor().process("envelope1.zip", sourceContainerName);
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
@@ -253,10 +252,9 @@ class BlobProcessorTest {
         // valid file, ready to be processed
         given(readinessChecker.isReady(any())).willReturn(true);
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
-        var fileName = "envelope1.zip";
 
         // when
-        newBlobProcessor().process(fileName, sourceContainerName);
+        newBlobProcessor().process("envelope1.zip", sourceContainerName);
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
