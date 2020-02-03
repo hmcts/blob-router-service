@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration.StorageConfig;
+import uk.gov.hmcts.reform.blobrouter.config.StorageConfig;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
