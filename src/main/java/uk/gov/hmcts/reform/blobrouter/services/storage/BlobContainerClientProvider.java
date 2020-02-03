@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
+import com.azure.core.util.Configuration;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,19 +33,13 @@ public class BlobContainerClientProvider {
     public BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
         switch (targetStorageAccount) {
             case BULKSCAN:
+                Configuration config = new Configuration();
+                config.put(Configuration.PROPERTY_HTTPS_PROXY, "proxyout.reform.hmcts.net:8080");
                 // retrieving a SAS token every time we're getting a client, but this will be cached in the future
                 return new BlobContainerClientBuilder()
                     .sasToken(bulkScanSasTokenClient.getSasToken(containerName).sasToken)
                     .endpoint(bulkScanStorageUrl)
-                    .httpClient(
-                        // this client is the only client built. and is built by default
-                        new NettyAsyncHttpClientBuilder()
-                            .proxy(new ProxyOptions(
-                                ProxyOptions.Type.HTTP,
-                                InetSocketAddress.createUnresolved("proxyout.reform.hmcts.net", 8080)
-                            ))
-                            .build()
-                    )
+                    .configuration(config)
                     .containerName(containerName)
                     .buildClient();
             case CRIME:
