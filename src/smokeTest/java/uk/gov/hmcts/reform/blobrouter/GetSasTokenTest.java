@@ -30,6 +30,7 @@ public class GetSasTokenTest {
     private static final String PKCS_12 = "PKCS12";
 
     private static Config CONFIG;
+    private static String API_GATEWAY_URL;
     private static KeyStoreWithPassword VALID_CLIENT_KEY_STORE;
     private static KeyStoreWithPassword UNRECOGNIZED_CLIENT_KEY_STORE;
     private static KeyStoreWithPassword EXPIRED_CLIENT_KEY_STORE;
@@ -39,6 +40,7 @@ public class GetSasTokenTest {
     @BeforeAll
     static void loadConfig() throws Exception {
         CONFIG = ConfigFactory.load();
+        API_GATEWAY_URL = getApiGatewayUrl();
         VALID_CLIENT_KEY_STORE = getValidClientKeyStore();
         UNRECOGNIZED_CLIENT_KEY_STORE = getUnrecognisedClientKeyStore();
         EXPIRED_CLIENT_KEY_STORE = getExpiredClientKeyStore();
@@ -52,7 +54,7 @@ public class GetSasTokenTest {
             callSasTokenEndpoint(VALID_CLIENT_KEY_STORE, VALID_SUBSCRIPTION_KEY)
                 .thenReturn();
 
-        assertThat(response.getStatusCode()).isEqualTo(OK);
+        assertThat(response.getStatusCode()).isEqualTo(OK.value());
         assertThat(response.body().jsonPath().getString("sas_token")).isNotEmpty();
     }
 
@@ -64,7 +66,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("Access denied due to invalid subscription key");
     }
 
@@ -76,7 +78,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("Access denied due to missing subscription key");
     }
 
@@ -88,7 +90,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
     }
 
@@ -101,7 +103,7 @@ public class GetSasTokenTest {
             )
                 .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).isEqualTo("Missing client certificate");
     }
 
@@ -109,13 +111,13 @@ public class GetSasTokenTest {
     void should_not_expose_http_version() {
         Response response = RestAssured
             .given()
-            .baseUri(getApiGatewayUrl().replace("https://", "http://"))
+            .baseUri(API_GATEWAY_URL.replace("https://", "http://"))
             .header(SUBSCRIPTION_KEY_HEADER_NAME, VALID_SUBSCRIPTION_KEY)
             .when()
             .get(SAS_TOKEN_ENDPOINT_PATH)
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(NOT_FOUND);
+        assertThat(response.statusCode()).isEqualTo(NOT_FOUND.value());
         assertThat(response.body().asString()).contains("Resource not found");
     }
 
@@ -127,7 +129,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
     }
 
@@ -139,7 +141,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
     }
 
@@ -147,7 +149,7 @@ public class GetSasTokenTest {
         KeyStoreWithPassword clientKeyStore,
         String subscriptionKey
     ) throws Exception {
-        RequestSpecification request = RestAssured.given().baseUri(getApiGatewayUrl());
+        RequestSpecification request = RestAssured.given().baseUri(API_GATEWAY_URL);
 
         if (clientKeyStore != null) {
             request = request.config(
@@ -228,7 +230,7 @@ public class GetSasTokenTest {
         return subscriptionKey;
     }
 
-    private String getApiGatewayUrl() {
+    private static String getApiGatewayUrl() {
         String apiUrl = CONFIG.resolve().getString("api-gateway-url");
         assertThat(apiUrl).as("API gateway URL").isNotEmpty();
         return apiUrl;
