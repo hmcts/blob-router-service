@@ -3,14 +3,13 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
-import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import org.slf4j.Logger;
+import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 
 import java.time.Duration;
 
-import static java.time.OffsetDateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
 
@@ -22,12 +21,20 @@ public class RejectedContainerCleaner {
         new ListBlobsOptions().setDetails(new BlobListDetails().setRetrieveSnapshots(true));
 
     private final BlobServiceClient storageClient;
+    private final RejectedBlobChecker blobChecker;
     private final Duration ttl;
 
-    public RejectedContainerCleaner(BlobServiceClient storageClient, Duration ttl) {
+    // region constructor
+    public RejectedContainerCleaner(
+        BlobServiceClient storageClient,
+        RejectedBlobChecker blobChecker,
+        Duration ttl
+    ) {
         this.storageClient = storageClient;
+        this.blobChecker = blobChecker;
         this.ttl = ttl;
     }
+    // endregion
 
     public void cleanUp() {
         storageClient
@@ -47,20 +54,12 @@ public class RejectedContainerCleaner {
         containerClient
             .listBlobs(listOptions, null)
             .stream()
-            .filter(this::shouldBeDeleted)
+            .filter(this.blobChecker::shouldBeDeleted)
             .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
             .forEach(blobClient -> {
                 delete(blobClient);
             });
         logger.info("Finished removing rejected files. Container: {}", containerName);
-    }
-
-    private boolean shouldBeDeleted(BlobItem blobItem) {
-        return blobItem
-            .getProperties()
-            .getLastModified()
-            .plus(ttl)
-            .isBefore(now());
     }
 
     private void delete(BlobClient blobClient) {
