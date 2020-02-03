@@ -31,6 +31,7 @@ public class BlobContainerClientProvider {
             case BULKSCAN:
                 Configuration config = new Configuration();
                 config.put(Configuration.PROPERTY_HTTPS_PROXY, "proxyout.reform.hmcts.net:8080");
+                config.put(Configuration.PROPERTY_HTTP_PROXY, "proxyout.reform.hmcts.net:8080");
                 // retrieving a SAS token every time we're getting a client, but this will be cached in the future
                 return new BlobContainerClientBuilder()
                     .sasToken(bulkScanSasTokenClient.getSasToken(containerName).sasToken)
