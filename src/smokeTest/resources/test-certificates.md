@@ -30,5 +30,5 @@ Here is the command line which achieved desired outcome:
 openssl base64 -in <infile> -out <outfile>
 ```
 
-- `<infile>` would be certificate, e.g. `valid-certificate.jks`
+- `<infile>` would be certificate, e.g. `valid-certificate.pfx`
 - `<outfile>` - anything. Only need its contents to be stored
