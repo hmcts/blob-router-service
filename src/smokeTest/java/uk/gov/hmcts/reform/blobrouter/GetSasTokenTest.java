@@ -27,14 +27,11 @@ public class GetSasTokenTest {
     private static final String SUBSCRIPTION_KEY_HEADER_NAME = "Ocp-Apim-Subscription-Key";
     private static final String PASSWORD_FOR_UNRECOGNISED_CLIENT_CERT = "testcert";
     private static final String SAS_TOKEN_ENDPOINT_PATH = "/token/bulkscan";
-    private static final String KEY_STORE_TYPE = "PKCS12";
+    private static final String KEY_STORE_TYPE_PKCS_12 = "PKCS12";
 
     private static Config config;
     private static String apiGatewayUrl;
     private static KeyStoreWithPassword validClientKeyStore;
-    private static KeyStoreWithPassword unrecognizedClientKeyStore;
-    private static KeyStoreWithPassword expiredClientKeyStore;
-    private static KeyStoreWithPassword notYetValidClientKeyStore;
     private static String validSubscriptionKey;
 
     @BeforeAll
@@ -42,9 +39,6 @@ public class GetSasTokenTest {
         config = ConfigFactory.load();
         apiGatewayUrl = getApiGatewayUrl();
         validClientKeyStore = getValidClientKeyStore();
-        unrecognizedClientKeyStore = getUnrecognisedClientKeyStore();
-        expiredClientKeyStore = getExpiredClientKeyStore();
-        notYetValidClientKeyStore = getNotYetValidClientKeyStore();
         validSubscriptionKey = getValidSubscriptionKey();
     }
 
@@ -85,7 +79,7 @@ public class GetSasTokenTest {
     @Test
     void should_reject_request_with_unrecognised_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
-            unrecognizedClientKeyStore,
+            getUnrecognisedClientKeyStore(),
             validSubscriptionKey
         )
             .thenReturn();
@@ -124,7 +118,7 @@ public class GetSasTokenTest {
     @Test
     void should_reject_request_with_expired_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
-            expiredClientKeyStore,
+            getExpiredClientKeyStore(),
             validSubscriptionKey
         )
             .thenReturn();
@@ -136,7 +130,7 @@ public class GetSasTokenTest {
     @Test
     void should_reject_request_with_not_yet_valid_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
-            notYetValidClientKeyStore,
+            getNotYetValidClientKeyStore(),
             validSubscriptionKey
         )
             .thenReturn();
@@ -202,14 +196,14 @@ public class GetSasTokenTest {
     private static KeyStoreWithPassword getClientKeyStore(String base64Content, String password) throws Exception {
         byte[] rawContent = Base64.getMimeDecoder().decode(base64Content);
 
-        KeyStore keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
+        KeyStore keyStore = KeyStore.getInstance(KEY_STORE_TYPE_PKCS_12);
         keyStore.load(new ByteArrayInputStream(rawContent), password.toCharArray());
 
         return new KeyStoreWithPassword(keyStore, password);
     }
 
     private static KeyStoreWithPassword getUnrecognisedClientKeyStore() throws Exception {
-        KeyStore keyStore = KeyStore.getInstance(KEY_STORE_TYPE);
+        KeyStore keyStore = KeyStore.getInstance(KEY_STORE_TYPE_PKCS_12);
 
         try (
             InputStream keyStoreStream =
