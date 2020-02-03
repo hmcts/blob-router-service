@@ -1,6 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.util;
 
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+
+import static java.time.LocalDateTime.now;
 
 public final class TimeZones {
 
@@ -9,5 +12,9 @@ public final class TimeZones {
 
     private TimeZones() {
         // utility class construct
+    }
+
+    public static ZonedDateTime nowInLondon() {
+        return now().atZone(ZoneId.of(EUROPE_LONDON));
     }
 }

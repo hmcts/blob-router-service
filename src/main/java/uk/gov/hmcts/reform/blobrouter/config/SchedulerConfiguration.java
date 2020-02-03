@@ -12,13 +12,12 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import static java.time.LocalDateTime.now;
+import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.nowInLondon;
 
 @Configuration
 public class SchedulerConfiguration implements SchedulingConfigurer {
@@ -27,8 +26,7 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
     private static AtomicInteger errorCount = new AtomicInteger(0);
     private static final Logger log = LoggerFactory.getLogger(SchedulerConfiguration.class);
 
-    private static final Supplier<Long> CURRENT_MILLIS_SUPPLIER = () -> now()
-        .atZone(ZoneId.of("Europe/London")).toInstant().toEpochMilli();
+    private static final Supplier<Long> CURRENT_MILLIS_SUPPLIER = () -> nowInLondon().toInstant().toEpochMilli();
 
     private static final Supplier<RequestTelemetryContext> REQUEST_CONTEXT_SUPPLIER = () ->
         new RequestTelemetryContext(CURRENT_MILLIS_SUPPLIER.get(), null);

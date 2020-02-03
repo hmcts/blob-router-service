@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.features;
 
+import com.microsoft.applicationinsights.TelemetryClient;
+import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
 import org.junit.jupiter.api.Test;
@@ -8,8 +10,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.TestPropertySource;
+import uk.gov.hmcts.reform.blobrouter.tasks.DeleteDispatchedFilesTask;
+import uk.gov.hmcts.reform.blobrouter.tasks.HandleRejectedFilesTask;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
@@ -38,6 +43,9 @@ public class SchedulerConfigTest {
     @SpyBean
     private LockProvider lockProvider;
 
+    @SpyBean
+    private TelemetryClient telemetryClient;
+
     @Test
     public void should_integrate_with_shedlock() throws Exception {
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
@@ -56,6 +64,17 @@ public class SchedulerConfigTest {
                 "check-new-envelopes",
                 "handle-rejected-files",
                 "send-daily-report"
+            );
+
+        // and
+        var telemetryCaptor = ArgumentCaptor.forClass(RequestTelemetry.class);
+
+        verify(telemetryClient, atLeastOnce()).trackRequest(telemetryCaptor.capture());
+        assertThat(telemetryCaptor.getAllValues())
+            .extracting(telemetry -> tuple(telemetry.getName(), telemetry.isSuccess()))
+            .contains(
+                tuple("Schedule /" + DeleteDispatchedFilesTask.class.getSimpleName(), true),
+                tuple("Schedule /" + HandleRejectedFilesTask.class.getSimpleName(), true)
             );
     }
 }
