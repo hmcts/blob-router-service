@@ -56,5 +56,8 @@ scheduling:
     delete-dispatched-files:
       enabled: true
       cron: ${DELETE_DISPATCHED_FILES_CRON}
+    handle-rejected-files:
+      enabled: true
+      cron: ${HANDLE_REJECTED_FILES_CRON}
     scan:
       delay: ${TASK_SCAN_DELAY} # In milliseconds
