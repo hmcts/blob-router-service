@@ -9,12 +9,6 @@ java:
     STORAGE_ACCOUNT_SECONDARY_KEY:
       secretRef: storage-secret-{{ .Release.Name }}
       key: accessKey
-    STORAGE_BULKSCAN_ACCOUNT_NAME:
-      secretRef: storage-secret-cft-{{ .Release.Name }}
-      key: storageAccountName
-    STORAGE_BULKSCAN_ACCOUNT_KEY:
-      secretRef: storage-secret-cft-{{ .Release.Name }}
-      key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
       secretRef: storage-secret-crime-{{ .Release.Name }}
       key: storageAccountName
@@ -44,8 +38,12 @@ java:
     FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
 
-    STORAGE_BULKSCAN_URL: "https://$(STORAGE_BULKSCAN_ACCOUNT_NAME).blob.core.windows.net"
+    STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
     STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
+
+    BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
+    CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
+    CRIME_ENABLED: true
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
@@ -66,19 +64,13 @@ reformblobstorage:
     containers:
       - bulkscan
       - bulkscan-rejected
+      - cmc
+      - divorce
+      - finrem
+      - probate
+      - sscs
       - crime
       - crime-rejected
-
-cftblobstorage:
-  enabled: true
-  resourceGroup: reform-scan-aks
-  releaseNameOverride: cft-{{ .Release.Name }}
-  teamName: "BSP"
-  location: ukwest
-  setup:
-    containers:
-      - bulkscan
-      - bulkscan-rejected
 
 crimeblobstorage:
   enabled: true
@@ -88,4 +80,4 @@ crimeblobstorage:
   location: ukwest
   setup:
     containers:
-      - crime
+      - bs-sit-scans-received

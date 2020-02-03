@@ -24,30 +24,38 @@ service:
     - name: bulkscan
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
+      target-container: bulkscan
     - name: cmc
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
+      target-container: cmc
     - name: crime
       sas-validity: 300 #In seconds
       enabled: ${CRIME_ENABLED:false}
       target-storage-account: crime
+      target-container: ${CRIME_DESTINATION_CONTAINER}
     - name: divorce
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
+      target-container: divorce
     - name: finrem
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
+      target-container: finrem
     - name: probate
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
+      target-container: probate
     - name: sscs
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
+      target-container: sscs
 
 flyway:
   skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
 
 storage-blob-processing-delay-in-minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES}
+public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY} # public key file in der format
 
 scheduling:
   lock_at_most_for: PT10M # 10 minutes in ISO-8601
@@ -55,5 +63,8 @@ scheduling:
     delete-dispatched-files:
       enabled: true
       cron: ${DELETE_DISPATCHED_FILES_CRON}
+    handle-rejected-files:
+      enabled: true
+      cron: ${HANDLE_REJECTED_FILES_CRON}
     scan:
       delay: ${TASK_SCAN_DELAY} # In milliseconds

@@ -1,117 +1,85 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
-import com.azure.core.test.TestBase;
-import com.azure.storage.blob.BlobServiceClient;
-import org.junit.jupiter.api.BeforeAll;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
+import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
+import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
-import uk.gov.hmcts.reform.blobrouter.services.storage.BlobServiceClientProvider;
-import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
-import uk.gov.hmcts.reform.blobrouter.util.StorageClientsHelper;
+import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
-import static java.time.Instant.now;
+import java.io.ByteArrayInputStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipAndSignDir;
 
 @ActiveProfiles("db-test")
 @SpringBootTest
-class BlobProcessorTest extends TestBase {
+@ExtendWith(MockitoExtension.class)
+class BlobProcessorTest extends BlobStorageBaseTest {
 
-    private static final String NEW_BLOB_NAME = "new.blob";
-    private static final String CONTAINER = "bulkscan";
-    private static final String BOGUS_CONTAINER = "bogus";
+    @Mock BlobContainerClientProvider containerClientProvider;
 
-    @Autowired
-    private BlobReadinessChecker readinessChecker;
-    @Autowired
-    private EnvelopeRepository envelopeRepository;
-    @Autowired
-    private DbHelper dbHelper;
-    @Autowired
-    private LeaseClientProvider leaseClientProvider;
-
-    private BlobDispatcher dispatcher;
-    private BlobProcessor blobProcessor;
-
-    @BeforeAll
-    static void setUpTestMode() {
-        StorageClientsHelper.setAzureTestMode();
-
-        setupClass();
-    }
-
-    @Override
-    protected void beforeTest() {
-        // cleanup db
-        dbHelper.deleteAll();
-
-        // set up processor
-        BlobServiceClient storageClient = StorageClientsHelper.getStorageClient(interceptorManager);
-        BlobServiceClientProvider blobServiceClientProvider = mock(BlobServiceClientProvider.class);
-        given(blobServiceClientProvider.get(any(), any())).willReturn(storageClient);
-        dispatcher = spy(new BlobDispatcher(blobServiceClientProvider));
-
-        blobProcessor = new BlobProcessor(
-            storageClient,
-            dispatcher,
-            readinessChecker,
-            envelopeRepository,
-            leaseClientProvider
-        );
-    }
+    @Autowired EnvelopeRepository envelopeRepo;
+    @Autowired BlobReadinessChecker readinessChecker;
+    @Autowired ServiceConfiguration serviceConfiguration;
 
     @Test
-    void should_find_blobs_and_process() {
-        // when
-        blobProcessor.process(NEW_BLOB_NAME, CONTAINER);
-
-        // then
-        assertThat(envelopeRepository.find(NEW_BLOB_NAME, CONTAINER))
-            .isNotEmpty()
-            .map(envelope -> envelope.status)
-            .contains(Status.DISPATCHED);
-    }
-
-    @Test
-    void should_catch_BlobStorageException_and_suppress_it() {
-        // when
-        blobProcessor.process(NEW_BLOB_NAME, BOGUS_CONTAINER);
-
-        // then
-        assertThat(envelopeRepository.find(NEW_BLOB_NAME, BOGUS_CONTAINER)).isEmpty();
-    }
-
-    @Test
-    void should_not_process_blob_if_present_in_db() {
+    void should_copy_file_from_source_to_target_container() throws Exception {
         // given
-        NewEnvelope newEnvelope = new NewEnvelope(
-            CONTAINER,
-            NEW_BLOB_NAME,
-            now(),
-            now().plusSeconds(100),
-            Status.REJECTED
-        );
-        envelopeRepository.insert(newEnvelope);
+        var sourceContainer = "bulkscan";
+        var targetContainer = "bulkscan-target";
+
+        BlobContainerClient sourceContainerClient = createContainer(sourceContainer);
+        BlobContainerClient targetContainerClient = createContainer(targetContainer);
+
+        // configure Dispatcher to always send files to docker target container.
+        given(containerClientProvider.get(any(), any())).willReturn(targetContainerClient);
+        var dispatcher = new BlobDispatcher(containerClientProvider);
+
+        var blobProcessor =
+            new BlobProcessor(
+                storageClient,
+                dispatcher,
+                readinessChecker,
+                envelopeRepo,
+                blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient(),
+                new BlobSignatureVerifier("signing/test_public_key.der"),
+                serviceConfiguration
+            );
+
+        var blobName = "hello.zip";
+        byte[] bytes = zipAndSignDir("storage/valid", "signing/test_private_key.der");
+
+        sourceContainerClient
+            .getBlobClient(blobName)
+            .getBlockBlobClient()
+            .upload(new ByteArrayInputStream(bytes), bytes.length);
 
         // when
-        blobProcessor.process(NEW_BLOB_NAME, CONTAINER);
+        blobProcessor.process(blobName, sourceContainer);
 
         // then
-        verify(dispatcher, never()).dispatch(eq(NEW_BLOB_NAME), any(), eq(CONTAINER), eq(BULKSCAN));
+        assertThat(targetContainerClient.listBlobs())
+            .extracting(BlobItem::getName)
+            .as("File should be copied to target container")
+            .containsExactly(blobName);
+
+        assertThat(envelopeRepo.find(blobName, sourceContainer))
+            .as("Envelope in the DB has been created")
+            .hasValueSatisfying(envelope -> assertThat(envelope.status).isEqualTo(DISPATCHED));
     }
 }

@@ -20,8 +20,8 @@ public final class ZipFileHelper {
     }
 
     public static byte[] createZipArchive(List<String> resourceFilePaths) throws IOException, URISyntaxException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (ZipOutputStream zos = new ZipOutputStream(outputStream)) {
+        var outputStream = new ByteArrayOutputStream();
+        try (var zos = new ZipOutputStream(outputStream)) {
             for (String filePath : resourceFilePaths) {
                 URL fileUrl = getResource(filePath);
                 String fileName = new File(fileUrl.toURI()).getName();

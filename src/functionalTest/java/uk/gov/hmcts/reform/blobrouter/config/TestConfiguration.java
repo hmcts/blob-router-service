@@ -5,11 +5,12 @@ import com.typesafe.config.ConfigFactory;
 
 public class TestConfiguration {
 
+    public final String blobRouterUrl;
+
     public final String sourceStorageAccountName;
     public final String sourceStorageAccountKey;
     public final String sourceStorageAccountUrl;
 
-    public final String bulkScanStorageUrl;
     public final String crimeStorageConnectionString;
 
     public final String crimeDestinationContainer;
@@ -18,14 +19,14 @@ public class TestConfiguration {
     public TestConfiguration() {
         Config config = ConfigFactory.load();
 
+        this.blobRouterUrl = config.getString("blob-router-url");
+
         this.sourceStorageAccountName = config.getString("source-storage-account-name");
         this.sourceStorageAccountKey = config.getString("source-storage-account-key");
         this.sourceStorageAccountUrl = config.getString("source-storage-account-url");
 
-        this.bulkScanStorageUrl = config.getString("bulkscan-storage-url");
-
         this.crimeStorageConnectionString = config.getString("crime-storage-connection-string");
-        this.crimeDestinationContainer = config.getString("crime-source-container");
-        this.crimeSourceContainer = config.getString("crime-destination-container");
+        this.crimeSourceContainer = config.getString("crime-source-container");
+        this.crimeDestinationContainer = config.getString("crime-destination-container");
     }
 }

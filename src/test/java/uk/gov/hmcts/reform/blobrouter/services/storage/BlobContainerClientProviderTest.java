@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobContainerClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,19 +16,19 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class BlobServiceClientProviderTest {
+public class BlobContainerClientProviderTest {
 
     @Mock
-    BlobServiceClient crimeClient;
+    BlobContainerClient crimeClient;
 
     @Mock
     BulkScanProcessorClient bulkScanProcessorClient;
 
-    private BlobServiceClientProvider blobServiceClientProvider;
+    private BlobContainerClientProvider blobContainerClientProvider;
 
     @BeforeEach
     private void setUp() {
-        this.blobServiceClientProvider = new BlobServiceClientProvider(
+        this.blobContainerClientProvider = new BlobContainerClientProvider(
             crimeClient,
             bulkScanProcessorClient,
             "https://example.com"
@@ -37,7 +37,7 @@ public class BlobServiceClientProviderTest {
 
     @Test
     void should_return_crime_client_for_crime_storage() {
-        BlobServiceClient client = blobServiceClientProvider.get(TargetStorageAccount.CRIME, "crime");
+        BlobContainerClient client = blobContainerClientProvider.get(TargetStorageAccount.CRIME, "crime");
 
         assertThat(client).isSameAs(crimeClient);
     }
@@ -45,9 +45,9 @@ public class BlobServiceClientProviderTest {
     @Test
     void should_retrieve_sas_token_for_bulk_scan_storage() {
         String containerName = "container123";
-        SasTokenResponse sasTokenResponse = new SasTokenResponse("token1");
+        var sasTokenResponse = new SasTokenResponse("token1");
         given(bulkScanProcessorClient.getSasToken(any())).willReturn(sasTokenResponse);
-        BlobServiceClient client = blobServiceClientProvider.get(TargetStorageAccount.BULKSCAN, containerName);
+        BlobContainerClient client = blobContainerClientProvider.get(TargetStorageAccount.BULKSCAN, containerName);
 
         assertThat(client).isNotNull();
         verify(bulkScanProcessorClient).getSasToken(containerName);
