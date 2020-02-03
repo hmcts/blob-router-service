@@ -304,7 +304,9 @@ class BlobProcessorTest {
             OutputStream outputStream = (OutputStream) invocation.getArguments()[0];
             outputStream.write(content);
             return null;
-        }).given(blobClient).download(any());
+        })
+            .given(blobClient)
+            .download(any());
     }
 
     private void setupContainerConfig(
