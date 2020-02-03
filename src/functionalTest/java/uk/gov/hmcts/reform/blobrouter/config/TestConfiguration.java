@@ -26,7 +26,7 @@ public class TestConfiguration {
         this.sourceStorageAccountUrl = config.getString("source-storage-account-url");
 
         this.crimeStorageConnectionString = config.getString("crime-storage-connection-string");
-        this.crimeDestinationContainer = config.getString("crime-source-container");
-        this.crimeSourceContainer = config.getString("crime-destination-container");
+        this.crimeSourceContainer = config.getString("crime-source-container");
+        this.crimeDestinationContainer = config.getString("crime-destination-container");
     }
 }
