@@ -8,6 +8,7 @@ import io.restassured.config.SSLConfig;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -17,105 +18,128 @@ import java.util.Base64;
 
 import static io.restassured.config.SSLConfig.sslConfig;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 public class GetSasTokenTest {
 
     private static final String SUBSCRIPTION_KEY_HEADER_NAME = "Ocp-Apim-Subscription-Key";
     private static final String PASSWORD_FOR_UNRECOGNISED_CLIENT_CERT = "testcert";
+    private static final String SAS_TOKEN_ENDPOINT_PATH = "/token/bulkscan";
+    private static final String PKCS_12 = "PKCS12";
 
-    private final Config config = ConfigFactory.load();
+    private static Config CONFIG;
+    private static KeyStoreWithPassword VALID_CLIENT_KEY_STORE;
+    private static KeyStoreWithPassword UNRECOGNIZED_CLIENT_KEY_STORE;
+    private static KeyStoreWithPassword EXPIRED_CLIENT_KEY_STORE;
+    private static KeyStoreWithPassword NOT_YET_VALID_CLIENT_KEY_STORE;
+    private static String VALID_SUBSCRIPTION_KEY;
+
+    @BeforeAll
+    static void loadConfig() throws Exception {
+        CONFIG = ConfigFactory.load();
+        VALID_CLIENT_KEY_STORE = getValidClientKeyStore();
+        UNRECOGNIZED_CLIENT_KEY_STORE = getUnrecognisedClientKeyStore();
+        EXPIRED_CLIENT_KEY_STORE = getExpiredClientKeyStore();
+        NOT_YET_VALID_CLIENT_KEY_STORE = getNotYetValidClientKeyStore();
+        VALID_SUBSCRIPTION_KEY = getValidSubscriptionKey();
+    }
 
     @Test
-    public void should_accept_request_with_valid_certificate_and_subscription_key() throws Exception {
+    void should_accept_request_with_valid_certificate_and_subscription_key() throws Exception {
         Response response =
-            callSasTokenEndpoint(getValidClientKeyStore(), getValidSubscriptionKey())
+            callSasTokenEndpoint(VALID_CLIENT_KEY_STORE, VALID_SUBSCRIPTION_KEY)
                 .thenReturn();
 
-        assertThat(response.getStatusCode()).isEqualTo(200);
+        assertThat(response.getStatusCode()).isEqualTo(OK);
         assertThat(response.body().jsonPath().getString("sas_token")).isNotEmpty();
     }
 
     @Test
-    public void should_reject_request_with_invalid_subscription_key() throws Exception {
+    void should_reject_request_with_invalid_subscription_key() throws Exception {
         Response response = callSasTokenEndpoint(
-            getValidClientKeyStore(),
+            VALID_CLIENT_KEY_STORE,
             "invalid-subscription-key123"
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
         assertThat(response.body().asString()).contains("Access denied due to invalid subscription key");
     }
 
     @Test
-    public void should_reject_request_lacking_subscription_key() throws Exception {
+    void should_reject_request_lacking_subscription_key() throws Exception {
         Response response = callSasTokenEndpoint(
-            getValidClientKeyStore(),
+            VALID_CLIENT_KEY_STORE,
             null
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
         assertThat(response.body().asString()).contains("Access denied due to missing subscription key");
     }
 
     @Test
-    public void should_reject_request_with_unrecognised_client_certificate() throws Exception {
+    void should_reject_request_with_unrecognised_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
-            getUnrecognisedClientKeyStore(),
-            getValidSubscriptionKey()
+            UNRECOGNIZED_CLIENT_KEY_STORE,
+            VALID_SUBSCRIPTION_KEY
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
         assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
     }
 
     @Test
-    public void should_reject_request_lacking_client_certificate() throws Exception {
+    void should_reject_request_lacking_client_certificate() throws Exception {
         Response response =
-            callSasTokenEndpoint(null, getValidSubscriptionKey())
+            callSasTokenEndpoint(
+                null,
+                VALID_SUBSCRIPTION_KEY
+            )
                 .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
         assertThat(response.body().asString()).isEqualTo("Missing client certificate");
     }
 
     @Test
-    public void should_not_expose_http_version() {
+    void should_not_expose_http_version() {
         Response response = RestAssured
             .given()
             .baseUri(getApiGatewayUrl().replace("https://", "http://"))
-            .header(SUBSCRIPTION_KEY_HEADER_NAME, getValidSubscriptionKey())
+            .header(SUBSCRIPTION_KEY_HEADER_NAME, VALID_SUBSCRIPTION_KEY)
             .when()
-            .get(getSasTokenEndpointPath())
+            .get(SAS_TOKEN_ENDPOINT_PATH)
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(404);
+        assertThat(response.statusCode()).isEqualTo(NOT_FOUND);
         assertThat(response.body().asString()).contains("Resource not found");
     }
 
     @Test
-    public void should_reject_request_with_expired_client_certificate() throws Exception {
+    void should_reject_request_with_expired_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
-            getExpiredClientKeyStore(),
-            getValidSubscriptionKey()
+            EXPIRED_CLIENT_KEY_STORE,
+            VALID_SUBSCRIPTION_KEY
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
         assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
     }
 
     @Test
-    public void should_reject_request_with_not_yet_valid_client_certificate() throws Exception {
+    void should_reject_request_with_not_yet_valid_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
-            getNotYetValidClientKeyStore(),
-            getValidSubscriptionKey()
+            NOT_YET_VALID_CLIENT_KEY_STORE,
+            VALID_SUBSCRIPTION_KEY
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(401);
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED);
         assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
     }
 
@@ -138,7 +162,7 @@ public class GetSasTokenTest {
             request = request.header(SUBSCRIPTION_KEY_HEADER_NAME, subscriptionKey);
         }
 
-        return request.get(getSasTokenEndpointPath());
+        return request.get(SAS_TOKEN_ENDPOINT_PATH);
     }
 
     private RestAssuredConfig getSslConfigForClientCertificate(
@@ -152,42 +176,42 @@ public class GetSasTokenTest {
         return RestAssured.config().sslConfig(sslConfig);
     }
 
-    private KeyStoreWithPassword getValidClientKeyStore() throws Exception {
+    private static KeyStoreWithPassword getValidClientKeyStore() throws Exception {
         return getClientKeyStore(
-            config.resolve().getString("test-valid-key-store"),
-            config.resolve().getString("test-valid-key-store-password")
+            CONFIG.resolve().getString("test-valid-key-store"),
+            CONFIG.resolve().getString("test-valid-key-store-password")
         );
     }
 
-    private KeyStoreWithPassword getExpiredClientKeyStore() throws Exception {
+    private static KeyStoreWithPassword getExpiredClientKeyStore() throws Exception {
         return getClientKeyStore(
-            config.resolve().getString("test-expired-key-store"),
-            config.resolve().getString("test-expired-key-store-password")
+            CONFIG.resolve().getString("test-expired-key-store"),
+            CONFIG.resolve().getString("test-expired-key-store-password")
         );
     }
 
-    private KeyStoreWithPassword getNotYetValidClientKeyStore() throws Exception {
+    private static KeyStoreWithPassword getNotYetValidClientKeyStore() throws Exception {
         return getClientKeyStore(
-            config.resolve().getString("test-not-yet-valid-key-store"),
-            config.resolve().getString("test-not-yet-valid-key-store-password")
+            CONFIG.resolve().getString("test-not-yet-valid-key-store"),
+            CONFIG.resolve().getString("test-not-yet-valid-key-store-password")
         );
     }
 
-    private KeyStoreWithPassword getClientKeyStore(String base64Content, String password) throws Exception {
+    private static KeyStoreWithPassword getClientKeyStore(String base64Content, String password) throws Exception {
         byte[] rawContent = Base64.getMimeDecoder().decode(base64Content);
 
-        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+        KeyStore keyStore = KeyStore.getInstance(PKCS_12);
         keyStore.load(new ByteArrayInputStream(rawContent), password.toCharArray());
 
         return new KeyStoreWithPassword(keyStore, password);
     }
 
-    private KeyStoreWithPassword getUnrecognisedClientKeyStore() throws Exception {
-        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+    private static KeyStoreWithPassword getUnrecognisedClientKeyStore() throws Exception {
+        KeyStore keyStore = KeyStore.getInstance(PKCS_12);
 
         try (
             InputStream keyStoreStream =
-                this.getClass().getClassLoader().getResourceAsStream("unrecognised-client-certificate.pfx")
+                GetSasTokenTest.class.getClassLoader().getResourceAsStream("unrecognised-client-certificate.pfx")
         ) {
             // loading from null stream would cause a quiet failure
             assertThat(keyStoreStream).isNotNull();
@@ -198,27 +222,23 @@ public class GetSasTokenTest {
         return new KeyStoreWithPassword(keyStore, PASSWORD_FOR_UNRECOGNISED_CLIENT_CERT);
     }
 
-    private String getValidSubscriptionKey() {
-        String subscriptionKey = config.resolve().getString("test-subscription-key");
+    private static String getValidSubscriptionKey() {
+        String subscriptionKey = CONFIG.resolve().getString("test-subscription-key");
         assertThat(subscriptionKey).as("Subscription key").isNotEmpty();
         return subscriptionKey;
     }
 
     private String getApiGatewayUrl() {
-        String apiUrl = config.resolve().getString("api-gateway-url");
+        String apiUrl = CONFIG.resolve().getString("api-gateway-url");
         assertThat(apiUrl).as("API gateway URL").isNotEmpty();
         return apiUrl;
     }
 
-    private String getSasTokenEndpointPath() {
-        return "/token/bulkscan";
-    }
-
     private static class KeyStoreWithPassword {
-        public final KeyStore keyStore;
-        public final String password;
+        final KeyStore keyStore;
+        final String password;
 
-        public KeyStoreWithPassword(KeyStore keyStore, String password) {
+        KeyStoreWithPassword(KeyStore keyStore, String password) {
             this.keyStore = keyStore;
             this.password = password;
         }
