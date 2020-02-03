@@ -6,27 +6,39 @@ import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
+import static com.google.common.io.ByteStreams.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
+@EnableConfigurationProperties(ServiceConfiguration.class)
 public class BlobProcessor {
 
     private static final Logger logger = getLogger(BlobProcessor.class);
+
+    // name of the zip entry (in a blob) that contains the envelope
+    private static final String ENVELOPE_ENTRY_NAME = "envelope.zip";
 
     private final BlobServiceClient storageClient;
     private final BlobDispatcher dispatcher;
@@ -35,13 +47,17 @@ public class BlobProcessor {
     private final LeaseClientProvider leaseClientProvider;
     private final BlobSignatureVerifier signatureVerifier;
 
+    // container-specific configuration, by container name
+    private final Map<String, ServiceConfiguration.StorageConfig> storageConfig;
+
     public BlobProcessor(
         @Qualifier("storage-client") BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
         BlobReadinessChecker readinessChecker,
         EnvelopeRepository envelopeRepository,
         LeaseClientProvider leaseClientProvider,
-        BlobSignatureVerifier signatureVerifier
+        BlobSignatureVerifier signatureVerifier,
+        ServiceConfiguration serviceConfiguration
     ) {
         this.storageClient = storageClient;
         this.dispatcher = dispatcher;
@@ -49,6 +65,7 @@ public class BlobProcessor {
         this.envelopeRepository = envelopeRepository;
         this.leaseClientProvider = leaseClientProvider;
         this.signatureVerifier = signatureVerifier;
+        this.storageConfig = serviceConfiguration.getStorageConfig();
     }
 
     public void process(String blobName, String containerName) {
@@ -88,9 +105,17 @@ public class BlobProcessor {
                 boolean validSignature = signatureVerifier.verifyZipSignature(blobName, rawBlob);
 
                 if (validSignature) {
-                    // target storage account will be retrieved from configuration
-                    // when Crime blob processing is supported
-                    dispatcher.dispatch(blobName, rawBlob, containerName, TargetStorageAccount.BULKSCAN);
+                    ServiceConfiguration.StorageConfig containerConfig = storageConfig.get(containerName);
+                    TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
+                    var targetContainerName = containerConfig.getTargetContainer();
+
+                    dispatcher.dispatch(
+                        blobName,
+                        getContentToUpload(rawBlob, targetStorageAccount),
+                        targetContainerName,
+                        targetStorageAccount
+                    );
+
                     UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
                         blobName,
                         containerName,
@@ -131,6 +156,31 @@ public class BlobProcessor {
             logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);
         } finally {
             tryToReleaseLease(leaseClient, blobName, containerName);
+        }
+    }
+
+    private byte[] getContentToUpload(
+        byte[] blobContent,
+        TargetStorageAccount targetStorageAccount
+    ) throws IOException {
+        return targetStorageAccount == TargetStorageAccount.CRIME
+            ? extractEnvelopeContent(blobContent)
+            : blobContent;
+    }
+
+    private byte[] extractEnvelopeContent(byte[] blobContent) throws IOException {
+        try (var zipStream = new ZipInputStream(new ByteArrayInputStream(blobContent))) {
+            ZipEntry entry = null;
+
+            while ((entry = zipStream.getNextEntry()) != null) {
+                if (ENVELOPE_ENTRY_NAME.equals(entry.getName())) {
+                    return toByteArray(zipStream);
+                }
+            }
+
+            throw new InvalidZipArchiveException(
+                String.format("ZIP file doesn't contain the required %s entry", ENVELOPE_ENTRY_NAME)
+            );
         }
     }
 
