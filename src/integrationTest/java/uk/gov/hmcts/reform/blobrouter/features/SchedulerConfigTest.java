@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Profile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.hmcts.reform.blobrouter.tasks.DeleteDispatchedFilesTask;
 import uk.gov.hmcts.reform.blobrouter.tasks.HandleRejectedFilesTask;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.send-daily-report.cron: */1 * * * * *"
     }
 )
-@Profile("integration-test")
+@ActiveProfiles("integration-test")
 public class SchedulerConfigTest {
 
     @SpyBean
