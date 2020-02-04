@@ -41,7 +41,7 @@ public class RejectedContainerCleaner {
     }
 
     private void cleanUpContainer(String containerName) {
-        logger.info("Looking for rejected files to delete. Container name: {}", containerName);
+        logger.info("Looking for rejected files to delete. Container: {}", containerName);
         var containerClient = storageClient.getBlobContainerClient(containerName);
 
         containerClient
