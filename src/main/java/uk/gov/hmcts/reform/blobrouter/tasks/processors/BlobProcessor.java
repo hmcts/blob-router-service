@@ -5,10 +5,10 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
@@ -48,10 +48,10 @@ public class BlobProcessor {
     private final BlobSignatureVerifier signatureVerifier;
 
     // container-specific configuration, by container name
-    private final Map<String, ServiceConfiguration.StorageConfig> storageConfig;
+    private final Map<String, StorageConfigItem> storageConfig;
 
     public BlobProcessor(
-        @Qualifier("storage-client") BlobServiceClient storageClient,
+        BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
         BlobReadinessChecker readinessChecker,
         EnvelopeRepository envelopeRepository,
@@ -105,7 +105,7 @@ public class BlobProcessor {
                 boolean validSignature = signatureVerifier.verifyZipSignature(blobName, rawBlob);
 
                 if (validSignature) {
-                    ServiceConfiguration.StorageConfig containerConfig = storageConfig.get(containerName);
+                    StorageConfigItem containerConfig = storageConfig.get(containerName);
                     TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
                     var targetContainerName = containerConfig.getTargetContainer();
 

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerCleaner;
 
 import static java.util.Arrays.asList;
@@ -65,10 +66,10 @@ class DeleteDispatchedFilesTaskTest {
         verifyNoInteractions(containerCleaner); // no available containers
     }
 
-    private ServiceConfiguration.StorageConfig configure(String name, boolean enabled) {
-        ServiceConfiguration.StorageConfig config = new ServiceConfiguration.StorageConfig();
+    private StorageConfigItem configure(String name, boolean enabled) {
+        StorageConfigItem config = new StorageConfigItem();
         config.setSasValidity(300);
-        config.setName(name);
+        config.setSourceContainer(name);
         config.setEnabled(enabled);
         return config;
     }

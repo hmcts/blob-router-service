@@ -183,6 +183,9 @@ dependencyManagement {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
+    dependencySet(group: 'org.testcontainers', version: '1.12.4') {
+      entry 'database-commons' // not tagged to latest. once sorted - remove this section
+    }
   }
 }
 
@@ -212,7 +215,7 @@ dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.9'
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.1.4'
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.2.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.3.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.2.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.3.0'
@@ -258,7 +261,7 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.25.1'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.12.4'
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.12.5'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation libraries.junit5

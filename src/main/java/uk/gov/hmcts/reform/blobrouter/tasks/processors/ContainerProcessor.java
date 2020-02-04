@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -17,7 +16,7 @@ public class ContainerProcessor {
     private final BlobProcessor blobProcessor;
 
     public ContainerProcessor(
-        @Qualifier("storage-client") BlobServiceClient storageClient,
+        BlobServiceClient storageClient,
         BlobProcessor blobProcessor
     ) {
         this.storageClient = storageClient;
