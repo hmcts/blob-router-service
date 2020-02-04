@@ -37,9 +37,7 @@ public class RejectedContainerCleaner {
             .stream()
             .map(BlobContainerItem::getName)
             .filter(containerName -> containerName.endsWith(REJECTED_CONTAINER_SUFFIX))
-            .forEach(containerName -> {
-                cleanUpContainer(containerName);
-            });
+            .forEach(this::cleanUpContainer);
     }
 
     private void cleanUpContainer(String containerName) {
@@ -51,9 +49,8 @@ public class RejectedContainerCleaner {
             .stream()
             .filter(this.blobChecker::shouldBeDeleted)
             .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
-            .forEach(blobClient -> {
-                delete(blobClient);
-            });
+            .forEach(this::delete);
+
         logger.info("Finished removing rejected files. Container: {}", containerName);
     }
 
