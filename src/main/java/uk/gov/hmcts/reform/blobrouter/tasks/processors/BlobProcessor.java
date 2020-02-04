@@ -84,7 +84,7 @@ public class BlobProcessor {
     }
 
     private void processBlob(String blobName, String containerName) {
-        logger.info("Processing {} from {} container", blobName, containerName);
+        logger.info("Processing zip file by blob router service {} from {} container", blobName, containerName);
 
         BlobLeaseClient leaseClient = null;
 
