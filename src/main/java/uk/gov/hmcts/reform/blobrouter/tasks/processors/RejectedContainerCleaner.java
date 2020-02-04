@@ -55,20 +55,18 @@ public class RejectedContainerCleaner {
     }
 
     private void delete(BlobClient blobClient) {
+        String blobInfo = String.format(
+            "Container: %s. File name: %s. Snapshot ID: %s",
+            blobClient.getContainerName(),
+            blobClient.getBlobName(),
+            blobClient.getSnapshotId()
+        );
+
         try {
             blobClient.delete();
-            logger.info(
-                "Deleted rejected file. File name: {}. Snapshot id: {}",
-                blobClient.getBlobName(),
-                blobClient.getSnapshotId()
-            );
+            logger.info("Deleted rejected file. {}", blobInfo);
         } catch (Exception exc) {
-            logger.error(
-                "Error deleting rejected file. Container: {}. File name: {}. Snapshot id: {}",
-                blobClient.getContainerName(),
-                blobClient.getBlobName(),
-                blobClient.getSnapshotId()
-            );
+            logger.error("Error deleting rejected file. {}", blobInfo, exc);
         }
     }
 }
