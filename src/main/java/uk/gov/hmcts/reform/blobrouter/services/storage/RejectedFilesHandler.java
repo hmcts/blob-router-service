@@ -22,7 +22,7 @@ public class RejectedFilesHandler {
 
     private static final Logger logger = getLogger(RejectedFilesHandler.class);
 
-    private static final String REJECTED_CONTAINER_SUFFIX = "-rejected";
+    public static final String REJECTED_CONTAINER_SUFFIX = "-rejected";
 
     private final BlobServiceClient storageClient;
     private final EnvelopeRepository envelopeRepository;
