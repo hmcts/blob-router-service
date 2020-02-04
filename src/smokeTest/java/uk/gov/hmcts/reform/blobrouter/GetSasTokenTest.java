@@ -18,7 +18,6 @@ import java.util.Base64;
 
 import static io.restassured.config.SSLConfig.sslConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -48,7 +47,7 @@ public class GetSasTokenTest {
             callSasTokenEndpoint(validClientKeyStore, validSubscriptionKey)
                 .thenReturn();
 
-        assertThat(response.getStatusCode()).isEqualTo(OK.value());
+        assertThat(response.getStatusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().jsonPath().getString("sas_token")).isNotEmpty();
     }
 
@@ -60,7 +59,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
+        assertThat(response.statusCode()).isEqualTo(OK.value());
         assertThat(response.body().asString()).contains("Access denied due to invalid subscription key");
     }
 
@@ -72,7 +71,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
+        assertThat(response.statusCode()).isEqualTo(OK.value());
         assertThat(response.body().asString()).contains("Access denied due to missing subscription key");
     }
 
@@ -84,7 +83,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
+        assertThat(response.statusCode()).isEqualTo(OK.value());
         assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
     }
 
@@ -97,7 +96,7 @@ public class GetSasTokenTest {
             )
                 .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
+        assertThat(response.statusCode()).isEqualTo(OK.value());
         assertThat(response.body().asString()).isEqualTo("Missing client certificate");
     }
 
@@ -111,7 +110,7 @@ public class GetSasTokenTest {
             .get(SAS_TOKEN_ENDPOINT_PATH)
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(NOT_FOUND.value());
+        assertThat(response.statusCode()).isEqualTo(OK.value());
         assertThat(response.body().asString()).contains("Resource not found");
     }
 
@@ -123,7 +122,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
+        assertThat(response.statusCode()).isEqualTo(OK.value());
         assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
     }
 
@@ -135,7 +134,7 @@ public class GetSasTokenTest {
         )
             .thenReturn();
 
-        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
+        assertThat(response.statusCode()).isEqualTo(OK.value());
         assertThat(response.body().asString()).isEqualTo("Invalid client certificate");
     }
 
