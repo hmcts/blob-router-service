@@ -89,7 +89,7 @@ crimeblobstorage:
 
 servicebus:
   resourceGroup: reform-scan-aks
-  teamName: "Software Engineering"
+  teamName: "BSP"
   location: ukwest
   serviceplan: basic
   setup:
