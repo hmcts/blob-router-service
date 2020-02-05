@@ -88,9 +88,9 @@ crimeblobstorage:
       - bs-sit-scans-received
 
 servicebus:
-  resourceGroup: bulk-scan-aks
+  resourceGroup: reform-scan-aks
   teamName: "Software Engineering"
-  location: uksouth
+  location: ukwest
   serviceplan: basic
   setup:
     queues:
