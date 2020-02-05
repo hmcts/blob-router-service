@@ -133,3 +133,16 @@ resource "azurerm_key_vault_secret" "flyway_password" {
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
 }
 # endregion
+
+# Copy bulkscan notification queue connection string to reform scan
+data "azurerm_key_vault_secret" "bulk_scan_notifications_send_connection_string" {
+  key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
+  name         = "notifications-queue-send-connection-string"
+}
+
+resource "azurerm_key_vault_secret" "reform_notifications_send_connection_string" {
+  name         = "notifications-queue-send-connection-string"
+  value        = "${data.azurerm_key_vault_secret.bulk_scan_notifications_send_connection_string.value}"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+}
+# endregion
