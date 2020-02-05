@@ -21,8 +21,8 @@ class RejectedContainerCleanerTest extends BlobStorageBaseTest {
     @Test
     void should_delete_files_from_rejected_container() {
         // given
-        var normalContainer = createContainer("sample-container");
-        var rejectedContainer = createContainer("sample-container-rejected");
+        BlobContainerClient normalContainer = createContainer("sample-container");
+        BlobContainerClient rejectedContainer = createContainer("sample-container-rejected");
 
         upload(normalContainer, "keep.zip");
         upload(rejectedContainer, "bye.zip");
