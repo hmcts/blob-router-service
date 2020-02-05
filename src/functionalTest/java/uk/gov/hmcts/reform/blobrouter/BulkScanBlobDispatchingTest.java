@@ -60,7 +60,7 @@ public class BulkScanBlobDispatchingTest extends FunctionalTestBase {
             .get("/envelopes")
             .then()
             .statusCode(OK.value())
-            .body("$.status", equalTo(DISPATCHED))
-            .body("$.is_deleted", equalTo(true));
+            .body("status", equalTo(DISPATCHED.name()))
+            .body("is_deleted", equalTo(true));
     }
 }
