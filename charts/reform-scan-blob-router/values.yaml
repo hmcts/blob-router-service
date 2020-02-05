@@ -16,6 +16,7 @@ java:
         - crime-storage-connection-string
         - flyway-password
         - blob-router-POSTGRES-PASS
+        - notifications-queue-send-connection-string
   environment:
     DB_HOST: reform-scan-blob-router-{{ .Values.global.environment }}.postgres.database.azure.com
     DB_PORT: '5432'
@@ -44,4 +45,6 @@ reformblobstorage:
 cftblobstorage:
   enabled: false
 crimeblobstorage:
+  enabled: false
+servicebus:
   enabled: false
