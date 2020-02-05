@@ -129,12 +129,6 @@ curl -v --key private.pem --cert cert.pem https://core-api-mgmt-{environment}.az
 
 You should get a response with status 200 and a token in the body.
 
-### API tests
-
-Jenkins (pipeline) runs the API gateway tests by executing `apiGateway` gradle task. This happens because
-there's a call to `enableApiGatewayTest()` in [Jenkins file](/Jenkinsfile_CNP). API tests
-are located in [apiGatewayTest](/src/apiGatewayTest/java/uk/gov/hmcts/reform/blobrouter) directory.
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details

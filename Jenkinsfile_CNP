@@ -83,7 +83,6 @@ withPipeline(type, product, component) {
   enableAksStagingDeployment()
   installCharts()
   enableSlackNotifications(channel)
-  enableApiGatewayTest()
   disableLegacyDeployment()
 
   onNonPR() {
