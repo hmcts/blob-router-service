@@ -19,7 +19,7 @@ class RejectedContainerCleanerTest extends BlobStorageBaseTest {
     @Mock RejectedBlobChecker blobChecker;
 
     @Test
-    void should_handle_rejected_files() {
+    void should_delete_files_from_rejected_container() {
         // given
         var normalContainer = createContainer("sample-container");
         var rejectedContainer = createContainer("sample-container-rejected");
