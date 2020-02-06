@@ -67,7 +67,7 @@ public class CrimeBlobDispatchingTest extends FunctionalTestBase {
     @Test
     void should_reject_invalid_crime_envelope() throws Exception {
         // upload crime file with unique name
-        String fileName = randomFileName();
+        String fileName = "will_reject_" + randomFileName();
 
         byte[] wrappingZipContent = createZipArchive(
             asList("test-data/envelope/envelope.zip")
