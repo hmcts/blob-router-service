@@ -92,11 +92,10 @@ public class CrimeBlobDispatchingTest extends FunctionalTestBase {
             .queryParam("container", config.crimeSourceContainer)
             .get("/envelopes")
             .then()
+            .log().all()
             .statusCode(OK.value())
             .body("status", equalTo(REJECTED.name()))
-            .body("is_deleted", equalTo(false))
-            .and()
-            .log();
+            .body("is_deleted", equalTo(true));
 
     }
 }
