@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
-import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
@@ -42,7 +41,6 @@ public class BlobProcessor {
 
     private final BlobServiceClient storageClient;
     private final BlobDispatcher dispatcher;
-    private final BlobReadinessChecker readinessChecker;
     private final EnvelopeRepository envelopeRepository;
     private final LeaseClientProvider leaseClientProvider;
     private final BlobSignatureVerifier signatureVerifier;
@@ -53,7 +51,6 @@ public class BlobProcessor {
     public BlobProcessor(
         BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
-        BlobReadinessChecker readinessChecker,
         EnvelopeRepository envelopeRepository,
         LeaseClientProvider leaseClientProvider,
         BlobSignatureVerifier signatureVerifier,
@@ -61,7 +58,6 @@ public class BlobProcessor {
     ) {
         this.storageClient = storageClient;
         this.dispatcher = dispatcher;
-        this.readinessChecker = readinessChecker;
         this.envelopeRepository = envelopeRepository;
         this.leaseClientProvider = leaseClientProvider;
         this.signatureVerifier = signatureVerifier;
@@ -93,64 +89,56 @@ public class BlobProcessor {
                 .getBlobContainerClient(containerName)
                 .getBlobClient(blobName);
 
+            leaseClient = leaseClientProvider.get(blobClient);
+
+            leaseClient.acquireLease(60);
+            byte[] rawBlob = tryToDownloadBlob(blobClient);
+
+            // Verify Zip signature
+            boolean validSignature = signatureVerifier.verifyZipSignature(blobName, rawBlob);
+
             Instant blobCreationDate = blobClient.getProperties().getLastModified().toInstant();
 
-            if (this.readinessChecker.isReady(blobCreationDate)) {
-                leaseClient = leaseClientProvider.get(blobClient);
+            if (validSignature) {
+                StorageConfigItem containerConfig = storageConfig.get(containerName);
+                TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
+                var targetContainerName = containerConfig.getTargetContainer();
 
-                leaseClient.acquireLease(60);
-                byte[] rawBlob = tryToDownloadBlob(blobClient);
-
-                // Verify Zip signature
-                boolean validSignature = signatureVerifier.verifyZipSignature(blobName, rawBlob);
-
-                if (validSignature) {
-                    StorageConfigItem containerConfig = storageConfig.get(containerName);
-                    TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
-                    var targetContainerName = containerConfig.getTargetContainer();
-
-                    dispatcher.dispatch(
-                        blobName,
-                        getContentToUpload(rawBlob, targetStorageAccount),
-                        targetContainerName,
-                        targetStorageAccount
-                    );
-
-                    UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
-                        blobName,
-                        containerName,
-                        blobCreationDate,
-                        Status.DISPATCHED
-                    ));
-
-                    logger.info(
-                        "Finished processing {} from {} container. New envelope ID: {}",
-                        blobName,
-                        containerName,
-                        envelopeId
-                    );
-                } else {
-                    UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
-                        blobName,
-                        containerName,
-                        blobCreationDate,
-                        Status.REJECTED
-                    ));
-
-                    logger.error(
-                        "Invalid signature. Rejected Blob name {} container {} New envelope ID: {}",
-                        blobName,
-                        containerName,
-                        envelopeId
-                    );
-                    // TODO send notification to Exela
-                }
-            } else {
-                logger.info(
-                    "Blob not ready to be processed yet, skipping. File name: {}. Container: {}",
+                dispatcher.dispatch(
                     blobName,
-                    containerName
+                    getContentToUpload(rawBlob, targetStorageAccount),
+                    targetContainerName,
+                    targetStorageAccount
                 );
+
+                UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
+                    blobName,
+                    containerName,
+                    blobCreationDate,
+                    Status.DISPATCHED
+                ));
+
+                logger.info(
+                    "Finished processing {} from {} container. New envelope ID: {}",
+                    blobName,
+                    containerName,
+                    envelopeId
+                );
+            } else {
+                UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
+                    blobName,
+                    containerName,
+                    blobCreationDate,
+                    Status.REJECTED
+                ));
+
+                logger.error(
+                    "Invalid signature. Rejected Blob name {} container {} New envelope ID: {}",
+                    blobName,
+                    containerName,
+                    envelopeId
+                );
+                // TODO send notification to Exela
             }
         } catch (Exception exception) {
             logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);

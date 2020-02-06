@@ -15,9 +15,6 @@ java:
     STORAGE_CRIME_ACCOUNT_KEY:
       secretRef: storage-secret-crime-{{ .Release.Name }}
       key: accessKey
-    SB_CONN_STRING:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
-      key: connectionString
   keyVaults:
     reform-scan:
       resourceGroup: reform-scan
@@ -45,8 +42,6 @@ java:
 
     STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
     STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
-
-    QUEUE_NOTIFICATION_SEND_CONN_STRING: "$(SB_CONN_STRING);EntityPath=notifications"
 
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
@@ -88,13 +83,3 @@ crimeblobstorage:
   setup:
     containers:
       - bs-sit-scans-received
-
-servicebus:
-  resourceGroup: reform-scan-aks
-  teamName: "BSP"
-  location: ukwest
-  serviceplan: basic
-  setup:
-    queues:
-      - name: notifications
-  enabled: true
