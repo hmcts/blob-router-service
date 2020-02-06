@@ -38,10 +38,6 @@ public class BlobRejectTest extends FunctionalTestBase {
         // upload crime file with unique name
         String fileName = "will_reject_" + randomFileName();
 
-        byte[] internalZipContent = toByteArray(
-            getResource("test-data/envelope/envelope.zip")
-        );
-
         byte[] wrappingZipContent = createZipArchive(
             asList("test-data/envelope/envelope.zip")
         );
@@ -75,7 +71,7 @@ public class BlobRejectTest extends FunctionalTestBase {
             blobRouterStorageClient,
             "crime-rejected",
             fileName,
-            internalZipContent
+            toByteArray(getResource("test-data/envelope/envelope.zip"))
         );
     }
 }
