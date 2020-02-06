@@ -68,7 +68,3 @@ scheduling:
       cron: ${HANDLE_REJECTED_FILES_CRON}
     scan:
       delay: ${TASK_SCAN_DELAY} # In milliseconds
-
-queue:
-  notification:
-    queue-name: notifications
