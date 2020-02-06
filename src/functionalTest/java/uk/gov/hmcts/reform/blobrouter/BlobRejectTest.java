@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import static com.google.common.io.Resources.getResource;
@@ -61,7 +62,7 @@ public class BlobRejectTest extends FunctionalTestBase {
         byte[] expectedContent = toByteArray(getResource("test-data/envelope/envelope.zip"));
 
         System.out.println("expectedContent.length=" + expectedContent.length);
-        System.out.println("expectedContent. value=" + new String(expectedContent));
+        System.out.println("expectedContent. value=" + new String(expectedContent, StandardCharsets.UTF_8));
         assertBlobIsPresentInStorage(
             blobRouterStorageClient,
             "crime-rejected",

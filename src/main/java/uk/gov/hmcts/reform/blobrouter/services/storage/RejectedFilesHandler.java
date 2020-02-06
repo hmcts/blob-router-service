@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -82,7 +83,7 @@ public class RejectedFilesHandler {
                 envelopeRepository.markAsDeleted(envelope.id);
             } else {
                 byte[] blobContent = download(sourceBlob);
-                String str = new String(blobContent);
+                String str = new String(blobContent, StandardCharsets.UTF_8);
                 logger.info("blobContent length===> {} value= {} ", blobContent.length, str);
 
                 upload(targetBlob, blobContent, loggingContext);
