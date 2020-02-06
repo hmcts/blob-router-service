@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter;
 
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,8 +60,8 @@ public class BlobRejectTest extends FunctionalTestBase {
 
         byte[] expectedContent = toByteArray(getResource("test-data/envelope/envelope.zip"));
 
-        System.out.println("expectedContent.length" + expectedContent.length);
-        System.out.println("expectedContent. value=  "+ new String (expectedContent));
+        System.out.println("expectedContent.length=" + expectedContent.length);
+        System.out.println("expectedContent. value=" + new String(expectedContent));
         assertBlobIsPresentInStorage(
             blobRouterStorageClient,
             "crime-rejected",
