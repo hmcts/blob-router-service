@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.core.util.Configuration;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,14 +28,10 @@ public class BlobContainerClientProvider {
     public BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
         switch (targetStorageAccount) {
             case BULKSCAN:
-                Configuration config = new Configuration();
-                config.put(Configuration.PROPERTY_HTTPS_PROXY, "proxyout.reform.hmcts.net:8080");
-                config.put(Configuration.PROPERTY_HTTP_PROXY, "proxyout.reform.hmcts.net:8080");
                 // retrieving a SAS token every time we're getting a client, but this will be cached in the future
                 return new BlobContainerClientBuilder()
                     .sasToken(bulkScanSasTokenClient.getSasToken(containerName).sasToken)
                     .endpoint(bulkScanStorageUrl)
-                    .configuration(config)
                     .containerName(containerName)
                     .buildClient();
             case CRIME:
