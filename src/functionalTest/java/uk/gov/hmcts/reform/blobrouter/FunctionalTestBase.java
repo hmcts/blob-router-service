@@ -4,8 +4,6 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import io.restassured.RestAssured;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.codec.digest.DigestUtils;
 import uk.gov.hmcts.reform.blobrouter.config.TestConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
@@ -13,11 +11,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpStatus.OK;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
-import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 
 public abstract class FunctionalTestBase {
 
@@ -38,31 +33,6 @@ public abstract class FunctionalTestBase {
             .credential(blobRouterStorageCredential)
             .endpoint(config.sourceStorageAccountUrl)
             .buildClient();
-    }
-
-    protected void assertBlobIsPresentInStorage(
-        BlobServiceClient client,
-        String containerName,
-        String fileName,
-        byte[] expectedContent
-    ) {
-        assertThat(blobExists(client, containerName, fileName))
-            .as("File %s exists in container %s", fileName, containerName)
-            .isTrue();
-
-        String blobContentMd5 = Hex.encodeHexString(
-            client
-                .getBlobContainerClient(containerName)
-                .getBlobClient(fileName)
-                .getProperties()
-                .getContentMd5()
-        );
-
-        String expectedBlobContentMd5 = DigestUtils.md5Hex(expectedContent);
-
-        assertThat(blobContentMd5)
-            .as("MD5 hash of the blob's content is as expected")
-            .isEqualTo(expectedBlobContentMd5);
     }
 
     protected String randomFileName() {
