@@ -82,7 +82,8 @@ public class RejectedFilesHandler {
                 envelopeRepository.markAsDeleted(envelope.id);
             } else {
                 byte[] blobContent = download(sourceBlob);
-                logger.info("blobContent length===> {} value= {} ", blobContent.length, new String(blobContent));
+                String str = new String(blobContent);
+                logger.info("blobContent length===> {} value= {} ", blobContent.length, str);
 
                 upload(targetBlob, blobContent, loggingContext);
                 sourceBlob.delete();
