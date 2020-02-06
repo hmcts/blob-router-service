@@ -21,22 +21,16 @@ import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.uploadFile;
 
 public class BlobRejectTest extends FunctionalTestBase {
 
-    private BlobServiceClient crimeStorageClient;
-
     @Override
     @BeforeEach
     protected void setUp() {
         super.setUp();
-
-        this.crimeStorageClient = new BlobServiceClientBuilder()
-            .connectionString(config.crimeStorageConnectionString)
-            .buildClient();
     }
 
     @Test
     void should_reject_envelope_without_signature() throws Exception {
         // upload crime file with unique name
-        String fileName = "will_reject_" + randomFileName();
+        String fileName = "should_reject_" + randomFileName();
 
         byte[] wrappingZipContent = createZipArchive(
             asList("test-data/envelope/envelope.zip")
@@ -66,12 +60,15 @@ public class BlobRejectTest extends FunctionalTestBase {
             .body("status", equalTo(REJECTED.name()))
             .body("is_deleted", equalTo(true));
 
+        byte[] expectedContent = toByteArray(getResource("test-data/envelope/envelope.zip"));
 
+        System.out.println("expectedContent.length" + expectedContent.length);
+        System.out.println("expectedContent. value=  "+ new String (expectedContent));
         assertBlobIsPresentInStorage(
             blobRouterStorageClient,
             "crime-rejected",
             fileName,
-            toByteArray(getResource("test-data/envelope/envelope.zip"))
+            expectedContent
         );
     }
 }
