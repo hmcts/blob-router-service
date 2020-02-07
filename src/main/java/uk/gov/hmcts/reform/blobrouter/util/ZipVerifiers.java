@@ -94,7 +94,7 @@ public class ZipVerifiers {
 
     static void verifyFileNames(Set<String> fileNames) {
         if (!(fileNames.size() == 2 && fileNames.containsAll(asList(DOCUMENTS_ZIP, SIGNATURE_SIG)))) {
-            throw new DocSignatureFailureException(
+            throw new InvalidZipArchiveException(
                 "Zip entries do not match expected file names. Actual names = " + fileNames
             );
         }
