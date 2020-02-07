@@ -193,14 +193,15 @@ public class EnvelopeRepositoryTest {
     void should_find_within_date_range() {
         // given
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Instant instant1 = LocalDateTime.parse("2019-12-19 10:31:25", formatter).toInstant(ZoneOffset.UTC);
-        Instant instant2 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(ZoneOffset.UTC);
-        Instant instant3 = LocalDateTime.parse("2019-12-20 12:33:27", formatter).toInstant(ZoneOffset.UTC);
-        Instant instant4 = LocalDateTime.parse("2019-12-21 13:34:28", formatter).toInstant(ZoneOffset.UTC);
-        repo.insert(new NewEnvelope("a", "b", instant1, instant1, Status.DISPATCHED));
-        repo.insert(new NewEnvelope("c", "d", instant2, instant2, Status.DISPATCHED));
-        repo.insert(new NewEnvelope("e", "f", instant3, instant3, Status.DISPATCHED));
-        repo.insert(new NewEnvelope("g", "h", instant4, instant4, Status.DISPATCHED));
+        Instant instantCreated1 = LocalDateTime.parse("2019-12-19 10:31:25", formatter).toInstant(ZoneOffset.UTC);
+        Instant instantCreated2 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(ZoneOffset.UTC);
+        Instant instantCreated3 = LocalDateTime.parse("2019-12-20 12:33:27", formatter).toInstant(ZoneOffset.UTC);
+        Instant instantCreated4 = LocalDateTime.parse("2019-12-21 13:34:28", formatter).toInstant(ZoneOffset.UTC);
+        Instant instantDispatched = LocalDateTime.parse("2019-12-22 13:34:28", formatter).toInstant(ZoneOffset.UTC);
+        repo.insert(new NewEnvelope("a", "b", instantCreated1, instantDispatched, Status.DISPATCHED));
+        repo.insert(new NewEnvelope("c", "d", instantCreated2, instantDispatched, Status.DISPATCHED));
+        repo.insert(new NewEnvelope("e", "f", instantCreated3, instantDispatched, Status.DISPATCHED));
+        repo.insert(new NewEnvelope("g", "h", instantCreated4, instantDispatched, Status.DISPATCHED));
 
         // when
         List<Envelope> result = repo.find(
