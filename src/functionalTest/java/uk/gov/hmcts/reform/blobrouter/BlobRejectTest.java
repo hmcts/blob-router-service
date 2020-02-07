@@ -25,9 +25,9 @@ public class BlobRejectTest extends FunctionalTestBase {
     }
 
     @Test
-    void should_reject_envelope_without_signature() throws Exception {
+    void should_reject_crime_envelope_with_invalid_signature() throws Exception {
         // upload crime file with unique name
-        String fileName = "should_reject_" + randomFileName();
+        String fileName = "should_reject_crime" + randomFileName();
 
         byte[] wrappingZipContent = createZipArchive(
                 asList("test-data/envelope/envelope.zip","test-data/envelope/invalid-signature")
@@ -46,6 +46,33 @@ public class BlobRejectTest extends FunctionalTestBase {
         assertBlobIsPresentInStorage(
                 blobRouterStorageClient,
                 "crime-rejected",
+                fileName,
+                wrappingZipContent
+        );
+    }
+
+    @Test
+    void should_reject_bulkscan_envelope_without_signature() throws Exception {
+        // upload crime file with unique name
+        String fileName = "should_reject_bulkscan" + randomFileName();
+
+        byte[] wrappingZipContent = createZipArchive(
+                asList("test-data/envelope/envelope.zip")
+        );
+
+        // when
+        uploadFile(blobRouterStorageClient, config.crimeSourceContainer, fileName, wrappingZipContent);
+
+        // then
+        await("Wait for the blob to disappear from source container")
+                .atMost(2, TimeUnit.MINUTES)
+                .until(() -> !blobExists(blobRouterStorageClient, config.crimeSourceContainer, fileName));
+
+        // and
+        assertFileInfoIsStored(fileName, "bulkscan", REJECTED, true);
+        assertBlobIsPresentInStorage(
+                blobRouterStorageClient,
+                "bulkscan-rejected",
                 fileName,
                 wrappingZipContent
         );
