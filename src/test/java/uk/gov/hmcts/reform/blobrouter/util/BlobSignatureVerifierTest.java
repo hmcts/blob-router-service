@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipAndSignDir;
+import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipDir;
 
 @ExtendWith(MockitoExtension.class)
 class BlobSignatureVerifierTest {
@@ -32,6 +33,25 @@ class BlobSignatureVerifierTest {
     void should_return_false_when_signature_verification_fails() throws Exception {
         // given
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
+
+        // then
+        assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isFalse();
+    }
+
+
+    @Test
+    void should_return_false_when_zip_content_is_invalid() throws Exception {
+        // given
+        byte[] zipBytes = zipDir("signature/sample_valid_content"); // no signature
+
+        // then
+        assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isFalse();
+    }
+
+    @Test
+    void should_return_false_when_zip_file_is_corrupted() throws Exception {
+        // given
+        byte[] zipBytes = "not zip file".getBytes();
 
         // then
         assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isFalse();
