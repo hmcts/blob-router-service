@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.util.ZipVerifiers;
 
 import java.io.ByteArrayInputStream;
@@ -33,6 +34,9 @@ public class BlobSignatureVerifier {
             return true;
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
+            return false;
+        } catch (InvalidZipArchiveException ex) {
+            logger.info("Invalid zip archive. Blob name: {}", blobName, ex);
             return false;
         } catch (IOException ex) {
             logger.info("Error occurred when verifying signature. Blob name: {}", blobName, ex);
