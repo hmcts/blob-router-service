@@ -19,6 +19,7 @@ import javax.activation.DataSource;
 import javax.mail.Address;
 import javax.mail.internet.MimeMessage;
 
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -78,6 +79,38 @@ public class EmailSenderTest {
         assertThat(msg.getAttachmentList().stream()
                        .map(DataSource::getName))
             .containsExactlyInAnyOrder(FILE_NAME_1, FILE_NAME_2);
+    }
+
+    @Test
+    public void should_handle_no_attachments() throws Exception {
+        // given
+
+        greenMail.setUser(TEST_LOGIN, TEST_PASSWORD);
+        EmailSender emailSender = new EmailSender(getMailSender());
+
+        // when
+        emailSender.sendMessageWithAttachments(
+            SUBJ,
+            BODY,
+            FROM_ADDRESS,
+            new String[]{RECIPIENT_1, RECIPIENT_2},
+            emptyMap()
+        );
+
+        // then
+        MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
+
+        assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
+        assertThat(msg.getTo())
+            .extracting(Address::toString)
+            .hasSize(2)
+            .containsExactly(
+                RECIPIENT_1,
+                RECIPIENT_2
+            );
+        assertThat(msg.getSubject()).isEqualTo(SUBJ);
+        assertThat(msg.getPlainContent()).isEqualTo(BODY);
+        assertThat(msg.getAttachmentList()).isEmpty();
     }
 
     @Test
