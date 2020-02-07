@@ -16,4 +16,3 @@ spring:
         crime-storage-connection-string: storage.crime.connection-string
         flyway-password: flyway.password
         blob-router-POSTGRES-PASS: DB_PASSWORD
-        notifications-queue-send-connection-string: queue-notification-send-conn-string
