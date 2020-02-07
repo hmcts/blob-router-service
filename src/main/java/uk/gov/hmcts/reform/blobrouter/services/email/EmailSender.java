@@ -26,7 +26,7 @@ public class EmailSender {
     // endregion
 
     public void sendMessageWithAttachments(
-        String subj,
+        String subject,
         String body,
         String from,
         String[] recipients,
@@ -38,7 +38,7 @@ public class EmailSender {
             MimeMessageHelper helper = new MimeMessageHelper(msg, true);
             helper.setFrom(from);
             helper.setTo(recipients);
-            helper.setSubject(subj);
+            helper.setSubject(subject);
             helper.setText(body);
             for (Map.Entry<String, File> attachment : attachments.entrySet()) {
                 helper.addAttachment(attachment.getKey(), attachment.getValue());

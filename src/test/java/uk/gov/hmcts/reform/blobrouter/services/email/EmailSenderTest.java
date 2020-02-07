@@ -35,16 +35,16 @@ public class EmailSenderTest {
     private static final String FROM_ADDRESS = "from@hmcts.net";
     private static final String RECIPIENT_1 = "Foo <foo@hmcts.net>";
     private static final String RECIPIENT_2 = "bar@hmcts.net";
-    public static final String FILE_NAME_1 = "test1.zip";
-    public static final String FILE_NAME_2 = "test2.zip";
-    public static final String SUBJ = "subj";
-    public static final String BODY = "body";
+    private static final String FILE_NAME_1 = "test1.zip";
+    private static final String FILE_NAME_2 = "test2.zip";
+    private static final String SUBJECT = "subject";
+    private static final String BODY = "body";
 
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
 
     @Test
-    public void should_send_email_to_all_recipients() throws Exception {
+    void should_send_email_to_all_recipients() throws Exception {
         // given
 
         greenMail.setUser(TEST_LOGIN, TEST_PASSWORD);
@@ -55,7 +55,7 @@ public class EmailSenderTest {
 
         // when
         emailSender.sendMessageWithAttachments(
-            SUBJ,
+            SUBJECT,
             BODY,
             FROM_ADDRESS,
             new String[]{RECIPIENT_1, RECIPIENT_2},
@@ -73,7 +73,7 @@ public class EmailSenderTest {
                 RECIPIENT_1,
                 RECIPIENT_2
             );
-        assertThat(msg.getSubject()).isEqualTo(SUBJ);
+        assertThat(msg.getSubject()).isEqualTo(SUBJECT);
         assertThat(msg.getPlainContent()).isEqualTo(BODY);
         assertThat(msg.getAttachmentList()).hasSize(2);
         assertThat(msg.getAttachmentList().stream()
@@ -82,7 +82,7 @@ public class EmailSenderTest {
     }
 
     @Test
-    public void should_handle_no_attachments() throws Exception {
+    void should_handle_no_attachments() throws Exception {
         // given
 
         greenMail.setUser(TEST_LOGIN, TEST_PASSWORD);
@@ -90,7 +90,7 @@ public class EmailSenderTest {
 
         // when
         emailSender.sendMessageWithAttachments(
-            SUBJ,
+            SUBJECT,
             BODY,
             FROM_ADDRESS,
             new String[]{RECIPIENT_1, RECIPIENT_2},
@@ -108,7 +108,7 @@ public class EmailSenderTest {
                 RECIPIENT_1,
                 RECIPIENT_2
             );
-        assertThat(msg.getSubject()).isEqualTo(SUBJ);
+        assertThat(msg.getSubject()).isEqualTo(SUBJECT);
         assertThat(msg.getPlainContent()).isEqualTo(BODY);
         assertThat(msg.getAttachmentList()).isEmpty();
     }
@@ -132,7 +132,7 @@ public class EmailSenderTest {
 
         // when
         SendEmailException ex = catchThrowableOfType(() -> emailSender.sendMessageWithAttachments(
-            SUBJ,
+            SUBJECT,
             BODY,
             FROM_ADDRESS,
             new String[]{RECIPIENT_1, RECIPIENT_2},
