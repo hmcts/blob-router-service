@@ -10,23 +10,15 @@ public class TestConfiguration {
     public final String sourceStorageAccountName;
     public final String sourceStorageAccountKey;
     public final String sourceStorageAccountUrl;
-
-    public final String crimeStorageConnectionString;
-
-    public final String crimeDestinationContainer;
     public final String crimeSourceContainer;
 
     public TestConfiguration() {
         Config config = ConfigFactory.load();
 
         this.blobRouterUrl = config.getString("blob-router-url");
-
         this.sourceStorageAccountName = config.getString("source-storage-account-name");
         this.sourceStorageAccountKey = config.getString("source-storage-account-key");
         this.sourceStorageAccountUrl = config.getString("source-storage-account-url");
-
-        this.crimeStorageConnectionString = config.getString("crime-storage-connection-string");
         this.crimeSourceContainer = config.getString("crime-source-container");
-        this.crimeDestinationContainer = config.getString("crime-destination-container");
     }
 }
