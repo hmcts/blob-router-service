@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
@@ -12,6 +13,7 @@ import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -64,9 +66,10 @@ public class RejectedFilesHandler {
         Envelope envelope
     ) {
         String loggingContext = String.format(
-            "File name: %s. Container: %s",
+            "File name: %s. Source Container: %s. Target Container: %s",
             envelope.fileName,
-            sourceContainer.getBlobContainerName()
+            sourceContainer.getBlobContainerName(),
+            targetContainer.getBlobContainerName()
         );
 
         try {
@@ -82,6 +85,16 @@ public class RejectedFilesHandler {
                 envelopeRepository.markAsDeleted(envelope.id);
             } else {
                 byte[] blobContent = download(sourceBlob);
+                String str = new String(blobContent, StandardCharsets.UTF_8);
+                logger.info("blobContent length===> {} value= {} ", blobContent.length, str);
+                if (sourceBlob.getBlockBlobClient() != null
+                        && sourceBlob.getBlockBlobClient().getProperties() != null) {
+                    logger.info(
+                            "sourceBlob getContentMd5 {}",
+                            Hex.encodeHexString(sourceBlob.getBlockBlobClient().getProperties().getContentMd5())
+                    );
+                }
+
                 upload(targetBlob, blobContent, loggingContext);
                 sourceBlob.delete();
                 envelopeRepository.markAsDeleted(envelope.id);
@@ -94,7 +107,7 @@ public class RejectedFilesHandler {
 
     private byte[] download(BlobClient blobClient) throws IOException {
         try (var outputStream = new ByteArrayOutputStream()) {
-            blobClient.download(outputStream);
+            blobClient.getBlockBlobClient().download(outputStream);
             return outputStream.toByteArray();
         }
     }
