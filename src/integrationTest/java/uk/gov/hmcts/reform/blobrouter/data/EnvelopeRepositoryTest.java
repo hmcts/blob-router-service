@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
@@ -72,7 +71,7 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             now().plusSeconds(100),
-            DISPATCHED
+            Status.DISPATCHED
         );
 
         UUID id = repo.insert(newEnvelope);
@@ -101,14 +100,14 @@ public class EnvelopeRepositoryTest {
     void should_find_not_deleted_envelopes_by_status() {
         // given
         String container = "container1";
-        repo.insert(newEnvelope(DISPATCHED, container));
-        repo.insert(newEnvelope(DISPATCHED, container));
-        repo.insert(newEnvelope(DISPATCHED, container));
+        repo.insert(newEnvelope(Status.DISPATCHED, container));
+        repo.insert(newEnvelope(Status.DISPATCHED, container));
+        repo.insert(newEnvelope(Status.DISPATCHED, container));
         repo.insert(newEnvelope(Status.REJECTED, container));
         repo.insert(newEnvelope(Status.REJECTED, container));
 
         // when
-        List<Envelope> dispatched = repo.find(DISPATCHED, container, false);
+        List<Envelope> dispatched = repo.find(Status.DISPATCHED, container, false);
         List<Envelope> rejected = repo.find(Status.REJECTED, container, false);
 
         // then
@@ -120,11 +119,11 @@ public class EnvelopeRepositoryTest {
     void should_find_envelopes_only_for_the_requested_container() {
         // given
         String containerName = "container1";
-        repo.insert(newEnvelope(DISPATCHED, containerName));
-        repo.insert(newEnvelope(DISPATCHED, "other-container"));
+        repo.insert(newEnvelope(Status.DISPATCHED, containerName));
+        repo.insert(newEnvelope(Status.DISPATCHED, "other-container"));
 
         // when
-        List<Envelope> found = repo.find(DISPATCHED, containerName, false);
+        List<Envelope> found = repo.find(Status.DISPATCHED, containerName, false);
 
         // then
         assertThat(found).hasSize(1);
@@ -135,13 +134,13 @@ public class EnvelopeRepositoryTest {
     void should_find_deleted_envelopes_by_status() {
         // given
         String containerName = "container1";
-        NewEnvelope envelope = newEnvelope(DISPATCHED, containerName);
+        NewEnvelope envelope = newEnvelope(Status.DISPATCHED, containerName);
         UUID id = repo.insert(envelope);
         repo.markAsDeleted(id);
 
         // when
-        List<Envelope> deleted = repo.find(DISPATCHED, containerName, true);
-        List<Envelope> notDeleted = repo.find(DISPATCHED, containerName, false);
+        List<Envelope> deleted = repo.find(Status.DISPATCHED, containerName, true);
+        List<Envelope> notDeleted = repo.find(Status.DISPATCHED, containerName, false);
 
         // then
         assertThat(deleted).hasSize(1);
@@ -230,8 +229,8 @@ public class EnvelopeRepositoryTest {
         addEnvelope("C2", "f8", Status.REJECTED, true);
 
         // then
-        assertThat(repo.find(DISPATCHED, false)).extracting(env -> env.fileName).containsExactly("f1", "f5");
-        assertThat(repo.find(DISPATCHED, true)).extracting(env -> env.fileName).containsExactly("f3", "f7");
+        assertThat(repo.find(Status.DISPATCHED, false)).extracting(env -> env.fileName).containsExactly("f1", "f5");
+        assertThat(repo.find(Status.DISPATCHED, true)).extracting(env -> env.fileName).containsExactly("f3", "f7");
         assertThat(repo.find(Status.REJECTED, false)).extracting(env -> env.fileName).containsExactly("f2", "f6");
         assertThat(repo.find(Status.REJECTED, true)).extracting(env -> env.fileName).containsExactly("f4", "f8");
     }
