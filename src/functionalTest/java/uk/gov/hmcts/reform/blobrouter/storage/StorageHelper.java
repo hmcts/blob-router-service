@@ -31,6 +31,7 @@ public final class StorageHelper {
         return client
             .getBlobContainerClient(containerName)
             .getBlobClient(fileName)
+            .getBlockBlobClient()
             .exists();
     }
 }

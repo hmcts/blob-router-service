@@ -111,10 +111,11 @@ public class BlobProcessor {
                     targetStorageAccount
                 );
 
-                UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
-                    blobName,
+                UUID envelopeId = envelopeRepository.insert(new NewEnvelope(
                     containerName,
+                    blobName,
                     blobCreationDate,
+                    Instant.now(),
                     Status.DISPATCHED
                 ));
 
@@ -125,10 +126,11 @@ public class BlobProcessor {
                     envelopeId
                 );
             } else {
-                UUID envelopeId = envelopeRepository.insert(createNewEnvelope(
-                    blobName,
+                UUID envelopeId = envelopeRepository.insert(new NewEnvelope(
                     containerName,
+                    blobName,
                     blobCreationDate,
+                    Instant.now(),
                     Status.REJECTED
                 ));
 
@@ -197,15 +199,5 @@ public class BlobProcessor {
                 exception
             );
         }
-    }
-
-    private NewEnvelope createNewEnvelope(String blobName, String containerName, Instant fileCreatedAt, Status status) {
-        return new NewEnvelope(
-            containerName,
-            blobName,
-            fileCreatedAt,
-            Instant.now(),
-            status
-        );
     }
 }
