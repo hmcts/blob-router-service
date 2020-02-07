@@ -208,6 +208,7 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
 
   // region: feign clients
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.1.RELEASE'
@@ -229,8 +230,6 @@ dependencies {
   implementation group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version:'0.0.4'
 
   implementation group: 'org.springframework', name: 'spring-context-support', version: '5.2.3.RELEASE'
-
-  implementation group: 'com.sun.mail', name: 'jakarta.mail', version: '1.6.3'
 
   testImplementation libraries.junit5
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
