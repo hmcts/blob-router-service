@@ -58,7 +58,7 @@ public abstract class FunctionalTestBase {
         );
 
         String expectedBlobContentMd5 = DigestUtils.md5Hex(expectedContent);
-
+        System.out.println("expectedBlobContentMd5 " + expectedBlobContentMd5);
 
         byte[] download = download(client
                 .getBlobContainerClient(containerName)

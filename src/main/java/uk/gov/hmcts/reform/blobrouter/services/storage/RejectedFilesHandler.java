@@ -65,14 +65,16 @@ public class RejectedFilesHandler {
         Envelope envelope
     ) {
         String loggingContext = String.format(
-            "File name: %s. Container: %s",
+            "File name: %s. Source Container: %s. Target Container: %s",
             envelope.fileName,
-            sourceContainer.getBlobContainerName()
+            sourceContainer.getBlobContainerName(),
+            targetContainer.getBlobContainerName()
         );
 
         try {
             BlobClient sourceBlob = sourceContainer.getBlobClient(envelope.fileName);
             BlobClient targetBlob = targetContainer.getBlobClient(envelope.fileName);
+
 
             if (targetBlob.exists()) {
                 targetBlob.createSnapshot();
@@ -98,7 +100,7 @@ public class RejectedFilesHandler {
 
     private byte[] download(BlobClient blobClient) throws IOException {
         try (var outputStream = new ByteArrayOutputStream()) {
-            blobClient.download(outputStream);
+            blobClient.getBlockBlobClient().download(outputStream);
             return outputStream.toByteArray();
         }
     }
