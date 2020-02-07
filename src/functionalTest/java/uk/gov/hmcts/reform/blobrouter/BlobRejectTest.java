@@ -24,17 +24,21 @@ public class BlobRejectTest extends FunctionalTestBase {
     void should_reject_crime_envelope_with_invalid_signature() throws Exception {
         // upload crime file with unique name
         String fileName = "reject_crime" + randomFileName();
-        byte[] wrappingZipContent = createZipArchive(
-                asList("test-data/envelope/envelope.zip", "test-data/envelope/invalid-signature")
-        );
+        byte[] wrappingZipContent =
+            createZipArchive(
+                asList(
+                    "test-data/envelope/envelope.zip",
+                    "test-data/envelope/invalid-signature"
+                )
+            );
 
         // when
         uploadFile(blobRouterStorageClient, config.crimeSourceContainer, fileName, wrappingZipContent);
 
         // then
         await("Wait for the blob to disappear from source container")
-                .atMost(2, TimeUnit.MINUTES)
-                .until(() -> !blobExists(blobRouterStorageClient, config.crimeSourceContainer, fileName));
+            .atMost(2, TimeUnit.MINUTES)
+            .until(() -> !blobExists(blobRouterStorageClient, config.crimeSourceContainer, fileName));
 
         // and
         assertFileInfoIsStored(fileName, config.crimeSourceContainer, REJECTED, true);
@@ -52,11 +56,10 @@ public class BlobRejectTest extends FunctionalTestBase {
 
         // then
         await("Wait for the blob to disappear from source container")
-                .atMost(2, TimeUnit.MINUTES)
-                .until(() -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName));
+            .atMost(2, TimeUnit.MINUTES)
+            .until(() -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName));
 
         // and
         assertFileInfoIsStored(fileName, BULK_SCAN_CONTAINER, REJECTED, true);
     }
-
 }
