@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
+import uk.gov.hmcts.reform.blobrouter.util.ZipVerifiers;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,9 +36,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class BlobProcessor {
 
     private static final Logger logger = getLogger(BlobProcessor.class);
-
-    // name of the zip entry (in a blob) that contains the envelope
-    private static final String ENVELOPE_ENTRY_NAME = "envelope.zip";
 
     private final BlobServiceClient storageClient;
     private final BlobDispatcher dispatcher;
@@ -163,13 +161,13 @@ public class BlobProcessor {
             ZipEntry entry = null;
 
             while ((entry = zipStream.getNextEntry()) != null) {
-                if (ENVELOPE_ENTRY_NAME.equals(entry.getName())) {
+                if (ZipVerifiers.DOCUMENTS_ZIP.equals(entry.getName())) {
                     return toByteArray(zipStream);
                 }
             }
 
             throw new InvalidZipArchiveException(
-                String.format("ZIP file doesn't contain the required %s entry", ENVELOPE_ENTRY_NAME)
+                String.format("ZIP file doesn't contain the required %s entry", ZipVerifiers.DOCUMENTS_ZIP)
             );
         }
     }
