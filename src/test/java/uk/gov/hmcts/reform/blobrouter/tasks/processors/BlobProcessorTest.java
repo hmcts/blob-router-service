@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
-import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
@@ -62,7 +61,6 @@ class BlobProcessorTest {
             )
         );
 
-    @Mock BlobReadinessChecker readinessChecker;
     @Mock BlobServiceClient blobServiceClient;
     @Mock BlobContainerClient containerClient;
     @Mock BlobClient blobClient;
@@ -74,28 +72,10 @@ class BlobProcessorTest {
     @Mock ServiceConfiguration serviceConfiguration;
 
     @Test
-    void should_not_process_file_if_it_is_not_ready_yet() {
-        // given
-        OffsetDateTime blobCreationTime = OffsetDateTime.now();
-        blobExists(blobCreationTime, null);
-
-        // file is NOT ready to be processed
-        given(readinessChecker.isReady(any())).willReturn(false);
-
-        // when
-        newBlobProcessor().process("hello.zip", SOURCE_CONTAINER);
-
-        // then
-        verify(readinessChecker).isReady(eq(blobCreationTime.toInstant()));
-        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
-    }
-
-    @Test
     void should_not_store_envelope_in_db_when_upload_failed() {
         // given
         blobExists();
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
-        given(readinessChecker.isReady(any())).willReturn(true);
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
 
         willThrow(new RuntimeException("Test exception"))
@@ -111,7 +91,7 @@ class BlobProcessorTest {
     }
 
     @Test
-    void should_process_file_if_it_is_ready() {
+    void should_dispatch_valid_file() {
         // given
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
@@ -121,15 +101,12 @@ class BlobProcessorTest {
         String fileName = "envelope1.zip";
         String containerName = SOURCE_CONTAINER;
 
-        // file IS ready to be processed
-        given(readinessChecker.isReady(any())).willReturn(true);
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
 
         // when
         newBlobProcessor().process(fileName, containerName);
 
         // then
-        verify(readinessChecker).isReady(eq(blobCreationTime.toInstant()));
         verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
 
         ArgumentCaptor<NewEnvelope> newEnvelopeArgumentCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
@@ -153,15 +130,12 @@ class BlobProcessorTest {
         String fileName = "envelope1.zip";
         String containerName = "container1";
 
-        // file IS ready to be processed
-        given(readinessChecker.isReady(any())).willReturn(true);
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(false);
 
         // when
         newBlobProcessor().process(fileName, containerName);
 
         // then
-        verify(readinessChecker).isReady(eq(blobCreationTime.toInstant()));
         verifyNoInteractions(blobDispatcher);
 
         ArgumentCaptor<NewEnvelope> newEnvelopeArgumentCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
@@ -183,8 +157,7 @@ class BlobProcessorTest {
 
         setupContainerConfig(sourceContainerName, targetContainerName, BULKSCAN);
 
-        // valid file, ready to be processed
-        given(readinessChecker.isReady(any())).willReturn(true);
+        // valid file
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
 
         var fileName = "envelope1.zip";
@@ -206,8 +179,7 @@ class BlobProcessorTest {
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
-        // valid file, ready to be processed
-        given(readinessChecker.isReady(any())).willReturn(true);
+        // valid file
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
         var fileName = "envelope1.zip";
 
@@ -229,8 +201,7 @@ class BlobProcessorTest {
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
-        // valid file, ready to be processed
-        given(readinessChecker.isReady(any())).willReturn(true);
+        // valid file
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
 
         // when
@@ -251,8 +222,7 @@ class BlobProcessorTest {
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
-        // valid file, ready to be processed
-        given(readinessChecker.isReady(any())).willReturn(true);
+        // valid file
         given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
 
         // when
@@ -327,7 +297,6 @@ class BlobProcessorTest {
         return new BlobProcessor(
             this.blobServiceClient,
             this.blobDispatcher,
-            this.readinessChecker,
             this.envelopeRepo,
             blobClient -> blobLeaseClient,
             this.signatureVerifier,

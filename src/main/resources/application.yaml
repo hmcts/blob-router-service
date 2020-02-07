@@ -66,5 +66,9 @@ scheduling:
     handle-rejected-files:
       enabled: true
       cron: ${HANDLE_REJECTED_FILES_CRON}
+    delete-rejected-files:
+      enabled: true
+      ttl: PT72H # ISO-8601
+      cron: 0 0 6 * * *
     scan:
       delay: ${TASK_SCAN_DELAY} # In milliseconds

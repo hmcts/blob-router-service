@@ -7,8 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -18,9 +21,10 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 class ContainerProcessorTest extends BlobStorageBaseTest {
 
     @Mock BlobProcessor blobProcessor;
+    @Mock BlobReadinessChecker blobReadinessChecker;
 
     @Test
-    void should_read_files_from_provided_container_and_call_blob_processor() {
+    void should_read_files_from_provided_container_and_call_blob_processor_for_each_ready_blob() {
         // given
         var containerName = "my-container";
 
@@ -28,15 +32,18 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
 
         upload(containerClient, "1.zip");
         upload(containerClient, "2.zip");
+        upload(containerClient, "3.zip");
 
-        var containerProcessor = new ContainerProcessor(storageClient, blobProcessor);
+        given(blobReadinessChecker.isReady(any())).willReturn(true, false, true);
+
+        var containerProcessor = new ContainerProcessor(storageClient, blobProcessor, blobReadinessChecker);
 
         // when
         containerProcessor.process(containerName);
 
         // then
         verify(blobProcessor).process("1.zip", containerName);
-        verify(blobProcessor).process("2.zip", containerName);
+        verify(blobProcessor).process("3.zip", containerName);
         verifyNoMoreInteractions(blobProcessor);
     }
 
