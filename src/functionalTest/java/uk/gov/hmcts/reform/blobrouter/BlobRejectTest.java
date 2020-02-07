@@ -66,7 +66,7 @@ public class BlobRejectTest extends FunctionalTestBase {
         // then
         await("Wait for the blob to disappear from source container")
                 .atMost(2, TimeUnit.MINUTES)
-                .until(() -> !blobExists(blobRouterStorageClient, config.crimeSourceContainer, fileName));
+                .until(() -> !blobExists(blobRouterStorageClient, "bulkscan", fileName));
 
         // and
         assertFileInfoIsStored(fileName, "bulkscan", REJECTED, true);

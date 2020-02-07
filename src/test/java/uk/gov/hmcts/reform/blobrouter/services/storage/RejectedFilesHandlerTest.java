@@ -44,9 +44,6 @@ class RejectedFilesHandlerTest {
     @Mock BlobClient rejectedBlob1;
     @Mock BlobClient rejectedBlob2;
 
-    @Mock BlockBlobClient normalBlockBlob1;
-    @Mock BlockBlobClient normalBlockBlob2;
-
     @Mock BlockBlobClient rejectedBlockBlob1;
     @Mock BlockBlobClient rejectedBlockBlob2;
 
@@ -66,8 +63,6 @@ class RejectedFilesHandlerTest {
 
         given(blobServiceClient.getBlobContainerClient("c2")).willReturn(normalContainer2);
         given(normalContainer2.getBlobClient("f2")).willReturn(normalBlob2);
-        given(normalBlob2.getBlockBlobClient()).willReturn(normalBlockBlob2);
-
 
         given(blobServiceClient.getBlobContainerClient("c1-rejected")).willReturn(rejectedContainer1);
         given(rejectedContainer1.getBlobClient("f1")).willReturn(rejectedBlob1);
@@ -83,7 +78,6 @@ class RejectedFilesHandlerTest {
         // given
         given(normalBlob1.exists()).willReturn(true);
         given(normalBlob2.exists()).willReturn(true);
-        given(normalBlob1.getBlockBlobClient()).willReturn(normalBlockBlob1);
 
         // when
         mover.handle();
@@ -104,7 +98,6 @@ class RejectedFilesHandlerTest {
         // given
         given(normalBlob1.exists()).willReturn(true);
         given(normalBlob2.exists()).willReturn(true);
-        given(normalBlob1.getBlockBlobClient()).willReturn(normalBlockBlob1);
 
         doThrow(RuntimeException.class)
             .when(normalBlob1)
