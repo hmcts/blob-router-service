@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
 
 import java.io.ByteArrayInputStream;
@@ -101,7 +102,7 @@ class ZipVerifiersTest {
         );
 
         assertThatThrownBy(() -> ZipVerifiers.verifyFileNames(files))
-            .isInstanceOf(DocSignatureFailureException.class)
+            .isInstanceOf(InvalidZipArchiveException.class)
             .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
     }
 
@@ -113,7 +114,7 @@ class ZipVerifiersTest {
         );
 
         assertThatThrownBy(() -> ZipVerifiers.verifyFileNames(files))
-            .isInstanceOf(DocSignatureFailureException.class)
+            .isInstanceOf(InvalidZipArchiveException.class)
             .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
     }
 
