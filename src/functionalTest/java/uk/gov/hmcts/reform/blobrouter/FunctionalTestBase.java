@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter;
 
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
@@ -8,9 +7,6 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import uk.gov.hmcts.reform.blobrouter.config.TestConfiguration;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
@@ -44,7 +40,7 @@ public abstract class FunctionalTestBase {
         String containerName,
         String fileName,
         byte[] expectedContent
-    ) throws IOException {
+    ) {
         assertThat(blobExists(client, containerName, fileName))
             .as("File %s exists in container %s", fileName, containerName)
             .isTrue();
@@ -53,29 +49,16 @@ public abstract class FunctionalTestBase {
             client
                 .getBlobContainerClient(containerName)
                 .getBlobClient(fileName)
+                .getBlockBlobClient()
                 .getProperties()
                 .getContentMd5()
         );
 
         String expectedBlobContentMd5 = DigestUtils.md5Hex(expectedContent);
-        System.out.println("expectedBlobContentMd5 " + expectedBlobContentMd5);
 
-        byte[] download = download(client
-                .getBlobContainerClient(containerName)
-                .getBlobClient(fileName));
-
-        System.out.println("download.length=" + download.length);
-        System.out.println("download. value=" + new String(download, StandardCharsets.UTF_8));
-
-        assertThat(download)
-            .containsExactly(expectedContent);
-    }
-
-    private byte[] download(BlobClient blobClient) throws IOException {
-        try (var outputStream = new ByteArrayOutputStream()) {
-            blobClient.download(outputStream);
-            return outputStream.toByteArray();
-        }
+        assertThat(blobContentMd5)
+            .as("MD5 hash of the blob's content is as expected")
+            .isEqualTo(expectedBlobContentMd5);
     }
 
     protected String randomFileName() {

@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
@@ -87,8 +88,16 @@ public class RejectedFilesHandler {
                 byte[] blobContent = download(sourceBlob);
                 String str = new String(blobContent, StandardCharsets.UTF_8);
                 logger.info("blobContent length===> {} value= {} ", blobContent.length, str);
+                if (sourceBlob.getBlockBlobClient() != null
+                        && sourceBlob.getBlockBlobClient().getProperties() != null) {
+                    logger.info(
+                            "sourceBlob getContentMd5 {}",
+                            Hex.encodeHexString(sourceBlob.getBlockBlobClient().getProperties().getContentMd5())
+                    );
+                }
 
                 upload(targetBlob, blobContent, loggingContext);
+
                 sourceBlob.delete();
                 envelopeRepository.markAsDeleted(envelope.id);
                 logger.info("Rejected file successfully handled. " + loggingContext);
