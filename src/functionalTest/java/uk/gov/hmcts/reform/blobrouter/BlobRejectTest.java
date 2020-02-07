@@ -1,22 +1,16 @@
 package uk.gov.hmcts.reform.blobrouter;
 
 import com.azure.storage.blob.BlobServiceClient;
-import io.restassured.RestAssured;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.io.Resources.getResource;
-import static com.google.common.io.Resources.toByteArray;
 import static com.jayway.awaitility.Awaitility.await;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.http.HttpStatus.OK;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArchive;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
