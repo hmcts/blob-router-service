@@ -32,7 +32,7 @@ public class BlobRejectTest extends FunctionalTestBase {
         String fileName = "should_reject_" + randomFileName();
 
         byte[] wrappingZipContent = createZipArchive(
-            asList("test-data/envelope/envelope.zip")
+            asList("test-data/envelope/envelope.zip","test-data/envelope/signature")
         );
 
         // when
