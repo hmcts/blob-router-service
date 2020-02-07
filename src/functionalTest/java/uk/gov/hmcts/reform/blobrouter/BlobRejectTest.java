@@ -48,28 +48,12 @@ public class BlobRejectTest extends FunctionalTestBase {
                 .until(() -> !blobExists(blobRouterStorageClient, config.crimeSourceContainer, fileName));
 
         // and
-        RestAssured
-                .given()
-                .baseUri(config.blobRouterUrl)
-                .relaxedHTTPSValidation()
-                .queryParam("file_name", fileName)
-                .queryParam("container", config.crimeSourceContainer)
-                .get("/envelopes")
-                .then()
-                .statusCode(OK.value())
-                .body("container", equalTo("crime"))
-                .body("status", equalTo(REJECTED.name()))
-                .body("is_deleted", equalTo(true));
-
-        byte[] expectedContent = toByteArray(getResource("test-data/envelope/envelope.zip"));
-
-        System.out.println("expectedContent.length=" + expectedContent.length);
-        System.out.println("expectedContent. value=" + new String(expectedContent, StandardCharsets.UTF_8));
+        assertFileInfoIsStored(fileName, config.crimeSourceContainer, REJECTED, true);
         assertBlobIsPresentInStorage(
                 blobRouterStorageClient,
                 "crime-rejected",
                 fileName,
-                expectedContent
+                wrappingZipContent
         );
     }
 
