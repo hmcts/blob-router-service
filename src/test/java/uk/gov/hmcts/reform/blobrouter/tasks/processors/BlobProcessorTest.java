@@ -32,6 +32,7 @@ import java.util.zip.ZipOutputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
@@ -295,7 +296,7 @@ class BlobProcessorTest {
         }
 
         given(blobProperties.getLastModified()).willReturn(time);
-        given(envelopeRepo.find(any(), any())).willReturn(Optional.empty());
+        given(envelopeRepo.find(anyString(), anyString())).willReturn(Optional.empty());
     }
 
     private void setupDownloadedBlobContent(byte[] content) {

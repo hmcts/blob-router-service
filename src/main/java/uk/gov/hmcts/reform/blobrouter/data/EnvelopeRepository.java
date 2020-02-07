@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -71,6 +72,16 @@ public class EnvelopeRepository {
             new MapSqlParameterSource()
                 .addValue("status", status.name())
                 .addValue("isDeleted", isDeleted),
+            this.mapper
+        );
+    }
+
+    public List<Envelope> find(Instant from, Instant to) {
+        return jdbcTemplate.query(
+            "SELECT * FROM envelopes WHERE file_created_at >= :from AND file_created_at < :to",
+            new MapSqlParameterSource()
+                .addValue("from", Timestamp.from(from))
+                .addValue("to", Timestamp.from(to)),
             this.mapper
         );
     }
