@@ -35,8 +35,8 @@ public class EmailSenderTest {
     private static final String FROM_ADDRESS = "from@hmcts.net";
     private static final String RECIPIENT_1 = "Foo <foo@hmcts.net>";
     private static final String RECIPIENT_2 = "bar@hmcts.net";
-    private static final String FILE_NAME_1 = "test1.zip";
-    private static final String FILE_NAME_2 = "test2.zip";
+    private static final String FILE_NAME_1 = "email/test1.zip";
+    private static final String FILE_NAME_2 = "email/test2.zip";
     private static final String SUBJECT = "subject";
     private static final String BODY = "body";
 
