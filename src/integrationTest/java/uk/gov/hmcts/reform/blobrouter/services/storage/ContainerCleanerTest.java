@@ -31,8 +31,8 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
 
     private static final String CONTAINER_NAME = "bulkscan";
 
-    private static final String TEST_1 = "email/test1.zip";
-    private static final String TEST_2 = "email/test2.zip";
+    private static final String TEST_1 = "test1.zip";
+    private static final String TEST_2 = "test2.zip";
     private static final String TEST_3 = "test3.zip";
     private static final String TEST_4 = "test4.zip";
 
