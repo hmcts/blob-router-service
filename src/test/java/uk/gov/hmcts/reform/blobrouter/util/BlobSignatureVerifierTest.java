@@ -7,8 +7,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipAndSignDir;
-import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSignDir;
+import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipDir;
 
 @ExtendWith(MockitoExtension.class)
 class BlobSignatureVerifierTest {
