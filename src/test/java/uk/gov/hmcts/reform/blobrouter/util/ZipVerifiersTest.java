@@ -23,9 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipAndSignDir;
-import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipDir;
-import static uk.gov.hmcts.reform.blobrouter.util.SigningHelper.signWithSha256Rsa;
+import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSignDir;
+import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.blobrouter.testutils.SigningHelper.signWithSha256Rsa;
 
 @ExtendWith(MockitoExtension.class)
 class ZipVerifiersTest {
