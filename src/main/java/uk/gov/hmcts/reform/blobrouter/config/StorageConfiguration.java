@@ -49,27 +49,4 @@ public class StorageConfiguration {
             .containerName(containerName)
             .buildClient();
     }
-
-
-    public static void main(String[] args) {
-        System.out.println("xxxx");
-
-        String containerName = "crime";
-
-
-        String connectionString1 =  "DefaultEndpointsProtocol=https;"+
-            "BlobEndpoint=https://reformscan.{{ .Values.global.environment }}.platform.hmcts.net;"+
-            "AccountName=SSADSSA;" +
-            "AccountKey=77OZSESOB8HKOl2kxrd5CKB2cnWLzR29Bo6hi7xK7maZ/2n9/1MO3zVxrNDzEzzsplFnNuANZOSpKafC3AlkSg==";
-
-        String connectionString = "DefaultEndpointsProtocol=https;"
-            + "AccountName=reformscanaat;AccountKey=77OZSESOB8HKOl2kxrd5CKB2cnWLzR29Bo6hi7xK7maZ/2n9/1MO3zVxrNDzEzzsplFnNuANZOSpKafC3AlkSg==;"
-            + "EndpointSuffix=core.windows.net";
-        BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
-            .connectionString(connectionString1)
-            .containerName(containerName)
-            .buildClient();
-
-        System.out.println(blobContainerClient.getBlobContainerUrl());
-    }
 }
