@@ -1,6 +1,7 @@
-package uk.gov.hmcts.reform.blobrouter.util;
+package uk.gov.hmcts.reform.blobrouter.testutils;
 
 import com.google.common.io.Files;
+import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -14,14 +15,14 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static uk.gov.hmcts.reform.blobrouter.util.SigningHelper.signWithSha256Rsa;
+import static uk.gov.hmcts.reform.blobrouter.testutils.SigningHelper.signWithSha256Rsa;
 
 public final class DirectoryZipper {
 
     /**
      * Zips files from given directory. Files in resulting archive are NOT wrapped in a directory.
      */
-    static byte[] zipDir(String dirName) throws IOException {
+    public static byte[] zipDir(String dirName) throws IOException {
 
         return zipItems(
             Stream.of(new File(getResource(dirName).getPath()).listFiles())
@@ -40,8 +41,8 @@ public final class DirectoryZipper {
 
         return zipItems(
             asList(
-                new ZipItem(ZipVerifiers.DOCUMENTS_ZIP, innerZip),
-                new ZipItem(ZipVerifiers.SIGNATURE_SIG, signature)
+                new ZipItem(ZipVerifiers.ENVELOPE, innerZip),
+                new ZipItem(ZipVerifiers.SIGNATURE, signature)
             )
         );
     }

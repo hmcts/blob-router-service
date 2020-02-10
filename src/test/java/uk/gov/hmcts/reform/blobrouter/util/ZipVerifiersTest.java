@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
+import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,9 +23,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipAndSignDir;
-import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipDir;
-import static uk.gov.hmcts.reform.blobrouter.util.SigningHelper.signWithSha256Rsa;
+import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSignDir;
+import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipDir;
+import static uk.gov.hmcts.reform.blobrouter.testutils.SigningHelper.signWithSha256Rsa;
 
 @ExtendWith(MockitoExtension.class)
 class ZipVerifiersTest {
@@ -86,8 +87,8 @@ class ZipVerifiersTest {
     @Test
     void should_verify_2_valid_filenames_successfully() {
         Set<String> files = Set.of(
-            ZipVerifiers.DOCUMENTS_ZIP,
-            ZipVerifiers.SIGNATURE_SIG
+            ZipVerifiers.ENVELOPE,
+            ZipVerifiers.SIGNATURE
         );
 
         assertThatCode(() -> ZipVerifiers.verifyFileNames(files)).doesNotThrowAnyException();
@@ -96,8 +97,8 @@ class ZipVerifiersTest {
     @Test
     void should_not_verify_more_than_2_files_successfully() {
         Set<String> files = Set.of(
-            ZipVerifiers.DOCUMENTS_ZIP,
-            ZipVerifiers.SIGNATURE_SIG,
+            ZipVerifiers.ENVELOPE,
+            ZipVerifiers.SIGNATURE,
             "signature2"
         );
 
@@ -109,7 +110,7 @@ class ZipVerifiersTest {
     @Test
     void should_not_verify_invalid_filenames_successfully() {
         Set<String> files = Set.of(
-            ZipVerifiers.DOCUMENTS_ZIP,
+            ZipVerifiers.ENVELOPE,
             "signature.sig"
         );
 
