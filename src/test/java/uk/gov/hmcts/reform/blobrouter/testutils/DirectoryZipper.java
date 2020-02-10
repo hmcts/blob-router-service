@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.testutils;
 
 import com.google.common.io.Files;
-import uk.gov.hmcts.reform.blobrouter.util.ZipVerifiers;
+import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,8 +41,8 @@ public final class DirectoryZipper {
 
         return zipItems(
             asList(
-                new ZipItem(ZipVerifiers.DOCUMENTS_ZIP, innerZip),
-                new ZipItem(ZipVerifiers.SIGNATURE_SIG, signature)
+                new ZipItem(ZipVerifiers.ENVELOPE, innerZip),
+                new ZipItem(ZipVerifiers.SIGNATURE, signature)
             )
         );
     }
