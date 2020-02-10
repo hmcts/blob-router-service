@@ -64,7 +64,7 @@ public class ZipVerifiers {
         }
     }
 
-    static void verifyFileNames(Set<String> fileNames) {
+    public static void verifyFileNames(Set<String> fileNames) {
         if (!(fileNames.size() == 2 && fileNames.containsAll(asList(ENVELOPE, SIGNATURE)))) {
             throw new InvalidZipArchiveException(
                 "Zip entries do not match expected file names. Actual names = " + fileNames
