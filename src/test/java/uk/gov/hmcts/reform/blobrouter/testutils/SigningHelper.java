@@ -1,12 +1,12 @@
-package uk.gov.hmcts.reform.blobrouter.util;
+package uk.gov.hmcts.reform.blobrouter.testutils;
 
 import java.security.KeyFactory;
 import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
 
-final class SigningHelper {
+public final class SigningHelper {
 
-    static byte[] signWithSha256Rsa(byte[] input, byte[] keyBytes) throws Exception {
+    public static byte[] signWithSha256Rsa(byte[] input, byte[] keyBytes) throws Exception {
 
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(keyBytes)));

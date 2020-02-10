@@ -90,7 +90,7 @@ tasks.withType(Test) {
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '8.26'
+  toolVersion = '8.29'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
@@ -208,6 +208,7 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
 
   // region: feign clients
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.1.RELEASE'
@@ -236,6 +237,9 @@ dependencies {
   testImplementation group: 'com.azure', name: 'azure-core-test', version: '1.1.0', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
   }
+
+  testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
+  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.11'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
