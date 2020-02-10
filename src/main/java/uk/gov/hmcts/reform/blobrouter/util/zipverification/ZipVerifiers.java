@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.util;
+package uk.gov.hmcts.reform.blobrouter.util.zipverification;
 
 import org.apache.commons.lang3.StringUtils;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
@@ -27,55 +27,27 @@ import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static java.util.Arrays.asList;
 
-/**
- * Signed zip archive verification utilities.
- * Currently verifies with sha256withrsa algorithm:
- * sha256withrsa = sha256 + rsa signature verification.
- * A signed zip archive must include 2 files named envelope.zip and signature.
- * The former is the archive content while the latter is the signature the
- * archive has to be verified against.
- * <p>
- * Some openssl commands related to sha256withrsa signatures:
- * <ul>
- * <li>Create rsa private key:
- * openssl genrsa -out private_key.pem 1024
- * </li>
- * <li>Generate DER format private key from PEM:
- * openssl pkcs8 -topk8 -inform PEM -outform DER -in private_key.pem
- * -out private_key.der -nocrypt
- * </li>
- * <li>Generate DER format public key from PEM private key:
- * openssl rsa -in private_key.pem -pubout -outform DER -out public_key.der
- * </li>
- * <li>Generate DER format public key from PEM public key:
- * openssl rsa -pubin -inform PEM -outform DER -in public_key.pem
- * </li>
- * <li>Generate signature for file:
- * openssl dgst -sha256 -sign private_key.pem -out signature envelope.zip
- * </li>
- * <li>Verify file signature:
- * openssl dgst -sha256 -verify public_key.pem -signature signature envelope.zip
- * </li>
- * </ul>
- * </p>
- */
 public class ZipVerifiers {
 
-    public static final String DOCUMENTS_ZIP = "envelope.zip";
-    public static final String SIGNATURE_SIG = "signature";
+    public static final String ENVELOPE = "envelope.zip";
+    public static final String SIGNATURE = "signature";
+
     public static final String INVALID_SIGNATURE_MESSAGE = "Zip signature failed verification";
 
     private ZipVerifiers() {
     }
 
-    public static ZipInputStream verifyZipSignature(ZipStreamWithSignature zipWithSignature)
-        throws DocSignatureFailureException {
+    public static ZipInputStream verifyZip(ZipStreamWithSignature zipWithSignature) {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
 
         verifyFileNames(zipEntries.keySet());
-        verifySignature(zipWithSignature.publicKeyBase64, zipEntries);
+        verifySignature(
+            zipWithSignature.publicKeyBase64,
+            zipEntries.get(ENVELOPE),
+            zipEntries.get(SIGNATURE)
+        );
 
-        return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
+        return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(ENVELOPE)));
     }
 
     private static Map<String, byte[]> extractZipEntries(ZipInputStream zis) {
@@ -92,20 +64,12 @@ public class ZipVerifiers {
         }
     }
 
-    static void verifyFileNames(Set<String> fileNames) {
-        if (!(fileNames.size() == 2 && fileNames.containsAll(asList(DOCUMENTS_ZIP, SIGNATURE_SIG)))) {
+    public static void verifyFileNames(Set<String> fileNames) {
+        if (!(fileNames.size() == 2 && fileNames.containsAll(asList(ENVELOPE, SIGNATURE)))) {
             throw new InvalidZipArchiveException(
                 "Zip entries do not match expected file names. Actual names = " + fileNames
             );
         }
-    }
-
-    private static void verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
-        verifySignature(
-            publicKeyBase64,
-            entries.get(DOCUMENTS_ZIP),
-            entries.get(SIGNATURE_SIG)
-        );
     }
 
     public static void verifySignature(String publicKeyBase64, byte[] data, byte[] signed) {

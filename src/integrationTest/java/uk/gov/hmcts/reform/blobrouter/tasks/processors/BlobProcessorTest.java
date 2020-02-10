@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
-import static uk.gov.hmcts.reform.blobrouter.util.DirectoryZipper.zipAndSignDir;
+import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSignDir;
 
 @ActiveProfiles("db-test")
 @SpringBootTest

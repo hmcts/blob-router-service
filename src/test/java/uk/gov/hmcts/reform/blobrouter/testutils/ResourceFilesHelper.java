@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.util;
+package uk.gov.hmcts.reform.blobrouter.testutils;
 
 import org.junit.jupiter.api.Assertions;
 

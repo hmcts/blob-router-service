@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
-import uk.gov.hmcts.reform.blobrouter.util.ZipVerifiers;
+import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class BlobSignatureVerifier {
         try (var zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
             var zipWithSignature = ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename);
 
-            ZipVerifiers.verifyZipSignature(zipWithSignature);
+            ZipVerifiers.verifyZip(zipWithSignature);
             return true;
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
