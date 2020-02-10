@@ -4,7 +4,7 @@ import java.security.KeyFactory;
 import java.security.Signature;
 import java.security.spec.PKCS8EncodedKeySpec;
 
-final class SigningHelper {
+public final class SigningHelper {
 
     public static byte[] signWithSha256Rsa(byte[] input, byte[] keyBytes) throws Exception {
 
