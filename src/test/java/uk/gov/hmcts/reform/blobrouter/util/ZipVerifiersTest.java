@@ -125,7 +125,7 @@ class ZipVerifiersTest {
         var zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
             new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64
         );
-        ZipInputStream zis = ZipVerifiers.verifyZipSignature(zipStreamWithSig);
+        ZipInputStream zis = ZipVerifiers.verifyZip(zipStreamWithSig);
         assertThat(zis).isNotNull();
     }
 
@@ -138,7 +138,7 @@ class ZipVerifiersTest {
         );
         assertThrows(
             DocSignatureFailureException.class,
-            () -> ZipVerifiers.verifyZipSignature(zipStreamWithSig)
+            () -> ZipVerifiers.verifyZip(zipStreamWithSig)
         );
     }
 

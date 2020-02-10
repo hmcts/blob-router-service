@@ -30,7 +30,7 @@ public class BlobSignatureVerifier {
         try (var zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
             var zipWithSignature = ZipVerifiers.ZipStreamWithSignature.fromKeyfile(zis, publicKeyDerFilename);
 
-            ZipVerifiers.verifyZipSignature(zipWithSignature);
+            ZipVerifiers.verifyZip(zipWithSignature);
             return true;
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
