@@ -1,13 +1,12 @@
 package uk.gov.hmcts.reform.blobrouter.services.email;
 
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.mail.internet.MimeMessage;
 
@@ -16,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ActiveProfiles("db-test")
 public class EmailSenderIntegrationTest {
 
     private static final String FROM_ADDRESS = "a@b.c";
