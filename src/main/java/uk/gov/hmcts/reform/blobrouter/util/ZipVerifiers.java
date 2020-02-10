@@ -68,12 +68,15 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static ZipInputStream verifyZipSignature(ZipStreamWithSignature zipWithSignature)
-        throws DocSignatureFailureException {
+    public static ZipInputStream verifyZip(ZipStreamWithSignature zipWithSignature) {
         Map<String, byte[]> zipEntries = extractZipEntries(zipWithSignature.zipInputStream);
 
         verifyFileNames(zipEntries.keySet());
-        verifySignature(zipWithSignature.publicKeyBase64, zipEntries);
+        verifySignature(
+            zipWithSignature.publicKeyBase64,
+            zipEntries.get(DOCUMENTS_ZIP),
+            zipEntries.get(SIGNATURE_SIG)
+        );
 
         return new ZipInputStream(new ByteArrayInputStream(zipEntries.get(DOCUMENTS_ZIP)));
     }
@@ -98,14 +101,6 @@ public class ZipVerifiers {
                 "Zip entries do not match expected file names. Actual names = " + fileNames
             );
         }
-    }
-
-    private static void verifySignature(String publicKeyBase64, Map<String, byte[]> entries) {
-        verifySignature(
-            publicKeyBase64,
-            entries.get(DOCUMENTS_ZIP),
-            entries.get(SIGNATURE_SIG)
-        );
     }
 
     public static void verifySignature(String publicKeyBase64, byte[] data, byte[] signed) {
