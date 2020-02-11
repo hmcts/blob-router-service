@@ -140,7 +140,12 @@ public class EmailSenderTest {
         ), SendEmailException.class);
 
         // then
-        assertThat(ex.getMessage()).isEqualTo("Error sending message");
+        assertThat(ex.getMessage())
+            .isEqualTo(String.format(
+                "Error sending message, from %s, subject %s",
+                FROM_ADDRESS,
+                SUBJECT
+            ));
     }
 
     @SuppressWarnings("PMD.LawOfDemeter")
