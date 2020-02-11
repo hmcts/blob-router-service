@@ -29,7 +29,7 @@ spring:
           auth: true
           starttls:
             enable: true
-    test-connection: true
+    test-connection: false
 
 service:
   storage-config:

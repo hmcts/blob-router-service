@@ -20,18 +20,19 @@ public class EmailSenderIntegrationTest {
     private EmailSender emailSender;
 
     @Test
-    public void should_attempt_to_send_report_when_recipients_list_is_present() {
+    public void should_attempt_to_send_email() {
 
         SendEmailException ex =
-            catchThrowableOfType(() ->
-                                     emailSender.sendMessageWithAttachments(
-                                         SUBJECT,
-                                         "body",
-                                         FROM_ADDRESS,
-                                         new String[]{"d@e.f"},
-                                         emptyMap()
-                                     ),
-                SendEmailException.class);
+            catchThrowableOfType(
+                () -> emailSender.sendMessageWithAttachments(
+                    SUBJECT,
+                    "body",
+                    FROM_ADDRESS,
+                    new String[]{"d@e.f"},
+                    emptyMap()
+                ),
+                SendEmailException.class
+            );
 
         // SMTP server is not running so exception is thrown, this indicates that the method has been called
         assertThat(ex.getMessage())
