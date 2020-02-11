@@ -20,7 +20,7 @@ public class EmailSenderIntegrationTest {
     private EmailSender emailSender;
 
     @Test
-    public void should_attempt_to_send_report_when_recipients_list_is_present() throws Exception {
+    public void should_attempt_to_send_report_when_recipients_list_is_present() {
 
         SendEmailException ex =
             catchThrowableOfType(() ->
