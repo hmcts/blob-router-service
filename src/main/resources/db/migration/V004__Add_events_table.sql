@@ -8,4 +8,3 @@ CREATE TABLE events (
 );
 
 CREATE INDEX events_container_filename_idx ON events (container, file_name);
-CREATE INDEX events_container_event_idx ON events (container, event);
