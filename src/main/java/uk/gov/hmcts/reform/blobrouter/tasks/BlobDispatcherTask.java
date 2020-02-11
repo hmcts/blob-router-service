@@ -14,6 +14,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.blobrouter.tasks.utils.LoggingHelper.wrapWithJobLog;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
@@ -37,13 +38,11 @@ public class BlobDispatcherTask {
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void run() {
-        logger.info("Started {} job", TASK_NAME);
-
-        List<String> containers = getAvailableContainers();
-        Collections.shuffle(containers);
-        containers.forEach(containerProcessor::process);
-
-        logger.info("Finished {} job", TASK_NAME);
+        wrapWithJobLog(logger, TASK_NAME, () -> {
+            List<String> containers = getAvailableContainers();
+            Collections.shuffle(containers);
+            containers.forEach(containerProcessor::process);
+        });
     }
 
     private List<String> getAvailableContainers() {

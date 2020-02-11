@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.blobrouter.tasks.utils.LoggingHelper.wrapWithJobLog;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
 @Component
@@ -29,10 +30,6 @@ public class HandleRejectedFilesTask {
     @Scheduled(cron = "${scheduling.task.handle-rejected-files.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
-        logger.info("Started {} job", TASK_NAME);
-
-        rejectedFilesHandler.handle();
-
-        logger.info("Finished {} job", TASK_NAME);
+        wrapWithJobLog(logger, TASK_NAME, rejectedFilesHandler::handle);
     }
 }
