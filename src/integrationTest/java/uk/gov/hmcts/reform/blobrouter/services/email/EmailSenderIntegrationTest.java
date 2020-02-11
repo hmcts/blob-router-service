@@ -14,7 +14,6 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 public class EmailSenderIntegrationTest {
 
     private static final String FROM_ADDRESS = "a@b.c";
-    private static final String TO_ADDRESS = "d@e.f";
     private static final String SUBJECT = "subject";
 
     @Autowired
@@ -29,7 +28,7 @@ public class EmailSenderIntegrationTest {
                                          SUBJECT,
                                          "body",
                                          FROM_ADDRESS,
-                                         new String[]{TO_ADDRESS},
+                                         new String[]{"d@e.f"},
                                          emptyMap()
                                      ),
                 SendEmailException.class);
