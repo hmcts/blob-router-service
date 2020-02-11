@@ -33,7 +33,7 @@ public class EmailSenderIntegrationTest {
                                      ),
                 SendEmailException.class);
 
-        // SMTP server is not running so ignore the exception and just verify the method is called
+        // SMTP server is not running so exception is thrown, this indicates that the method has been called
         assertThat(ex.getMessage())
             .isEqualTo(
                 String.format(
