@@ -57,12 +57,7 @@ public class EventRecordRepositoryTest {
             .satisfies(record -> {
                 assertThat(record.id).isEqualTo(id);
                 assertThat(record.event).isEqualTo(event);
-
-                if (notes == null) {
-                    assertThat(record.notes).isNull();
-                } else {
-                    assertThat(record.notes).isEqualTo(notes);
-                }
+                assertThat(record.notes).isEqualTo(notes);
             });
     }
 
