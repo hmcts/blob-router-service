@@ -235,7 +235,6 @@ dependencies {
   }
 
   testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
-  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.11'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
