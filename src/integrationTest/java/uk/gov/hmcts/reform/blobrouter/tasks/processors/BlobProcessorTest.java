@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
@@ -25,7 +24,6 @@ import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSignDir;
 
-@ActiveProfiles("db-test")
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest extends BlobStorageBaseTest {
