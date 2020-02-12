@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,8 +31,15 @@ public class EventRecordRepositoryTest {
     @Autowired private EventRecordRepository repo;
     @Autowired private DbHelper dbHelper;
 
+    // to make sure it's clean as experienced in another pr - it might not be
     @BeforeEach
     void setUp() {
+        dbHelper.deleteAll();
+    }
+
+    // cleanup after ourselves
+    @AfterEach
+    void tearDown() {
         dbHelper.deleteAll();
     }
 
