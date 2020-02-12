@@ -16,6 +16,8 @@ import static org.springframework.http.HttpStatus.OK;
 
 public abstract class FunctionalTestBase {
 
+    protected static final String BULK_SCAN_CONTAINER = "bulkscan";
+
     protected static TestConfiguration config = new TestConfiguration();
 
     private static final DateTimeFormatter FILE_NAME_DATE_TIME_FORMAT =
