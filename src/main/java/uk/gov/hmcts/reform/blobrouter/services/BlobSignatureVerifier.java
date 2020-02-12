@@ -29,7 +29,7 @@ public class BlobSignatureVerifier {
     ) {
         try {
             publicKeyBase64 = Base64.getEncoder().encodeToString(toByteArray(getResource(publicKeyDerFilename)));
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new InvalidConfigException("Error loading public key. File name: " + publicKeyDerFilename, e);
         }
     }
