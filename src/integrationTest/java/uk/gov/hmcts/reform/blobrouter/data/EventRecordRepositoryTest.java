@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Event.DISPATCHED;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.FILE_RECEIVED;
+import static uk.gov.hmcts.reform.blobrouter.data.model.Event.FILE_PROCESSING_STARTED;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Event.REJECTED;
 
 @ActiveProfiles({"integration-test", "db-test"})
@@ -76,7 +76,7 @@ public class EventRecordRepositoryTest {
             .hasSize(3)
             .extracting(record -> tuple(record.event, record.notes))
             .containsExactlyInAnyOrder(
-                tuple(FILE_RECEIVED, null),
+                tuple(FILE_PROCESSING_STARTED, null),
                 tuple(DISPATCHED, null),
                 tuple(REJECTED, "description")
             );
@@ -98,7 +98,7 @@ public class EventRecordRepositoryTest {
 
     private static Stream<Arguments> events() {
         return Stream.of(
-            Arguments.of(new NewEventRecord(CONTAINER, FILE_NAME, FILE_RECEIVED)),
+            Arguments.of(new NewEventRecord(CONTAINER, FILE_NAME, FILE_PROCESSING_STARTED)),
             Arguments.of(new NewEventRecord(CONTAINER, FILE_NAME, DISPATCHED)),
             Arguments.of(new NewEventRecord(CONTAINER, FILE_NAME, REJECTED, "description"))
         );
