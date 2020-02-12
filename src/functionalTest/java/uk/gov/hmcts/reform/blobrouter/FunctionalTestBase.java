@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import uk.gov.hmcts.reform.blobrouter.config.TestConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
@@ -46,16 +47,31 @@ public abstract class FunctionalTestBase {
     }
 
     protected void assertFileInfoIsStored(String fileName, String containerName, Status status, boolean isDeleted) {
-        RestAssured
+        callStatusEndpoint(fileName, containerName)
+            .then()
+            .statusCode(OK.value())
+            .body("status", equalTo(status.name()))
+            .body("is_deleted", equalTo(isDeleted));
+    }
+
+    protected void assertFileStatus(String fileName, String containerName, Status status) {
+        callStatusEndpoint(fileName, containerName)
+            .then()
+            .statusCode(OK.value())
+            .body("status", equalTo(status.name()));
+    }
+
+    protected boolean fileWasProcessed(String fileName, String containerName) {
+        return callStatusEndpoint(fileName, containerName).getStatusCode() == OK.value();
+    }
+
+    protected Response callStatusEndpoint(String fileName, String containerName) {
+        return RestAssured
             .given()
             .baseUri(config.blobRouterUrl)
             .relaxedHTTPSValidation()
             .queryParam("file_name", fileName)
             .queryParam("container", containerName)
-            .get("/envelopes")
-            .then()
-            .statusCode(OK.value())
-            .body("status", equalTo(status.name()))
-            .body("is_deleted", equalTo(isDeleted));
+            .get("/envelopes");
     }
 }

@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.blobrouter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.jayway.awaitility.Awaitility.await;
+import static com.jayway.awaitility.Duration.TWO_MINUTES;
 import static java.util.Arrays.asList;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArchive;
@@ -32,7 +34,11 @@ public class BlobRejectTest extends FunctionalTestBase {
         uploadFile(blobRouterStorageClient, config.crimeSourceContainer, fileName, wrappingZipContent);
 
         // then
-        assertFileInfoIsStored(fileName, config.crimeSourceContainer, REJECTED, true);
+        await("Wait for the file to be processed")
+            .atMost(TWO_MINUTES)
+            .until(() -> fileWasProcessed(fileName, config.crimeSourceContainer));
+
+        assertFileStatus(fileName, config.crimeSourceContainer, REJECTED);
     }
 
     @Test
@@ -43,9 +49,13 @@ public class BlobRejectTest extends FunctionalTestBase {
         byte[] wrappingZipContent = createZipArchive(asList("test-data/envelope/envelope.zip"));
 
         // when
-        uploadFile(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName, wrappingZipContent);
+        uploadFile(blobRouterStorageClient, , fileName, wrappingZipContent);
 
         // then
-        assertFileInfoIsStored(fileName, BULK_SCAN_CONTAINER, REJECTED, true);
+        await("Wait for the file to be processed")
+            .atMost(TWO_MINUTES)
+            .until(() -> fileWasProcessed(fileName, BULK_SCAN_CONTAINER));
+
+        assertFileStatus(fileName, BULK_SCAN_CONTAINER, REJECTED);
     }
 }
