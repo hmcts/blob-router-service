@@ -7,14 +7,10 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,12 +30,12 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static ZipInputStream verifyZip(ZipInputStream zipInputStream, String publicKeyBase64) {
+    public static ZipInputStream verifyZip(ZipInputStream zipInputStream, PublicKey publicKey) {
         Map<String, byte[]> zipEntries = extractZipEntries(zipInputStream);
 
         verifyFileNames(zipEntries.keySet());
         verifySignature(
-            publicKeyBase64,
+            publicKey,
             zipEntries.get(ENVELOPE),
             zipEntries.get(SIGNATURE)
         );
@@ -69,8 +65,7 @@ public class ZipVerifiers {
         }
     }
 
-    public static void verifySignature(String publicKeyBase64, byte[] data, byte[] signed) {
-        PublicKey publicKey = decodePublicKey(publicKeyBase64);
+    public static void verifySignature(PublicKey publicKey, byte[] data, byte[] signed) {
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initVerify(publicKey);
@@ -81,18 +76,6 @@ public class ZipVerifiers {
         } catch (SignatureException e) {
             throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE, e);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new SignatureValidationException(e);
-        }
-    }
-
-    private static PublicKey decodePublicKey(String publicKeyBase64) {
-        byte[] keyBytes;
-        try {
-            keyBytes = Base64.getDecoder().decode(publicKeyBase64);
-            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
-            return kf.generatePublic(spec);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new SignatureValidationException(e);
         }
     }
