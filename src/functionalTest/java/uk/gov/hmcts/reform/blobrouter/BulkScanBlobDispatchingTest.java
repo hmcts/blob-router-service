@@ -14,8 +14,6 @@ import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.uploadFile;
 
 public class BulkScanBlobDispatchingTest extends FunctionalTestBase {
 
-    private static final String CONTAINER = "bulkscan";
-
     @BeforeEach
     @Override
     protected void setUp() {
@@ -32,16 +30,16 @@ public class BulkScanBlobDispatchingTest extends FunctionalTestBase {
         );
 
         // when
-        uploadFile(blobRouterStorageClient, CONTAINER, fileName, wrappingZipContent);
+        uploadFile(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName, wrappingZipContent);
 
         // then
         await("Wait for the " + fileName + " to disappear from source container")
             .atMost(2, TimeUnit.MINUTES)
             .until(
-                () -> !blobExists(blobRouterStorageClient, CONTAINER, fileName)
+                () -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName)
             );
 
         // and
-        assertFileInfoIsStored(fileName, CONTAINER, DISPATCHED, true);
+        assertFileInfoIsStored(fileName, BULK_SCAN_CONTAINER, DISPATCHED, true);
     }
 }
