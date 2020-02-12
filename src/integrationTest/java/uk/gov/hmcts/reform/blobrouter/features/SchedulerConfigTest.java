@@ -1,20 +1,28 @@
 package uk.gov.hmcts.reform.blobrouter.features;
 
+import com.azure.core.http.rest.PagedFlux;
+import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobServiceClient;
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
 import net.javacrumbs.shedlock.core.LockConfiguration;
 import net.javacrumbs.shedlock.core.LockProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import reactor.core.publisher.Mono;
 import uk.gov.hmcts.reform.blobrouter.tasks.DeleteDispatchedFilesTask;
+import uk.gov.hmcts.reform.blobrouter.tasks.DeleteRejectedFilesTask;
 import uk.gov.hmcts.reform.blobrouter.tasks.HandleRejectedFilesTask;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
@@ -40,11 +48,22 @@ import static org.mockito.Mockito.verify;
 @ActiveProfiles("integration-test")
 public class SchedulerConfigTest {
 
+    @Autowired
+    private BlobServiceClient storageClient;
+
     @SpyBean
     private LockProvider lockProvider;
 
     @SpyBean
     private TelemetryClient telemetryClient;
+
+    @BeforeEach
+    void stubStorageClientCalls() {
+        // used in DeleteRejectedFiles task
+        // other tasks firstly checks DB before calling storage
+        given(storageClient.listBlobContainers())
+            .willReturn(new PagedIterable<>(new PagedFlux<>(Mono::empty)));
+    }
 
     @Test
     public void should_integrate_with_shedlock() throws Exception {
@@ -74,6 +93,7 @@ public class SchedulerConfigTest {
             .extracting(telemetry -> tuple(telemetry.getName(), telemetry.isSuccess()))
             .contains(
                 tuple("Schedule /" + DeleteDispatchedFilesTask.class.getSimpleName(), true),
+                tuple("Schedule /" + DeleteRejectedFilesTask.class.getSimpleName(), true),
                 tuple("Schedule /" + HandleRejectedFilesTask.class.getSimpleName(), true)
             );
     }
