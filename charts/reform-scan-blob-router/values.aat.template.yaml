@@ -3,6 +3,7 @@ java:
     CRIME_ENABLED: "true"
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
     DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
+    HANDLE_REJECTED_FILES_CRON: "0/10 * * * * *"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
