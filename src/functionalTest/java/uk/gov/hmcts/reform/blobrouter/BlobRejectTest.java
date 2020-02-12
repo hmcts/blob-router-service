@@ -49,7 +49,7 @@ public class BlobRejectTest extends FunctionalTestBase {
         byte[] wrappingZipContent = createZipArchive(asList("test-data/envelope/envelope.zip"));
 
         // when
-        uploadFile(blobRouterStorageClient, , fileName, wrappingZipContent);
+        uploadFile(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName, wrappingZipContent);
 
         // then
         await("Wait for the file to be processed")
