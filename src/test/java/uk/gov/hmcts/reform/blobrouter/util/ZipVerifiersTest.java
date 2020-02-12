@@ -122,7 +122,7 @@ class ZipVerifiersTest {
     @Test
     void should_verify_valid_zip_successfully() throws Exception {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
-        ZipInputStream zis = ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64);
+        var zis = ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64);
         assertThat(zis).isNotNull();
     }
 
