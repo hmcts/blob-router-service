@@ -9,6 +9,10 @@ import java.util.Base64;
 
 public final class PublicKeyDecoder {
 
+    private PublicKeyDecoder() {
+        // util class
+    }
+
     public static PublicKey decode(String publicKeyBase64) throws NoSuchAlgorithmException, InvalidKeySpecException {
         return KeyFactory
             .getInstance("RSA")
