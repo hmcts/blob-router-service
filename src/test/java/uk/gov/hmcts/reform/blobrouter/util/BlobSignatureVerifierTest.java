@@ -4,9 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidConfigException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSignDir;
 import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipDir;
 
@@ -57,4 +59,11 @@ class BlobSignatureVerifierTest {
         assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isFalse();
     }
 
+    @Test
+    void should_throw_exception_if_invalid_file_name_is_provided() {
+        assertThatThrownBy(() -> new BlobSignatureVerifier("signature/i_dont_exist.der"))
+            .isInstanceOf(InvalidConfigException.class)
+            .hasMessageContaining("Error loading public key")
+            .hasCauseInstanceOf(IllegalArgumentException.class);
+    }
 }

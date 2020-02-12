@@ -122,24 +122,16 @@ class ZipVerifiersTest {
     @Test
     void should_verify_valid_zip_successfully() throws Exception {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
-
-        var zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
-            new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64
-        );
-        ZipInputStream zis = ZipVerifiers.verifyZip(zipStreamWithSig);
+        var zis = ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64);
         assertThat(zis).isNotNull();
     }
 
     @Test
     void should_not_verify_invalid_zip_successfully() throws Exception {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
-
-        var zipStreamWithSig = new ZipVerifiers.ZipStreamWithSignature(
-            new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64
-        );
         assertThrows(
             DocSignatureFailureException.class,
-            () -> ZipVerifiers.verifyZip(zipStreamWithSig)
+            () -> ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64)
         );
     }
 
@@ -229,48 +221,5 @@ class ZipVerifiersTest {
             .isInstanceOf(DocSignatureFailureException.class)
             .hasMessage(INVALID_SIGNATURE_MESSAGE)
             .hasCauseInstanceOf(SignatureException.class);
-    }
-
-    @Test
-    void should_return_cached_public_key_file_for_same_public_key_file_name() throws Exception {
-        byte[] zipFile1 = zipDir("signature/sample_valid_content");
-        byte[] zipFile2 = zipDir("signature/valid_content");
-
-        var zipStreamWithSignature1 = ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
-            new ZipInputStream(new ByteArrayInputStream(zipFile1)), "signature/test_public_key.der"
-        ); // cached public key
-
-        var zipStreamWithSignature2 = ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
-            new ZipInputStream(new ByteArrayInputStream(zipFile2)), "signature/test_public_key.der"
-        ); // same public key file
-
-        assertThat(zipStreamWithSignature1.publicKeyBase64).isEqualTo(zipStreamWithSignature2.publicKeyBase64);
-    }
-
-    @Test
-    void should_not_return_cached_signature_for_difference_public_key_file_name() throws Exception {
-        byte[] zipFile1 = zipDir("signature/sample_valid_content");
-        byte[] zipFile2 = zipDir("signature/valid_content");
-
-        var zipStreamWithSignature1 = ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
-            new ZipInputStream(new ByteArrayInputStream(zipFile1)), "signature/test_public_key.der"
-        );
-
-        var zipStreamWithSignature2 = ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
-            new ZipInputStream(new ByteArrayInputStream(zipFile2)), "signature/some_other_public_key.der"
-        ); // different public key file
-
-        assertThat(zipStreamWithSignature1.publicKeyBase64).isNotEqualTo(zipStreamWithSignature2.publicKeyBase64);
-    }
-
-    @Test
-    void should_not_return_public_key_when_no_public_key_file_name_is_provided() throws Exception {
-        byte[] zipFile = zipDir("signature/sample_valid_content");
-
-        var zipStreamWithSignature = ZipVerifiers.ZipStreamWithSignature.fromKeyfile(
-            new ZipInputStream(new ByteArrayInputStream(zipFile)), ""
-        );
-
-        assertThat(zipStreamWithSignature.publicKeyBase64).isNull();
     }
 }
