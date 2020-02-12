@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 
@@ -37,17 +36,12 @@ public class EventRecordRepositoryTest {
     }
 
     @ParameterizedTest
-    @MethodSource("eventWithNotes")
-    void should_save_events_separately(Event event, String notes) {
+    @MethodSource("events")
+    void should_save_events_separately(NewEventRecord eventRecord) {
         // given
-        var newEnvelope = notes == null
-            ? new NewEventRecord(CONTAINER, FILE_NAME, event)
-            : new NewEventRecord(CONTAINER, FILE_NAME, event, notes);
+        long id = repo.insert(eventRecord);
 
         // when
-        long id = repo.insert(newEnvelope);
-
-        // and
         List<EventRecord> eventsInDb = repo.find(CONTAINER, FILE_NAME);
 
         // then
@@ -56,21 +50,15 @@ public class EventRecordRepositoryTest {
             .first()
             .satisfies(record -> {
                 assertThat(record.id).isEqualTo(id);
-                assertThat(record.event).isEqualTo(event);
-                assertThat(record.notes).isEqualTo(notes);
+                assertThat(record.event).isEqualTo(eventRecord.event);
+                assertThat(record.notes).isEqualTo(eventRecord.notes);
             });
     }
 
     @Test
     void should_save_all_events_at_once() {
         // given
-        eventWithNotes()
-            .map(argument -> {
-                Event event = (Event) argument.get()[0];
-                String notes = (String) argument.get()[1];
-                return new NewEventRecord(CONTAINER, FILE_NAME, event, notes);
-            })
-            .forEach(repo::insert);
+        insertEvents();
 
         // when
         List<EventRecord> eventsInDb = repo.find(CONTAINER, FILE_NAME);
@@ -86,11 +74,31 @@ public class EventRecordRepositoryTest {
             );
     }
 
-    private static Stream<Arguments> eventWithNotes() {
+    @Test
+    void should_not_find_events_when_one_of_search_params_mismatch() {
+        // given
+        insertEvents();
+
+        // when
+        List<EventRecord> eventsInDb1 = repo.find("NOPE" + CONTAINER, FILE_NAME);
+        List<EventRecord> eventsInDb2 = repo.find(CONTAINER, "NOPE" + FILE_NAME);
+
+        // then
+        assertThat(eventsInDb1).isEmpty();
+        assertThat(eventsInDb2).isEmpty();
+    }
+
+    private static Stream<Arguments> events() {
         return Stream.of(
-            Arguments.of(FILE_RECEIVED, null),
-            Arguments.of(DISPATCHED, null),
-            Arguments.of(REJECTED, "description")
+            Arguments.of(new NewEventRecord(CONTAINER, FILE_NAME, FILE_RECEIVED)),
+            Arguments.of(new NewEventRecord(CONTAINER, FILE_NAME, DISPATCHED)),
+            Arguments.of(new NewEventRecord(CONTAINER, FILE_NAME, REJECTED, "description"))
         );
+    }
+
+    private void insertEvents() {
+        events()
+            .map(argument -> (NewEventRecord) argument.get()[0])
+            .forEach(repo::insert);
     }
 }
