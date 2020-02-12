@@ -32,11 +32,10 @@ public class StorageConfiguration {
     @Bean
     public BlobServiceClient getStorageClient(
         StorageSharedKeyCredential credentials,
-        @Value("${storage.url}") String storageUrl
+        @Value("${storage.reform.connection-string}") String connectionString
     ) {
         return new BlobServiceClientBuilder()
-            .credential(credentials)
-            .endpoint(storageUrl)
+            .connectionString(connectionString)
             .buildClient();
     }
 
