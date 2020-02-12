@@ -3,13 +3,9 @@ package uk.gov.hmcts.reform.blobrouter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.TimeUnit;
-
-import static com.jayway.awaitility.Awaitility.await;
 import static java.util.Arrays.asList;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArchive;
-import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.uploadFile;
 
 public class BlobRejectTest extends FunctionalTestBase {
@@ -36,11 +32,6 @@ public class BlobRejectTest extends FunctionalTestBase {
         uploadFile(blobRouterStorageClient, config.crimeSourceContainer, fileName, wrappingZipContent);
 
         // then
-        await("Wait for the blob to disappear from source container")
-            .atMost(2, TimeUnit.MINUTES)
-            .until(() -> !blobExists(blobRouterStorageClient, config.crimeSourceContainer, fileName));
-
-        // and
         assertFileInfoIsStored(fileName, config.crimeSourceContainer, REJECTED, true);
     }
 
@@ -55,11 +46,6 @@ public class BlobRejectTest extends FunctionalTestBase {
         uploadFile(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName, wrappingZipContent);
 
         // then
-        await("Wait for the blob to disappear from source container")
-            .atMost(2, TimeUnit.MINUTES)
-            .until(() -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName));
-
-        // and
         assertFileInfoIsStored(fileName, BULK_SCAN_CONTAINER, REJECTED, true);
     }
 }
