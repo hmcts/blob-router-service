@@ -9,9 +9,6 @@ import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -82,8 +79,7 @@ public class RejectedFilesHandler {
                 logger.error("File already deleted. " + loggingContext);
                 envelopeRepository.markAsDeleted(envelope.id);
             } else {
-                byte[] blobContent = download(sourceBlob);
-                upload(targetBlob, blobContent, loggingContext);
+                upload(targetBlob, sourceBlob, loggingContext);
                 sourceBlob.delete();
                 envelopeRepository.markAsDeleted(envelope.id);
                 logger.info("Rejected file successfully handled. " + loggingContext);
@@ -93,27 +89,16 @@ public class RejectedFilesHandler {
         }
     }
 
-    private byte[] download(BlobClient blobClient) throws IOException {
-        try (var outputStream = new ByteArrayOutputStream()) {
-            blobClient.getBlockBlobClient().download(outputStream);
-            return outputStream.toByteArray();
-        }
-    }
-
-    private void upload(BlobClient blobClient, byte[] blobContent, String loggingContext) {
+    private void upload(BlobClient targetBlob, BlobClient sourceBlob, String loggingContext) {
         logger.info(
-            "File uploading to url: {}, isSnapshot: {}",
-            blobClient.getBlockBlobClient().getBlobUrl(),
-            blobClient.getBlockBlobClient().isSnapshot()
+            "File uploading from url: {}, to url {} ",
+            sourceBlob.getBlockBlobClient().getBlobUrl(),
+            targetBlob.getBlockBlobClient().getBlobUrl()
         );
 
-        blobClient
-            .getBlockBlobClient()
-            .upload(
-                new ByteArrayInputStream(blobContent),
-                blobContent.length,
-                true
-            );
+        targetBlob
+            .getBlockBlobClient().copyFromUrl(sourceBlob.getBlobUrl());
+
         logger.info("File successfully uploaded to rejected container. " + loggingContext);
     }
 }
