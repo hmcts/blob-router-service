@@ -108,7 +108,7 @@ public class RejectedFilesHandler {
         BlobServiceSasSignatureValues blobServiceSasSignatureValues =
             new BlobServiceSasSignatureValues(
                 expiryTime,
-                new BlobContainerSasPermission().setAddPermission(true)
+                new BlobContainerSasPermission().setReadPermission(true)
             );
 
         String sasToken = sourceBlob.generateSas(blobServiceSasSignatureValues);
