@@ -101,6 +101,12 @@ public class RejectedFilesHandler {
     }
 
     private void upload(BlobClient blobClient, byte[] blobContent, String loggingContext) {
+        logger.info(
+            "File uploading to url: {}, isSnapshot: {}",
+            blobClient.getBlockBlobClient().getBlobUrl(),
+            blobClient.getBlockBlobClient().isSnapshot()
+        );
+
         blobClient
             .getBlockBlobClient()
             .upload(
