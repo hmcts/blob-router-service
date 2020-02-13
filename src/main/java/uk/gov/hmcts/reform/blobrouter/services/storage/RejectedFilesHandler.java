@@ -3,12 +3,18 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -96,8 +102,19 @@ public class RejectedFilesHandler {
             targetBlob.getBlockBlobClient().getBlobUrl()
         );
 
+        OffsetDateTime expiryTime =
+            OffsetDateTime.of(LocalDateTime.now().plus(1, ChronoUnit.HOURS), ZoneOffset.UTC);
+
+        BlobServiceSasSignatureValues blobServiceSasSignatureValues =
+            new BlobServiceSasSignatureValues(
+                expiryTime,
+                new BlobContainerSasPermission().setAddPermission(true)
+            );
+
+        String sasToken = sourceBlob.generateSas(blobServiceSasSignatureValues);
+
         targetBlob
-            .getBlockBlobClient().copyFromUrl(sourceBlob.getBlobUrl());
+            .getBlockBlobClient().copyFromUrl(sourceBlob.getBlobUrl() + "?" + sasToken);
 
         logger.info("File successfully uploaded to rejected container. " + loggingContext);
     }
