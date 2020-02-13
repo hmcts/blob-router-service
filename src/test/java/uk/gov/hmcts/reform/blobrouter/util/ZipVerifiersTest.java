@@ -7,11 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
-import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
 import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.security.PublicKey;
 import java.security.SignatureException;
 import java.util.Base64;
 import java.util.Set;
@@ -33,20 +32,13 @@ class ZipVerifiersTest {
     private static final String INVALID_SIGNATURE_MESSAGE = "Zip signature failed verification";
     private static final String INVALID_ZIP_ENTRIES_MESSAGE = "Zip entries do not match expected file names";
 
-    private static String publicKeyBase64;
-    private static String invalidPublicKeyBase64;
+    private static PublicKey publicKey;
+    private static PublicKey invalidPublicKey;
 
     @BeforeAll
-    static void setUp() throws IOException {
-        publicKeyBase64 =
-            Base64.getEncoder().encodeToString(
-                toByteArray(getResource("signature/test_public_key.der"))
-            );
-
-        invalidPublicKeyBase64 =
-            Base64.getEncoder().encodeToString(
-                toByteArray(getResource("signature/invalid_test_public_key.der"))
-            );
+    static void setUp() throws Exception {
+        publicKey = loadPublicKey("signature/test_public_key.der");
+        invalidPublicKey = loadPublicKey("signature/invalid_test_public_key.der");
     }
 
     @Test
@@ -55,22 +47,8 @@ class ZipVerifiersTest {
         byte[] test1SigPdfBytes = toByteArray(getResource("signature/test.pdf.sig"));
 
         assertThatCode(() ->
-            ZipVerifiers.verifySignature(publicKeyBase64, test1PdfBytes, test1SigPdfBytes)
+            ZipVerifiers.verifySignature(publicKey, test1PdfBytes, test1SigPdfBytes)
         ).doesNotThrowAnyException();
-    }
-
-    @Test
-    void should_throw_exception_for_invalid_public_key() throws Exception {
-        byte[] test1PdfBytes = toByteArray(getResource("test.pdf"));
-        byte[] test1SigPdfBytes = toByteArray(getResource("signature/test.pdf.sig"));
-
-        String invalidPublicKey = Base64.getEncoder().encodeToString(
-            toByteArray(getResource("signature/invalid_public_key_format.der"))
-        );
-
-        assertThatThrownBy(() ->
-            ZipVerifiers.verifySignature(invalidPublicKey, test1PdfBytes, test1SigPdfBytes)
-        ).isInstanceOf(SignatureValidationException.class);
     }
 
     @Test
@@ -78,7 +56,7 @@ class ZipVerifiersTest {
         byte[] test2PdfBytes = toByteArray(getResource("test1.pdf"));
         byte[] test1SigPdfBytes = toByteArray(getResource("signature/test.pdf.sig"));
         assertThatThrownBy(() ->
-            ZipVerifiers.verifySignature(publicKeyBase64, test2PdfBytes, test1SigPdfBytes)
+            ZipVerifiers.verifySignature(publicKey, test2PdfBytes, test1SigPdfBytes)
         )
             .isInstanceOf(DocSignatureFailureException.class)
             .hasMessage("Zip signature failed verification");
@@ -122,7 +100,7 @@ class ZipVerifiersTest {
     @Test
     void should_verify_valid_zip_successfully() throws Exception {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
-        var zis = ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64);
+        var zis = ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey);
         assertThat(zis).isNotNull();
     }
 
@@ -131,7 +109,7 @@ class ZipVerifiersTest {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
         assertThrows(
             DocSignatureFailureException.class,
-            () -> ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKeyBase64)
+            () -> ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
         );
     }
 
@@ -144,7 +122,7 @@ class ZipVerifiersTest {
         );
 
         assertThatCode(() ->
-            ZipVerifiers.verifySignature(publicKeyBase64, zipBytes, signature)
+            ZipVerifiers.verifySignature(publicKey, zipBytes, signature)
         ).doesNotThrowAnyException();
     }
 
@@ -154,7 +132,7 @@ class ZipVerifiersTest {
         byte[] otherSignature = toByteArray(getResource("signature/signature"));
 
         assertThatThrownBy(() ->
-            ZipVerifiers.verifySignature(invalidPublicKeyBase64, zipBytes, otherSignature)
+            ZipVerifiers.verifySignature(invalidPublicKey, zipBytes, otherSignature)
         )
             .isInstanceOf(DocSignatureFailureException.class)
             .hasMessage(INVALID_SIGNATURE_MESSAGE);
@@ -166,7 +144,7 @@ class ZipVerifiersTest {
         byte[] signature = signWithSha256Rsa(zipBytes, toByteArray(getResource("signature/test_private_key.der")));
 
         assertThatThrownBy(() ->
-            ZipVerifiers.verifySignature(invalidPublicKeyBase64, zipBytes, signature)
+            ZipVerifiers.verifySignature(invalidPublicKey, zipBytes, signature)
         )
             .isInstanceOf(DocSignatureFailureException.class)
             .hasMessage(INVALID_SIGNATURE_MESSAGE);
@@ -176,8 +154,7 @@ class ZipVerifiersTest {
     void should_handle_sample_prod_signature() throws Exception {
         byte[] prodZip = toByteArray(getResource("signature/prod_test_envelope.zip")); // inner zip
         byte[] prodSignature = toByteArray(getResource("signature/prod_test_signature"));
-        String prodPublicKey =
-            Base64.getEncoder().encodeToString(toByteArray(getResource("signature/prod_public_key.der")));
+        PublicKey prodPublicKey = loadPublicKey("signature/prod_public_key.der");
 
         assertThatCode(() ->
             ZipVerifiers.verifySignature(prodPublicKey, prodZip, prodSignature)
@@ -189,8 +166,7 @@ class ZipVerifiersTest {
         throws Exception {
         byte[] nonprodZip = toByteArray(getResource("signature/nonprod_envelope.zip")); // inner zip
         byte[] nonprodSignature = toByteArray(getResource("signature/nonprod_envelope_signature"));
-        String nonprodPublicKey =
-            Base64.getEncoder().encodeToString(toByteArray(getResource("nonprod_public_key.der")));
+        PublicKey nonprodPublicKey = loadPublicKey("nonprod_public_key.der");
 
         assertThatCode(() ->
             ZipVerifiers.verifySignature(nonprodPublicKey, nonprodZip, nonprodSignature)
@@ -204,7 +180,7 @@ class ZipVerifiersTest {
         byte[] nonprodSignature = toByteArray(getResource("signature/nonprod_envelope_signature"));
 
         assertThatThrownBy(() ->
-            ZipVerifiers.verifySignature(publicKeyBase64, nonprodZip, nonprodSignature)
+            ZipVerifiers.verifySignature(publicKey, nonprodZip, nonprodSignature)
         )
             .isInstanceOf(DocSignatureFailureException.class)
             .hasMessage(INVALID_SIGNATURE_MESSAGE);
@@ -216,10 +192,18 @@ class ZipVerifiersTest {
         byte[] tooLongSignature = RandomUtils.nextBytes(256);
 
         assertThatThrownBy(() ->
-            ZipVerifiers.verifySignature(publicKeyBase64, zipBytes, tooLongSignature)
+            ZipVerifiers.verifySignature(publicKey, zipBytes, tooLongSignature)
         )
             .isInstanceOf(DocSignatureFailureException.class)
             .hasMessage(INVALID_SIGNATURE_MESSAGE)
             .hasCauseInstanceOf(SignatureException.class);
+    }
+
+    private static PublicKey loadPublicKey(String fileName) throws Exception {
+        return PublicKeyDecoder.decode(
+            Base64.getEncoder().encodeToString(
+                toByteArray(getResource(fileName))
+            )
+        );
     }
 }
