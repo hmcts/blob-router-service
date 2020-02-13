@@ -89,8 +89,8 @@ class RejectedFilesHandlerTest {
         mover.handle();
 
         // then
-        verify(rejectedBlockBlob1).upload(any(), anyLong(), eq(true));
-        verify(rejectedBlockBlob2).upload(any(), anyLong(), eq(true));
+        verify(rejectedBlockBlob1).copyFromUrl(any());
+        verify(rejectedBlockBlob2).copyFromUrl(any());
 
         verify(normalBlob1).delete();
         verify(normalBlob2).delete();
@@ -114,7 +114,7 @@ class RejectedFilesHandlerTest {
         mover.handle();
 
         // then second files should get processed anyway...
-        verify(rejectedBlockBlob2).upload(any(), anyLong(), eq(true));
+        verify(rejectedBlockBlob2).copyFromUrl(any());
         verify(normalBlob2).delete();
         verify(repo).markAsDeleted(envelope2.id);
 
