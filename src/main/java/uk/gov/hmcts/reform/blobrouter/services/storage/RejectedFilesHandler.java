@@ -102,8 +102,15 @@ public class RejectedFilesHandler {
             targetBlob.getBlockBlobClient().getBlobUrl()
         );
 
+        targetBlob
+            .getBlockBlobClient().copyFromUrl(sourceBlob.getBlobUrl() + "?" + createSas(sourceBlob,5));
+
+        logger.info("File successfully uploaded to rejected container. " + loggingContext);
+    }
+
+    private String createSas(BlobClient sourceBlob, int expiryInMinutes) {
         OffsetDateTime expiryTime =
-            OffsetDateTime.of(LocalDateTime.now().plus(1, ChronoUnit.HOURS), ZoneOffset.UTC);
+            OffsetDateTime.of(LocalDateTime.now().plus(expiryInMinutes, ChronoUnit.MINUTES), ZoneOffset.UTC);
 
         BlobServiceSasSignatureValues blobServiceSasSignatureValues =
             new BlobServiceSasSignatureValues(
@@ -111,11 +118,6 @@ public class RejectedFilesHandler {
                 new BlobContainerSasPermission().setReadPermission(true)
             );
 
-        String sasToken = sourceBlob.generateSas(blobServiceSasSignatureValues);
-
-        targetBlob
-            .getBlockBlobClient().copyFromUrl(sourceBlob.getBlobUrl() + "?" + sasToken);
-
-        logger.info("File successfully uploaded to rejected container. " + loggingContext);
+        return sourceBlob.generateSas(blobServiceSasSignatureValues);
     }
 }
