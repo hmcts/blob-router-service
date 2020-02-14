@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.data;
+package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;

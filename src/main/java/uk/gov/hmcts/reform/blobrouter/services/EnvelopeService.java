@@ -1,6 +1,8 @@
-package uk.gov.hmcts.reform.blobrouter.data;
+package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
