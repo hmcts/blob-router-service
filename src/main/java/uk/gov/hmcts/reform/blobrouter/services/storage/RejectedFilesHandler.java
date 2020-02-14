@@ -3,15 +3,18 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static java.util.stream.Collectors.groupingBy;
@@ -82,8 +85,7 @@ public class RejectedFilesHandler {
                 logger.error("File already deleted. " + loggingContext);
                 envelopeRepository.markAsDeleted(envelope.id);
             } else {
-                byte[] blobContent = download(sourceBlob);
-                upload(targetBlob, blobContent, loggingContext);
+                copy(targetBlob, sourceBlob, loggingContext);
                 sourceBlob.delete();
                 envelopeRepository.markAsDeleted(envelope.id);
                 logger.info("Rejected file successfully handled. " + loggingContext);
@@ -93,27 +95,30 @@ public class RejectedFilesHandler {
         }
     }
 
-    private byte[] download(BlobClient blobClient) throws IOException {
-        try (var outputStream = new ByteArrayOutputStream()) {
-            blobClient.getBlockBlobClient().download(outputStream);
-            return outputStream.toByteArray();
-        }
-    }
-
-    private void upload(BlobClient blobClient, byte[] blobContent, String loggingContext) {
+    private void copy(BlobClient targetBlob, BlobClient sourceBlob, String loggingContext) {
         logger.info(
-            "File uploading to url: {}, isSnapshot: {}",
-            blobClient.getBlockBlobClient().getBlobUrl(),
-            blobClient.getBlockBlobClient().isSnapshot()
+            "File copying from url: {}, to url {} ",
+            sourceBlob.getBlockBlobClient().getBlobUrl(),
+            targetBlob.getBlockBlobClient().getBlobUrl()
         );
 
-        blobClient
+        targetBlob
             .getBlockBlobClient()
-            .upload(
-                new ByteArrayInputStream(blobContent),
-                blobContent.length,
-                true
-            );
+            .copyFromUrl(sourceBlob.getBlockBlobClient().getBlobUrl() + "?" + createSas(sourceBlob));
+
         logger.info("File successfully uploaded to rejected container. " + loggingContext);
+    }
+
+    private String createSas(BlobClient sourceBlob) {
+        var expiryTime =
+            OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC);
+
+        var blobServiceSasSignatureValues =
+            new BlobServiceSasSignatureValues(
+                expiryTime,
+                new BlobContainerSasPermission().setReadPermission(true)
+            );
+
+        return sourceBlob.generateSas(blobServiceSasSignatureValues);
     }
 }
