@@ -46,7 +46,7 @@ class DataPersisterTest {
     @Test
     void should_only_call_envelope_repository_to_get_envelope() {
         // when
-        dataPersister.findBlob(BLOB_NAME, CONTAINER_NAME);
+        dataPersister.findEnvelopes(BLOB_NAME, CONTAINER_NAME);
 
         // then
         verify(envelopeRepository).find(BLOB_NAME, CONTAINER_NAME);

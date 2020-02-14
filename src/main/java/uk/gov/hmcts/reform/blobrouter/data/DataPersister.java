@@ -28,7 +28,7 @@ public class DataPersister {
     // region BlobProcessor actions
 
     @Transactional(readOnly = true)
-    public Optional<Envelope> findBlob(String blobName, String containerName) {
+    public Optional<Envelope> findEnvelopes(String blobName, String containerName) {
         return envelopeRepository.find(blobName, containerName);
     }
 
