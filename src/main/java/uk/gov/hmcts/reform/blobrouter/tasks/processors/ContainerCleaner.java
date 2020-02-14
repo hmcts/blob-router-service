@@ -7,11 +7,10 @@ import com.azure.storage.blob.models.BlobStorageException;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 
 @Component
 public class ContainerCleaner {
@@ -19,14 +18,14 @@ public class ContainerCleaner {
     private static final Logger logger = getLogger(ContainerCleaner.class);
 
     private final BlobServiceClient storageClient;
-    private final EnvelopeRepository envelopeRepository;
+    private final EnvelopeService envelopeService;
 
     public ContainerCleaner(
         BlobServiceClient storageClient,
-        EnvelopeRepository envelopeRepository
+        EnvelopeService envelopeService
     ) {
         this.storageClient = storageClient;
-        this.envelopeRepository = envelopeRepository;
+        this.envelopeService = envelopeService;
     }
 
     public void process(String containerName) {
@@ -36,8 +35,8 @@ public class ContainerCleaner {
         try {
             final BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
 
-            envelopeRepository
-                .find(DISPATCHED, containerName, false)
+            envelopeService
+                .getReadyToDeleteDispatches(containerName)
                 .forEach(envelope -> {
                     tryToDeleteBlob(envelope, containerClient);
                 });
@@ -56,7 +55,7 @@ public class ContainerCleaner {
 
         try {
             blob.delete();
-            envelopeRepository.markAsDeleted(envelope.id);
+            envelopeService.markEnvelopeAsDeleted(envelope.id);
             logger.info(
                 "Deleted dispatched blob {} from container {}",
                 envelope.fileName,
@@ -72,7 +71,7 @@ public class ContainerCleaner {
                     ),
                     ex
                 );
-                envelopeRepository.markAsDeleted(envelope.id);
+                envelopeService.markEnvelopeAsDeleted(envelope.id);
             } else {
                 logException(envelope, containerClient, ex);
             }

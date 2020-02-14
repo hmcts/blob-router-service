@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
@@ -32,6 +33,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
 
     @Mock BlobContainerClientProvider containerClientProvider;
 
+    @Autowired EnvelopeService envelopeService;
     @Autowired EnvelopeRepository envelopeRepo;
     @Autowired ServiceConfiguration serviceConfiguration;
 
@@ -52,7 +54,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
             new BlobProcessor(
                 storageClient,
                 dispatcher,
-                envelopeRepo,
+                envelopeService,
                 blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient(),
                 new BlobSignatureVerifier("signing/test_public_key.der"),
                 serviceConfiguration

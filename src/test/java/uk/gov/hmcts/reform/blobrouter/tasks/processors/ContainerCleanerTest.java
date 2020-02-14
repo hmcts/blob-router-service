@@ -11,8 +11,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -40,6 +42,9 @@ class ContainerCleanerTest {
     private EnvelopeRepository envelopeRepository;
 
     @Mock
+    private EventRecordRepository eventRecordRepository;
+
+    @Mock
     private BlobServiceClient storageClient;
 
     @Mock
@@ -56,7 +61,8 @@ class ContainerCleanerTest {
 
     @BeforeEach
     void setUp() {
-        containerCleaner = new ContainerCleaner(storageClient, envelopeRepository);
+        var envelopeService = new EnvelopeService(envelopeRepository, eventRecordRepository);
+        containerCleaner = new ContainerCleaner(storageClient, envelopeService);
 
         given(storageClient.getBlobContainerClient(CONTAINER_NAME)).willReturn(containerClient);
     }

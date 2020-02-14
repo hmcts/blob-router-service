@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 @ActiveProfiles("db-test")
 class RejectedFilesHandlerTest extends BlobStorageBaseTest {
 
+    @Autowired EnvelopeService envelopeService;
     @Autowired EnvelopeRepository envelopeRepo;
     @Autowired DbHelper dbHelper;
 
@@ -35,7 +37,7 @@ class RejectedFilesHandlerTest extends BlobStorageBaseTest {
     @BeforeEach
     void setUp() {
         dbHelper.deleteAll();
-        mover = new RejectedFilesHandler(storageClient, envelopeRepo);
+        mover = new RejectedFilesHandler(storageClient, envelopeService);
     }
 
     @AfterEach
