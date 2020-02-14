@@ -85,7 +85,7 @@ public class RejectedFilesHandler {
                 logger.error("File already deleted. " + loggingContext);
                 envelopeRepository.markAsDeleted(envelope.id);
             } else {
-                upload(targetBlob, sourceBlob, loggingContext);
+                copy(targetBlob, sourceBlob, loggingContext);
                 sourceBlob.delete();
                 envelopeRepository.markAsDeleted(envelope.id);
                 logger.info("Rejected file successfully handled. " + loggingContext);
@@ -95,9 +95,9 @@ public class RejectedFilesHandler {
         }
     }
 
-    private void upload(BlobClient targetBlob, BlobClient sourceBlob, String loggingContext) {
+    private void copy(BlobClient targetBlob, BlobClient sourceBlob, String loggingContext) {
         logger.info(
-            "File uploading from url: {}, to url {} ",
+            "File copying from url: {}, to url {} ",
             sourceBlob.getBlockBlobClient().getBlobUrl(),
             targetBlob.getBlockBlobClient().getBlobUrl()
         );
@@ -109,10 +109,10 @@ public class RejectedFilesHandler {
     }
 
     private String createSas(BlobClient sourceBlob) {
-        OffsetDateTime expiryTime =
+        var expiryTime =
             OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC);
 
-        BlobServiceSasSignatureValues blobServiceSasSignatureValues =
+        var blobServiceSasSignatureValues =
             new BlobServiceSasSignatureValues(
                 expiryTime,
                 new BlobContainerSasPermission().setReadPermission(true)
