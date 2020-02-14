@@ -10,7 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.util.UUID;
 
@@ -30,7 +32,8 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 class RejectedFilesHandlerTest {
 
     @Mock BlobServiceClient blobServiceClient;
-    @Mock EnvelopeRepository repo;
+    @Mock EnvelopeRepository envelopeRepository;
+    @Mock EventRecordRepository eventRecordRepository;
 
     @Mock BlobContainerClient normalContainer1;
     @Mock BlobContainerClient normalContainer2;
@@ -57,9 +60,10 @@ class RejectedFilesHandlerTest {
 
     @BeforeEach
     void setUp() {
-        mover = new RejectedFilesHandler(blobServiceClient, repo);
+        var envelopeService = new EnvelopeService(envelopeRepository, eventRecordRepository);
+        mover = new RejectedFilesHandler(blobServiceClient, envelopeService);
 
-        given(repo.find(REJECTED, false)).willReturn(asList(envelope1, envelope2));
+        given(envelopeRepository.find(REJECTED, false)).willReturn(asList(envelope1, envelope2));
 
         given(blobServiceClient.getBlobContainerClient("c1")).willReturn(normalContainer1);
         given(normalContainer1.getBlobClient("f1")).willReturn(normalBlob1);
@@ -95,8 +99,8 @@ class RejectedFilesHandlerTest {
         verify(normalBlob1).delete();
         verify(normalBlob2).delete();
 
-        verify(repo).markAsDeleted(envelope1.id);
-        verify(repo).markAsDeleted(envelope2.id);
+        verify(envelopeRepository).markAsDeleted(envelope1.id);
+        verify(envelopeRepository).markAsDeleted(envelope2.id);
     }
 
     @Test
@@ -116,9 +120,9 @@ class RejectedFilesHandlerTest {
         // then second files should get processed anyway...
         verify(rejectedBlockBlob2).copyFromUrl(any());
         verify(normalBlob2).delete();
-        verify(repo).markAsDeleted(envelope2.id);
+        verify(envelopeRepository).markAsDeleted(envelope2.id);
 
-        verify(repo, never()).markAsDeleted(envelope1.id);
+        verify(envelopeRepository, never()).markAsDeleted(envelope1.id);
     }
 
     @Test
@@ -133,6 +137,6 @@ class RejectedFilesHandlerTest {
         // then
         verify(rejectedBlockBlob1, never()).upload(any(), anyLong(), eq(true));
         verify(normalBlob1, never()).delete();
-        verify(repo).markAsDeleted(envelope1.id);
+        verify(envelopeRepository).markAsDeleted(envelope1.id);
     }
 }

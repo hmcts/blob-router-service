@@ -7,9 +7,8 @@ import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -28,11 +27,11 @@ public class RejectedFilesHandler {
     public static final String REJECTED_CONTAINER_SUFFIX = "-rejected";
 
     private final BlobServiceClient storageClient;
-    private final EnvelopeRepository envelopeRepository;
+    private final EnvelopeService envelopeService;
 
-    public RejectedFilesHandler(BlobServiceClient storageClient, EnvelopeRepository envelopeRepository) {
+    public RejectedFilesHandler(BlobServiceClient storageClient, EnvelopeService envelopeService) {
         this.storageClient = storageClient;
-        this.envelopeRepository = envelopeRepository;
+        this.envelopeService = envelopeService;
     }
 
     /**
@@ -42,7 +41,7 @@ public class RejectedFilesHandler {
      * - marks envelopes in the DB as deleted
      */
     public void handle() {
-        List<Envelope> rejectedEnvelopes = envelopeRepository.find(Status.REJECTED, false);
+        List<Envelope> rejectedEnvelopes = envelopeService.getReadyToDeleteRejections();
 
         logger.info("Found {} rejected envelopes", rejectedEnvelopes.size());
 
@@ -83,13 +82,13 @@ public class RejectedFilesHandler {
 
             if (!sourceBlob.exists()) {
                 logger.error("File already deleted. " + loggingContext);
-                envelopeRepository.markAsDeleted(envelope.id);
             } else {
                 copy(targetBlob, sourceBlob, loggingContext);
                 sourceBlob.delete();
-                envelopeRepository.markAsDeleted(envelope.id);
                 logger.info("Rejected file successfully handled. " + loggingContext);
             }
+
+            envelopeService.markEnvelopeAsDeleted(envelope.id);
         } catch (Exception exc) {
             logger.error("Error handling rejected file. {}", loggingContext, exc);
         }

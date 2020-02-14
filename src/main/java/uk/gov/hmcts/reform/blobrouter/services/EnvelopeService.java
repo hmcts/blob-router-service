@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 import static java.time.Instant.now;
 
+@Service
 public class EnvelopeService {
 
     private final EnvelopeRepository envelopeRepository;
