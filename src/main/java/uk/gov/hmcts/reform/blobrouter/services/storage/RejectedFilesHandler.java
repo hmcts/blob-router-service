@@ -103,7 +103,8 @@ public class RejectedFilesHandler {
         );
 
         targetBlob
-            .getBlockBlobClient().copyFromUrl(sourceBlob.getBlobUrl() + "?" + createSas(sourceBlob));
+            .getBlockBlobClient()
+            .copyFromUrl(sourceBlob.getBlockBlobClient().getBlobUrl() + "?" + createSas(sourceBlob));
 
         logger.info("File successfully uploaded to rejected container. " + loggingContext);
     }
