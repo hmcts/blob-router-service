@@ -6,11 +6,12 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidConfigException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
+import uk.gov.hmcts.reform.blobrouter.util.PublicKeyDecoder;
 import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Base64;
+import java.security.PublicKey;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.Resources.getResource;
@@ -22,13 +23,13 @@ public class BlobSignatureVerifier {
 
     private static final Logger logger = getLogger(BlobSignatureVerifier.class);
 
-    private final String publicKeyBase64;
+    private final PublicKey publicKey;
 
     public BlobSignatureVerifier(
         @Value("${public-key-der-file}") String publicKeyDerFilename
     ) {
         try {
-            publicKeyBase64 = Base64.getEncoder().encodeToString(toByteArray(getResource(publicKeyDerFilename)));
+            this.publicKey = PublicKeyDecoder.decode(toByteArray(getResource(publicKeyDerFilename)));
         } catch (Exception e) {
             throw new InvalidConfigException("Error loading public key. File name: " + publicKeyDerFilename, e);
         }
@@ -37,7 +38,7 @@ public class BlobSignatureVerifier {
     public boolean verifyZipSignature(String blobName, byte[] rawBlob) {
         try (var zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
 
-            ZipVerifiers.verifyZip(zis, this.publicKeyBase64);
+            ZipVerifiers.verifyZip(zis, publicKey);
             return true;
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);

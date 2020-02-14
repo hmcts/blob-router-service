@@ -14,8 +14,10 @@ import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
 import java.io.ByteArrayOutputStream;
@@ -67,6 +69,7 @@ class BlobProcessorTest {
     @Mock BlobDispatcher blobDispatcher;
     @Mock BlobLeaseClient blobLeaseClient;
     @Mock EnvelopeRepository envelopeRepo;
+    @Mock EventRecordRepository eventRecordRepo;
     @Mock BlobSignatureVerifier signatureVerifier;
     @Mock ServiceConfiguration serviceConfiguration;
 
@@ -296,7 +299,7 @@ class BlobProcessorTest {
         return new BlobProcessor(
             this.blobServiceClient,
             this.blobDispatcher,
-            this.envelopeRepo,
+            new EnvelopeService(this.envelopeRepo, this.eventRecordRepo),
             blobClient -> blobLeaseClient,
             this.signatureVerifier,
             this.serviceConfiguration
