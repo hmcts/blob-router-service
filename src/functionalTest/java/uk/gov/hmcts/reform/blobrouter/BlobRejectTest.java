@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.blobrouter;
 
+import com.azure.storage.blob.BlobServiceClient;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -7,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArchive;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
@@ -42,6 +46,13 @@ public class BlobRejectTest extends FunctionalTestBase {
 
         // and
         assertFileInfoIsStored(fileName, config.crimeSourceContainer, REJECTED, true);
+
+        assertBlobIsPresentInStorage(
+            blobRouterStorageClient,
+            "crime-rejected",
+            fileName,
+            wrappingZipContent
+        );
     }
 
     @Test
@@ -61,5 +72,38 @@ public class BlobRejectTest extends FunctionalTestBase {
 
         // and
         assertFileInfoIsStored(fileName, BULK_SCAN_CONTAINER, REJECTED, true);
+
+        assertBlobIsPresentInStorage(
+            blobRouterStorageClient,
+            "bulkscan-rejected",
+            fileName,
+            wrappingZipContent
+        );
+    }
+
+    protected void assertBlobIsPresentInStorage(
+        BlobServiceClient client,
+        String containerName,
+        String fileName,
+        byte[] expectedContent
+    ) {
+        assertThat(blobExists(client, containerName, fileName))
+            .as("File %s exists in container %s", fileName, containerName)
+            .isTrue();
+
+        String blobContentMd5 = Hex.encodeHexString(
+            client
+                .getBlobContainerClient(containerName)
+                .getBlobClient(fileName)
+                .getBlockBlobClient()
+                .getProperties()
+                .getContentMd5()
+        );
+
+        String expectedBlobContentMd5 = DigestUtils.md5Hex(expectedContent);
+
+        assertThat(blobContentMd5)
+            .as("MD5 hash of the blob's content is as expected")
+            .isEqualTo(expectedBlobContentMd5);
     }
 }
