@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.blobrouter.config;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,7 +24,7 @@ class ServiceConfigurationTest {
         );
 
         // when
-        var result = conf.getEnabledSourceContainers();
+        List<String> result = conf.getEnabledSourceContainers();
 
         // then
         assertThat(result).containsExactlyInAnyOrder("A", "B", "C");
