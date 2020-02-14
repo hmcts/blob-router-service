@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.PublicKey;
-import java.util.Base64;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.Resources.getResource;
@@ -30,8 +29,7 @@ public class BlobSignatureVerifier {
         @Value("${public-key-der-file}") String publicKeyDerFilename
     ) {
         try {
-            String publicKeyBase64 = Base64.getEncoder().encodeToString(toByteArray(getResource(publicKeyDerFilename)));
-            this.publicKey = PublicKeyDecoder.decode(publicKeyBase64);
+            this.publicKey = PublicKeyDecoder.decode(toByteArray(getResource(publicKeyDerFilename)));
         } catch (Exception e) {
             throw new InvalidConfigException("Error loading public key. File name: " + publicKeyDerFilename, e);
         }

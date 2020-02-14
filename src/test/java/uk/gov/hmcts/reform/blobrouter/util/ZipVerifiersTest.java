@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 import java.io.ByteArrayInputStream;
 import java.security.PublicKey;
 import java.security.SignatureException;
-import java.util.Base64;
 import java.util.Set;
 import java.util.zip.ZipInputStream;
 
@@ -200,10 +199,6 @@ class ZipVerifiersTest {
     }
 
     private static PublicKey loadPublicKey(String fileName) throws Exception {
-        return PublicKeyDecoder.decode(
-            Base64.getEncoder().encodeToString(
-                toByteArray(getResource(fileName))
-            )
-        );
+        return PublicKeyDecoder.decode(toByteArray(getResource(fileName)));
     }
 }
