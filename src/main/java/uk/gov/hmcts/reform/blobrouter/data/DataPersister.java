@@ -25,8 +25,6 @@ public class DataPersister {
         this.eventRecordRepository = eventRecordRepository;
     }
 
-    // region BlobProcessor actions
-
     @Transactional(readOnly = true)
     public Optional<Envelope> findEnvelopes(String blobName, String containerName) {
         return envelopeRepository.find(blobName, containerName);
@@ -52,32 +50,18 @@ public class DataPersister {
         ));
     }
 
-    // endregion
-
-    // region RejectedFilesHandler actions
-
     @Transactional(readOnly = true)
     public List<Envelope> getReadyToDeleteRejections() {
         return envelopeRepository.find(Status.REJECTED, false);
     }
-
-    // endregion
-
-    // region Container cleaner actions
 
     @Transactional(readOnly = true)
     public List<Envelope> getReadyToDeleteDispatches(String containerName) {
         return envelopeRepository.find(Status.DISPATCHED, containerName, false);
     }
 
-    // endregion
-
-    // region common for RejectedFilesHandler and ContainerCleaner
-
     @Transactional
     public void markEnvelopeAsDeleted(UUID envelopeId) {
         envelopeRepository.markAsDeleted(envelopeId);
     }
-
-    // endregion
 }
