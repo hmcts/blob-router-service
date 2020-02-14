@@ -21,7 +21,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
-class DataPersisterTest {
+class EnvelopeServiceTest {
 
     private static final String BLOB_NAME = "blob";
     private static final String CONTAINER_NAME = "container";
@@ -33,11 +33,11 @@ class DataPersisterTest {
     @Mock
     private EventRecordRepository eventRecordRepository;
 
-    private DataPersister dataPersister;
+    private EnvelopeService envelopeService;
 
     @BeforeEach
     void setUp() {
-        dataPersister = new DataPersister(
+        envelopeService = new EnvelopeService(
             envelopeRepository,
             eventRecordRepository
         );
@@ -46,7 +46,7 @@ class DataPersisterTest {
     @Test
     void should_only_call_envelope_repository_to_get_envelope() {
         // when
-        dataPersister.findEnvelopes(BLOB_NAME, CONTAINER_NAME);
+        envelopeService.findEnvelopes(BLOB_NAME, CONTAINER_NAME);
 
         // then
         verify(envelopeRepository).find(BLOB_NAME, CONTAINER_NAME);
@@ -56,8 +56,8 @@ class DataPersisterTest {
     @Test
     void should_create_new_envelope_and_record_event() {
         // when
-        dataPersister.createDispatchedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
-        dataPersister.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
+        envelopeService.createDispatchedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
+        envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
 
         // then
         var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
@@ -77,8 +77,8 @@ class DataPersisterTest {
     @Test
     void should_only_call_envelope_repository_to_get_ready_to_delete_blobs() {
         // when
-        dataPersister.getReadyToDeleteDispatches(CONTAINER_NAME);
-        dataPersister.getReadyToDeleteRejections();
+        envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME);
+        envelopeService.getReadyToDeleteRejections();
 
         // then
         verify(envelopeRepository).find(Status.DISPATCHED, CONTAINER_NAME, false);
@@ -92,7 +92,7 @@ class DataPersisterTest {
         var envelopeId = UUID.randomUUID();
 
         // when
-        dataPersister.markEnvelopeAsDeleted(envelopeId);
+        envelopeService.markEnvelopeAsDeleted(envelopeId);
 
         // then
         verify(envelopeRepository).markAsDeleted(envelopeId);

@@ -12,12 +12,12 @@ import java.util.UUID;
 
 import static java.time.Instant.now;
 
-public class DataPersister {
+public class EnvelopeService {
 
     private final EnvelopeRepository envelopeRepository;
     private final EventRecordRepository eventRecordRepository;
 
-    public DataPersister(
+    public EnvelopeService(
         EnvelopeRepository envelopeRepository,
         EventRecordRepository eventRecordRepository
     ) {
