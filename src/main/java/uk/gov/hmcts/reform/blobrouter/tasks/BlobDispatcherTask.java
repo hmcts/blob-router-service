@@ -6,13 +6,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerProcessor;
 
 import java.util.Collections;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -39,20 +37,10 @@ public class BlobDispatcherTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        List<String> containers = getAvailableContainers();
+        List<String> containers = serviceConfiguration.getEnabledSourceContainers();
         Collections.shuffle(containers);
         containers.forEach(containerProcessor::process);
 
         logger.info("Finished {} job", TASK_NAME);
     }
-
-    private List<String> getAvailableContainers() {
-        return serviceConfiguration.getStorageConfig()
-            .values()
-            .stream()
-            .filter(StorageConfigItem::isEnabled)
-            .map(StorageConfigItem::getSourceContainer)
-            .collect(toList());
-    }
-
 }

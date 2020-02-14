@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @ConfigurationProperties(prefix = "service")
 public class ServiceConfiguration {
 
@@ -22,4 +24,12 @@ public class ServiceConfiguration {
             .collect(Collectors.toMap(StorageConfigItem::getSourceContainer, Function.identity()));
     }
 
+    public List<String> getEnabledSourceContainers() {
+        return this.storageConfig
+            .values()
+            .stream()
+            .filter(StorageConfigItem::isEnabled)
+            .map(StorageConfigItem::getSourceContainer)
+            .collect(toList());
+    }
 }
