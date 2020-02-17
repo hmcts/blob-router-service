@@ -30,7 +30,7 @@ public class EnvelopeService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Envelope> findEnvelopes(String blobName, String containerName) {
+    public Optional<Envelope> findEnvelope(String blobName, String containerName) {
         return envelopeRepository.find(blobName, containerName);
     }
 
