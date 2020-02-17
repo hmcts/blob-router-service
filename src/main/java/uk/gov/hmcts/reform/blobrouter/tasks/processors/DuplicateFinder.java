@@ -27,7 +27,7 @@ public class DuplicateFinder {
             .getBlobContainerClient(containerName)
             .listBlobs()
             .stream()
-            .map(blob -> envelopeService.findEnvelopes(blob.getName(), containerName))
+            .map(blob -> envelopeService.findEnvelope(blob.getName(), containerName))
             .flatMap(Optional::stream)
             .filter(envelope -> envelope.isDeleted)
             .collect(toList());
