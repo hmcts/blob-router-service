@@ -23,21 +23,20 @@ public class BlobDispatcherTask {
     private static final Logger logger = getLogger(BlobDispatcherTask.class);
 
     private final ContainerProcessor containerProcessor;
-    private final ServiceConfiguration serviceConfiguration;
+    private final List<String> containers;
 
     public BlobDispatcherTask(
         ContainerProcessor containerProcessor,
         ServiceConfiguration serviceConfiguration
     ) {
         this.containerProcessor = containerProcessor;
-        this.serviceConfiguration = serviceConfiguration;
+        this.containers = serviceConfiguration.getEnabledSourceContainers();
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        List<String> containers = serviceConfiguration.getEnabledSourceContainers();
         Collections.shuffle(containers);
         containers.forEach(containerProcessor::process);
 
