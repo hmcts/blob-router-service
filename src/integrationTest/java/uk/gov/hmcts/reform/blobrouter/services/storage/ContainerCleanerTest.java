@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerCleaner;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
@@ -39,6 +40,9 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
     private ContainerCleaner containerCleaner;
 
     @Autowired
+    private EnvelopeService envelopeService;
+
+    @Autowired
     private EnvelopeRepository envelopeRepository;
 
     @Autowired
@@ -51,7 +55,7 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
         dbHelper.deleteAll();
         containerClient = createContainer(CONTAINER_NAME);
 
-        containerCleaner = new ContainerCleaner(storageClient, envelopeRepository);
+        containerCleaner = new ContainerCleaner(storageClient, envelopeService);
     }
 
     @AfterEach

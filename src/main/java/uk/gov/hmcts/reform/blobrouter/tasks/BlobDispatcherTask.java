@@ -6,13 +6,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerProcessor;
 
 import java.util.Collections;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -25,34 +23,23 @@ public class BlobDispatcherTask {
     private static final Logger logger = getLogger(BlobDispatcherTask.class);
 
     private final ContainerProcessor containerProcessor;
-    private final ServiceConfiguration serviceConfiguration;
+    private final List<String> containers;
 
     public BlobDispatcherTask(
         ContainerProcessor containerProcessor,
         ServiceConfiguration serviceConfiguration
     ) {
         this.containerProcessor = containerProcessor;
-        this.serviceConfiguration = serviceConfiguration;
+        this.containers = serviceConfiguration.getEnabledSourceContainers();
     }
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        List<String> containers = getAvailableContainers();
         Collections.shuffle(containers);
         containers.forEach(containerProcessor::process);
 
         logger.info("Finished {} job", TASK_NAME);
     }
-
-    private List<String> getAvailableContainers() {
-        return serviceConfiguration.getStorageConfig()
-            .values()
-            .stream()
-            .filter(StorageConfigItem::isEnabled)
-            .map(StorageConfigItem::getSourceContainer)
-            .collect(toList());
-    }
-
 }

@@ -10,11 +10,9 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
@@ -39,7 +37,7 @@ public class BlobProcessor {
 
     private final BlobServiceClient storageClient;
     private final BlobDispatcher dispatcher;
-    private final EnvelopeRepository envelopeRepository;
+    private final EnvelopeService envelopeService;
     private final LeaseClientProvider leaseClientProvider;
     private final BlobSignatureVerifier signatureVerifier;
 
@@ -49,22 +47,22 @@ public class BlobProcessor {
     public BlobProcessor(
         BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
-        EnvelopeRepository envelopeRepository,
+        EnvelopeService envelopeService,
         LeaseClientProvider leaseClientProvider,
         BlobSignatureVerifier signatureVerifier,
         ServiceConfiguration serviceConfiguration
     ) {
         this.storageClient = storageClient;
         this.dispatcher = dispatcher;
-        this.envelopeRepository = envelopeRepository;
+        this.envelopeService = envelopeService;
         this.leaseClientProvider = leaseClientProvider;
         this.signatureVerifier = signatureVerifier;
         this.storageConfig = serviceConfiguration.getStorageConfig();
     }
 
     public void process(String blobName, String containerName) {
-        envelopeRepository
-            .find(blobName, containerName)
+        envelopeService
+            .findEnvelope(blobName, containerName)
             .ifPresentOrElse(
                 envelope -> logger.info(
                     "Envelope already processed in system, skipping. ID: {}, filename: {}, container: {}, state: {}",
@@ -109,13 +107,11 @@ public class BlobProcessor {
                     targetStorageAccount
                 );
 
-                UUID envelopeId = envelopeRepository.insert(new NewEnvelope(
+                UUID envelopeId = envelopeService.createDispatchedEnvelope(
                     containerName,
                     blobName,
-                    blobCreationDate,
-                    Instant.now(),
-                    Status.DISPATCHED
-                ));
+                    blobCreationDate
+                );
 
                 logger.info(
                     "Finished processing {} from {} container. New envelope ID: {}",
@@ -124,13 +120,11 @@ public class BlobProcessor {
                     envelopeId
                 );
             } else {
-                UUID envelopeId = envelopeRepository.insert(new NewEnvelope(
+                UUID envelopeId = envelopeService.createRejectedEnvelope(
                     containerName,
                     blobName,
-                    blobCreationDate,
-                    Instant.now(),
-                    Status.REJECTED
-                ));
+                    blobCreationDate
+                );
 
                 logger.error(
                     "Invalid signature. Rejected Blob name {} container {} New envelope ID: {}",
