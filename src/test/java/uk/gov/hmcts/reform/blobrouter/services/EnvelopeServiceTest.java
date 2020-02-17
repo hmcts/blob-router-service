@@ -3,8 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -98,9 +96,8 @@ class EnvelopeServiceTest {
         verifyNoInteractions(eventRecordRepository);
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = { true, false })
-    void should_mark_envelope_as_deleted_and_record_event(boolean isRejected) {
+    @Test
+    void should_mark_envelope_as_deleted_and_record_event() {
         // given
         var envelope = new Envelope(
             UUID.randomUUID(),
@@ -114,7 +111,7 @@ class EnvelopeServiceTest {
         );
 
         // when
-        envelopeService.markEnvelopeAsDeleted(envelope, isRejected);
+        envelopeService.markEnvelopeAsDeleted(envelope);
 
         // then
         verify(envelopeRepository).markAsDeleted(envelope.id);
@@ -122,7 +119,6 @@ class EnvelopeServiceTest {
         // and (will be enabled once events recorded)
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
         verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getValue().event)
-            .isEqualTo(isRejected ? Event.DELETED_FROM_REJECTED : Event.DELETED);
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DELETED);
     }
 }

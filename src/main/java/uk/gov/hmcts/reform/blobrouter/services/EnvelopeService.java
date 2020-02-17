@@ -76,10 +76,8 @@ public class EnvelopeService {
     }
 
     @Transactional
-    public void markEnvelopeAsDeleted(Envelope envelope, boolean isFromRejected) {
+    public void markEnvelopeAsDeleted(Envelope envelope) {
         envelopeRepository.markAsDeleted(envelope.id);
-
-        var newEvent = isFromRejected ? Event.DELETED_FROM_REJECTED : Event.DELETED;
-        eventRecordRepository.insert(new NewEventRecord(envelope.container, envelope.fileName, newEvent));
+        eventRecordRepository.insert(new NewEventRecord(envelope.container, envelope.fileName, Event.DELETED));
     }
 }

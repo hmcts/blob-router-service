@@ -55,7 +55,7 @@ public class ContainerCleaner {
 
         try {
             blob.delete();
-            envelopeService.markEnvelopeAsDeleted(envelope, false);
+            envelopeService.markEnvelopeAsDeleted(envelope);
             logger.info(
                 "Deleted dispatched blob {} from container {}",
                 envelope.fileName,
@@ -71,7 +71,7 @@ public class ContainerCleaner {
                     ),
                     ex
                 );
-                envelopeService.markEnvelopeAsDeleted(envelope, false);
+                envelopeService.markEnvelopeAsDeleted(envelope);
             } else {
                 logException(envelope, containerClient, ex);
             }
