@@ -28,9 +28,8 @@ public class BlobRejecter {
 
     public void moveToRejectedContainer(String blobName, String containerName) {
 
-        var sourceBlob = storageClient.getBlobContainerClient(containerName).getBlobClient(blobName);
-        var targetBlob = storageClient.getBlobContainerClient(containerName + REJECTED_CONTAINER_SUFFIX).getBlobClient(
-            blobName);
+        BlobClient sourceBlob = getBlobClient(containerName, blobName);
+        BlobClient targetBlob = getBlobClient(containerName + REJECTED_CONTAINER_SUFFIX, blobName);
 
         if (targetBlob.exists()) {
             targetBlob.createSnapshot();
@@ -65,5 +64,9 @@ public class BlobRejecter {
             .copyFromUrl(sourceBlob.getBlockBlobClient().getBlobUrl() + "?" + sasToken);
 
         logger.info("File successfully uploaded to rejected container. " + loggingContext);
+    }
+
+    private BlobClient getBlobClient(String containerName, String blobName) {
+        return storageClient.getBlobContainerClient(containerName).getBlobClient(blobName);
     }
 }
