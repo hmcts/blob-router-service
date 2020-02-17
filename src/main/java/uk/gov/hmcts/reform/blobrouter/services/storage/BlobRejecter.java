@@ -5,6 +5,7 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -14,6 +15,7 @@ import java.time.temporal.ChronoUnit;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
 
+@Component
 public class BlobRejecter {
 
     private static final Logger logger = getLogger(BlobRejecter.class);
