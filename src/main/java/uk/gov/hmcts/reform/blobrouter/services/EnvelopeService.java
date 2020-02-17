@@ -82,12 +82,12 @@ public class EnvelopeService {
     }
 
     @Transactional
-    public void eventForProcessStart(String containerName, String blobName) {
+    public void saveEventFileProcessingStarted(String containerName, String blobName) {
         eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.FILE_PROCESSING_STARTED));
     }
 
     @Transactional
-    public void eventForDeletionFromRejected(String containerName, String blobName) {
+    public void saveEventDeletedFromRejected(String containerName, String blobName) {
         eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DELETED_FROM_REJECTED));
     }
 }

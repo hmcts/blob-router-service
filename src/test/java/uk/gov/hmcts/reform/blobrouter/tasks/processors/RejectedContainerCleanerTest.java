@@ -109,6 +109,6 @@ class RejectedContainerCleanerTest {
         verify(blobClient2, times(1)).delete();
 
         // and
-        verify(envelopeService).eventForDeletionFromRejected(container2Item.getName(), blobItem2.getName());
+        verify(envelopeService).saveEventDeletedFromRejected(container2Item.getName(), blobItem2.getName());
     }
 }

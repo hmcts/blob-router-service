@@ -72,7 +72,7 @@ public class RejectedContainerCleaner {
 
         try {
             blobClient.delete();
-            envelopeService.eventForDeletionFromRejected(containerName, blobName);
+            envelopeService.saveEventDeletedFromRejected(containerName, blobName);
             logger.info("Deleted rejected file. {}", blobInfo);
         } catch (Exception exc) {
             logger.error("Error deleting rejected file. {}", blobInfo, exc);

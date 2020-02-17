@@ -125,7 +125,7 @@ class EnvelopeServiceTest {
     @Test
     void should_record_process_start_event() {
         // when
-        envelopeService.eventForProcessStart(CONTAINER_NAME, BLOB_NAME);
+        envelopeService.saveEventFileProcessingStarted(CONTAINER_NAME, BLOB_NAME);
 
         // then
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
@@ -139,7 +139,7 @@ class EnvelopeServiceTest {
     @Test
     void should_record_deletion_from_rejected_container_event() {
         // when
-        envelopeService.eventForDeletionFromRejected(CONTAINER_NAME, BLOB_NAME);
+        envelopeService.saveEventDeletedFromRejected(CONTAINER_NAME, BLOB_NAME);
 
         // then
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
