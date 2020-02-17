@@ -37,7 +37,7 @@ class RejectedFilesHandlerTest extends BlobStorageBaseTest {
     @BeforeEach
     void setUp() {
         dbHelper.deleteAll();
-        mover = new RejectedFilesHandler(storageClient, envelopeService);
+        mover = new RejectedFilesHandler(envelopeService, new BlobRejecter(storageClient));
     }
 
     @AfterEach
