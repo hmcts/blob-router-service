@@ -50,9 +50,9 @@ class DuplicateFinderTest {
                 blob("c.zip")
             ));
 
-        given(envelopeService.findEnvelopes("a.zip", "container")).willReturn(Optional.empty());
-        given(envelopeService.findEnvelopes("b.zip", "container")).willReturn(Optional.of(deletedEnvelope));
-        given(envelopeService.findEnvelopes("c.zip", "container")).willReturn(Optional.of(notYetDeletedEnvelope));
+        given(envelopeService.findEnvelope("a.zip", "container")).willReturn(Optional.empty());
+        given(envelopeService.findEnvelope("b.zip", "container")).willReturn(Optional.of(deletedEnvelope));
+        given(envelopeService.findEnvelope("c.zip", "container")).willReturn(Optional.of(notYetDeletedEnvelope));
 
         var duplicateFinder = new DuplicateFinder(storageClient, envelopeService);
 
