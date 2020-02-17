@@ -28,6 +28,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.blobrouter.data.model.EventNotes.INVALID_SIGNATURE;
 
 @Component
 @EnableConfigurationProperties(ServiceConfiguration.class)
@@ -123,11 +124,13 @@ public class BlobProcessor {
                 UUID envelopeId = envelopeService.createRejectedEnvelope(
                     containerName,
                     blobName,
-                    blobCreationDate
+                    blobCreationDate,
+                    INVALID_SIGNATURE
                 );
 
                 logger.error(
-                    "Invalid signature. Rejected Blob name {} container {} New envelope ID: {}",
+                    "{}. Rejected Blob name {} container {} New envelope ID: {}",
+                    INVALID_SIGNATURE,
                     blobName,
                     containerName,
                     envelopeId

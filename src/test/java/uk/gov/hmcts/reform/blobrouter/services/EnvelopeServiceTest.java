@@ -3,11 +3,15 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
+import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
@@ -17,10 +21,11 @@ import java.util.UUID;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.never;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static uk.gov.hmcts.reform.blobrouter.data.model.EventNotes.INVALID_SIGNATURE;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeServiceTest {
@@ -59,7 +64,7 @@ class EnvelopeServiceTest {
     void should_create_new_envelope_and_record_event() {
         // when
         envelopeService.createDispatchedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
-        envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
+        envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED, INVALID_SIGNATURE);
 
         // then
         var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
@@ -71,9 +76,14 @@ class EnvelopeServiceTest {
 
         // and (will be enabled once events recorded)
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository, never()).insert(newEventRecordCaptor.capture());
+        verify(eventRecordRepository, times(2)).insert(newEventRecordCaptor.capture());
         assertThat(newEventRecordCaptor.getAllValues())
-            .isEmpty();
+            .hasSize(2)
+            .extracting(record -> tuple(record.event, record.notes))
+            .containsOnly(
+                tuple(Event.DISPATCHED, null),
+                tuple(Event.REJECTED, INVALID_SIGNATURE)
+            );
     }
 
     @Test
@@ -88,20 +98,31 @@ class EnvelopeServiceTest {
         verifyNoInteractions(eventRecordRepository);
     }
 
-    @Test
-    void should_mark_envelope_as_deleted_and_record_event() {
+    @ParameterizedTest
+    @ValueSource(booleans = { true, false })
+    void should_mark_envelope_as_deleted_and_record_event(boolean isRejected) {
         // given
-        var envelopeId = UUID.randomUUID();
+        var envelope = new Envelope(
+            UUID.randomUUID(),
+            CONTAINER_NAME,
+            BLOB_NAME,
+            now(),
+            BLOB_CREATED,
+            now(),
+            Status.DISPATCHED,
+            false
+        );
 
         // when
-        envelopeService.markEnvelopeAsDeleted(envelopeId);
+        envelopeService.markEnvelopeAsDeleted(envelope, isRejected);
 
         // then
-        verify(envelopeRepository).markAsDeleted(envelopeId);
+        verify(envelopeRepository).markAsDeleted(envelope.id);
 
         // and (will be enabled once events recorded)
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository, never()).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getAllValues()).isEmpty();
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        assertThat(newEventRecordCaptor.getValue().event)
+            .isEqualTo(isRejected ? Event.DELETED_FROM_REJECTED : Event.DELETED);
     }
 }

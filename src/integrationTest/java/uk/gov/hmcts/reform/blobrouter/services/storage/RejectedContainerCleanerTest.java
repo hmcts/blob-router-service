@@ -4,8 +4,10 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.RejectedContainerCleaner;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
@@ -17,6 +19,8 @@ import static org.mockito.BDDMockito.given;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("db-test")
 class RejectedContainerCleanerTest extends BlobStorageBaseTest {
+
+    @Autowired EventRecordRepository eventRecordRepository;
 
     @Mock RejectedBlobChecker blobChecker;
 
@@ -33,7 +37,7 @@ class RejectedContainerCleanerTest extends BlobStorageBaseTest {
         given(blobChecker.shouldBeDeleted(any())).willReturn(true); // always allow deleting blobs
 
         // when
-        new RejectedContainerCleaner(storageClient, blobChecker).cleanUp();
+        new RejectedContainerCleaner(storageClient, blobChecker, eventRecordRepository).cleanUp();
 
         // then
         assertThat(normalContainer.listBlobs())

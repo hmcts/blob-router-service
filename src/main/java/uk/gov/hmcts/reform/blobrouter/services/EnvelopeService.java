@@ -5,7 +5,9 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
 import java.time.Instant;
@@ -36,11 +38,20 @@ public class EnvelopeService {
 
     @Transactional
     public UUID createDispatchedEnvelope(String containerName, String blobName, Instant blobCreationDate) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DISPATCHED));
+
         return createEnvelope(containerName, blobName, blobCreationDate, Status.DISPATCHED);
     }
 
     @Transactional
-    public UUID createRejectedEnvelope(String containerName, String blobName, Instant blobCreationDate) {
+    public UUID createRejectedEnvelope(
+        String containerName,
+        String blobName,
+        Instant blobCreationDate,
+        String rejectionReason
+    ) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.REJECTED, rejectionReason));
+
         return createEnvelope(containerName, blobName, blobCreationDate, Status.REJECTED);
     }
 
@@ -65,7 +76,10 @@ public class EnvelopeService {
     }
 
     @Transactional
-    public void markEnvelopeAsDeleted(UUID envelopeId) {
-        envelopeRepository.markAsDeleted(envelopeId);
+    public void markEnvelopeAsDeleted(Envelope envelope, boolean isFromRejected) {
+        envelopeRepository.markAsDeleted(envelope.id);
+
+        var newEvent = isFromRejected ? Event.DELETED_FROM_REJECTED : Event.DELETED;
+        eventRecordRepository.insert(new NewEventRecord(envelope.container, envelope.fileName, newEvent));
     }
 }

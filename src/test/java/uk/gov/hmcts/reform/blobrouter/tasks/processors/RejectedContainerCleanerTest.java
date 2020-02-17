@@ -9,12 +9,17 @@ import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
+import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -26,6 +31,7 @@ class RejectedContainerCleanerTest {
 
     @Mock BlobServiceClient storageClient;
     @Mock RejectedBlobChecker blobChecker;
+    @Mock EventRecordRepository eventRecordRepository;
 
     @Mock PagedIterable<BlobContainerItem> containers;
     @Mock BlobContainerItem container1Item;
@@ -47,7 +53,7 @@ class RejectedContainerCleanerTest {
 
     @BeforeEach
     void setUp() {
-        this.cleaner = new RejectedContainerCleaner(storageClient, blobChecker);
+        this.cleaner = new RejectedContainerCleaner(storageClient, blobChecker, eventRecordRepository);
     }
 
     @Test
@@ -93,7 +99,8 @@ class RejectedContainerCleanerTest {
         given(container2Client.getBlobClient("file1.zip")).willReturn(blobClient1);
         given(container2Client.getBlobClient("file2.zip")).willReturn(blobClient2);
 
-        var cleaner = new RejectedContainerCleaner(storageClient, blobChecker);
+        given(blobClient2.getContainerName()).willReturn("abc-rejected");
+        given(blobClient2.getBlobName()).willReturn("file2.zip");
 
         // when
         cleaner.cleanUp();
@@ -104,5 +111,17 @@ class RejectedContainerCleanerTest {
 
         verify(blobClient1, never()).delete();
         verify(blobClient2, times(1)).delete();
+
+        // and
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        assertThat(newEventRecordCaptor.getAllValues())
+            .hasSize(1)
+            .allSatisfy(record -> {
+                assertThat(record.container).isEqualTo(container2Item.getName());
+                assertThat(record.fileName).isEqualTo(blobItem2.getName());
+                assertThat(record.event).isEqualTo(Event.DELETED_FROM_REJECTED);
+                assertThat(record.notes).isNull();
+            });
     }
 }

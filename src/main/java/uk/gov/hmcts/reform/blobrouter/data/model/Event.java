@@ -4,4 +4,6 @@ public enum Event {
     FILE_PROCESSING_STARTED,
     DISPATCHED,
     REJECTED,
+    DELETED,
+    DELETED_FROM_REJECTED,
 }
