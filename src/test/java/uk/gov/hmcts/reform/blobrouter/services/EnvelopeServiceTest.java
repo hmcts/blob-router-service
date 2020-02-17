@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
@@ -103,5 +104,19 @@ class EnvelopeServiceTest {
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
         verify(eventRecordRepository, never()).insert(newEventRecordCaptor.capture());
         assertThat(newEventRecordCaptor.getAllValues()).isEmpty();
+    }
+
+    @Test
+    void should_record_process_start_event() {
+        // when
+        envelopeService.saveEventDuplicateRejected(CONTAINER_NAME, BLOB_NAME);
+
+        // then
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DUPLICATE_REJECTED);
+
+        // and
+        verifyNoInteractions(envelopeRepository);
     }
 }
