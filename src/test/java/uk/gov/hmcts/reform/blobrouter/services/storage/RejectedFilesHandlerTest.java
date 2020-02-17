@@ -22,7 +22,7 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 class RejectedFilesHandlerTest {
 
     @Mock EnvelopeService envelopeService;
-    @Mock BlobRejecter blobRejecter;
+    @Mock BlobMover blobMover;
 
     final Envelope envelope1 = new Envelope(UUID.randomUUID(), "c1", "f1", now(), now(), null, REJECTED, false);
     final Envelope envelope2 = new Envelope(UUID.randomUUID(), "c2", "f2", now(), now(), null, REJECTED, false);
@@ -31,7 +31,7 @@ class RejectedFilesHandlerTest {
 
     @BeforeEach
     void setUp() {
-        mover = new RejectedFilesHandler(envelopeService, blobRejecter);
+        mover = new RejectedFilesHandler(envelopeService, blobMover);
     }
 
     @Test
@@ -44,8 +44,8 @@ class RejectedFilesHandlerTest {
         mover.handle();
 
         // then
-        verify(blobRejecter).moveToRejectedContainer(envelope1.fileName, envelope1.container);
-        verify(blobRejecter).moveToRejectedContainer(envelope2.fileName, envelope2.container);
+        verify(blobMover).moveToRejectedContainer(envelope1.fileName, envelope1.container);
+        verify(blobMover).moveToRejectedContainer(envelope2.fileName, envelope2.container);
 
         verify(envelopeService).markEnvelopeAsDeleted(envelope1.id);
         verify(envelopeService).markEnvelopeAsDeleted(envelope2.id);
@@ -58,14 +58,14 @@ class RejectedFilesHandlerTest {
             .willReturn(asList(envelope1, envelope2));
 
         doThrow(RuntimeException.class)
-            .when(blobRejecter)
+            .when(blobMover)
             .moveToRejectedContainer(envelope1.fileName, envelope1.container);
 
         // when
         mover.handle();
 
         // then second files should get processed anyway...
-        verify(blobRejecter).moveToRejectedContainer(envelope2.fileName, envelope2.container);
+        verify(blobMover).moveToRejectedContainer(envelope2.fileName, envelope2.container);
         verify(envelopeService).markEnvelopeAsDeleted(envelope2.id);
 
         verify(envelopeService, never()).markEnvelopeAsDeleted(envelope1.id);

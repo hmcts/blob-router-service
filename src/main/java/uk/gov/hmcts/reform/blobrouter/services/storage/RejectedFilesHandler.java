@@ -18,14 +18,14 @@ public class RejectedFilesHandler {
     public static final String REJECTED_CONTAINER_SUFFIX = "-rejected";
 
     private final EnvelopeService envelopeService;
-    private final BlobRejecter blobRejecter;
+    private final BlobMover blobMover;
 
     public RejectedFilesHandler(
         EnvelopeService envelopeService,
-        BlobRejecter blobRejecter
+        BlobMover blobMover
     ) {
         this.envelopeService = envelopeService;
-        this.blobRejecter = blobRejecter;
+        this.blobMover = blobMover;
     }
 
     /**
@@ -47,7 +47,7 @@ public class RejectedFilesHandler {
 
                 envelopes.forEach(envelope -> {
                     try {
-                        blobRejecter.moveToRejectedContainer(envelope.fileName, container);
+                        blobMover.moveToRejectedContainer(envelope.fileName, container);
                         envelopeService.markEnvelopeAsDeleted(envelope.id);
                     } catch (Exception exc) {
                         logger.error(

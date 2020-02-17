@@ -16,13 +16,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
 
 @Component
-public class BlobRejecter {
+public class BlobMover {
 
-    private static final Logger logger = getLogger(BlobRejecter.class);
+    private static final Logger logger = getLogger(BlobMover.class);
 
     private final BlobServiceClient storageClient;
 
-    public BlobRejecter(BlobServiceClient storageClient) {
+    public BlobMover(BlobServiceClient storageClient) {
         this.storageClient = storageClient;
     }
 
