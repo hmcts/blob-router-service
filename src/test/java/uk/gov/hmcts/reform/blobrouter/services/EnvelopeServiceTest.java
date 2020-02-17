@@ -48,7 +48,7 @@ class EnvelopeServiceTest {
     @Test
     void should_only_call_envelope_repository_to_get_envelope() {
         // when
-        envelopeService.findEnvelopes(BLOB_NAME, CONTAINER_NAME);
+        envelopeService.findEnvelope(BLOB_NAME, CONTAINER_NAME);
 
         // then
         verify(envelopeRepository).find(BLOB_NAME, CONTAINER_NAME);

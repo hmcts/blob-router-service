@@ -62,7 +62,7 @@ public class BlobProcessor {
 
     public void process(String blobName, String containerName) {
         envelopeService
-            .findEnvelopes(blobName, containerName)
+            .findEnvelope(blobName, containerName)
             .ifPresentOrElse(
                 envelope -> logger.info(
                     "Envelope already processed in system, skipping. ID: {}, filename: {}, container: {}, state: {}",
