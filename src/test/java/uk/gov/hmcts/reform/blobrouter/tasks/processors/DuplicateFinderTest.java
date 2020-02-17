@@ -14,7 +14,6 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.util.UUID.randomUUID;
@@ -40,8 +39,8 @@ class DuplicateFinderTest {
     @Test
     void should_return_envelopes_for_which_file_was_found_when_its_already_marked_as_deleted() {
         // given
-        Envelope deletedEnvelope = envelope(randomUUID(), true);
-        Envelope notYetDeletedEnvelope = envelope(randomUUID(), false);
+        Envelope deletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, true);
+        Envelope notYetDeletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, false);
 
         given(listBlobsResult.stream())
             .willReturn(Stream.of(
@@ -54,15 +53,13 @@ class DuplicateFinderTest {
         given(envelopeService.findEnvelope("b.zip", "container")).willReturn(Optional.of(deletedEnvelope));
         given(envelopeService.findEnvelope("c.zip", "container")).willReturn(Optional.of(notYetDeletedEnvelope));
 
-        var duplicateFinder = new DuplicateFinder(storageClient, envelopeService);
-
         // when
-        List<Envelope> result = duplicateFinder.findIn("container");
+        List<BlobItem> result = new DuplicateFinder(storageClient, envelopeService).findIn("container");
 
         // then
         assertThat(result)
-            .usingFieldByFieldElementComparator()
-            .containsExactly(deletedEnvelope);
+            .extracting(BlobItem::getName)
+            .containsExactly("b.zip");
     }
 
 
@@ -72,7 +69,4 @@ class DuplicateFinderTest {
         return blob;
     }
 
-    private Envelope envelope(UUID id, boolean isDeleted) {
-        return new Envelope(id, null, null, null, null, null, null, isDeleted);
-    }
 }
