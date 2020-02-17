@@ -107,7 +107,7 @@ class EnvelopeServiceTest {
     }
 
     @Test
-    void should_record_process_start_event() {
+    void should_record_duplicate_rejected_event() {
         // when
         envelopeService.saveEventDuplicateRejected(CONTAINER_NAME, BLOB_NAME);
 
