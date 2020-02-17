@@ -16,7 +16,7 @@ public class DuplicateFileHandler {
     private final DuplicateFinder duplicateFinder;
     private final ServiceConfiguration serviceConfiguration;
 
-
+    // region contructor
     public DuplicateFileHandler(
         EnvelopeService envelopeService,
         BlobMover blobMover,
@@ -28,6 +28,7 @@ public class DuplicateFileHandler {
         this.duplicateFinder = duplicateFinder;
         this.serviceConfiguration = serviceConfiguration;
     }
+    // endregion
 
     public void handle() {
         serviceConfiguration
@@ -35,7 +36,26 @@ public class DuplicateFileHandler {
             .forEach(container -> {
                 duplicateFinder
                     .findIn(container)
-                    .forEach(blobItem -> blobMover.moveToRejectedContainer(blobItem.getName(), container));
+                    .forEach(duplicate -> {
+                        try {
+                            logger.info(
+                                "Moving duplicate file to rejected container. Container: {}, File name: {}",
+                                container,
+                                duplicate.getName()
+                            );
+
+                            blobMover.moveToRejectedContainer(duplicate.getName(), container);
+                            envelopeService.saveEventDuplicateRejected(container, duplicate.getName());
+
+                        } catch (Exception exc) {
+                            logger.error(
+                                "Error moving duplicate file. Container: {}. File name: {}",
+                                container,
+                                duplicate.getName(),
+                                exc
+                            );
+                        }
+                    });
             });
     }
 }
