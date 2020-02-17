@@ -6,4 +6,5 @@ public enum Event {
     REJECTED,
     DELETED,
     DELETED_FROM_REJECTED,
+    DUPLICATE_REJECTED
 }

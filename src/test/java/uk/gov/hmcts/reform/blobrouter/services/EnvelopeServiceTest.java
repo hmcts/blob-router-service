@@ -149,4 +149,18 @@ class EnvelopeServiceTest {
         // and
         verifyNoInteractions(envelopeRepository);
     }
+
+    @Test
+    void should_record_duplicate_rejected_event() {
+        // when
+        envelopeService.saveEventDuplicateRejected(CONTAINER_NAME, BLOB_NAME);
+
+        // then
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DUPLICATE_REJECTED);
+
+        // and
+        verifyNoInteractions(envelopeRepository);
+    }
 }

@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
@@ -33,9 +35,22 @@ class BlobProcessorTest extends BlobStorageBaseTest {
 
     @Mock BlobContainerClientProvider containerClientProvider;
 
-    @Autowired EnvelopeService envelopeService;
-    @Autowired EnvelopeRepository envelopeRepo;
-    @Autowired ServiceConfiguration serviceConfiguration;
+    @Autowired
+    private EnvelopeService envelopeService;
+
+    @Autowired
+    private EnvelopeRepository envelopeRepo;
+
+    @Autowired
+    private ServiceConfiguration serviceConfiguration;
+
+    @Autowired
+    private DbHelper dbHelper;
+
+    @BeforeEach
+    void setUp() {
+        dbHelper.deleteAll();
+    }
 
     @Test
     void should_copy_file_from_source_to_target_container() throws Exception {

@@ -90,4 +90,9 @@ public class EnvelopeService {
     public void saveEventDeletedFromRejected(String containerName, String blobName) {
         eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DELETED_FROM_REJECTED));
     }
+
+    @Transactional
+    public void saveEventDuplicateRejected(String containerName, String blobName) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DUPLICATE_REJECTED));
+    }
 }
