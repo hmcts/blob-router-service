@@ -246,7 +246,6 @@ dependencies {
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.25.1'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.12.5'
-  integrationTestImplementation group: 'com.h2database', name: 'h2', version: '1.4.200'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.11'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
