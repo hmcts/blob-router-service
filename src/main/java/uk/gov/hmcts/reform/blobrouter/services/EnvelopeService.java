@@ -80,4 +80,14 @@ public class EnvelopeService {
         envelopeRepository.markAsDeleted(envelope.id);
         eventRecordRepository.insert(new NewEventRecord(envelope.container, envelope.fileName, Event.DELETED));
     }
+
+    @Transactional
+    public void eventForProcessStart(String containerName, String blobName) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.FILE_PROCESSING_STARTED));
+    }
+
+    @Transactional
+    public void eventForDeletionFromRejected(String containerName, String blobName) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DELETED_FROM_REJECTED));
+    }
 }

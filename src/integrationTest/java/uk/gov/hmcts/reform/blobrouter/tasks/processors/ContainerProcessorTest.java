@@ -8,8 +8,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -22,7 +22,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @ExtendWith(MockitoExtension.class)
 class ContainerProcessorTest extends BlobStorageBaseTest {
 
-    @Autowired EventRecordRepository eventRecordRepository;
+    @Autowired EnvelopeService envelopeService;
 
     @Mock BlobProcessor blobProcessor;
     @Mock BlobReadinessChecker blobReadinessChecker;
@@ -44,7 +44,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
             storageClient,
             blobProcessor,
             blobReadinessChecker,
-            eventRecordRepository
+            envelopeService
         );
 
         // when

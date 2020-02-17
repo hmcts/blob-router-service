@@ -121,4 +121,32 @@ class EnvelopeServiceTest {
         verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
         assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DELETED);
     }
+
+    @Test
+    void should_record_process_start_event() {
+        // when
+        envelopeService.eventForProcessStart(CONTAINER_NAME, BLOB_NAME);
+
+        // then
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.FILE_PROCESSING_STARTED);
+
+        // and
+        verifyNoInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_record_deletion_from_rejected_container_event() {
+        // when
+        envelopeService.eventForDeletionFromRejected(CONTAINER_NAME, BLOB_NAME);
+
+        // then
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DELETED_FROM_REJECTED);
+
+        // and
+        verifyNoInteractions(envelopeRepository);
+    }
 }
