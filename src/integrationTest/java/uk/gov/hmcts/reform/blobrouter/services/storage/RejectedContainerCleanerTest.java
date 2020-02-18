@@ -5,7 +5,6 @@ import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.RejectedContainerCleaner;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
@@ -15,7 +14,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("db-test")
 class RejectedContainerCleanerTest extends BlobStorageBaseTest {
 
     @Mock RejectedBlobChecker blobChecker;
