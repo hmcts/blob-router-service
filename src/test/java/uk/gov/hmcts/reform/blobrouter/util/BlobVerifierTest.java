@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidConfigException;
-import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
+import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 
 import java.security.spec.InvalidKeySpecException;
 
@@ -15,13 +15,13 @@ import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSig
 import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipDir;
 
 @ExtendWith(MockitoExtension.class)
-class BlobSignatureVerifierTest {
+class BlobVerifierTest {
 
-    private BlobSignatureVerifier signatureVerifier;
+    private BlobVerifier verifier;
 
     @BeforeEach
     void setUp() {
-        this.signatureVerifier = new BlobSignatureVerifier("signature/test_public_key.der");
+        this.verifier = new BlobVerifier("signature/test_public_key.der");
     }
 
     @Test
@@ -30,7 +30,7 @@ class BlobSignatureVerifierTest {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
 
         // then
-        assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isTrue();
+        assertThat(verifier.verifyZip("test.zip", zipBytes)).isTrue();
     }
 
     @Test
@@ -39,7 +39,7 @@ class BlobSignatureVerifierTest {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
 
         // then
-        assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isFalse();
+        assertThat(verifier.verifyZip("test.zip", zipBytes)).isFalse();
     }
 
 
@@ -49,7 +49,7 @@ class BlobSignatureVerifierTest {
         byte[] zipBytes = zipDir("signature/sample_valid_content"); // no signature
 
         // then
-        assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isFalse();
+        assertThat(verifier.verifyZip("test.zip", zipBytes)).isFalse();
     }
 
     @Test
@@ -58,12 +58,12 @@ class BlobSignatureVerifierTest {
         byte[] zipBytes = "not zip file".getBytes();
 
         // then
-        assertThat(signatureVerifier.verifyZipSignature("test.zip", zipBytes)).isFalse();
+        assertThat(verifier.verifyZip("test.zip", zipBytes)).isFalse();
     }
 
     @Test
     void should_throw_exception_if_invalid_file_name_is_provided() {
-        assertThatThrownBy(() -> new BlobSignatureVerifier("signature/i_dont_exist.der"))
+        assertThatThrownBy(() -> new BlobVerifier("signature/i_dont_exist.der"))
             .isInstanceOf(InvalidConfigException.class)
             .hasMessageContaining("Error loading public key")
             .hasCauseInstanceOf(IllegalArgumentException.class);
@@ -71,7 +71,7 @@ class BlobSignatureVerifierTest {
 
     @Test
     void should_throw_exception_if_invalid_public_key_is_provided() {
-        assertThatThrownBy(() -> new BlobSignatureVerifier("signature/invalid_public_key_format.der"))
+        assertThatThrownBy(() -> new BlobVerifier("signature/invalid_public_key_format.der"))
             .isInstanceOf(InvalidConfigException.class)
             .hasMessageContaining("Error loading public key")
             .hasCauseInstanceOf(InvalidKeySpecException.class);

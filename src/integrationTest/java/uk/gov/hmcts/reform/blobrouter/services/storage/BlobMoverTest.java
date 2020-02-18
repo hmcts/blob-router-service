@@ -7,37 +7,20 @@ import com.azure.storage.blob.models.ListBlobsOptions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
-import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import java.util.List;
 
-import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("db-test")
-class RejectedFilesHandlerTest extends BlobStorageBaseTest {
+class BlobMoverTest extends BlobStorageBaseTest {
 
-    @Autowired EnvelopeService envelopeService;
-    @Autowired EnvelopeRepository envelopeRepo;
-    @Autowired DbHelper dbHelper;
-
-    RejectedFilesHandler mover;
+    BlobMover mover;
 
     @BeforeEach
     void setUp() {
-        dbHelper.deleteAll();
-        mover = new RejectedFilesHandler(envelopeService, new BlobMover(storageClient));
+        mover = new BlobMover(storageClient);
     }
 
     @AfterEach
@@ -47,7 +30,7 @@ class RejectedFilesHandlerTest extends BlobStorageBaseTest {
 
     @Test
     @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
-    void should_handle_rejected_files() {
+    void should_move_file_to_rejected_container() {
         // given
         BlobContainerClient normalContainer = createContainer("sample-container");
         BlobContainerClient rejectedContainer = createContainer("sample-container-rejected");
@@ -58,10 +41,8 @@ class RejectedFilesHandlerTest extends BlobStorageBaseTest {
             .getBlobClient(blobName)
             .uploadFromFile("src/integrationTest/resources/storage/test1.zip");
 
-        envelopeRepo.insert(new NewEnvelope("sample-container", "hello.zip", now(), now(), Status.REJECTED));
-
         // when
-        mover.handle();
+        mover.moveToRejectedContainer(blobName, "sample-container");
 
         // then
         assertSoftly(softly -> {
@@ -74,13 +55,6 @@ class RejectedFilesHandlerTest extends BlobStorageBaseTest {
                 .assertThat(rejectedContainer.listBlobs().stream().map(BlobItem::getName))
                 .as("File should be moved to rejected container")
                 .containsExactly("hello.zip");
-
-            softly
-                .assertThat(envelopeRepo.find(blobName, "sample-container"))
-                .as("Envelope in the DB should be updated")
-                .hasValueSatisfying(
-                    envelope -> assertThat(envelope.isDeleted).isTrue()
-                );
         });
     }
 
@@ -100,10 +74,8 @@ class RejectedFilesHandlerTest extends BlobStorageBaseTest {
             .getBlobClient(blobName)
             .uploadFromFile("src/integrationTest/resources/storage/test1.zip");
 
-        envelopeRepo.insert(new NewEnvelope("hello", blobName, now(), now(), Status.REJECTED));
-
         // when
-        mover.handle();
+        mover.moveToRejectedContainer(blobName, "hello");
 
 
         List<BlobItem> blobsAndSnapshots =
@@ -117,19 +89,15 @@ class RejectedFilesHandlerTest extends BlobStorageBaseTest {
                 .assertThat(blobsAndSnapshots)
                 .extracting(BlobItem::getName)
                 .as("Snapshot should be created")
-                .containsExactly(blobName, blobName);
+                .containsExactly(
+                    blobName,
+                    blobName
+                );
 
             softly
                 .assertThat(normalContainer.listBlobs())
                 .as("File should be removed from source container")
-                .hasSize(0);
-
-            softly
-                .assertThat(envelopeRepo.find(blobName, "hello"))
-                .as("Envelope in the DB should be updated")
-                .hasValueSatisfying(
-                    envelope -> assertThat(envelope.isDeleted).isTrue()
-                );
+                .isEmpty();
         });
     }
 }
