@@ -19,13 +19,13 @@ import static com.google.common.io.Resources.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
-public class BlobSignatureVerifier {
+public class BlobVerifier {
 
-    private static final Logger logger = getLogger(BlobSignatureVerifier.class);
+    private static final Logger logger = getLogger(BlobVerifier.class);
 
     private final PublicKey publicKey;
 
-    public BlobSignatureVerifier(
+    public BlobVerifier(
         @Value("${public-key-der-file}") String publicKeyDerFilename
     ) {
         try {
@@ -35,7 +35,7 @@ public class BlobSignatureVerifier {
         }
     }
 
-    public boolean verifyZipSignature(String blobName, byte[] rawBlob) {
+    public boolean verifyZip(String blobName, byte[] rawBlob) {
         try (var zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
 
             ZipVerifiers.verifyZip(zis, publicKey);
@@ -47,7 +47,7 @@ public class BlobSignatureVerifier {
             logger.info("Invalid zip archive. Blob name: {}", blobName, ex);
             return false;
         } catch (IOException ex) {
-            logger.info("Error occurred when verifying signature. Blob name: {}", blobName, ex);
+            logger.info("Error occurred when verifying file. Blob name: {}", blobName, ex);
             return false;
         }
     }
