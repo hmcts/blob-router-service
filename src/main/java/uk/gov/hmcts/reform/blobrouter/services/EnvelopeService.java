@@ -5,7 +5,9 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
 import java.time.Instant;
@@ -67,5 +69,10 @@ public class EnvelopeService {
     @Transactional
     public void markEnvelopeAsDeleted(UUID envelopeId) {
         envelopeRepository.markAsDeleted(envelopeId);
+    }
+
+    @Transactional
+    public void saveEventDuplicateRejected(String containerName, String blobName) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DUPLICATE_REJECTED));
     }
 }

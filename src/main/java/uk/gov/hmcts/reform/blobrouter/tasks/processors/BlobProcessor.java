@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
-import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
+import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
@@ -39,7 +39,7 @@ public class BlobProcessor {
     private final BlobDispatcher dispatcher;
     private final EnvelopeService envelopeService;
     private final LeaseClientProvider leaseClientProvider;
-    private final BlobSignatureVerifier signatureVerifier;
+    private final BlobVerifier blobVerifier;
 
     // container-specific configuration, by container name
     private final Map<String, StorageConfigItem> storageConfig;
@@ -49,14 +49,14 @@ public class BlobProcessor {
         BlobDispatcher dispatcher,
         EnvelopeService envelopeService,
         LeaseClientProvider leaseClientProvider,
-        BlobSignatureVerifier signatureVerifier,
+        BlobVerifier blobVerifier,
         ServiceConfiguration serviceConfiguration
     ) {
         this.storageClient = storageClient;
         this.dispatcher = dispatcher;
         this.envelopeService = envelopeService;
         this.leaseClientProvider = leaseClientProvider;
-        this.signatureVerifier = signatureVerifier;
+        this.blobVerifier = blobVerifier;
         this.storageConfig = serviceConfiguration.getStorageConfig();
     }
 
@@ -90,12 +90,11 @@ public class BlobProcessor {
             leaseClient.acquireLease(60);
             byte[] rawBlob = tryToDownloadBlob(blobClient);
 
-            // Verify Zip signature
-            boolean validSignature = signatureVerifier.verifyZipSignature(blobName, rawBlob);
+            boolean isValid = blobVerifier.verifyZip(blobName, rawBlob);
 
             Instant blobCreationDate = blobClient.getProperties().getLastModified().toInstant();
 
-            if (validSignature) {
+            if (isValid) {
                 StorageConfigItem containerConfig = storageConfig.get(containerName);
                 TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
                 var targetContainerName = containerConfig.getTargetContainer();
@@ -127,7 +126,7 @@ public class BlobProcessor {
                 );
 
                 logger.error(
-                    "Invalid signature. Rejected Blob name {} container {} New envelope ID: {}",
+                    "Invalid zip file. Rejected Blob. File name: {}, Container {}, New envelope ID: {}",
                     blobName,
                     containerName,
                     envelopeId
