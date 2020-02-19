@@ -47,8 +47,8 @@ class RejectedFilesHandlerTest {
         verify(blobMover).moveToRejectedContainer(envelope1.fileName, envelope1.container);
         verify(blobMover).moveToRejectedContainer(envelope2.fileName, envelope2.container);
 
-        verify(envelopeService).markEnvelopeAsDeleted(envelope1.id);
-        verify(envelopeService).markEnvelopeAsDeleted(envelope2.id);
+        verify(envelopeService).markEnvelopeAsDeleted(envelope1);
+        verify(envelopeService).markEnvelopeAsDeleted(envelope2);
     }
 
     @Test
@@ -66,8 +66,8 @@ class RejectedFilesHandlerTest {
 
         // then second files should get processed anyway...
         verify(blobMover).moveToRejectedContainer(envelope2.fileName, envelope2.container);
-        verify(envelopeService).markEnvelopeAsDeleted(envelope2.id);
+        verify(envelopeService).markEnvelopeAsDeleted(envelope2);
 
-        verify(envelopeService, never()).markEnvelopeAsDeleted(envelope1.id);
+        verify(envelopeService, never()).markEnvelopeAsDeleted(envelope1);
     }
 }

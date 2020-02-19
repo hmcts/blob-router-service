@@ -7,6 +7,7 @@ import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -22,14 +23,17 @@ public class RejectedContainerCleaner {
 
     private final BlobServiceClient storageClient;
     private final RejectedBlobChecker blobChecker;
+    private final EnvelopeService envelopeService;
 
     // region constructor
     public RejectedContainerCleaner(
         BlobServiceClient storageClient,
-        RejectedBlobChecker blobChecker
+        RejectedBlobChecker blobChecker,
+        EnvelopeService envelopeService
     ) {
         this.storageClient = storageClient;
         this.blobChecker = blobChecker;
+        this.envelopeService = envelopeService;
     }
     // endregion
 
@@ -57,15 +61,18 @@ public class RejectedContainerCleaner {
     }
 
     private void delete(BlobClient blobClient) {
+        String containerName = blobClient.getContainerName();
+        String blobName = blobClient.getBlobName();
         String blobInfo = String.format(
             "Container: %s. File name: %s. Snapshot ID: %s",
-            blobClient.getContainerName(),
-            blobClient.getBlobName(),
+            containerName,
+            blobName,
             blobClient.getSnapshotId()
         );
 
         try {
             blobClient.delete();
+            envelopeService.saveEventDeletedFromRejected(containerName, blobName);
             logger.info("Deleted rejected file. {}", blobInfo);
         } catch (Exception exc) {
             logger.error("Error deleting rejected file. {}", blobInfo, exc);

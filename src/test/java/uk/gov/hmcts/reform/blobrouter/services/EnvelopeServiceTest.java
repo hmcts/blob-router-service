@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
+import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
@@ -18,10 +19,11 @@ import java.util.UUID;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.never;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static uk.gov.hmcts.reform.blobrouter.data.model.EventNotes.INVALID_SIGNATURE;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeServiceTest {
@@ -60,7 +62,7 @@ class EnvelopeServiceTest {
     void should_create_new_envelope_and_record_event() {
         // when
         envelopeService.createDispatchedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
-        envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
+        envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED, INVALID_SIGNATURE);
 
         // then
         var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
@@ -72,9 +74,14 @@ class EnvelopeServiceTest {
 
         // and (will be enabled once events recorded)
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository, never()).insert(newEventRecordCaptor.capture());
+        verify(eventRecordRepository, times(2)).insert(newEventRecordCaptor.capture());
         assertThat(newEventRecordCaptor.getAllValues())
-            .isEmpty();
+            .hasSize(2)
+            .extracting(record -> tuple(record.event, record.notes))
+            .containsOnly(
+                tuple(Event.DISPATCHED, null),
+                tuple(Event.REJECTED, INVALID_SIGNATURE)
+            );
     }
 
     @Test
@@ -92,18 +99,55 @@ class EnvelopeServiceTest {
     @Test
     void should_mark_envelope_as_deleted_and_record_event() {
         // given
-        var envelopeId = UUID.randomUUID();
+        var envelope = new Envelope(
+            UUID.randomUUID(),
+            CONTAINER_NAME,
+            BLOB_NAME,
+            now(),
+            BLOB_CREATED,
+            now(),
+            Status.DISPATCHED,
+            false
+        );
 
         // when
-        envelopeService.markEnvelopeAsDeleted(envelopeId);
+        envelopeService.markEnvelopeAsDeleted(envelope);
 
         // then
-        verify(envelopeRepository).markAsDeleted(envelopeId);
+        verify(envelopeRepository).markAsDeleted(envelope.id);
 
         // and (will be enabled once events recorded)
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository, never()).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getAllValues()).isEmpty();
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DELETED);
+    }
+
+    @Test
+    void should_record_process_start_event() {
+        // when
+        envelopeService.saveEventFileProcessingStarted(CONTAINER_NAME, BLOB_NAME);
+
+        // then
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.FILE_PROCESSING_STARTED);
+
+        // and
+        verifyNoInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_record_deletion_from_rejected_container_event() {
+        // when
+        envelopeService.saveEventDeletedFromRejected(CONTAINER_NAME, BLOB_NAME);
+
+        // then
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DELETED_FROM_REJECTED);
+
+        // and
+        verifyNoInteractions(envelopeRepository);
     }
 
     @Test
