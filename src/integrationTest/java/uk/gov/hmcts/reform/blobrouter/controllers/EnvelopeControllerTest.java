@@ -6,13 +6,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
+import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.Instant.now;
+import static org.hamcrest.Matchers.contains;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -40,9 +45,30 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             Status.DISPATCHED,
             false
         );
+        EventRecord eventRecordInDb1 = new EventRecord(
+            1,
+            container,
+            fileName,
+            now(),
+            Event.FILE_PROCESSING_STARTED,
+            null
+        );
+        EventRecord eventRecordInDb2 = new EventRecord(
+            2,
+            container,
+            fileName,
+            now(),
+            Event.DISPATCHED,
+            null
+        );
 
         given(envelopeRepo.find(fileName, container))
             .willReturn(Optional.of(envelopeInDb));
+        given(eventRecordRepo.find(container, fileName))
+            .willReturn(Arrays.asList(
+                eventRecordInDb1,
+                eventRecordInDb2
+            ));
 
         mockMvc
             .perform(
@@ -52,7 +78,11 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(envelopeInDb.id.toString()));
+            .andExpect(jsonPath("$.id").value(envelopeInDb.id.toString()))
+            .andExpect(jsonPath("$.events[*].event").value(contains(
+                Event.FILE_PROCESSING_STARTED.name(),
+                Event.DISPATCHED.name()
+            )));
     }
 
     @Test
@@ -71,5 +101,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isNotFound());
+
+        verifyNoInteractions(eventRecordRepo);
     }
 }
