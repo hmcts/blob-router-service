@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
+import uk.gov.hmcts.reform.blobrouter.exceptions.BlobProcessingException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -37,6 +38,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,8 +66,8 @@ class BlobProcessorTest {
 
     @Mock BlobServiceClient blobServiceClient;
     @Mock BlobContainerClient containerClient;
-    @Mock BlobClient blobClient;
-    @Mock BlobProperties blobProperties;
+    @Mock(lenient = true) BlobClient blobClient;
+    @Mock(lenient = true) BlobProperties blobProperties;
     @Mock BlobDispatcher blobDispatcher;
     @Mock BlobLeaseClient blobLeaseClient;
     @Mock EnvelopeRepository envelopeRepo;
@@ -211,6 +213,28 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
+    }
+
+    @Test
+    void should_not_create_a_rejected_envelope_if_file_cannot_be_verified() {
+        // given
+        blobExists(OffsetDateTime.now(), getBlobContent(Map.of("signature", "test".getBytes())));
+
+        var sourceContainerName = "sourceContainer1";
+        var targetContainerName = "targetContainer1";
+
+        setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
+
+        // validation throws exception
+        doThrow(BlobProcessingException.class)
+            .when(verifier).verifyZip(any(), any());
+
+        // when
+        newBlobProcessor().process("envelope1.zip", sourceContainerName);
+
+        // then
+        // envelope is not created in DB.
+        verify(envelopeRepo, never()).insert(any());
     }
 
     @Test
