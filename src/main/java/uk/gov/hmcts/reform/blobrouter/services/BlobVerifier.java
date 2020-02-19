@@ -58,7 +58,7 @@ public class BlobVerifier {
         public final boolean isOk;
         public final String error;
 
-        public VerificationResult(boolean isOk, String error) {
+        private VerificationResult(boolean isOk, String error) {
             this.isOk = isOk;
             this.error = error;
         }
