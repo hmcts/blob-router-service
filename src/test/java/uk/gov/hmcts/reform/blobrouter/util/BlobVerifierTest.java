@@ -25,40 +25,46 @@ class BlobVerifierTest {
     }
 
     @Test
-    void should_return_true_when_signature_verification_is_success() throws Exception {
+    void should_return_ok_when_signature_verification_is_success() throws Exception {
         // given
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
 
         // then
-        assertThat(verifier.verifyZip("test.zip", zipBytes)).isTrue();
+        assertThat(verifier.verifyZip("test.zip", zipBytes).isOk).isTrue();
     }
 
     @Test
-    void should_return_false_when_signature_verification_fails() throws Exception {
+    void should_return_error_when_signature_verification_fails() throws Exception {
         // given
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
 
         // then
-        assertThat(verifier.verifyZip("test.zip", zipBytes)).isFalse();
+        var result = verifier.verifyZip("test.zip", zipBytes);
+        assertThat(result.isOk).isFalse();
+        assertThat(result.error).isEqualTo("Invalid signature");
     }
 
 
     @Test
-    void should_return_false_when_zip_content_is_invalid() throws Exception {
+    void should_return_error_when_zip_content_is_invalid() throws Exception {
         // given
         byte[] zipBytes = zipDir("signature/sample_valid_content"); // no signature
 
         // then
-        assertThat(verifier.verifyZip("test.zip", zipBytes)).isFalse();
+        var result = verifier.verifyZip("test.zip", zipBytes);
+        assertThat(result.isOk).isFalse();
+        assertThat(result.error).isEqualTo("Invalid zip archive");
     }
 
     @Test
-    void should_return_false_when_zip_file_is_corrupted() throws Exception {
+    void should_return_error_when_zip_file_is_corrupted() throws Exception {
         // given
         byte[] zipBytes = "not zip file".getBytes();
 
         // then
-        assertThat(verifier.verifyZip("test.zip", zipBytes)).isFalse();
+        var result = verifier.verifyZip("test.zip", zipBytes);
+        assertThat(result.isOk).isFalse();
+        assertThat(result.error).isEqualTo("Invalid zip archive");
     }
 
     @Test
