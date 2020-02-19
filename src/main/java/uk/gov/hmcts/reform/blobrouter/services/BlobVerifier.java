@@ -49,7 +49,7 @@ public class BlobVerifier {
             return false;
         } catch (IOException ex) {
             throw new BlobProcessingException(
-                "Error occurred when loading file for verification. Blob name: " + blobName,
+                "Error occurred when verifying file content. Blob name: " + blobName,
                 ex
             );
         }
