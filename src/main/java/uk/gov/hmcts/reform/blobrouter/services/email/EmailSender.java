@@ -45,9 +45,11 @@ public class EmailSender {
             }
 
             mailSender.send(msg);
+
+            log.info(String.format("Message sent, subject %s", subject));
         } catch (Exception exc) {
             throw new SendEmailException(
-                String.format("Error sending message, from %s, subject %s", from, subject),
+                String.format("Error sending message, subject %s", subject),
                 exc
             );
         }

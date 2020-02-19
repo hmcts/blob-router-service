@@ -55,10 +55,6 @@ public class EmailSenderTest {
 
         // then
         assertThat(ex.getMessage())
-            .isEqualTo(String.format(
-                "Error sending message, from %s, subject %s",
-                FROM_ADDRESS,
-                SUBJECT
-            ));
+            .isEqualTo(String.format("Error sending message, subject %s", SUBJECT));
     }
 }

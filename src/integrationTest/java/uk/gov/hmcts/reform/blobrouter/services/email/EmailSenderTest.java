@@ -3,10 +3,9 @@ package uk.gov.hmcts.reform.blobrouter.services.email;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import com.microsoft.applicationinsights.boot.dependencies.google.common.io.Resources;
 import org.apache.commons.mail.util.MimeMessageParser;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.blobrouter.jupiter.GreenMailExtension;
@@ -20,7 +19,6 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ExtendWith(MockitoExtension.class)
 public class EmailSenderTest {
 
     // as defined in application.properties
@@ -42,10 +40,13 @@ public class EmailSenderTest {
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
 
+    @BeforeEach
+    void setUp() {
+        greenMail.setUser(USERNAME, PASSWORD);
+    }
+
     @Test
     void should_send_email_to_all_recepients() throws Exception {
-        greenMail.setUser(USERNAME, PASSWORD);
-
         File file1 = new File(Resources.getResource(FILE_NAME_1).toURI());
         File file2 = new File(Resources.getResource(FILE_NAME_2).toURI());
 
@@ -77,8 +78,6 @@ public class EmailSenderTest {
 
     @Test
     void should_handle_no_attachments() throws Exception {
-        greenMail.setUser(USERNAME, PASSWORD);
-
         emailSender.sendMessageWithAttachments(
             SUBJECT,
             BODY,
