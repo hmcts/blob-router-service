@@ -38,11 +38,20 @@ public class EnvelopeService {
 
     @Transactional
     public UUID createDispatchedEnvelope(String containerName, String blobName, Instant blobCreationDate) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DISPATCHED));
+
         return createEnvelope(containerName, blobName, blobCreationDate, Status.DISPATCHED);
     }
 
     @Transactional
-    public UUID createRejectedEnvelope(String containerName, String blobName, Instant blobCreationDate) {
+    public UUID createRejectedEnvelope(
+        String containerName,
+        String blobName,
+        Instant blobCreationDate,
+        String rejectionReason
+    ) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.REJECTED, rejectionReason));
+
         return createEnvelope(containerName, blobName, blobCreationDate, Status.REJECTED);
     }
 
@@ -67,8 +76,19 @@ public class EnvelopeService {
     }
 
     @Transactional
-    public void markEnvelopeAsDeleted(UUID envelopeId) {
-        envelopeRepository.markAsDeleted(envelopeId);
+    public void markEnvelopeAsDeleted(Envelope envelope) {
+        envelopeRepository.markAsDeleted(envelope.id);
+        eventRecordRepository.insert(new NewEventRecord(envelope.container, envelope.fileName, Event.DELETED));
+    }
+
+    @Transactional
+    public void saveEventFileProcessingStarted(String containerName, String blobName) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.FILE_PROCESSING_STARTED));
+    }
+
+    @Transactional
+    public void saveEventDeletedFromRejected(String containerName, String blobName) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DELETED_FROM_REJECTED));
     }
 
     @Transactional
