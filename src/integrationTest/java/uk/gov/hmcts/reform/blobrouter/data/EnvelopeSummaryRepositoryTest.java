@@ -37,13 +37,13 @@ public class EnvelopeSummaryRepositoryTest {
 
     private static final String CONTAINER_1 = "container1";
     private static final String CONTAINER_2 = "container2";
-    private static final String FILE_NAME_1_1 = "file_name_1_1";
-    private static final String FILE_NAME_1_2 = "file_name_1_2";
-    private static final String FILE_NAME_1_3 = "file_name_1_3";
-    private static final String FILE_NAME_2_1 = "file_name_2_1";
-    private static final String FILE_NAME_2_2 = "file_name_2_2";
-    private static final String FILE_NAME_2_3 = "file_name_2_3";
-    private static final String FILE_NAME_2_4 = "file_name_2_4";
+    private static final String FILE_1_1 = "file_name_1_1";
+    private static final String FILE_1_2 = "file_name_1_2";
+    private static final String FILE_1_3 = "file_name_1_3";
+    private static final String FILE_2_1 = "file_name_2_1";
+    private static final String FILE_2_2 = "file_name_2_2";
+    private static final String FILE_2_3 = "file_name_2_3";
+    private static final String FILE_2_4 = "file_name_2_4";
 
     @BeforeEach
     void setUp() {
@@ -51,47 +51,66 @@ public class EnvelopeSummaryRepositoryTest {
     }
 
     @Test
+    @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
     void should_find_within_date_range() {
         // given
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Instant instantCreated1 = LocalDateTime.parse("2019-12-19 10:31:25", formatter).toInstant(UTC);
-        Instant instantCreated2 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(UTC);
-        Instant instantCreated3 = LocalDateTime.parse("2019-12-20 12:33:27", formatter).toInstant(UTC);
-        Instant instantCreated4 = LocalDateTime.parse("2019-12-20 12:34:28", formatter).toInstant(UTC);
-        Instant instantCreated5 = LocalDateTime.parse("2019-12-20 12:35:29", formatter).toInstant(UTC);
-        Instant instantCreated6 = LocalDateTime.parse("2019-12-20 12:36:30", formatter).toInstant(UTC);
-        Instant instantCreated7 = LocalDateTime.parse("2019-12-21 13:37:31", formatter).toInstant(UTC);
-        Instant instantDispatched = LocalDateTime.parse("2019-12-22 13:37:31", formatter).toInstant(UTC);
+        Instant created1 = LocalDateTime.parse("2019-12-19 10:31:25", formatter).toInstant(UTC);
+        Instant created2 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(UTC);
+        Instant created3 = LocalDateTime.parse("2019-12-20 12:33:27", formatter).toInstant(UTC);
+        Instant created4 = LocalDateTime.parse("2019-12-20 12:34:28", formatter).toInstant(UTC);
+        Instant created5 = LocalDateTime.parse("2019-12-20 12:35:29", formatter).toInstant(UTC);
+        Instant created6 = LocalDateTime.parse("2019-12-20 12:36:30", formatter).toInstant(UTC);
+        Instant created7 = LocalDateTime.parse("2019-12-21 13:37:31", formatter).toInstant(UTC);
+        Instant dispatched = LocalDateTime.parse("2019-12-22 13:37:31", formatter).toInstant(UTC);
 
         // before the request date
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_NAME_1_1, instantCreated1, instantDispatched, Status.DISPATCHED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_NAME_1_1, FILE_PROCESSING_STARTED));
+        envelopeRepository.insert(
+            new NewEnvelope(CONTAINER_1, FILE_1_1, created1, dispatched, Status.DISPATCHED)
+        );
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_1, FILE_PROCESSING_STARTED));
 
         // 4 envelopes are on the request date
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_NAME_1_2, instantCreated2, instantDispatched, Status.DISPATCHED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_NAME_1_2, FILE_PROCESSING_STARTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_NAME_1_2, DISPATCHED));
+        envelopeRepository.insert(
+            new NewEnvelope(CONTAINER_1, FILE_1_2, created2, dispatched, Status.DISPATCHED)
+        );
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_2, FILE_PROCESSING_STARTED));
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_2, DISPATCHED));
 
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_NAME_1_3, instantCreated3, instantDispatched, Status.DISPATCHED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_NAME_1_3, FILE_PROCESSING_STARTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_NAME_1_3, DISPATCHED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_NAME_1_3, DELETED));
+        envelopeRepository.insert(
+            new NewEnvelope(CONTAINER_1, FILE_1_3, created3, dispatched, Status.DISPATCHED)
+        );
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_3, FILE_PROCESSING_STARTED));
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_3, DISPATCHED));
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_3, DELETED));
 
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_NAME_2_1, instantCreated4, instantDispatched, Status.REJECTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_NAME_2_1, FILE_PROCESSING_STARTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_NAME_2_1, DUPLICATE_REJECTED, "Duplicate"));
+        envelopeRepository.insert(
+            new NewEnvelope(CONTAINER_2, FILE_2_1, created4, dispatched, Status.REJECTED)
+        );
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_1, FILE_PROCESSING_STARTED));
+        eventRecordRepository.insert(
+            new NewEventRecord(CONTAINER_2, FILE_2_1, DUPLICATE_REJECTED, "Duplicate")
+        );
 
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_NAME_2_2, instantCreated5, instantDispatched, Status.REJECTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_NAME_2_2, FILE_PROCESSING_STARTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_NAME_2_2, REJECTED, "Invalid signature"));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_NAME_2_2, DELETED_FROM_REJECTED));
+        envelopeRepository.insert(
+            new NewEnvelope(CONTAINER_2, FILE_2_2, created5, dispatched, Status.REJECTED)
+        );
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_2, FILE_PROCESSING_STARTED));
+        eventRecordRepository.insert(
+            new NewEventRecord(CONTAINER_2, FILE_2_2, REJECTED, "Invalid signature")
+        );
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_2, DELETED_FROM_REJECTED));
 
         // an envelope without events
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_NAME_2_3, instantCreated6, instantDispatched, Status.DISPATCHED));
+        envelopeRepository.insert(
+            new NewEnvelope(CONTAINER_2, FILE_2_3, created6, dispatched, Status.DISPATCHED)
+        );
 
         // after the request date
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_NAME_2_4, instantCreated7, instantDispatched, Status.REJECTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_NAME_2_4, FILE_PROCESSING_STARTED));
+        envelopeRepository.insert(
+            new NewEnvelope(CONTAINER_2, FILE_2_4, created7, dispatched, Status.REJECTED)
+        );
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_4, FILE_PROCESSING_STARTED));
 
         // when
         List<EnvelopeSummary> result = repo.find(
@@ -104,11 +123,11 @@ public class EnvelopeSummaryRepositoryTest {
                        .collect(toList()))
             .extracting("container", "fileName", "fileCreatedAt", "dispatchedAt", "status", "lastEvent", "eventNotes")
             .containsExactlyInAnyOrder(
-                tuple(CONTAINER_1, FILE_NAME_1_2, instantCreated2, instantDispatched, Status.DISPATCHED, DISPATCHED, null),
-                tuple(CONTAINER_1, FILE_NAME_1_3, instantCreated3, instantDispatched, Status.DISPATCHED, DELETED, null),
-                tuple(CONTAINER_2, FILE_NAME_2_1, instantCreated4, instantDispatched, Status.REJECTED, DUPLICATE_REJECTED, "Duplicate"),
-                tuple(CONTAINER_2, FILE_NAME_2_2, instantCreated5, instantDispatched, Status.REJECTED, DELETED_FROM_REJECTED, null),
-                tuple(CONTAINER_2, FILE_NAME_2_3, instantCreated6, instantDispatched, Status.DISPATCHED, null, null)
+                tuple(CONTAINER_1, FILE_1_2, created2, dispatched, Status.DISPATCHED, DISPATCHED, null),
+                tuple(CONTAINER_1, FILE_1_3, created3, dispatched, Status.DISPATCHED, DELETED, null),
+                tuple(CONTAINER_2, FILE_2_1, created4, dispatched, Status.REJECTED, DUPLICATE_REJECTED, "Duplicate"),
+                tuple(CONTAINER_2, FILE_2_2, created5, dispatched, Status.REJECTED, DELETED_FROM_REJECTED, null),
+                tuple(CONTAINER_2, FILE_2_3, created6, dispatched, Status.DISPATCHED, null, null)
             );
     }
 }
