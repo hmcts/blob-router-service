@@ -13,7 +13,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
 @Component
-@ConditionalOnProperty(value = "scheduling.task.handle-rejected-files.enabled")
+@ConditionalOnProperty(value = "scheduling.task.reject-duplicates.enabled")
 @EnableConfigurationProperties(ServiceConfiguration.class)
 public class RejectDuplicatesTask {
 
