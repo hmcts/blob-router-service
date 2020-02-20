@@ -30,7 +30,7 @@ java:
 
     DELETE_DISPATCHED_FILES_CRON: "0 0/10 * * * *"
     HANDLE_REJECTED_FILES_CRON: "0/30 * * * * *"
-    REJECT_DUPLICATES_CRON: "0 0/10 * * * *"
+    REJECT_DUPLICATES_CRON: "0/30 * * * * *"
     TASK_SCAN_DELAY: "4000" # in millis
 
     STORAGE_BULKSCAN_URL: https://bulkscan{{ .Values.global.environment }}.blob.core.windows.net
