@@ -16,7 +16,6 @@ java:
         - crime-storage-connection-string
         - flyway-password
         - blob-router-POSTGRES-PASS
-        - storage-reform-connection-string
   environment:
     DB_HOST: reform-scan-blob-router-{{ .Values.global.environment }}.postgres.database.azure.com
     DB_PORT: '5432'
@@ -38,6 +37,8 @@ java:
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
 
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+
+    STORAGE_REFORM_CONNECTION_STRING: "DefaultEndpointsProtocol=https;BlobEndpoint=https://reformscan.{{ .Values.global.environment }}.platform.hmcts.net;AccountName=$(STORAGE_ACCOUNT_NAME);AccountKey=$(STORAGE_ACCOUNT_KEY)"
 
     SMTP_HOST: "false"
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
