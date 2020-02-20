@@ -6,6 +6,7 @@ import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.time.Instant;
 
@@ -19,15 +20,18 @@ public class ContainerProcessor {
     private final BlobServiceClient storageClient;
     private final BlobProcessor blobProcessor;
     private final BlobReadinessChecker blobReadinessChecker;
+    private final EnvelopeService envelopeService;
 
     public ContainerProcessor(
         BlobServiceClient storageClient,
         BlobProcessor blobProcessor,
-        BlobReadinessChecker blobReadinessChecker
+        BlobReadinessChecker blobReadinessChecker,
+        EnvelopeService envelopeService
     ) {
         this.storageClient = storageClient;
         this.blobProcessor = blobProcessor;
         this.blobReadinessChecker = blobReadinessChecker;
+        this.envelopeService = envelopeService;
     }
 
     public void process(String containerName) {
@@ -50,6 +54,7 @@ public class ContainerProcessor {
         Instant blobCreationDate = blob.getProperties().getLastModified().toInstant();
 
         if (blobReadinessChecker.isReady(blobCreationDate)) {
+            envelopeService.saveEventFileProcessingStarted(containerName, blob.getName());
             blobProcessor.process(blob.getName(), containerName);
         } else {
             logger.info(

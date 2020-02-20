@@ -2,13 +2,17 @@ package uk.gov.hmcts.reform.blobrouter.services.email;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.Map;
 import javax.mail.internet.MimeMessage;
 
+@Component
+@ConditionalOnProperty(prefix = "spring.mail", name = "host")
 public class EmailSender {
 
     private static final Logger log = LoggerFactory.getLogger(EmailSender.class);
@@ -41,8 +45,13 @@ public class EmailSender {
             }
 
             mailSender.send(msg);
+
+            log.info(String.format("Message sent, subject %s", subject));
         } catch (Exception exc) {
-            throw new SendEmailException("Error sending message", exc);
+            throw new SendEmailException(
+                String.format("Error sending message, subject %s", subject),
+                exc
+            );
         }
     }
 }

@@ -235,7 +235,6 @@ dependencies {
   }
 
   testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
-  testCompile group: 'com.icegreen', name: 'greenmail', version: '1.5.11'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
@@ -247,6 +246,7 @@ dependencies {
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.25.1'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.12.5'
+  integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.11'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation libraries.junit5

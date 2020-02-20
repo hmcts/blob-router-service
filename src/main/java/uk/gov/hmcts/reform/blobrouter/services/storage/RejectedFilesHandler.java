@@ -48,7 +48,7 @@ public class RejectedFilesHandler {
                 envelopes.forEach(envelope -> {
                     try {
                         blobMover.moveToRejectedContainer(envelope.fileName, container);
-                        envelopeService.markEnvelopeAsDeleted(envelope.id);
+                        envelopeService.markEnvelopeAsDeleted(envelope);
                     } catch (Exception exc) {
                         logger.error(
                             "Error handling rejected file. File name: {}. container: {}",

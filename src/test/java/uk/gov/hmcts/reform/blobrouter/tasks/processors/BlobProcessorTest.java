@@ -16,7 +16,7 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
-import uk.gov.hmcts.reform.blobrouter.services.BlobSignatureVerifier;
+import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
@@ -70,7 +70,7 @@ class BlobProcessorTest {
     @Mock BlobLeaseClient blobLeaseClient;
     @Mock EnvelopeRepository envelopeRepo;
     @Mock EventRecordRepository eventRecordRepo;
-    @Mock BlobSignatureVerifier signatureVerifier;
+    @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
 
     @Test
@@ -78,7 +78,7 @@ class BlobProcessorTest {
         // given
         blobExists();
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
-        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(true);
 
         willThrow(new RuntimeException("Test exception"))
             .given(blobDispatcher)
@@ -103,7 +103,7 @@ class BlobProcessorTest {
         String fileName = "envelope1.zip";
         String containerName = SOURCE_CONTAINER;
 
-        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(true);
 
         // when
         newBlobProcessor().process(fileName, containerName);
@@ -132,7 +132,7 @@ class BlobProcessorTest {
         String fileName = "envelope1.zip";
         String containerName = "container1";
 
-        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(false);
+        given(verifier.verifyZip(any(), any())).willReturn(false);
 
         // when
         newBlobProcessor().process(fileName, containerName);
@@ -160,7 +160,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, BULKSCAN);
 
         // valid file
-        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(true);
 
         var fileName = "envelope1.zip";
 
@@ -182,7 +182,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
-        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(true);
         var fileName = "envelope1.zip";
 
         // when
@@ -204,7 +204,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
-        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(true);
 
         // when
         newBlobProcessor().process("envelope1.zip", sourceContainerName);
@@ -225,7 +225,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
-        given(signatureVerifier.verifyZipSignature(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(true);
 
         // when
         newBlobProcessor().process("envelope1.zip", sourceContainerName);
@@ -301,7 +301,7 @@ class BlobProcessorTest {
             this.blobDispatcher,
             new EnvelopeService(this.envelopeRepo, this.eventRecordRepo),
             blobClient -> blobLeaseClient,
-            this.signatureVerifier,
+            this.verifier,
             this.serviceConfiguration
         );
     }
