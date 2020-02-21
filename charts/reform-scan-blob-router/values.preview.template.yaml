@@ -40,7 +40,7 @@ java:
 
     STORAGE_BULKSCAN_URL: https://bulkscanaat.blob.core.windows.net
 
-    STORAGE_REFORM_CONNECTION_STRING: "DefaultEndpointsProtocol=https;BlobEndpoint=https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net;AccountName=$(STORAGE_ACCOUNT_NAME);AccountKey=$(STORAGE_ACCOUNT_KEY);"
+    STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
     STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
 
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
