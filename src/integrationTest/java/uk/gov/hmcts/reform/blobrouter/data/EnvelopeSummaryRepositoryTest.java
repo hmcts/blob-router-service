@@ -124,55 +124,60 @@ public class EnvelopeSummaryRepositoryTest {
                        .collect(toList()))
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new EnvelopeSummary(CONTAINER_1,
-                                    FILE_1_2,
-                                    createdAt2,
-                                    dispatchedAt,
-                                    Status.DISPATCHED,
-                                    false,
-                                    DISPATCHED,
-                                    null,
-                                    lastEvent12CreatedAt
+                new EnvelopeSummary(
+                    CONTAINER_1,
+                    FILE_1_2,
+                    createdAt2,
+                    dispatchedAt,
+                    Status.DISPATCHED,
+                    false,
+                    DISPATCHED,
+                    null,
+                    lastEvent12CreatedAt
                 ),
-                new EnvelopeSummary(CONTAINER_1,
-                                    FILE_1_3,
-                                    createdAt3,
-                                    dispatchedAt,
-                                    Status.DISPATCHED,
-                                    true,
-                                    DELETED,
-                                    null,
-                                    lastEvent13CreatedAt
+                new EnvelopeSummary(
+                    CONTAINER_1,
+                    FILE_1_3,
+                    createdAt3,
+                    dispatchedAt,
+                    Status.DISPATCHED,
+                    true,
+                    DELETED,
+                    null,
+                    lastEvent13CreatedAt
                 ),
-                new EnvelopeSummary(CONTAINER_2,
-                                    FILE_2_1,
-                                    createdAt4,
-                                    null,
-                                    Status.REJECTED,
-                                    false,
-                                    DUPLICATE_REJECTED,
-                                    "Duplicate",
-                                    lastEvent21CreatedAt
+                new EnvelopeSummary(
+                    CONTAINER_2,
+                    FILE_2_1,
+                    createdAt4,
+                    null,
+                    Status.REJECTED,
+                    false,
+                    DUPLICATE_REJECTED,
+                    "Duplicate",
+                    lastEvent21CreatedAt
                 ),
-                new EnvelopeSummary(CONTAINER_2,
-                                    FILE_2_2,
-                                    createdAt5,
-                                    null,
-                                    Status.REJECTED,
-                                    false,
-                                    DELETED_FROM_REJECTED,
-                                    null,
-                                    lastEvent22CreatedAt
+                new EnvelopeSummary(
+                    CONTAINER_2,
+                    FILE_2_2,
+                    createdAt5,
+                    null,
+                    Status.REJECTED,
+                    false,
+                    DELETED_FROM_REJECTED,
+                    null,
+                    lastEvent22CreatedAt
                 ),
-                new EnvelopeSummary(CONTAINER_2,
-                                    FILE_2_3,
-                                    createdAt6,
-                                    dispatchedAt,
-                                    Status.DISPATCHED,
-                                    false,
-                                    null,
-                                    null,
-                                    null
+                new EnvelopeSummary(
+                    CONTAINER_2,
+                    FILE_2_3,
+                    createdAt6,
+                    dispatchedAt,
+                    Status.DISPATCHED,
+                    false,
+                    null,
+                    null,
+                    null
                 )
             );
     }
