@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public class EnvelopeSummaryRepository {
 
+    private static final String BULKSCAN_CONTAINER_NAME = "bulkscan";
+
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeSummaryMapper mapper;
 
@@ -25,8 +27,9 @@ public class EnvelopeSummaryRepository {
 
     public List<EnvelopeSummary> find(Instant from, Instant to) {
         return jdbcTemplate.query(
-              "SELECT e.container, e.file_name, e.file_created_at, e.dispatched_at, e.status, e.is_deleted, "
-                + "       ev2.created_at, ev2.event, ev2.notes "
+              "SELECT e.container, e.file_name, e.file_created_at, e.dispatched_at AS file_dispatched_at, "
+                + "       e.status, e.is_deleted, "
+                + "       ev2.created_at AS event_created_at, ev2.event, ev2.notes "
                 + "FROM envelopes e "
                 + "LEFT OUTER JOIN ("
                 + "    SELECT container, file_name, MAX(id) AS max_id "
@@ -39,7 +42,8 @@ public class EnvelopeSummaryRepository {
                 + "    FROM events"
                 + ") ev2 "
                 + "ON ev2.id = ev1.max_id "
-                + "WHERE e.file_created_at >= :from AND e.file_created_at < :to",
+                + "WHERE e.container <> '" + BULKSCAN_CONTAINER_NAME + "' "
+                + "      AND e.file_created_at >= :from AND e.file_created_at < :to",
             new MapSqlParameterSource()
                 .addValue("from", Timestamp.from(from))
                 .addValue("to", Timestamp.from(to)),

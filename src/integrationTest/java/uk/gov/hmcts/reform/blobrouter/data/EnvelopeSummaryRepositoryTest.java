@@ -39,6 +39,7 @@ public class EnvelopeSummaryRepositoryTest {
 
     private static final String CONTAINER_1 = "container1";
     private static final String CONTAINER_2 = "container2";
+    private static final String BULKSCAN_CONTAINER = "bulkscan";
     private static final String FILE_1_1 = "file_name_1_1";
     private static final String FILE_1_2 = "file_name_1_2";
     private static final String FILE_1_3 = "file_name_1_3";
@@ -46,6 +47,7 @@ public class EnvelopeSummaryRepositoryTest {
     private static final String FILE_2_2 = "file_name_2_2";
     private static final String FILE_2_3 = "file_name_2_3";
     private static final String FILE_2_4 = "file_name_2_4";
+    private static final String FILE_BULKSCAN_1 = "file_name_bulkscan_1";
 
     @BeforeEach
     void setUp() {
@@ -63,8 +65,9 @@ public class EnvelopeSummaryRepositoryTest {
         Instant createdAt4 = LocalDateTime.parse("2019-12-20 12:34:28", formatter).toInstant(UTC);
         Instant createdAt5 = LocalDateTime.parse("2019-12-20 12:35:29", formatter).toInstant(UTC);
         Instant createdAt6 = LocalDateTime.parse("2019-12-20 12:36:30", formatter).toInstant(UTC);
-        Instant createdAt7 = LocalDateTime.parse("2019-12-21 13:37:31", formatter).toInstant(UTC);
-        Instant dispatchedAt = LocalDateTime.parse("2019-12-22 13:38:32", formatter).toInstant(UTC);
+        Instant createdAt7 = LocalDateTime.parse("2019-12-20 12:37:31", formatter).toInstant(UTC);
+        Instant createdAt8 = LocalDateTime.parse("2019-12-21 13:38:32", formatter).toInstant(UTC);
+        Instant dispatchedAt = LocalDateTime.parse("2019-12-22 13:39:33", formatter).toInstant(UTC);
 
         // before the request date
         envelopeRepository.insert(
@@ -101,10 +104,13 @@ public class EnvelopeSummaryRepositoryTest {
         // an envelope without events
         envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_3, createdAt6, dispatchedAt, Status.DISPATCHED));
 
-        // after the request date
+        // an envelope in 'bulkscan' container - should be filtered out
         envelopeRepository.insert(
-            new NewEnvelope(CONTAINER_2, FILE_2_4, createdAt7, dispatchedAt, Status.REJECTED)
+            new NewEnvelope(BULKSCAN_CONTAINER, FILE_BULKSCAN_1, createdAt7, dispatchedAt, Status.DISPATCHED)
         );
+
+        // after the request date
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_4, createdAt8, dispatchedAt, Status.REJECTED));
         eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_4, FILE_PROCESSING_STARTED));
 
         // when
