@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.slf4j.Logger;
@@ -10,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
 public class BlobContainerClientProvider {
@@ -38,7 +38,7 @@ public class BlobContainerClientProvider {
                 logger.info("sasToken {}", sasToken);
 
                 String connectionString = String.format(
-                    "DefaultEndpointsProtocol=https;BlobEndpoint=%s;SharedAccessSignature=%s",
+                    "BlobEndpoint=%s;SharedAccessSignature=%s",
                     bulkScanStorageUrl,
                     sasToken
                 );
