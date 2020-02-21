@@ -5,7 +5,7 @@ package uk.gov.hmcts.reform.blobrouter.exceptions;
  */
 public class DocSignatureFailureException extends RuntimeException {
 
-    private static final long serialVersionUID = 7705142254662981720L;
+    private static final long serialVersionUID = 7905142254662981720L;
 
     public DocSignatureFailureException(String message) {
         super(message);
