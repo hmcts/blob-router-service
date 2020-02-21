@@ -54,7 +54,7 @@ class SasTokenGeneratorServiceTest {
         OffsetDateTime now = OffsetDateTime.now();
 
         assertThat(queryParams.get("sig")).isNotNull();//this is a generated hash of the resource string
-        assertThat(queryParams.get("sv")).contains("2019-02-02");//azure api version is latest
+        assertThat(queryParams.get("sv")).contains("2019-07-07");//azure api version is latest
         OffsetDateTime expiresAt = OffsetDateTime.parse(queryParams.get("se")[0]); //expiry datetime for the signature
         assertThat(expiresAt).isBetween(now, now.plusSeconds(300));
         assertThat(queryParams.get("sp")).contains("wl");//access permissions(write-w,list-l)
