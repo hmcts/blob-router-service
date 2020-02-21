@@ -38,7 +38,7 @@ java:
     FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
 
-    STORAGE_BULKSCAN_URL: https://bulkscanaat.blob.core.windows.net
+    STORAGE_BULKSCAN_URL: https://bulkscan.aat.platform.hmcts.net
 
     STORAGE_REFORM_CONNECTION_STRING: "DefaultEndpointsProtocol=https;BlobEndpoint=https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net;AccountName=$(STORAGE_ACCOUNT_NAME);AccountKey=$(STORAGE_ACCOUNT_KEY);"
     STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
