@@ -86,7 +86,10 @@ public class EnvelopeRepository {
                 .addValue("fileName", envelope.fileName)
                 .addValue("fileCreatedAt", Timestamp.from(envelope.fileCreatedAt))
                 .addValue("status", envelope.status.name())
-                .addValue("dispatchedAt", Timestamp.from(envelope.dispatchedAt))
+                .addValue(
+                    "dispatchedAt",
+                    envelope.dispatchedAt == null ? null : Timestamp.from(envelope.dispatchedAt)
+                )
         );
         return id;
     }
