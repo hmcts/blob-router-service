@@ -33,7 +33,7 @@ public class StorageConfiguration {
     public BlobServiceClient getStorageClient(
         @Value("${storage.account-name}") String accountName,
         @Value("${storage.account-key}") String accountKey,
-        @Value("${storage.url") String storageUrl
+        @Value("${storage.url}") String storageUrl
     ) {
         String connectionString = String.format(
             "DefaultEndpointsProtocol=https;BlobEndpoint=%s;AccountName=%s;AccountKey=%s",
