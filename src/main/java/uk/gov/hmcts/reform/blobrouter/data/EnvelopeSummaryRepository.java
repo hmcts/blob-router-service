@@ -25,7 +25,8 @@ public class EnvelopeSummaryRepository {
 
     public List<EnvelopeSummary> find(Instant from, Instant to) {
         return jdbcTemplate.query(
-            "SELECT e.*, ev2.* "
+              "SELECT e.container, e.file_name, e.file_created_at, e.dispatched_at, e.status, e.is_deleted, "
+                + "       ev2.created_at, ev2.event, ev2.notes "
                 + "FROM envelopes e "
                 + "LEFT OUTER JOIN ("
                 + "    SELECT container, file_name, MAX(id) AS max_id "
@@ -34,7 +35,7 @@ public class EnvelopeSummaryRepository {
                 + ") ev1 "
                 + "ON (e.container = ev1.container AND e.file_name = ev1.file_name) "
                 + "LEFT OUTER JOIN ("
-                + "    SELECT * "
+                + "    SELECT id, event, notes, created_at "
                 + "    FROM events"
                 + ") ev2 "
                 + "ON ev2.id = ev1.max_id "

@@ -18,10 +18,18 @@ public class EnvelopeSummaryMapper implements RowMapper<EnvelopeSummary> {
             rs.getString("container"),
             rs.getString("file_name"),
             rs.getTimestamp("file_created_at").toInstant(),
-            rs.getTimestamp("dispatched_at").toInstant(),
+            rs.getTimestamp("dispatched_at") == null ?
+                null
+                :
+                rs.getTimestamp("dispatched_at").toInstant(),
             Status.valueOf(rs.getString("status")),
+            rs.getBoolean("is_deleted"),
             rs.getString("event") == null ? null : Event.valueOf(rs.getString("event")),
-            rs.getString("notes")
+            rs.getString("notes"),
+            rs.getTimestamp("created_at") == null ?
+                null
+                :
+                rs.getTimestamp("created_at").toInstant()
         );
     }
 }
