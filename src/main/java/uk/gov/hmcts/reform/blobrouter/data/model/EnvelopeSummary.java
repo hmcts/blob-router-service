@@ -11,8 +11,8 @@ public class EnvelopeSummary {
     private final Status status;
     private final boolean isDeleted;
     private final Event lastEvent;
-    private final String eventNotes;
-    private final Instant eventCreatedAt;
+    private final String lastEventNotes;
+    private final Instant lastEventCreatedAt;
 
     public EnvelopeSummary(
         String container,
@@ -22,8 +22,8 @@ public class EnvelopeSummary {
         Status status,
         boolean isDeleted,
         Event lastEvent,
-        String eventNotes,
-        Instant eventCreatedAt
+        String lastEventNotes,
+        Instant lastEventCreatedAt
     ) {
         this.container = container;
         this.fileName = fileName;
@@ -32,7 +32,7 @@ public class EnvelopeSummary {
         this.status = status;
         this.isDeleted = isDeleted;
         this.lastEvent = lastEvent;
-        this.eventNotes = eventNotes;
-        this.eventCreatedAt = eventCreatedAt;
+        this.lastEventNotes = lastEventNotes;
+        this.lastEventCreatedAt = lastEventCreatedAt;
     }
 }

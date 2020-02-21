@@ -26,8 +26,4 @@ public class EventRecord {
         this.event = event;
         this.notes = notes;
     }
-
-    public long getId() {
-        return id;
-    }
 }

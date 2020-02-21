@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.model.EnvelopeSummary;
-import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
@@ -16,25 +15,21 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 
 import static java.time.ZoneOffset.UTC;
 import static java.util.Comparator.comparingLong;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.DELETED;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.DELETED_FROM_REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Event.DISPATCHED;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Event.DUPLICATE_REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Event.FILE_PROCESSING_STARTED;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.REJECTED;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
 public class EnvelopeSummaryRepositoryTest {
     @Autowired private EnvelopeRepository envelopeRepository;
     @Autowired private EventRecordRepository eventRecordRepository;
-    @Autowired private EnvelopeSummaryRepository repo;
+    @Autowired private EnvelopeSummaryRepository envelopeSummaryRepository;
     @Autowired private DbHelper dbHelper;
 
     private static final String CONTAINER_1 = "container1";
@@ -42,11 +37,8 @@ public class EnvelopeSummaryRepositoryTest {
     private static final String BULKSCAN_CONTAINER = "bulkscan";
     private static final String FILE_1_1 = "file_name_1_1";
     private static final String FILE_1_2 = "file_name_1_2";
-    private static final String FILE_1_3 = "file_name_1_3";
     private static final String FILE_2_1 = "file_name_2_1";
     private static final String FILE_2_2 = "file_name_2_2";
-    private static final String FILE_2_3 = "file_name_2_3";
-    private static final String FILE_2_4 = "file_name_2_4";
     private static final String FILE_BULKSCAN_1 = "file_name_bulkscan_1";
 
     @BeforeEach
@@ -61,12 +53,8 @@ public class EnvelopeSummaryRepositoryTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         Instant createdAt1 = LocalDateTime.parse("2019-12-19 10:31:25", formatter).toInstant(UTC);
         Instant createdAt2 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(UTC);
-        Instant createdAt3 = LocalDateTime.parse("2019-12-20 12:33:27", formatter).toInstant(UTC);
-        Instant createdAt4 = LocalDateTime.parse("2019-12-20 12:34:28", formatter).toInstant(UTC);
-        Instant createdAt5 = LocalDateTime.parse("2019-12-20 12:35:29", formatter).toInstant(UTC);
-        Instant createdAt6 = LocalDateTime.parse("2019-12-20 12:36:30", formatter).toInstant(UTC);
-        Instant createdAt7 = LocalDateTime.parse("2019-12-20 12:37:31", formatter).toInstant(UTC);
-        Instant createdAt8 = LocalDateTime.parse("2019-12-21 13:38:32", formatter).toInstant(UTC);
+        Instant createdAt3 = LocalDateTime.parse("2019-12-20 12:34:28", formatter).toInstant(UTC);
+        Instant createdAt4 = LocalDateTime.parse("2019-12-21 13:38:32", formatter).toInstant(UTC);
         Instant dispatchedAt = LocalDateTime.parse("2019-12-22 13:39:33", formatter).toInstant(UTC);
 
         // before the request date
@@ -75,46 +63,23 @@ public class EnvelopeSummaryRepositoryTest {
         );
         eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_1, FILE_PROCESSING_STARTED));
 
-        // 4 envelopes are on the request date
+        // 2 envelopes are on the request date
         envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_2, createdAt2, dispatchedAt, Status.DISPATCHED));
         eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_2, FILE_PROCESSING_STARTED));
         eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_2, DISPATCHED));
         Instant lastEvent12CreatedAt = getLastEventCreatedCreatedAt(CONTAINER_1, FILE_1_2);
 
-        UUID envelope13Id = envelopeRepository.insert(
-            new NewEnvelope(CONTAINER_1, FILE_1_3, createdAt3, dispatchedAt, Status.DISPATCHED)
-        );
-        envelopeRepository.markAsDeleted(envelope13Id);
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_3, FILE_PROCESSING_STARTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_3, DISPATCHED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_3, DELETED));
-        Instant lastEvent13CreatedAt = getLastEventCreatedCreatedAt(CONTAINER_1, FILE_1_3);
-
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_1, createdAt4, null, Status.REJECTED));
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_1, createdAt3, null, Status.REJECTED));
         eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_1, FILE_PROCESSING_STARTED));
         eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_1, DUPLICATE_REJECTED, "Duplicate"));
         Instant lastEvent21CreatedAt = getLastEventCreatedCreatedAt(CONTAINER_2, FILE_2_1);
 
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_2, createdAt5, null, Status.REJECTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_2, FILE_PROCESSING_STARTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_2, REJECTED, "Invalid signature"));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_2, DELETED_FROM_REJECTED));
-        Instant lastEvent22CreatedAt = getLastEventCreatedCreatedAt(CONTAINER_2, FILE_2_2);
-
-        // an envelope without events
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_3, createdAt6, dispatchedAt, Status.DISPATCHED));
-
-        // an envelope in 'bulkscan' container - should be filtered out
-        envelopeRepository.insert(
-            new NewEnvelope(BULKSCAN_CONTAINER, FILE_BULKSCAN_1, createdAt7, dispatchedAt, Status.DISPATCHED)
-        );
-
         // after the request date
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_4, createdAt8, dispatchedAt, Status.REJECTED));
-        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_4, FILE_PROCESSING_STARTED));
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_2, createdAt4, dispatchedAt, Status.REJECTED));
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_2, FILE_2_2, FILE_PROCESSING_STARTED));
 
         // when
-        List<EnvelopeSummary> result = repo.find(
+        List<EnvelopeSummary> result = envelopeSummaryRepository.find(
             LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
             LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
         );
@@ -136,42 +101,44 @@ public class EnvelopeSummaryRepositoryTest {
                     lastEvent12CreatedAt
                 ),
                 new EnvelopeSummary(
-                    CONTAINER_1,
-                    FILE_1_3,
-                    createdAt3,
-                    dispatchedAt,
-                    Status.DISPATCHED,
-                    true,
-                    DELETED,
-                    null,
-                    lastEvent13CreatedAt
-                ),
-                new EnvelopeSummary(
                     CONTAINER_2,
                     FILE_2_1,
-                    createdAt4,
+                    createdAt3,
                     null,
                     Status.REJECTED,
                     false,
                     DUPLICATE_REJECTED,
                     "Duplicate",
                     lastEvent21CreatedAt
-                ),
+                )
+            );
+    }
+
+    @Test
+    @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
+    void should_handle_missing_events() {
+        // given
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Instant createdAt = LocalDateTime.parse("2019-12-20 10:31:25", formatter).toInstant(UTC);
+        Instant dispatchedAt = LocalDateTime.parse("2019-12-22 13:39:33", formatter).toInstant(UTC);
+
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_1, createdAt, dispatchedAt, Status.DISPATCHED));
+
+        // when
+        List<EnvelopeSummary> result = envelopeSummaryRepository.find(
+            LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
+            LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
+        );
+
+        // then
+        assertThat(result.stream()
+                       .collect(toList()))
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(
                 new EnvelopeSummary(
-                    CONTAINER_2,
-                    FILE_2_2,
-                    createdAt5,
-                    null,
-                    Status.REJECTED,
-                    false,
-                    DELETED_FROM_REJECTED,
-                    null,
-                    lastEvent22CreatedAt
-                ),
-                new EnvelopeSummary(
-                    CONTAINER_2,
-                    FILE_2_3,
-                    createdAt6,
+                    CONTAINER_1,
+                    FILE_1_1,
+                    createdAt,
                     dispatchedAt,
                     Status.DISPATCHED,
                     false,
@@ -182,11 +149,54 @@ public class EnvelopeSummaryRepositoryTest {
             );
     }
 
+    @Test
+    @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
+    void should_skip_bulkscan_repository() {
+        // given
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Instant createdAt1 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(UTC);
+        Instant createdAt2 = LocalDateTime.parse("2019-12-20 12:33:27", formatter).toInstant(UTC);
+        Instant dispatchedAt = LocalDateTime.parse("2019-12-22 13:39:33", formatter).toInstant(UTC);
+
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_1, createdAt1, dispatchedAt, Status.DISPATCHED));
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_1, FILE_PROCESSING_STARTED));
+        eventRecordRepository.insert(new NewEventRecord(CONTAINER_1, FILE_1_1, DISPATCHED));
+        Instant lastEventCreatedAt = getLastEventCreatedCreatedAt(CONTAINER_1, FILE_1_1);
+
+        envelopeRepository.insert(
+            new NewEnvelope(BULKSCAN_CONTAINER, FILE_BULKSCAN_1, createdAt2, dispatchedAt, Status.DISPATCHED)
+        );
+
+        // when
+        List<EnvelopeSummary> result = envelopeSummaryRepository.find(
+            LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
+            LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
+        );
+
+        // then
+        assertThat(result.stream()
+                       .collect(toList()))
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(
+                new EnvelopeSummary(
+                    CONTAINER_1,
+                    FILE_1_1,
+                    createdAt1,
+                    dispatchedAt,
+                    Status.DISPATCHED,
+                    false,
+                    DISPATCHED,
+                    null,
+                    lastEventCreatedAt
+                )
+            );
+    }
+
     private Instant getLastEventCreatedCreatedAt(String container, String fileName) {
         return eventRecordRepository
             .find(container, fileName)
             .stream()
-            .max(comparingLong(EventRecord::getId))
+            .max(comparingLong(er -> er.id))
             .get()
             .createdAt;
     }
