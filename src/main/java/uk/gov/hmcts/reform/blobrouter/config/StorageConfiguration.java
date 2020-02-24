@@ -31,9 +31,17 @@ public class StorageConfiguration {
 
     @Bean
     public BlobServiceClient getStorageClient(
-        StorageSharedKeyCredential credentials,
-        @Value("${storage.reform.connection-string}") String connectionString
+        @Value("${storage.account-name}") String accountName,
+        @Value("${storage.account-key}") String accountKey,
+        @Value("${storage.url}") String storageUrl
     ) {
+        String connectionString = String.format(
+            "DefaultEndpointsProtocol=https;BlobEndpoint=%s;AccountName=%s;AccountKey=%s",
+            storageUrl,
+            accountName,
+            accountKey
+        );
+
         return new BlobServiceClientBuilder()
             .connectionString(connectionString)
             .buildClient();
