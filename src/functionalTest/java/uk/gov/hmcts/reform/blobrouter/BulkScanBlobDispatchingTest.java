@@ -23,7 +23,7 @@ public class BulkScanBlobDispatchingTest extends FunctionalTestBase {
     @Test
     void should_move_blob_to_bulkscan_storage() throws Exception {
         // upload bulkscan file with unique name
-        String fileName = "Bulkscan" + randomFileName();
+        String fileName = "Bulkscan_" + randomFileName();
 
         byte[] wrappingZipContent = createZipArchive(
             asList("test-data/envelope/envelope.zip", "test-data/envelope/signature")
