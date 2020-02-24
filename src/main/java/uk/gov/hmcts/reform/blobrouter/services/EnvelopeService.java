@@ -2,10 +2,13 @@ package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Event;
+import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
@@ -94,5 +97,14 @@ public class EnvelopeService {
     @Transactional
     public void saveEventDuplicateRejected(String containerName, String blobName) {
         eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DUPLICATE_REJECTED));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Tuple2<Envelope, List<EventRecord>>> getEnvelopeInfo(String blobName, String containerName) {
+        return findEnvelope(blobName, containerName)
+            .map(envelope -> Tuples.of(
+                envelope,
+                eventRecordRepository.find(containerName, blobName)
+            ));
     }
 }
