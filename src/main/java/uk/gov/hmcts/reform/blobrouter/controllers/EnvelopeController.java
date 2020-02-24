@@ -5,19 +5,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
 public class EnvelopeController {
 
-    private final EnvelopeRepository envelopesRepo;
+    private final EnvelopeService envelopeService;
 
-    public EnvelopeController(EnvelopeRepository envelopesRepo) {
-        this.envelopesRepo = envelopesRepo;
+    public EnvelopeController(EnvelopeService envelopeService) {
+        this.envelopeService = envelopeService;
     }
 
     @GetMapping()
@@ -25,13 +30,13 @@ public class EnvelopeController {
         @RequestParam("file_name") String fileName,
         @RequestParam("container") String container
     ) {
-        return envelopesRepo
-            .find(fileName, container)
-            .map(this::toResponse)
+        return envelopeService
+            .getEnvelopeInfo(fileName, container)
+            .map(tuple -> toResponse(tuple.getT1(), tuple.getT2()))
             .orElseThrow(EnvelopeNotFoundException::new);
     }
 
-    private EnvelopeInfo toResponse(Envelope dbEnvelope) {
+    private EnvelopeInfo toResponse(Envelope dbEnvelope, List<EventRecord> dbEventRecords) {
         return new EnvelopeInfo(
             dbEnvelope.id,
             dbEnvelope.container,
@@ -40,7 +45,15 @@ public class EnvelopeController {
             dbEnvelope.fileCreatedAt,
             dbEnvelope.dispatchedAt,
             dbEnvelope.status,
-            dbEnvelope.isDeleted
+            dbEnvelope.isDeleted,
+            toResponse(dbEventRecords)
         );
+    }
+
+    private List<EnvelopeEvent> toResponse(List<EventRecord> dbEventRecords) {
+        return dbEventRecords
+            .stream()
+            .map(EnvelopeEvent::new)
+            .collect(Collectors.toList());
     }
 }

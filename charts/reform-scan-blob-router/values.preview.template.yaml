@@ -67,6 +67,11 @@ reformblobstorage:
       - bulkscan-rejected
       - crime
       - crime-rejected
+      - cmc
+      - sscs
+      - finrem
+      - divorce
+      - probate
 
 crimeblobstorage:
   enabled: true
