@@ -91,3 +91,8 @@ scheduling:
       cron: 0 0 6 * * *
     scan:
       delay: ${TASK_SCAN_DELAY} # In milliseconds
+
+
+proxy:
+  host-name: ${PROXY_HOST_NAME:proxyout.reform.hmcts.net}
+  port: ${PROXY_PORT:8080}

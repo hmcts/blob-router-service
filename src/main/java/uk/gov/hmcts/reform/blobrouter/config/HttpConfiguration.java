@@ -7,6 +7,7 @@ import feign.httpclient.ApacheHttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -33,14 +34,16 @@ public class HttpConfiguration {
     }
 
     @Bean
-    public com.azure.core.http.HttpClient azureHttpClient() {
+    public com.azure.core.http.HttpClient azureHttpClient(
+        @Value("${proxy.host-name}") String proxyHostName,
+        @Value("${proxy.port}") int proxyPort) {
         return new NettyAsyncHttpClientBuilder()
             .proxy(
                 new ProxyOptions(
                     ProxyOptions.Type.HTTP,
                     new InetSocketAddress(
-                        "proxyout.reform.hmcts.net",
-                        8080
+                        proxyHostName,
+                        proxyPort
                     )
                 )
             )
