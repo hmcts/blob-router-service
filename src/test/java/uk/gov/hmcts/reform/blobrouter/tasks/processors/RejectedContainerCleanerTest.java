@@ -9,19 +9,13 @@ import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
-import uk.gov.hmcts.reform.blobrouter.data.model.Event;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -31,10 +25,12 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class RejectedContainerCleanerTest {
 
+    private static final String REJECTED_CONTAINER = "abc-rejected";
+    private static final String REJECTED_BLOB = "file2.zip";
+
     @Mock BlobServiceClient storageClient;
     @Mock RejectedBlobChecker blobChecker;
-    @Mock EnvelopeRepository envelopeRepository;
-    @Mock EventRecordRepository eventRecordRepository;
+    @Mock EnvelopeService envelopeService;
 
     @Mock PagedIterable<BlobContainerItem> containers;
     @Mock BlobContainerItem container1Item;
@@ -56,7 +52,6 @@ class RejectedContainerCleanerTest {
 
     @BeforeEach
     void setUp() {
-        var envelopeService = new EnvelopeService(envelopeRepository, eventRecordRepository);
         this.cleaner = new RejectedContainerCleaner(storageClient, blobChecker, envelopeService);
     }
 
@@ -67,9 +62,9 @@ class RejectedContainerCleanerTest {
         given(containers.stream()).willReturn(Stream.of(container1Item, container2Item));
 
         given(container1Item.getName()).willReturn("abc");
-        given(container2Item.getName()).willReturn("abc-rejected");
+        given(container2Item.getName()).willReturn(REJECTED_CONTAINER);
 
-        given(storageClient.getBlobContainerClient("abc-rejected")).willReturn(container2Client);
+        given(storageClient.getBlobContainerClient(REJECTED_CONTAINER)).willReturn(container2Client);
         given(container2Client.listBlobs(any(), any())).willReturn(container2BlobItems);
 
         // when
@@ -77,7 +72,7 @@ class RejectedContainerCleanerTest {
 
         // then
         verify(storageClient, times(0)).getBlobContainerClient("abc");
-        verify(storageClient, times(1)).getBlobContainerClient("abc-rejected");
+        verify(storageClient, times(1)).getBlobContainerClient(REJECTED_CONTAINER);
     }
 
     @Test
@@ -90,21 +85,21 @@ class RejectedContainerCleanerTest {
         given(containers.stream()).willReturn(Stream.of(container1Item, container2Item));
 
         given(container1Item.getName()).willReturn("abc");
-        given(container2Item.getName()).willReturn("abc-rejected");
+        given(container2Item.getName()).willReturn(REJECTED_CONTAINER);
 
-        given(storageClient.getBlobContainerClient("abc-rejected")).willReturn(container2Client);
+        given(storageClient.getBlobContainerClient(REJECTED_CONTAINER)).willReturn(container2Client);
         given(container2Client.listBlobs(any(), any())).willReturn(container2BlobItems);
 
         given(container2BlobItems.stream()).willReturn(Stream.of(blobItem1, blobItem2));
 
         given(blobItem1.getName()).willReturn("file1.zip");
-        given(blobItem2.getName()).willReturn("file2.zip");
+        given(blobItem2.getName()).willReturn(REJECTED_BLOB);
 
         given(container2Client.getBlobClient("file1.zip")).willReturn(blobClient1);
-        given(container2Client.getBlobClient("file2.zip")).willReturn(blobClient2);
+        given(container2Client.getBlobClient(REJECTED_BLOB)).willReturn(blobClient2);
 
-        given(blobClient2.getContainerName()).willReturn("abc-rejected");
-        given(blobClient2.getBlobName()).willReturn("file2.zip");
+        given(blobClient2.getContainerName()).willReturn(REJECTED_CONTAINER);
+        given(blobClient2.getBlobName()).willReturn(REJECTED_BLOB);
 
         // when
         cleaner.cleanUp();
@@ -117,10 +112,6 @@ class RejectedContainerCleanerTest {
         verify(blobClient2, times(1)).delete();
 
         // and
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getValue())
-            .extracting(record -> record.event)
-            .isEqualTo(Event.DELETED_FROM_REJECTED);
+        verify(envelopeService).saveEventDeletedFromRejected(REJECTED_CONTAINER, REJECTED_BLOB);
     }
 }
