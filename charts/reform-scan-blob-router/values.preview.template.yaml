@@ -49,7 +49,6 @@ java:
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
-  devApplicationInsightsInstrumentKey: "fb929548-3309-4933-bd6e-f7932b4e0309"
 
   postgresql:
     enabled: true

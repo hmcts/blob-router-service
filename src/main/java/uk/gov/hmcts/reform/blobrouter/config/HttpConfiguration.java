@@ -1,7 +1,11 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
+import com.azure.core.http.HttpClient;
+import com.azure.core.http.ProxyOptions;
+import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import feign.Client;
 import feign.httpclient.ApacheHttpClient;
+import java.net.InetSocketAddress;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -26,6 +30,21 @@ public class HttpConfiguration {
     @Bean
     public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
         return new HttpComponentsClientHttpRequestFactory(getHttpClient());
+    }
+
+    @Bean
+    public com.azure.core.http.HttpClient azureHttpClient() {
+        return new NettyAsyncHttpClientBuilder()
+            .proxy(
+                new ProxyOptions(
+                    ProxyOptions.Type.HTTP,
+                    new InetSocketAddress(
+                        "proxyout.reform.hmcts.net",
+                        8080
+                    )
+                )
+            )
+            .build();
     }
 
     private CloseableHttpClient getHttpClient() {

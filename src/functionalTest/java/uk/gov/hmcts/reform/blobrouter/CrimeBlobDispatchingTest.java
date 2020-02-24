@@ -23,7 +23,7 @@ public class CrimeBlobDispatchingTest extends FunctionalTestBase {
     @Test
     void should_move_extracted_crime_envelope_to_crime_storage() throws Exception {
         // upload crime file with unique name
-        String fileName = "Crime_" + randomFileName();
+        String fileName = randomFileName();
 
         byte[] wrappingZipContent = createZipArchive(
             asList("test-data/envelope/envelope.zip", "test-data/envelope/signature")
