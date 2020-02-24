@@ -1,12 +1,14 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+@Component
 public class DuplicateFileHandler {
 
     private static final Logger logger = getLogger(DuplicateFileHandler.class);

@@ -20,6 +20,8 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.delete-dispatched-files.cron: */1 * * * * *",
         "scheduling.task.delete-rejected-files.enabled=true",
         "scheduling.task.delete-rejected-files.cron: */1 * * * * *",
+        "scheduling.task.reject-duplicates.enabled=true",
+        "scheduling.task.reject-duplicates.cron: */1 * * * * *",
         "scheduling.task.handle-rejected-files.enabled=true",
         "scheduling.task.handle-rejected-files.cron: */1 * * * * *"
     }
@@ -43,6 +45,7 @@ public class SchedulerConfigTest {
             .containsOnly(
                 "delete-dispatched-files",
                 "delete-rejected-files",
+                "reject-duplicates",
                 "handle-rejected-files"
             );
     }
