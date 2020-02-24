@@ -151,7 +151,7 @@ public class EnvelopeSummaryRepositoryTest {
 
     @Test
     @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
-    void should_skip_bulkscan_repository() {
+    void should_skip_bulkscan_container() {
         // given
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         Instant createdAt1 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(UTC);
