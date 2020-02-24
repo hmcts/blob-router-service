@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public class EnvelopeInfo {
@@ -32,6 +33,9 @@ public class EnvelopeInfo {
     @JsonProperty("is_deleted")
     public final boolean isDeleted;
 
+    @JsonProperty("events")
+    public final List<EnvelopeEvent> envelopeEvents;
+
     public EnvelopeInfo(
         UUID id,
         String container,
@@ -40,7 +44,8 @@ public class EnvelopeInfo {
         Instant fileCreatedAt,
         Instant dispatchedAt,
         Status status,
-        boolean isDeleted
+        boolean isDeleted,
+        List<EnvelopeEvent> envelopeEvents
     ) {
         this.id = id;
         this.container = container;
@@ -50,5 +55,6 @@ public class EnvelopeInfo {
         this.dispatchedAt = dispatchedAt;
         this.status = status;
         this.isDeleted = isDeleted;
+        this.envelopeEvents = envelopeEvents;
     }
 }
