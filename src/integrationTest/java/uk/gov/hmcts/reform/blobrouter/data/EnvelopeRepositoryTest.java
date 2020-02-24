@@ -58,6 +58,35 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
+    void should_handle_not_dispatched_envelope() {
+        // given
+        var newEnvelope = new NewEnvelope(
+            "container",
+            "hello.zip",
+            now(),
+            null,
+            Status.REJECTED
+        );
+
+        // when
+        UUID id = repo.insert(newEnvelope);
+
+        // and
+        Optional<Envelope> envelopeInDb = repo.find(id);
+
+        // then
+        assertThat(envelopeInDb).hasValueSatisfying(env -> {
+            assertThat(env.container).isEqualTo(newEnvelope.container);
+            assertThat(env.fileName).isEqualTo(newEnvelope.fileName);
+            assertThat(env.dispatchedAt).isNull();
+            assertThat(env.fileCreatedAt).isEqualTo(newEnvelope.fileCreatedAt);
+            assertThat(env.status).isEqualTo(newEnvelope.status);
+            assertThat(env.isDeleted).isEqualTo(false);
+            assertThat(env.createdAt).isNotNull();
+        });
+    }
+
+    @Test
     void should_mark_existing_envelope_as_deleted() {
         // given
         var newEnvelope = new NewEnvelope(

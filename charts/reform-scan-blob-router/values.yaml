@@ -16,7 +16,6 @@ java:
         - crime-storage-connection-string
         - flyway-password
         - blob-router-POSTGRES-PASS
-        - storage-reform-connection-string
   environment:
     DB_HOST: reform-scan-blob-router-{{ .Values.global.environment }}.postgres.database.azure.com
     DB_PORT: '5432'
@@ -33,6 +32,7 @@ java:
     REJECT_DUPLICATES_CRON: "0/30 * * * * *"
     TASK_SCAN_DELAY: "4000" # in millis
 
+    STORAGE_URL: https://reformscan.{{ .Values.global.environment }}.platform.hmcts.net
     STORAGE_BULKSCAN_URL: https://bulkscan{{ .Values.global.environment }}.blob.core.windows.net
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
     STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
