@@ -63,6 +63,7 @@ public class BlobContainerClientProvider {
                 BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
                     .connectionString(connectionString)
                     .containerName(containerName)
+                    .httpClient(client)
                     .buildClient();
 
                 logger.info("getBlobContainerUrl {}", blobContainerClient.getBlobContainerUrl());
