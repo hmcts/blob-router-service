@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
+import com.azure.core.http.HttpClient;
+import com.azure.core.http.ProxyOptions;
+import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.slf4j.Logger;
@@ -8,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+
+import java.net.InetSocketAddress;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -42,6 +47,18 @@ public class BlobContainerClientProvider {
                     bulkScanStorageUrl,
                     sasToken
                 );
+
+                HttpClient client = new NettyAsyncHttpClientBuilder()
+                    .proxy(
+                        new ProxyOptions(
+                            ProxyOptions.Type.HTTP,
+                            new InetSocketAddress(
+                                "proxyout.reform.hmcts.net",
+                                8080
+                            )
+                        )
+                    )
+                    .build();
 
                 BlobContainerClient blobContainerClient = new BlobContainerClientBuilder()
                     .connectionString(connectionString)
