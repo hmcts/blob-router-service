@@ -17,6 +17,8 @@ import java.util.zip.ZipInputStream;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @Component
 public class BlobVerifier {
@@ -35,20 +37,38 @@ public class BlobVerifier {
         }
     }
 
-    public boolean verifyZip(String blobName, byte[] rawBlob) {
+    public VerificationResult verifyZip(String blobName, byte[] rawBlob) {
         try (var zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
 
             ZipVerifiers.verifyZip(zis, publicKey);
-            return true;
+            return ok();
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
-            return false;
+            return error("Invalid signature");
         } catch (InvalidZipArchiveException ex) {
             logger.info("Invalid zip archive. Blob name: {}", blobName, ex);
-            return false;
+            return error("Invalid zip archive");
         } catch (IOException ex) {
             logger.info("Error occurred when verifying file. Blob name: {}", blobName, ex);
-            return false;
+            return error(null);
+        }
+    }
+
+    public static class VerificationResult {
+        public final boolean isOk;
+        public final String error;
+
+        private VerificationResult(boolean isOk, String error) {
+            this.isOk = isOk;
+            this.error = error;
+        }
+
+        public static VerificationResult ok() {
+            return new VerificationResult(true, null);
+        }
+
+        public static VerificationResult error(String error) {
+            return new VerificationResult(false, error);
         }
     }
 }

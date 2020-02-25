@@ -37,6 +37,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest {
@@ -69,7 +71,7 @@ class BlobProcessorTest {
         // given
         blobExists();
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         willThrow(new RuntimeException("Test exception"))
             .given(blobDispatcher)
@@ -93,7 +95,7 @@ class BlobProcessorTest {
 
         String fileName = "envelope1.zip";
 
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
         newBlobProcessor().process(fileName, SOURCE_CONTAINER);
@@ -104,7 +106,7 @@ class BlobProcessorTest {
     }
 
     @Test
-    void should_reject_file_if_signature_verification_fails() {
+    void should_reject_file_if_file_verification_fails() {
         // given
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
@@ -113,7 +115,7 @@ class BlobProcessorTest {
 
         String fileName = "envelope1.zip";
 
-        given(verifier.verifyZip(any(), any())).willReturn(false);
+        given(verifier.verifyZip(any(), any())).willReturn(error("error"));
 
         // when
         newBlobProcessor().process(fileName, SOURCE_CONTAINER);
@@ -124,7 +126,7 @@ class BlobProcessorTest {
             eq(SOURCE_CONTAINER),
             eq(fileName),
             any(),
-            eq("Invalid signature")
+            eq("error")
         );
     }
 
@@ -138,7 +140,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, BULKSCAN);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         var fileName = "envelope1.zip";
 
@@ -160,7 +162,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
         var fileName = "envelope1.zip";
 
         // when
@@ -182,7 +184,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
         newBlobProcessor().process("envelope1.zip", sourceContainerName);
@@ -203,7 +205,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
         newBlobProcessor().process("envelope1.zip", sourceContainerName);
