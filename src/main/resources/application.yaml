@@ -97,5 +97,5 @@ scheduling:
 
 
 proxy:
-  host-name: ${PROXY_HOST_NAME:proxyout.reform.hmcts.net}
-  port: ${PROXY_PORT:8080}
+  host-name: proxyout.reform.hmcts.net
+  port: 8080
