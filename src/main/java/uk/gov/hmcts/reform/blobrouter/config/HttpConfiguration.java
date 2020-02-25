@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
+import com.azure.core.http.HttpClient;
 import com.azure.core.http.ProxyOptions;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import feign.Client;
@@ -34,7 +35,7 @@ public class HttpConfiguration {
     }
 
     @Bean
-    public com.azure.core.http.HttpClient azureHttpClient(
+    public HttpClient azureHttpClient(
         @Value("${proxy.host-name}") String proxyHostName,
         @Value("${proxy.port}") int proxyPort
     ) {
