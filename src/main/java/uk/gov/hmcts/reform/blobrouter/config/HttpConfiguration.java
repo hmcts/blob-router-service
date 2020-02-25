@@ -36,7 +36,8 @@ public class HttpConfiguration {
     @Bean
     public com.azure.core.http.HttpClient azureHttpClient(
         @Value("${proxy.host-name}") String proxyHostName,
-        @Value("${proxy.port}") int proxyPort) {
+        @Value("${proxy.port}") int proxyPort)
+    {
         return new NettyAsyncHttpClientBuilder()
             .proxy(
                 new ProxyOptions(
