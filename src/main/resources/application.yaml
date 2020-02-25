@@ -85,6 +85,9 @@ scheduling:
     handle-rejected-files:
       enabled: true
       cron: ${HANDLE_REJECTED_FILES_CRON}
+    reject-duplicates:
+      enabled: true
+      cron: ${REJECT_DUPLICATES_CRON}
     delete-rejected-files:
       enabled: true
       ttl: PT72H # ISO-8601
