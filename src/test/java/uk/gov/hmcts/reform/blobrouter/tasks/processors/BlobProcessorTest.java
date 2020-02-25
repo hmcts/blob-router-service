@@ -126,7 +126,7 @@ class BlobProcessorTest {
             eq(SOURCE_CONTAINER),
             eq(fileName),
             any(),
-            eq("Invalid signature")
+            eq("error")
         );
     }
 
