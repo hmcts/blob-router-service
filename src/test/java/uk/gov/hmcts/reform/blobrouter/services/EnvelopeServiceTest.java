@@ -23,13 +23,13 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static uk.gov.hmcts.reform.blobrouter.data.model.EventNotes.INVALID_SIGNATURE;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeServiceTest {
 
     private static final String BLOB_NAME = "blob";
     private static final String CONTAINER_NAME = "container";
+    private static final String REJECTION_REASON = "some rejection reason";
     private static final Instant BLOB_CREATED = now();
 
     @Mock
@@ -62,7 +62,7 @@ class EnvelopeServiceTest {
     void should_create_new_envelope_and_record_event() {
         // when
         envelopeService.createDispatchedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
-        envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED, INVALID_SIGNATURE);
+        envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED, REJECTION_REASON);
 
         // then
         var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
@@ -80,7 +80,7 @@ class EnvelopeServiceTest {
             .extracting(record -> tuple(record.event, record.notes))
             .containsOnly(
                 tuple(Event.DISPATCHED, null),
-                tuple(Event.REJECTED, INVALID_SIGNATURE)
+                tuple(Event.REJECTED, REJECTION_REASON)
             );
     }
 

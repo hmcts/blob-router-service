@@ -28,7 +28,6 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.hmcts.reform.blobrouter.data.model.EventNotes.INVALID_SIGNATURE;
 
 @Component
 @EnableConfigurationProperties(ServiceConfiguration.class)
@@ -91,11 +90,11 @@ public class BlobProcessor {
             leaseClient.acquireLease(60);
             byte[] rawBlob = tryToDownloadBlob(blobClient);
 
-            boolean isValid = blobVerifier.verifyZip(blobName, rawBlob);
+            var verificationResult = blobVerifier.verifyZip(blobName, rawBlob);
 
             Instant blobCreationDate = blobClient.getProperties().getLastModified().toInstant();
 
-            if (isValid) {
+            if (verificationResult.isOk) {
                 StorageConfigItem containerConfig = storageConfig.get(containerName);
                 TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
                 var targetContainerName = containerConfig.getTargetContainer();
@@ -124,15 +123,15 @@ public class BlobProcessor {
                     containerName,
                     blobName,
                     blobCreationDate,
-                    INVALID_SIGNATURE
+                    verificationResult.error
                 );
 
                 logger.error(
-                    "{}. Rejected Blob. File name: {}, Container {}, New envelope ID: {}",
-                    INVALID_SIGNATURE,
+                    "Rejected Blob. File name: {}, Container: {}, New envelope ID: {}, Reason: {}",
                     blobName,
                     containerName,
-                    envelopeId
+                    envelopeId,
+                    verificationResult.error
                 );
                 // TODO send notification to Exela
             }
