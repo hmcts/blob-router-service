@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
+import com.azure.core.http.HttpClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,15 +15,18 @@ public class BlobContainerClientProvider {
     private final BlobContainerClient crimeClient;
     private final BulkScanProcessorClient bulkScanSasTokenClient;
     private final String bulkScanStorageUrl;
+    private final HttpClient httpClient;
 
     public BlobContainerClientProvider(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
         BulkScanProcessorClient bulkScanSasTokenClient,
-        @Value("${storage.bulkscan.url}") String bulkScanStorageUrl
+        @Value("${storage.bulkscan.url}") String bulkScanStorageUrl,
+        HttpClient httpClient
     ) {
         this.crimeClient = crimeClient;
         this.bulkScanSasTokenClient = bulkScanSasTokenClient;
         this.bulkScanStorageUrl = bulkScanStorageUrl;
+        this.httpClient = httpClient;
     }
 
     public BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
@@ -30,6 +34,7 @@ public class BlobContainerClientProvider {
             case BULKSCAN:
                 // retrieving a SAS token every time we're getting a client, but this will be cached in the future
                 return new BlobContainerClientBuilder()
+                    .httpClient(httpClient)
                     .sasToken(bulkScanSasTokenClient.getSasToken(containerName).sasToken)
                     .endpoint(bulkScanStorageUrl)
                     .containerName(containerName)

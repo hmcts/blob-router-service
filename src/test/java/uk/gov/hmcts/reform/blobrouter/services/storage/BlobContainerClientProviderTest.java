@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
+import com.azure.core.http.HttpClient;
 import com.azure.storage.blob.BlobContainerClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,8 @@ public class BlobContainerClientProviderTest {
         this.blobContainerClientProvider = new BlobContainerClientProvider(
             crimeClient,
             bulkScanProcessorClient,
-            "https://example.com"
+            "https://example.com",
+            HttpClient.createDefault()
         );
     }
 
