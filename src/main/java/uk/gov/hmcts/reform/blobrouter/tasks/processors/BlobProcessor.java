@@ -61,21 +61,6 @@ public class BlobProcessor {
     }
 
     public void process(String blobName, String containerName) {
-        envelopeService
-            .findEnvelope(blobName, containerName)
-            .ifPresentOrElse(
-                envelope -> logger.info(
-                    "Envelope already processed in system, skipping. ID: {}, filename: {}, container: {}, state: {}",
-                    envelope.id,
-                    envelope.fileName,
-                    envelope.container,
-                    envelope.status.name()
-                ),
-                () -> processBlob(blobName, containerName)
-            );
-    }
-
-    private void processBlob(String blobName, String containerName) {
         logger.info("Processing {} from {} container", blobName, containerName);
 
         envelopeService.saveEventFileProcessingStarted(containerName, blobName);

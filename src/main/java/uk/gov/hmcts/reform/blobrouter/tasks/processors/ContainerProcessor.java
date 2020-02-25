@@ -52,13 +52,26 @@ public class ContainerProcessor {
 
     private void processIfReady(BlobItem blob, String containerName) {
         Instant blobCreationDate = blob.getProperties().getLastModified().toInstant();
+        String blobName = blob.getName();
 
         if (blobReadinessChecker.isReady(blobCreationDate)) {
-            blobProcessor.process(blob.getName(), containerName);
+            envelopeService
+                .findEnvelope(blobName, containerName)
+                .ifPresentOrElse(
+                    envelope -> logger.info(
+                        "Envelope already processed in system, skipping."
+                            + " ID: {}, filename: {}, container: {}, state: {}",
+                        envelope.id,
+                        envelope.fileName,
+                        envelope.container,
+                        envelope.status.name()
+                    ),
+                    () -> blobProcessor.process(blobName, containerName)
+                );
         } else {
             logger.info(
                 "Blob not ready to be processed yet, skipping. File name: {}. Container: {}",
-                blob.getName(),
+                blobName,
                 containerName
             );
         }
