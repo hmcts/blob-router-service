@@ -54,7 +54,6 @@ public class ContainerProcessor {
         Instant blobCreationDate = blob.getProperties().getLastModified().toInstant();
 
         if (blobReadinessChecker.isReady(blobCreationDate)) {
-            envelopeService.saveEventFileProcessingStarted(containerName, blob.getName());
             blobProcessor.process(blob.getName(), containerName);
         } else {
             logger.info(
