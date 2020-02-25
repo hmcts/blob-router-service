@@ -78,6 +78,8 @@ public class BlobProcessor {
     private void processBlob(String blobName, String containerName) {
         logger.info("Processing {} from {} container", blobName, containerName);
 
+        envelopeService.saveEventFileProcessingStarted(containerName, blobName);
+
         BlobLeaseClient leaseClient = null;
 
         try {
