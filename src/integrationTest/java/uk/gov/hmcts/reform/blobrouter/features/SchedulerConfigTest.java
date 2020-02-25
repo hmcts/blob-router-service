@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.features;
 
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.microsoft.applicationinsights.TelemetryClient;
 import com.microsoft.applicationinsights.telemetry.RequestTelemetry;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.ActiveProfiles;
@@ -20,9 +22,11 @@ import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.tasks.DeleteDispatchedFilesTask;
 import uk.gov.hmcts.reform.blobrouter.tasks.DeleteRejectedFilesTask;
 import uk.gov.hmcts.reform.blobrouter.tasks.HandleRejectedFilesTask;
+import uk.gov.hmcts.reform.blobrouter.tasks.RejectDuplicatesTask;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -53,6 +57,10 @@ public class SchedulerConfigTest {
     private BlobServiceClient storageClient;
 
     @Autowired
+    @Qualifier("bulkscan-storage-client")
+    private BlobContainerClient containerClient;
+
+    @Autowired
     private DbHelper dbHelper;
 
     @SpyBean
@@ -70,6 +78,11 @@ public class SchedulerConfigTest {
         // other tasks firstly checks DB before calling storage
         given(storageClient.listBlobContainers())
             .willReturn(new PagedIterable<>(new PagedFlux<>(Mono::empty)));
+        // used in RejectDuplicates task
+        given(storageClient.getBlobContainerClient(anyString())).willReturn(containerClient);
+        given(containerClient.listBlobs()).willReturn(
+            new PagedIterable<>(new PagedFlux<>(Mono::empty))
+        );
     }
 
     @Test
@@ -101,7 +114,8 @@ public class SchedulerConfigTest {
             .contains(
                 tuple("Schedule /" + DeleteDispatchedFilesTask.class.getSimpleName(), true),
                 tuple("Schedule /" + DeleteRejectedFilesTask.class.getSimpleName(), true),
-                tuple("Schedule /" + HandleRejectedFilesTask.class.getSimpleName(), true)
+                tuple("Schedule /" + HandleRejectedFilesTask.class.getSimpleName(), true),
+                tuple("Schedule /" + RejectDuplicatesTask.class.getSimpleName(), true)
             );
     }
 }
