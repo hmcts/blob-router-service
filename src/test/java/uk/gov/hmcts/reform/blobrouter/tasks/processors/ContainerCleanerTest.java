@@ -10,8 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
@@ -39,10 +37,7 @@ class ContainerCleanerTest {
     private ContainerCleaner containerCleaner;
 
     @Mock
-    private EnvelopeRepository envelopeRepository;
-
-    @Mock
-    private EventRecordRepository eventRecordRepository;
+    private EnvelopeService envelopeService;
 
     @Mock
     private BlobServiceClient storageClient;
@@ -61,7 +56,6 @@ class ContainerCleanerTest {
 
     @BeforeEach
     void setUp() {
-        var envelopeService = new EnvelopeService(envelopeRepository, eventRecordRepository);
         containerCleaner = new ContainerCleaner(storageClient, envelopeService);
 
         given(storageClient.getBlobContainerClient(CONTAINER_NAME)).willReturn(containerClient);
@@ -70,7 +64,7 @@ class ContainerCleanerTest {
     @Test
     void should_not_find_any_blobs_when_no_db_results() {
         // given
-        given(envelopeRepository.find(DISPATCHED, CONTAINER_NAME, false)).willReturn(emptyList());
+        given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME)).willReturn(emptyList());
 
         // when
         containerCleaner.process(CONTAINER_NAME);
@@ -82,7 +76,7 @@ class ContainerCleanerTest {
     @Test
     void should_handle_repository_exception() {
         // given
-        given(envelopeRepository.find(DISPATCHED, CONTAINER_NAME, false)).willThrow(new RuntimeException("msg"));
+        given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME)).willThrow(new RuntimeException("msg"));
 
         // when
         containerCleaner.process(CONTAINER_NAME);
@@ -94,7 +88,7 @@ class ContainerCleanerTest {
     @Test
     void should_find_blobs_delete_and_update_in_db() {
         // given
-        given(envelopeRepository.find(DISPATCHED, CONTAINER_NAME, false))
+        given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME))
             .willReturn(asList(
                 ENVELOPE_1,
                 ENVELOPE_2
@@ -112,16 +106,15 @@ class ContainerCleanerTest {
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).delete();
         verify(blobClient2).delete();
-        verify(envelopeRepository).find(DISPATCHED, CONTAINER_NAME, false);
-        verify(envelopeRepository).markAsDeleted(ENVELOPE_1.id);
-        verify(envelopeRepository).markAsDeleted(ENVELOPE_2.id);
-        verifyNoMoreInteractions(envelopeRepository);
+        verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
+        verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_2);
+        verifyNoMoreInteractions(envelopeService);
     }
 
     @Test
     void should_handle_non_existing_file() {
         // given
-        given(envelopeRepository.find(DISPATCHED, CONTAINER_NAME, false))
+        given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME))
             .willReturn(singletonList(
                 ENVELOPE_1
             ));
@@ -137,15 +130,14 @@ class ContainerCleanerTest {
         verify(containerClient).getBlobContainerName();
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).delete();
-        verify(envelopeRepository).find(DISPATCHED, CONTAINER_NAME, false);
-        verify(envelopeRepository).markAsDeleted(ENVELOPE_1.id);
-        verifyNoMoreInteractions(envelopeRepository);
+        verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
+        verifyNoMoreInteractions(envelopeService);
     }
 
     @Test
     void should_handle_server_error() {
         // given
-        given(envelopeRepository.find(DISPATCHED, CONTAINER_NAME, false))
+        given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME))
             .willReturn(singletonList(
                 ENVELOPE_1
             ));
@@ -161,8 +153,7 @@ class ContainerCleanerTest {
         verify(containerClient).getBlobContainerName();
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).delete();
-        verify(envelopeRepository).find(DISPATCHED, CONTAINER_NAME, false);
-        verifyNoMoreInteractions(envelopeRepository);
+        verifyNoMoreInteractions(envelopeService);
     }
 
     private static Envelope createEnvelope(UUID uuid, Status status, String fileName) {
