@@ -21,6 +21,21 @@ module "blob-router-db" {
   subscription       = "${var.subscription}"
 }
 
+
+module "reform-blob-router-db" {
+  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
+  product            = "${var.product}-${var.component}"
+  location           = "${var.location_db}"
+  env                = "${var.env}"
+  database_name      = "reform-blob_router"
+  postgresql_user    = "blob_router"
+  postgresql_version = "11"
+  sku_name           = "GP_Gen5_2"
+  sku_tier           = "GeneralPurpose"
+  common_tags        = "${var.common_tags}"
+  subscription       = "${var.subscription}"
+}
+
 # region: key vault definitions
 
 data "azurerm_key_vault" "bulk_scan_key_vault" {
@@ -99,37 +114,37 @@ resource "azurerm_key_vault_secret" "error_notifications_username" {
 resource "azurerm_key_vault_secret" "POSTGRES-USER" {
   name         = "${var.component}-POSTGRES-USER"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
-  value        = "${module.blob-router-db.user_name}"
+  value        = "${module.reform-blob-router-db.user_name}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES-PASS" {
   name         = "${var.component}-POSTGRES-PASS"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
-  value        = "${module.blob-router-db.postgresql_password}"
+  value        = "${module.reform-blob-router-db.postgresql_password}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_HOST" {
   name         = "${var.component}-POSTGRES-HOST"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
-  value        = "${module.blob-router-db.host_name}"
+  value        = "${module.reform-blob-router-db.host_name}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_PORT" {
   name         = "${var.component}-POSTGRES-PORT"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
-  value        = "${module.blob-router-db.postgresql_listen_port}"
+  value        = "${module.reform-blob-router-db.postgresql_listen_port}"
 }
 
 resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name         = "${var.component}-POSTGRES-DATABASE"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
-  value        = "${module.blob-router-db.postgresql_database}"
+  value        = "${module.reform-blob-router-db.postgresql_database}"
 }
 
 # Copy postgres password for flyway migration
 resource "azurerm_key_vault_secret" "flyway_password" {
   name         = "flyway-password"
-  value        = "${module.blob-router-db.postgresql_password}"
+  value        = "${module.reform-blob-router-db.postgresql_password}"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
 }
 # endregion
