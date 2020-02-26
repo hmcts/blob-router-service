@@ -45,8 +45,7 @@ public class EnvelopeService {
 
         return envelopeRepository
             .insert(
-                new NewEnvelope(containerName, blobName, blobCreationDate, now(), Status.DISPATCHED
-                )
+                new NewEnvelope(containerName, blobName, blobCreationDate, now(), Status.DISPATCHED)
             );
     }
 
