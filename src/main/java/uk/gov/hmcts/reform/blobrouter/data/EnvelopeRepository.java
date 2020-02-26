@@ -113,7 +113,7 @@ public class EnvelopeRepository {
                 + "WHERE id = :id",
             new MapSqlParameterSource()
                 .addValue("id", id)
-                .addValue("dispatchedAt", Timestamp.from(dispatchedAt)
+                .addValue("dispatchedAt", Timestamp.from(dispatchedAt))
         );
     }
 
