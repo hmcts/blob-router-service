@@ -42,7 +42,9 @@ public class EnvelopeRepository {
             Envelope envelope = jdbcTemplate.queryForObject(
                 "SELECT * FROM envelopes"
                     + " WHERE file_name = :fileName"
-                    + " AND container = :container",
+                    + " AND container = :container"
+                    + " ORDER BY file_created_at DESC"
+                    + " LIMIT 1",
                 new MapSqlParameterSource()
                     .addValue("fileName", fileName)
                     .addValue("container", container),

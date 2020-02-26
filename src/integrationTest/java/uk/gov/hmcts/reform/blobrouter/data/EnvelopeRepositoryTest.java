@@ -182,7 +182,7 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    void should_find_envelopes_by_container_and_file_name() {
+    void should_find_single_envelope_by_container_and_file_name() {
         // given
         final String fileName = "foo.bar";
         final String container = "bar";
@@ -195,6 +195,31 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(result).hasValueSatisfying(envelope -> {
+            assertThat(envelope.fileName).isEqualTo(fileName);
+            assertThat(envelope.container).isEqualTo(container);
+        });
+    }
+
+    @Test
+    void should_find_last_envelope_by_container_and_file_name() {
+        // given
+        final String fileName = "foo.bar";
+        final String container = "bar";
+
+        // and
+        repo.insert(new NewEnvelope(container, fileName, now(), now(), Status.DISPATCHED));
+        // this envelope should be selected
+        UUID envelopeId2 =  repo.insert(
+            new NewEnvelope(container, fileName, now().plusMillis(10000L), now(), Status.REJECTED)
+        );
+        new NewEnvelope(container, fileName, now().plusMillis(5000L), now(), Status.REJECTED);
+
+        // when
+        Optional<Envelope> result = repo.find(fileName, container);
+
+        // then
+        assertThat(result).hasValueSatisfying(envelope -> {
+            assertThat(envelope.id).isEqualTo(envelopeId2);
             assertThat(envelope.fileName).isEqualTo(fileName);
             assertThat(envelope.container).isEqualTo(container);
         });
