@@ -109,6 +109,22 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
+    void should_update_envelopes_status() {
+        // given
+        var oldStatus = Status.DISPATCHED;
+        var newStatus = Status.REJECTED;
+
+        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, oldStatus));
+
+        // when
+        repo.updateStatus(id, newStatus);
+
+        // then
+        assertThat(repo.find(id))
+            .hasValueSatisfying(env -> assertThat(env.status).isEqualTo(newStatus));
+    }
+
+    @Test
     void should_return_zero_if_no_envelopes_were_marked_as_deleted() {
         // given no envelopes in DB
 
