@@ -20,6 +20,8 @@ import java.util.UUID;
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -86,10 +88,16 @@ class EnvelopeServiceTest {
 
     @Test
     void should_create_new_envelope() {
+        // given
+        var idFromDb = UUID.randomUUID();
+        given(envelopeRepository.insert(any())).willReturn(idFromDb);
+
         // when
-        envelopeService.createNewEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
+        var id = envelopeService.createNewEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
 
         // then
+        assertThat(id).isEqualTo(idFromDb);
+
         var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
 
