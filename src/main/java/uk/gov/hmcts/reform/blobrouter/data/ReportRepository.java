@@ -25,7 +25,7 @@ public class ReportRepository {
         this.mapper = mapper;
     }
 
-    public List<EnvelopeSummary> find(Instant from, Instant to) {
+    public List<EnvelopeSummary> getEnvelopeSummary(Instant from, Instant to) {
         return jdbcTemplate.query(
               "SELECT container, file_name, file_created_at, dispatched_at, "
                 + "       status, is_deleted "

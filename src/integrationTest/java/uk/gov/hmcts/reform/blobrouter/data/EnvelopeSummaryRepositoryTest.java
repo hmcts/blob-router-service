@@ -62,7 +62,7 @@ public class EnvelopeSummaryRepositoryTest {
         envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_2, createdAt4, dispatchedAt, Status.REJECTED));
 
         // when
-        List<EnvelopeSummary> result = reportRepository.find(
+        List<EnvelopeSummary> result = reportRepository.getEnvelopeSummary(
             LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
             LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
         );
@@ -104,7 +104,7 @@ public class EnvelopeSummaryRepositoryTest {
         envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_2, createdAt1, dispatchedAt, Status.DISPATCHED));
 
         // when
-        List<EnvelopeSummary> result = reportRepository.find(
+        List<EnvelopeSummary> result = reportRepository.getEnvelopeSummary(
             LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
             LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
         );
@@ -148,7 +148,7 @@ public class EnvelopeSummaryRepositoryTest {
         );
 
         // when
-        List<EnvelopeSummary> result = reportRepository.find(
+        List<EnvelopeSummary> result = reportRepository.getEnvelopeSummary(
             LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
             LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
         );
