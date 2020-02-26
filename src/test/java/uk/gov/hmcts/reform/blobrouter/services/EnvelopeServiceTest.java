@@ -59,29 +59,52 @@ class EnvelopeServiceTest {
     }
 
     @Test
-    void should_create_new_envelope_and_record_event() {
+    void should_create_dispatched_envelope_as_expected() {
         // when
         envelopeService.createDispatchedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
+
+        // then
+        var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+
+        verify(envelopeRepository).insert(newEnvelopeCaptor.capture());
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+
+        var envelope = newEnvelopeCaptor.getValue();
+        var event = newEventRecordCaptor.getValue();
+
+        assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
+        assertThat(envelope.dispatchedAt).isNotNull();
+
+        assertThat(event.fileName).isEqualTo(BLOB_NAME);
+        assertThat(event.container).isEqualTo(CONTAINER_NAME);
+        assertThat(event.event).isEqualTo(Event.DISPATCHED);
+        assertThat(event.notes).isNull();
+    }
+
+    @Test
+    void should_create_rejected_envelope_as_expected() {
+        // when
         envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED, REJECTION_REASON);
 
         // then
         var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
-        verify(envelopeRepository, times(2)).insert(newEnvelopeCaptor.capture());
-        assertThat(newEnvelopeCaptor.getAllValues())
-            .hasSize(2)
-            .extracting(item -> item.status)
-            .containsOnly(Status.DISPATCHED, Status.REJECTED);
-
-        // and (will be enabled once events recorded)
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository, times(2)).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getAllValues())
-            .hasSize(2)
-            .extracting(record -> tuple(record.event, record.notes))
-            .containsOnly(
-                tuple(Event.DISPATCHED, null),
-                tuple(Event.REJECTED, REJECTION_REASON)
-            );
+
+        verify(envelopeRepository).insert(newEnvelopeCaptor.capture());
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+
+        var envelope = newEnvelopeCaptor.getValue();
+        var event = newEventRecordCaptor.getValue();
+
+        assertThat(envelope.fileName).isEqualTo(BLOB_NAME);
+        assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
+        assertThat(envelope.dispatchedAt).isNull();
+
+        assertThat(event.fileName).isEqualTo(BLOB_NAME);
+        assertThat(event.container).isEqualTo(CONTAINER_NAME);
+        assertThat(event.event).isEqualTo(Event.DISPATCHED);
+        assertThat(event.notes).isEqualTo(REJECTION_REASON);
     }
 
     @Test

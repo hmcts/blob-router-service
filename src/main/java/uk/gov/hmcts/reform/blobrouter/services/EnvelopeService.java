@@ -43,7 +43,11 @@ public class EnvelopeService {
     public UUID createDispatchedEnvelope(String containerName, String blobName, Instant blobCreationDate) {
         eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DISPATCHED));
 
-        return createEnvelope(containerName, blobName, blobCreationDate, Status.DISPATCHED);
+        return envelopeRepository
+            .insert(
+                new NewEnvelope(containerName, blobName, blobCreationDate, now(), Status.DISPATCHED
+                )
+            );
     }
 
     @Transactional
@@ -55,17 +59,10 @@ public class EnvelopeService {
     ) {
         eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.REJECTED, rejectionReason));
 
-        return createEnvelope(containerName, blobName, blobCreationDate, Status.REJECTED);
-    }
-
-    private UUID createEnvelope(String containerName, String blobName, Instant blobCreationDate, Status status) {
-        return envelopeRepository.insert(new NewEnvelope(
-            containerName,
-            blobName,
-            blobCreationDate,
-            now(),
-            status
-        ));
+        return envelopeRepository
+            .insert(
+                new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.REJECTED)
+            );
     }
 
     @Transactional(readOnly = true)
