@@ -10,14 +10,14 @@ import java.time.Instant;
 import java.util.List;
 
 @Repository
-public class EnvelopeSummaryRepository {
+public class ReportRepository {
 
     private static final String BULKSCAN_CONTAINER_NAME = "bulkscan";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeSummaryMapper mapper;
 
-    public EnvelopeSummaryRepository(
+    public ReportRepository(
         NamedParameterJdbcTemplate jdbcTemplate,
         EnvelopeSummaryMapper mapper
     ) {
