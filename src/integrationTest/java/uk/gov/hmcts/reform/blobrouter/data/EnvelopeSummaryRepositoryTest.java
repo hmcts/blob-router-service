@@ -54,9 +54,9 @@ public class EnvelopeSummaryRepositoryTest {
         envelopeRepository.insert(
             new NewEnvelope(CONTAINER_1, FILE_1_1, createdAt1, dispatchedAt, Status.DISPATCHED)
         );
-        // 2 envelopes are on the request date, dates are in wrong order
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_1, createdAt3, null, Status.REJECTED));
+        // 2 envelopes are on the request date
         envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_2, createdAt2, dispatchedAt, Status.DISPATCHED));
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_1, createdAt3, null, Status.REJECTED));
 
         // after the request date
         envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_2, createdAt4, dispatchedAt, Status.REJECTED));
@@ -70,8 +70,7 @@ public class EnvelopeSummaryRepositoryTest {
         // then
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            // ensure order
-            .containsExactly(
+            .containsExactlyInAnyOrder(
                 new EnvelopeSummary(
                     CONTAINER_1,
                     FILE_1_2,
@@ -84,6 +83,48 @@ public class EnvelopeSummaryRepositoryTest {
                     CONTAINER_2,
                     FILE_2_1,
                     createdAt3,
+                    null,
+                    Status.REJECTED,
+                    false
+                )
+            );
+    }
+
+    @Test
+    @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
+    void should_find_in_correct_order() {
+        // given
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        Instant createdAt1 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(UTC);
+        Instant createdAt2 = LocalDateTime.parse("2019-12-20 12:34:28", formatter).toInstant(UTC);
+        Instant dispatchedAt = LocalDateTime.parse("2019-12-22 13:39:33", formatter).toInstant(UTC);
+
+        // 2 envelopes are on the request date, wrong order
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_1, createdAt2, null, Status.REJECTED));
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_2, createdAt1, dispatchedAt, Status.DISPATCHED));
+
+        // when
+        List<EnvelopeSummary> result = envelopeSummaryRepository.find(
+            LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
+            LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
+        );
+
+        // then
+        assertThat(result)
+            .usingFieldByFieldElementComparator()
+            .containsExactly(
+                new EnvelopeSummary(
+                    CONTAINER_1,
+                    FILE_1_2,
+                    createdAt1,
+                    dispatchedAt,
+                    Status.DISPATCHED,
+                    false
+                ),
+                new EnvelopeSummary(
+                    CONTAINER_2,
+                    FILE_2_1,
+                    createdAt2,
                     null,
                     Status.REJECTED,
                     false
