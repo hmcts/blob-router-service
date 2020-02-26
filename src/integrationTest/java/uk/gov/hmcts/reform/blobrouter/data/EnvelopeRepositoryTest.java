@@ -209,7 +209,7 @@ public class EnvelopeRepositoryTest {
         // and
         repo.insert(new NewEnvelope(container, fileName, now(), now(), Status.DISPATCHED));
         // this envelope should be selected
-        UUID envelopeId2 =  repo.insert(
+        UUID envelopeId =  repo.insert(
             new NewEnvelope(container, fileName, now().plusMillis(10000L), now(), Status.REJECTED)
         );
         new NewEnvelope(container, fileName, now().plusMillis(5000L), now(), Status.REJECTED);
@@ -219,7 +219,7 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(result).hasValueSatisfying(envelope -> {
-            assertThat(envelope.id).isEqualTo(envelopeId2);
+            assertThat(envelope.id).isEqualTo(envelopeId);
             assertThat(envelope.fileName).isEqualTo(fileName);
             assertThat(envelope.container).isEqualTo(container);
         });
