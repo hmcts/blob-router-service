@@ -106,7 +106,7 @@ public class EnvelopeRepository {
         );
     }
 
-    public void updateDispatchDate(UUID id, Instant dispatchedAt) {
+    public void updateDispatchDateTime(UUID id, Instant dispatchedAt) {
         jdbcTemplate.update(
             "UPDATE envelopes "
                 + "SET dispatched_at = :dispatchedAt "

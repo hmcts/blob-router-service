@@ -129,14 +129,14 @@ public class EnvelopeRepositoryTest {
     void should_update_dispatch_time() {
         // given
         UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, Status.DISPATCHED));
-        Instant dispatchTime = now();
+        Instant newDispatchTime = now();
 
         // when
-        repo.updateDispatchDate(id, dispatchTime);
+        repo.updateDispatchDateTime(id, newDispatchTime);
 
         // then
         assertThat(repo.find(id))
-            .hasValueSatisfying(env -> assertThat(env.dispatchedAt).isEqualTo(dispatchTime));
+            .hasValueSatisfying(env -> assertThat(env.dispatchedAt).isEqualTo(newDispatchTime));
     }
 
     @Test
