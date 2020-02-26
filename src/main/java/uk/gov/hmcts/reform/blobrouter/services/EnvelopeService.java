@@ -40,9 +40,10 @@ public class EnvelopeService {
     }
 
     public UUID createNewEnvelope(String containerName, String blobName, Instant blobCreationDate) {
-        var id = envelopeRepository.insert(
-            new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.CREATED)
-        );
+        UUID id = envelopeRepository
+            .insert(
+                new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.CREATED)
+            );
 
         eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.FILE_PROCESSING_STARTED));
 

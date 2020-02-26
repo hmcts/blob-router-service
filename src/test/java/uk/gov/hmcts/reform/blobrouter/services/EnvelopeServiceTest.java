@@ -85,6 +85,33 @@ class EnvelopeServiceTest {
     }
 
     @Test
+    void should_create_new_envelope() {
+        // when
+        envelopeService.createNewEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
+
+        // then
+        var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+
+        verify(envelopeRepository).insert(newEnvelopeCaptor.capture());
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+
+        var envelope = newEnvelopeCaptor.getValue();
+        var event = newEventRecordCaptor.getValue();
+
+        assertThat(envelope.fileName).isEqualTo(BLOB_NAME);
+        assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
+        assertThat(envelope.status).isEqualTo(Status.CREATED);
+        assertThat(envelope.dispatchedAt).isNull();
+        assertThat(envelope.fileCreatedAt).isEqualTo(BLOB_CREATED);
+
+        assertThat(event.fileName).isEqualTo(BLOB_NAME);
+        assertThat(event.container).isEqualTo(CONTAINER_NAME);
+        assertThat(event.event).isEqualTo(Event.FILE_PROCESSING_STARTED);
+        assertThat(event.notes).isNull();
+    }
+
+    @Test
     void should_only_call_envelope_repository_to_get_ready_to_delete_blobs() {
         // when
         envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME);
