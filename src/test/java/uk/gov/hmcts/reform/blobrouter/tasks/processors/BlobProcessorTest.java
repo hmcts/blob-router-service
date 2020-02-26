@@ -82,6 +82,7 @@ class BlobProcessorTest {
         // then
         verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
         verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
+        verify(envelopeService).saveEventError(SOURCE_CONTAINER, "envelope1.zip");
         verify(envelopeService, never()).createDispatchedEnvelope(any(), any(), any());
     }
 
