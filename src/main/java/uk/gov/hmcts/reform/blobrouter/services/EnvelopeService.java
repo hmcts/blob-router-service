@@ -95,6 +95,11 @@ public class EnvelopeService {
         eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DUPLICATE_REJECTED));
     }
 
+    @Transactional
+    public void saveEventError(String containerName, String blobName) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.ERROR));
+    }
+
     @Transactional(readOnly = true)
     public Optional<Tuple2<Envelope, List<EventRecord>>> getEnvelopeInfo(String blobName, String containerName) {
         return findEnvelope(blobName, containerName)
