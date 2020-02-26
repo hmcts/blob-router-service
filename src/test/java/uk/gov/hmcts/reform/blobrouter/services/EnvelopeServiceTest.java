@@ -19,6 +19,8 @@ import java.util.UUID;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -104,6 +106,39 @@ class EnvelopeServiceTest {
         assertThat(event.container).isEqualTo(CONTAINER_NAME);
         assertThat(event.event).isEqualTo(Event.REJECTED);
         assertThat(event.notes).isEqualTo(REJECTION_REASON);
+    }
+
+    @Test
+    void should_create_new_envelope() {
+        // given
+        var idFromDb = UUID.randomUUID();
+        given(envelopeRepository.insert(any())).willReturn(idFromDb);
+
+        // when
+        var id = envelopeService.createNewEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
+
+        // then
+        assertThat(id).isEqualTo(idFromDb);
+
+        var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+
+        verify(envelopeRepository).insert(newEnvelopeCaptor.capture());
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+
+        var envelope = newEnvelopeCaptor.getValue();
+        var event = newEventRecordCaptor.getValue();
+
+        assertThat(envelope.fileName).isEqualTo(BLOB_NAME);
+        assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
+        assertThat(envelope.status).isEqualTo(Status.CREATED);
+        assertThat(envelope.dispatchedAt).isNull();
+        assertThat(envelope.fileCreatedAt).isEqualTo(BLOB_CREATED);
+
+        assertThat(event.fileName).isEqualTo(BLOB_NAME);
+        assertThat(event.container).isEqualTo(CONTAINER_NAME);
+        assertThat(event.event).isEqualTo(Event.FILE_PROCESSING_STARTED);
+        assertThat(event.notes).isNull();
     }
 
     @Test

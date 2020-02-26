@@ -40,6 +40,18 @@ public class EnvelopeService {
     }
 
     @Transactional
+    public UUID createNewEnvelope(String containerName, String blobName, Instant blobCreationDate) {
+        UUID id = envelopeRepository
+            .insert(
+                new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.CREATED)
+            );
+
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.FILE_PROCESSING_STARTED));
+
+        return id;
+    }
+
+    @Transactional
     public UUID createDispatchedEnvelope(String containerName, String blobName, Instant blobCreationDate) {
         eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DISPATCHED));
 
