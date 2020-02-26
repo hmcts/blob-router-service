@@ -94,6 +94,17 @@ public class EnvelopeRepository {
         return id;
     }
 
+    public void updateStatus(UUID id, Status newStatus) {
+        jdbcTemplate.update(
+            "UPDATE envelopes "
+                + "SET status = :newStatus "
+                + "WHERE id = :id",
+            new MapSqlParameterSource()
+                .addValue("id", id)
+                .addValue("newStatus", newStatus.name())
+        );
+    }
+
     public int markAsDeleted(UUID id) {
         return jdbcTemplate.update(
             "UPDATE envelopes "
