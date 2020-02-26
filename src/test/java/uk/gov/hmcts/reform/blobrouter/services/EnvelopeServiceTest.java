@@ -73,6 +73,7 @@ class EnvelopeServiceTest {
         var envelope = newEnvelopeCaptor.getValue();
         var event = newEventRecordCaptor.getValue();
 
+        assertThat(envelope.fileName).isEqualTo(BLOB_NAME);
         assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
         assertThat(envelope.dispatchedAt).isNotNull();
 
