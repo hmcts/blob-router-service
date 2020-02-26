@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -102,6 +103,17 @@ public class EnvelopeRepository {
             new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("newStatus", newStatus.name())
+        );
+    }
+
+    public void updateDispatchDateTime(UUID id, Instant dispatchedAt) {
+        jdbcTemplate.update(
+            "UPDATE envelopes "
+                + "SET dispatched_at = :dispatchedAt "
+                + "WHERE id = :id",
+            new MapSqlParameterSource()
+                .addValue("id", id)
+                .addValue("dispatchedAt", Timestamp.from(dispatchedAt))
         );
     }
 
