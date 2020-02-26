@@ -101,7 +101,7 @@ public class EnvelopeService {
 
     @Transactional
     public void saveEventError(String containerName, String blobName) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DUPLICATE_REJECTED));
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.ERROR));
     }
 
     @Transactional(readOnly = true)
