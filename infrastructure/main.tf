@@ -26,7 +26,7 @@ module "reform-blob-router-db" {
   product            = "${var.product}-${var.component}"
   location           = "${var.location_db}"
   env                = "${var.env}"
-  database_name      = "reform-blob_router"
+  database_name      = "reform_blob_router"
   postgresql_user    = "blob_router"
   postgresql_version = "11"
   sku_name           = "GP_Gen5_2"
