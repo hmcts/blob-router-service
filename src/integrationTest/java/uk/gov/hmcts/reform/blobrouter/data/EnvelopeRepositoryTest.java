@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -122,6 +123,20 @@ public class EnvelopeRepositoryTest {
         // then
         assertThat(repo.find(id))
             .hasValueSatisfying(env -> assertThat(env.status).isEqualTo(newStatus));
+    }
+
+    @Test
+    void should_update_dispatch_time() {
+        // given
+        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, Status.DISPATCHED));
+        Instant newDispatchTime = now();
+
+        // when
+        repo.updateDispatchDateTime(id, newDispatchTime);
+
+        // then
+        assertThat(repo.find(id))
+            .hasValueSatisfying(env -> assertThat(env.dispatchedAt).isEqualTo(newDispatchTime));
     }
 
     @Test
