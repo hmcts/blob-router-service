@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.util.Map;
-import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -254,7 +253,6 @@ class BlobProcessorTest {
         }
 
         given(blobProperties.getLastModified()).willReturn(time);
-        given(envelopeService.findEnvelope(any(), any())).willReturn(Optional.empty());
     }
 
     private void setupDownloadedBlobContent(byte[] content) {
