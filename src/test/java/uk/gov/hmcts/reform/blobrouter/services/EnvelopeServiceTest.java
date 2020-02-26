@@ -102,7 +102,7 @@ class EnvelopeServiceTest {
 
         assertThat(event.fileName).isEqualTo(BLOB_NAME);
         assertThat(event.container).isEqualTo(CONTAINER_NAME);
-        assertThat(event.event).isEqualTo(Event.DISPATCHED);
+        assertThat(event.event).isEqualTo(Event.REJECTED);
         assertThat(event.notes).isEqualTo(REJECTION_REASON);
     }
 
