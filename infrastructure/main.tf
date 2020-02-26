@@ -149,13 +149,13 @@ resource "azurerm_key_vault_secret" "flyway_password" {
 # endregion
 
 # region NEW DB secrets
-resource "azurerm_key_vault_secret" "REFORM_POSTGRES-USER" {
+resource "azurerm_key_vault_secret" "REFORM_POSTGRES_USER" {
   name         = "${var.component}-REFORM-POSTGRES-USER"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   value        = "${module.reform-blob-router-db.user_name}"
 }
 
-resource "azurerm_key_vault_secret" "REFORM_POSTGRES-PASS" {
+resource "azurerm_key_vault_secret" "REFORM_POSTGRES_PASS" {
   name         = "${var.component}-REFORM-POSTGRES-PASS"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   value        = "${module.reform-blob-router-db.postgresql_password}"
@@ -180,7 +180,7 @@ resource "azurerm_key_vault_secret" "REFORM_POSTGRES_DATABASE" {
 }
 
 # Copy postgres password for flyway migration
-resource "azurerm_key_vault_secret" "reform_flyway_password" {
+resource "azurerm_key_vault_secret" "REFORM_FLYWAY_PASSWORD" {
   name         = "reform-flyway-password"
   value        = "${module.reform-blob-router-db.postgresql_password}"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
