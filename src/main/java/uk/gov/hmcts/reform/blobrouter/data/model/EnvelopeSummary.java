@@ -4,12 +4,12 @@ import java.time.Instant;
 
 public class EnvelopeSummary {
 
-    private final String container;
-    private final String fileName;
-    private final Instant fileCreatedAt;
-    private final Instant dispatchedAt;
-    private final Status status;
-    private final boolean isDeleted;
+    public final String container;
+    public final String fileName;
+    public final Instant fileCreatedAt;
+    public final Instant dispatchedAt;
+    public final Status status;
+    public final boolean isDeleted;
 
     public EnvelopeSummary(
         String container,
