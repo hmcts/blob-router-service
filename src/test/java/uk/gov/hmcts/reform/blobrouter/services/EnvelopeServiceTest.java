@@ -163,4 +163,19 @@ class EnvelopeServiceTest {
         // and
         verifyNoInteractions(envelopeRepository);
     }
+
+    @Test
+    void should_record_error_event() {
+        // when
+        envelopeService.saveEventError(CONTAINER_NAME, BLOB_NAME);
+
+        // then
+        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.ERROR);
+
+        // and
+        verifyNoInteractions(envelopeRepository);
+    }
 }

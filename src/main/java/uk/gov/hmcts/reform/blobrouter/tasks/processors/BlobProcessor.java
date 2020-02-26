@@ -124,6 +124,7 @@ public class BlobProcessor {
             }
         } catch (Exception exception) {
             logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);
+            envelopeService.saveEventError(containerName, blobName);
         } finally {
             tryToReleaseLease(leaseClient, blobName, containerName);
         }
