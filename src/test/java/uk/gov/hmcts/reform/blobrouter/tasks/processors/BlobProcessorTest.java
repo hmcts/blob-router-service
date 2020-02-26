@@ -7,15 +7,11 @@ import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -23,14 +19,12 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -43,8 +37,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest {
@@ -68,8 +62,7 @@ class BlobProcessorTest {
     @Mock BlobProperties blobProperties;
     @Mock BlobDispatcher blobDispatcher;
     @Mock BlobLeaseClient blobLeaseClient;
-    @Mock EnvelopeRepository envelopeRepo;
-    @Mock EventRecordRepository eventRecordRepo;
+    @Mock EnvelopeService envelopeService;
     @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
 
@@ -78,7 +71,7 @@ class BlobProcessorTest {
         // given
         blobExists();
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         willThrow(new RuntimeException("Test exception"))
             .given(blobDispatcher)
@@ -89,7 +82,8 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
-        verify(envelopeRepo, never()).insert(any());
+        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
+        verify(envelopeService, never()).createDispatchedEnvelope(any(), any(), any());
     }
 
     @Test
@@ -101,28 +95,20 @@ class BlobProcessorTest {
         blobExists(blobCreationTime, BLOB_CONTENT);
 
         String fileName = "envelope1.zip";
-        String containerName = SOURCE_CONTAINER;
 
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
-        newBlobProcessor().process(fileName, containerName);
+        newBlobProcessor().process(fileName, SOURCE_CONTAINER);
 
         // then
         verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
-
-        ArgumentCaptor<NewEnvelope> newEnvelopeArgumentCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
-        verify(envelopeRepo).insert(newEnvelopeArgumentCaptor.capture());
-
-        assertThat(newEnvelopeArgumentCaptor.getValue().fileName).isEqualTo(fileName);
-        assertThat(newEnvelopeArgumentCaptor.getValue().container).isEqualTo(containerName);
-        assertThat(newEnvelopeArgumentCaptor.getValue().dispatchedAt).isBeforeOrEqualTo(Instant.now());
-        assertThat(newEnvelopeArgumentCaptor.getValue().fileCreatedAt).isBeforeOrEqualTo(Instant.now());
-        assertThat(newEnvelopeArgumentCaptor.getValue().status).isEqualTo(DISPATCHED);
+        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
+        verify(envelopeService).createDispatchedEnvelope(eq(SOURCE_CONTAINER), eq(fileName), any());
     }
 
     @Test
-    void should_reject_file_if_signature_verification_fails() {
+    void should_reject_file_if_file_verification_fails() {
         // given
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
@@ -130,24 +116,20 @@ class BlobProcessorTest {
         blobExists(blobCreationTime, BLOB_CONTENT);
 
         String fileName = "envelope1.zip";
-        String containerName = "container1";
 
-        given(verifier.verifyZip(any(), any())).willReturn(false);
+        given(verifier.verifyZip(any(), any())).willReturn(error("error"));
 
         // when
-        newBlobProcessor().process(fileName, containerName);
+        newBlobProcessor().process(fileName, SOURCE_CONTAINER);
 
         // then
         verifyNoInteractions(blobDispatcher);
-
-        ArgumentCaptor<NewEnvelope> newEnvelopeArgumentCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
-        verify(envelopeRepo).insert(newEnvelopeArgumentCaptor.capture());
-
-        assertThat(newEnvelopeArgumentCaptor.getValue().fileName).isEqualTo(fileName);
-        assertThat(newEnvelopeArgumentCaptor.getValue().container).isEqualTo(containerName);
-        assertThat(newEnvelopeArgumentCaptor.getValue().dispatchedAt).isBeforeOrEqualTo(Instant.now());
-        assertThat(newEnvelopeArgumentCaptor.getValue().fileCreatedAt).isBeforeOrEqualTo(Instant.now());
-        assertThat(newEnvelopeArgumentCaptor.getValue().status).isEqualTo(REJECTED);
+        verify(envelopeService).createRejectedEnvelope(
+            eq(SOURCE_CONTAINER),
+            eq(fileName),
+            any(),
+            eq("error")
+        );
     }
 
     @Test
@@ -160,7 +142,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, BULKSCAN);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         var fileName = "envelope1.zip";
 
@@ -170,6 +152,7 @@ class BlobProcessorTest {
         // then
         verify(blobDispatcher, times(1))
             .dispatch(eq(fileName), aryEq(BLOB_CONTENT), eq(targetContainerName), eq(BULKSCAN));
+        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
     }
 
     @Test
@@ -182,7 +165,7 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
         var fileName = "envelope1.zip";
 
         // when
@@ -191,6 +174,7 @@ class BlobProcessorTest {
         // then
         verify(blobDispatcher, times(1))
             .dispatch(eq(fileName), aryEq(INTERNAL_ENVELOPE_CONTENT), eq(targetContainerName), eq(CRIME));
+        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
     }
 
     @Test
@@ -204,13 +188,14 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
         newBlobProcessor().process("envelope1.zip", sourceContainerName);
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
+        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
     }
 
     @Test
@@ -225,13 +210,14 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(true);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
         newBlobProcessor().process("envelope1.zip", sourceContainerName);
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
+        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
     }
 
     private static byte[] getBlobContent(Map<String, byte[]> zipEntries) {
@@ -268,7 +254,7 @@ class BlobProcessorTest {
         }
 
         given(blobProperties.getLastModified()).willReturn(time);
-        given(envelopeRepo.find(any(), any())).willReturn(Optional.empty());
+        given(envelopeService.findEnvelope(any(), any())).willReturn(Optional.empty());
     }
 
     private void setupDownloadedBlobContent(byte[] content) {
@@ -299,7 +285,7 @@ class BlobProcessorTest {
         return new BlobProcessor(
             this.blobServiceClient,
             this.blobDispatcher,
-            new EnvelopeService(this.envelopeRepo, this.eventRecordRepo),
+            this.envelopeService,
             blobClient -> blobLeaseClient,
             this.verifier,
             this.serviceConfiguration

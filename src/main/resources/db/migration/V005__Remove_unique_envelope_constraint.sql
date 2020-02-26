@@ -1,0 +1,1 @@
+ALTER TABLE envelopes DROP CONSTRAINT envelopes_container_file_name_key;
