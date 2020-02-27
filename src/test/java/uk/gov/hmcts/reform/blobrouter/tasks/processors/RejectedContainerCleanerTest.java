@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 
@@ -112,6 +113,6 @@ class RejectedContainerCleanerTest {
         verify(blobClient2, times(1)).delete();
 
         // and
-        verify(envelopeService).saveEventDeletedFromRejected(REJECTED_CONTAINER, REJECTED_BLOB);
+        verify(envelopeService).saveEvent(REJECTED_CONTAINER, REJECTED_BLOB, Event.DELETED_FROM_REJECTED);
     }
 }
