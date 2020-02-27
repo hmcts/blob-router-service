@@ -13,12 +13,15 @@ import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -234,5 +237,42 @@ class EnvelopeServiceTest {
 
         // and
         verifyNoInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_mark_envelope_as_rejected() {
+        // given
+        var existingEnvelope = new Envelope(UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false);
+        given(envelopeRepository.find(existingEnvelope.id))
+            .willReturn(Optional.of(existingEnvelope));
+
+        // when
+        envelopeService.markAsRejected(existingEnvelope.id);
+
+        // then
+        verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.REJECTED);
+
+        var eventCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(eventCaptor.capture());
+
+        assertThat(eventCaptor.getValue().fileName).isEqualTo(existingEnvelope.fileName);
+        assertThat(eventCaptor.getValue().container).isEqualTo(existingEnvelope.container);
+        assertThat(eventCaptor.getValue().event).isEqualTo(Event.REJECTED);
+    }
+
+    @Test
+    void should_throw_exception_when_trying_to_mark_not_existing_envelope_as_dispatched() {
+        // given
+        var notExistingId = UUID.randomUUID();
+        given(envelopeRepository.find(any()))
+            .willReturn(Optional.empty());
+
+        // when
+        var exc = catchThrowable(() -> envelopeService.markAsRejected(notExistingId));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(EnvelopeNotFoundException.class)
+            .hasMessageContaining(notExistingId.toString());
     }
 }
