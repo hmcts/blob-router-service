@@ -8,6 +8,9 @@ import static java.time.ZoneOffset.UTC;
 
 public final class DateTimeUtils {
 
+    private DateTimeUtils() {
+    }
+
     static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public static Instant instant(String string) {
