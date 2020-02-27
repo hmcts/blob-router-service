@@ -7,10 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.ReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.EnvelopeSummary;
-import uk.gov.hmcts.reform.blobrouter.model.out.DailyReportResponse;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryResponse;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +20,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Status.CREATED;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
@@ -70,10 +70,10 @@ class ReportServiceTest {
         LocalDate dt = LocalDate.of(2019, 1, 14);
 
         // when
-        DailyReportResponse res = reportService.getDailyReport(dt);
+        List<EnvelopeSummaryResponse> res = reportService.getDailyReport(dt);
 
         // then
-        assertThat(res.envelopes)
+        assertThat(res)
             .extracting(env -> tuple(
                 env.container,
                 env.fileName,
@@ -106,29 +106,5 @@ class ReportServiceTest {
                     false
                 )
             );
-        assertThat(res.date).isEqualTo(dt);
-        assertThat(res.dispatched).isEqualTo(1);
-        assertThat(res.rejected).isEqualTo(1);
-    }
-
-    @Test
-    void getDailyReport_should_ignore_incomplete_envelope() {
-        // given
-        Instant inst1 = instant("2019-01-14 10:11:12");
-        Instant inst2 = instant("2019-01-15 11:12:13");
-        Instant inst3 = instant("2019-01-16 12:13:14");
-        EnvelopeSummary es1 = new EnvelopeSummary(CONTAINER_1, FILE_NAME_1, inst1, inst2, DISPATCHED, true);
-        EnvelopeSummary es2 = new EnvelopeSummary(CONTAINER_1, FILE_NAME_2, inst3, null, CREATED, false);
-        given(reportRepository.getEnvelopeSummary(any(Instant.class), any(Instant.class)))
-            .willReturn(asList(es1, es2));
-
-        LocalDate dt = LocalDate.of(2019, 1, 14);
-
-        // when
-        DailyReportResponse res = reportService.getDailyReport(dt);
-
-        // then
-        assertThat(res.dispatched).isEqualTo(1);
-        assertThat(res.rejected).isEqualTo(0);
     }
 }
