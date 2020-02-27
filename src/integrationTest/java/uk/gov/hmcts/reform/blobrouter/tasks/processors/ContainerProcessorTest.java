@@ -1,10 +1,13 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.specialized.BlobClientBase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +20,12 @@ import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import java.time.Instant;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
@@ -69,9 +73,12 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
         containerProcessor.process(CONTAINER_NAME);
 
         // then
-        verify(blobProcessor).process("1.zip", CONTAINER_NAME);
-        verify(blobProcessor).process("3.zip", CONTAINER_NAME);
-        verifyNoMoreInteractions(blobProcessor);
+        var blobArgCaptor = ArgumentCaptor.forClass(BlobClient.class);
+        verify(blobProcessor, times(2)).process(blobArgCaptor.capture());
+
+        assertThat(blobArgCaptor.getAllValues())
+            .extracting(BlobClientBase::getBlobName)
+            .containsExactly("1.zip", "3.zip");
     }
 
     @Test
@@ -85,7 +92,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
         containerProcessor.process(CONTAINER_NAME);
 
         // then
-        verify(blobProcessor, never()).process("4.zip", CONTAINER_NAME);
+        verify(blobProcessor, never()).process(any());
     }
 
     void upload(BlobContainerClient containerClient, String fileName) {
