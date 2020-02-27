@@ -14,8 +14,8 @@ spring:
         storage-account-primary-key:  storage.account-key
         storage-account-secondary-key:  storage.account-secondary-key
         crime-storage-connection-string: storage.crime.connection-string
-        db-flyway-password: flyway.password
-        blob-router-db-pass: DB_PASSWORD
         reports-email-username: SMTP_USERNAME
         reports-email-password: SMTP_PASSWORD
+        db-flyway-password: flyway.password
+        blob-router-db-pass: DB_PASSWORD
 
