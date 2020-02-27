@@ -88,6 +88,21 @@ public class EnvelopeService {
     }
 
     @Transactional
+    public void markAsDispatched(UUID id) {
+        envelopeRepository
+            .find(id)
+            .ifPresentOrElse(
+                env -> {
+                    envelopeRepository.updateStatus(id, Status.DISPATCHED);
+                    eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, Event.DISPATCHED));
+                },
+                () -> {
+                    throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
+                }
+            );
+    }
+
+    @Transactional
     public void markAsRejected(UUID id) {
         envelopeRepository
             .find(id)

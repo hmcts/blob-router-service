@@ -240,6 +240,43 @@ class EnvelopeServiceTest {
     }
 
     @Test
+    void should_mark_envelope_as_dispatched() {
+        // given
+        var existingEnvelope = new Envelope(UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false);
+        given(envelopeRepository.find(existingEnvelope.id))
+            .willReturn(Optional.of(existingEnvelope));
+
+        // when
+        envelopeService.markAsDispatched(existingEnvelope.id);
+
+        // then
+        verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.DISPATCHED);
+
+        var eventCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        verify(eventRecordRepository).insert(eventCaptor.capture());
+
+        assertThat(eventCaptor.getValue().fileName).isEqualTo(existingEnvelope.fileName);
+        assertThat(eventCaptor.getValue().container).isEqualTo(existingEnvelope.container);
+        assertThat(eventCaptor.getValue().event).isEqualTo(Event.DISPATCHED);
+    }
+
+    @Test
+    void should_throw_exceptiopn_when_trying_to_mark_not_existing_envelope_as_dispatched() {
+        // given
+        var notExistingId = UUID.randomUUID();
+        given(envelopeRepository.find(any()))
+            .willReturn(Optional.empty());
+
+        // when
+        var exc = catchThrowable(() -> envelopeService.markAsDispatched(notExistingId));
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(EnvelopeNotFoundException.class)
+            .hasMessageContaining(notExistingId.toString());
+    }
+
+    @Test
     void should_mark_envelope_as_rejected() {
         // given
         var existingEnvelope = new Envelope(UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false);
