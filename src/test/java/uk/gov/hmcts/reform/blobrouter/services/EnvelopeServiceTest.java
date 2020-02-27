@@ -23,6 +23,7 @@ import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -251,6 +252,7 @@ class EnvelopeServiceTest {
 
         // then
         verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.DISPATCHED);
+        verify(envelopeRepository).updateDispatchDateTime(eq(existingEnvelope.id), any());
 
         var eventCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
         verify(eventRecordRepository).insert(eventCaptor.capture());
