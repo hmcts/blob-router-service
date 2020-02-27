@@ -7,6 +7,7 @@ import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 
@@ -72,7 +73,7 @@ public class RejectedContainerCleaner {
 
         try {
             blobClient.delete();
-            envelopeService.saveEventDeletedFromRejected(containerName, blobName);
+            envelopeService.saveEvent(containerName, blobName, Event.DELETED_FROM_REJECTED);
             logger.info("Deleted rejected file. {}", blobInfo);
         } catch (Exception exc) {
             logger.error("Error deleting rejected file. {}", blobInfo, exc);
