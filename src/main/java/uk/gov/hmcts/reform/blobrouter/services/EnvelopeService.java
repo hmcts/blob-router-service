@@ -103,6 +103,21 @@ public class EnvelopeService {
     }
 
     @Transactional
+    public void markAsRejected(UUID id) {
+        envelopeRepository
+            .find(id)
+            .ifPresentOrElse(
+                env -> {
+                    envelopeRepository.updateStatus(id, Status.REJECTED);
+                    eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, Event.REJECTED));
+                },
+                () -> {
+                    throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
+                }
+            );
+    }
+
+    @Transactional
     public void markEnvelopeAsDeleted(Envelope envelope) {
         envelopeRepository.markAsDeleted(envelope.id);
         eventRecordRepository.insert(new NewEventRecord(envelope.container, envelope.fileName, Event.DELETED));
