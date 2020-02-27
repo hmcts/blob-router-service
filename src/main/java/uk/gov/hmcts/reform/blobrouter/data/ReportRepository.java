@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public class ReportRepository {
 
-    private static final String BULKSCAN_CONTAINER_NAME = "bulkscan";
+    private static final String EXCLUDED_CONTAINER = "bulkscan";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeSummaryMapper mapper;
@@ -27,11 +27,11 @@ public class ReportRepository {
 
     public List<EnvelopeSummary> getEnvelopeSummary(Instant from, Instant to) {
         return jdbcTemplate.query(
-              "SELECT container, file_name, file_created_at, dispatched_at, "
-                + "       status, is_deleted "
+              "SELECT container, file_name, file_created_at, dispatched_at, status, is_deleted "
                 + "FROM envelopes "
-                + "WHERE container <> '" + BULKSCAN_CONTAINER_NAME + "' "
-                + "      AND file_created_at >= :from AND file_created_at < :to "
+                + "WHERE container <> '" + EXCLUDED_CONTAINER + "' "
+                + "  AND file_created_at >= :from "
+                + "  AND file_created_at < :to "
                 + "ORDER BY file_created_at",
             new MapSqlParameterSource()
                 .addValue("from", Timestamp.from(from))
