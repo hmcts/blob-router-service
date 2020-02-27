@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.ReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.EnvelopeSummary;
-import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryResponse;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -70,7 +70,7 @@ class ReportServiceTest {
         LocalDate dt = LocalDate.of(2019, 1, 14);
 
         // when
-        List<EnvelopeSummaryResponse> res = reportService.getDailyReport(dt);
+        List<EnvelopeSummaryItem> res = reportService.getDailyReport(dt);
 
         // then
         assertThat(res)

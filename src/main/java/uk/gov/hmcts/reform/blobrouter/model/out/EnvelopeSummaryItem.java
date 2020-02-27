@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.model.out;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public class EnvelopeSummaryResponse {
+public class EnvelopeSummaryItem {
     public final String container;
     public final String fileName;
     public final LocalDate dateReceived;
@@ -13,7 +13,7 @@ public class EnvelopeSummaryResponse {
     public final String status;
     public final boolean isDeleted;
 
-    public EnvelopeSummaryResponse(
+    public EnvelopeSummaryItem(
         String container,
         String fileName,
         LocalDate dateReceived,

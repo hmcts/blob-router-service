@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services.report;
 
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.data.ReportRepository;
-import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryResponse;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -21,13 +21,13 @@ public class ReportService {
         this.reportRepository = reportRepository;
     }
 
-    public List<EnvelopeSummaryResponse> getDailyReport(LocalDate date) {
+    public List<EnvelopeSummaryItem> getDailyReport(LocalDate date) {
 
         var from = date.atStartOfDay().toInstant(UTC);
         var to = date.atStartOfDay().plusDays(1).toInstant(UTC);
 
         return reportRepository.getEnvelopeSummary(from, to).stream()
-                .map(s -> new EnvelopeSummaryResponse(
+                .map(s -> new EnvelopeSummaryItem(
                         s.container,
                         s.fileName,
                         toLocalDate(s.fileCreatedAt),
