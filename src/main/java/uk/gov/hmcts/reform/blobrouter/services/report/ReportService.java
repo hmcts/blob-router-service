@@ -13,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.time.LocalDateTime.ofInstant;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
@@ -21,7 +20,7 @@ import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
 
 @Service
 public class ReportService {
-    public static final String TIME_FORMAT = "HH:mm:ss";
+    private static final String TIME_FORMAT = "HH:mm:ss";
     private final ReportRepository reportRepository;
 
     public ReportService(ReportRepository reportRepository) {
@@ -30,11 +29,11 @@ public class ReportService {
 
     public DailyReportResponse getDailyReport(LocalDate date) {
 
-        Instant from = date.atStartOfDay().toInstant(UTC);
-        Instant to = date.atStartOfDay().plusDays(1).toInstant(UTC);
+        var from = date.atStartOfDay().toInstant(UTC);
+        var to = date.atStartOfDay().plusDays(1).toInstant(UTC);
 
-        AtomicInteger rejected = new AtomicInteger(0);
-        AtomicInteger dispatched = new AtomicInteger(0);
+        var rejected = new AtomicInteger(0);
+        var dispatched = new AtomicInteger(0);
         List<EnvelopeSummaryResponse> envelopeSummaryResponses =
             reportRepository.getEnvelopeSummary(from, to).stream()
                 .map(s -> {
@@ -46,7 +45,7 @@ public class ReportService {
                     return new EnvelopeSummaryResponse(
                         s.container,
                         s.fileName,
-                        ofInstant(s.fileCreatedAt, UTC).toLocalDate(),
+                        LocalDateTime.ofInstant(s.fileCreatedAt, UTC).toLocalDate(),
                         toLocalTime(s.fileCreatedAt),
                         toLocalDate(s.dispatchedAt),
                         toLocalTime(s.dispatchedAt),
