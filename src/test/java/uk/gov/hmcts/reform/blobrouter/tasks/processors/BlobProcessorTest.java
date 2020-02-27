@@ -1,8 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.Test;
@@ -55,8 +53,6 @@ class BlobProcessorTest {
             )
         );
 
-    @Mock BlobServiceClient blobServiceClient;
-    @Mock BlobContainerClient containerClient;
     @Mock BlobClient blobClient;
     @Mock BlobProperties blobProperties;
     @Mock BlobDispatcher blobDispatcher;
@@ -68,7 +64,7 @@ class BlobProcessorTest {
     @Test
     void should_not_store_envelope_in_db_when_upload_failed() {
         // given
-        blobExists();
+        blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
@@ -77,7 +73,7 @@ class BlobProcessorTest {
             .dispatch(any(), any(), any(), any());
 
         // when
-        newBlobProcessor().process("envelope1.zip", SOURCE_CONTAINER);
+        newBlobProcessor().process(blobClient);
 
         // then
         verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
@@ -92,14 +88,13 @@ class BlobProcessorTest {
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
-        blobExists(blobCreationTime, BLOB_CONTENT);
-
         String fileName = "envelope1.zip";
+        blobExists(fileName, SOURCE_CONTAINER, blobCreationTime, BLOB_CONTENT);
 
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
-        newBlobProcessor().process(fileName, SOURCE_CONTAINER);
+        newBlobProcessor().process(blobClient);
 
         // then
         verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
@@ -113,14 +108,13 @@ class BlobProcessorTest {
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
-        blobExists(blobCreationTime, BLOB_CONTENT);
-
         String fileName = "envelope1.zip";
+        blobExists(fileName, SOURCE_CONTAINER, blobCreationTime, BLOB_CONTENT);
 
         given(verifier.verifyZip(any(), any())).willReturn(error("error"));
 
         // when
-        newBlobProcessor().process(fileName, SOURCE_CONTAINER);
+        newBlobProcessor().process(blobClient);
 
         // then
         verifyNoInteractions(blobDispatcher);
@@ -135,19 +129,18 @@ class BlobProcessorTest {
     @Test
     void should_upload_the_downloaded_blob_when_target_account_is_bulk_scan() {
         // given
-        blobExists();
+        var fileName = "envelope1.zip";
         var sourceContainerName = "sourceContainer1";
         var targetContainerName = "targetContainer1";
 
         setupContainerConfig(sourceContainerName, targetContainerName, BULKSCAN);
+        blobExists(fileName, sourceContainerName);
 
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
-        var fileName = "envelope1.zip";
-
         // when
-        newBlobProcessor().process(fileName, sourceContainerName);
+        newBlobProcessor().process(blobClient);
 
         // then
         verify(blobDispatcher, times(1))
@@ -158,18 +151,19 @@ class BlobProcessorTest {
     @Test
     void should_upload_extracted_envelope_when_target_account_is_crime() {
         // given
-        blobExists();
+        var fileName = "envelope1.zip";
         var sourceContainerName = "sourceContainer1";
         var targetContainerName = "targetContainer1";
+
+        blobExists(fileName, sourceContainerName);
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(ok());
-        var fileName = "envelope1.zip";
 
         // when
-        newBlobProcessor().process(fileName, sourceContainerName);
+        newBlobProcessor().process(blobClient);
 
         // then
         verify(blobDispatcher, times(1))
@@ -180,10 +174,10 @@ class BlobProcessorTest {
     @Test
     void should_not_upload_to_crime_when_blob_is_not_zip() {
         // given
-        blobExists(OffsetDateTime.now(), "not zip file's content".getBytes());
-
         var sourceContainerName = "sourceContainer1";
         var targetContainerName = "targetContainer1";
+
+        blobExists("envelope1.zip", sourceContainerName, OffsetDateTime.now(), "not zip file's content".getBytes());
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
@@ -191,7 +185,7 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
-        newBlobProcessor().process("envelope1.zip", sourceContainerName);
+        newBlobProcessor().process(blobClient);
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
@@ -201,11 +195,16 @@ class BlobProcessorTest {
     @Test
     void should_not_upload_to_crime_when_blob_does_not_contain_envelope_entry() {
         // given
-        // blob contains signature file only
-        blobExists(OffsetDateTime.now(), getBlobContent(Map.of("signature", "test".getBytes())));
-
         var sourceContainerName = "sourceContainer1";
         var targetContainerName = "targetContainer1";
+
+        // blob contains signature file only
+        blobExists(
+            "envelope1.zip",
+            sourceContainerName,
+            OffsetDateTime.now(),
+            getBlobContent(Map.of("signature", "test".getBytes()))
+        );
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
@@ -213,7 +212,7 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
-        newBlobProcessor().process("envelope1.zip", sourceContainerName);
+        newBlobProcessor().process(blobClient);
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
@@ -240,13 +239,13 @@ class BlobProcessorTest {
         }
     }
 
-    private void blobExists() {
-        blobExists(OffsetDateTime.now(), BLOB_CONTENT);
+    private void blobExists(String blobName, String containerName) {
+        blobExists(blobName, containerName, OffsetDateTime.now(), BLOB_CONTENT);
     }
 
-    private void blobExists(OffsetDateTime time, byte[] contentToDownload) {
-        given(blobServiceClient.getBlobContainerClient(any())).willReturn(containerClient);
-        given(containerClient.getBlobClient(any())).willReturn(blobClient);
+    private void blobExists(String blobName, String containerName, OffsetDateTime time, byte[] contentToDownload) {
+        given(blobClient.getBlobName()).willReturn(blobName);
+        given(blobClient.getContainerName()).willReturn(containerName);
         given(blobClient.getProperties()).willReturn(blobProperties);
 
         if (contentToDownload != null) {
@@ -282,7 +281,6 @@ class BlobProcessorTest {
 
     private BlobProcessor newBlobProcessor() {
         return new BlobProcessor(
-            this.blobServiceClient,
             this.blobDispatcher,
             this.envelopeService,
             blobClient -> blobLeaseClient,

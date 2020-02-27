@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
@@ -39,10 +40,12 @@ public class ContainerProcessor {
 
         try {
             BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
-
             containerClient
                 .listBlobs()
-                .forEach(blob -> processIfReady(blob, containerName));
+                .stream()
+                .filter(blobItem -> isReady(blobItem, containerName))
+                .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
+                .forEach(blob -> processBlob(blob));
 
             logger.info("Finished processing container {}", containerName);
         } catch (Exception exception) {
@@ -50,30 +53,34 @@ public class ContainerProcessor {
         }
     }
 
-    private void processIfReady(BlobItem blob, String containerName) {
+    private boolean isReady(BlobItem blob, String containerName) {
         Instant blobCreationDate = blob.getProperties().getLastModified().toInstant();
-        String blobName = blob.getName();
-
         if (blobReadinessChecker.isReady(blobCreationDate)) {
-            envelopeService
-                .findEnvelope(blobName, containerName)
-                .ifPresentOrElse(
-                    envelope -> logger.info(
-                        "Envelope already processed in system, skipping."
-                            + " ID: {}, filename: {}, container: {}, state: {}",
-                        envelope.id,
-                        envelope.fileName,
-                        envelope.container,
-                        envelope.status.name()
-                    ),
-                    () -> blobProcessor.process(blobName, containerName)
-                );
+            return true;
         } else {
             logger.info(
                 "Blob not ready to be processed yet, skipping. File name: {}. Container: {}",
-                blobName,
+                blob.getName(),
                 containerName
             );
+            return false;
         }
+    }
+
+    private void processBlob(BlobClient blob) {
+        envelopeService
+            .findEnvelope(blob.getBlobName(), blob.getContainerName())
+            .ifPresentOrElse(
+                envelope -> logger.info(
+                    "Envelope already processed in system, skipping."
+                        + " ID: {}, filename: {}, container: {}, state: {}",
+                    envelope.id,
+                    envelope.fileName,
+                    envelope.container,
+                    envelope.status.name()
+                ),
+                () -> blobProcessor.process(blob)
+            );
+
     }
 }
