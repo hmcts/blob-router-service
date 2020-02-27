@@ -125,23 +125,8 @@ public class EnvelopeService {
     }
 
     @Transactional
-    public void saveEventFileProcessingStarted(String containerName, String blobName) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.FILE_PROCESSING_STARTED));
-    }
-
-    @Transactional
-    public void saveEventDeletedFromRejected(String containerName, String blobName) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DELETED_FROM_REJECTED));
-    }
-
-    @Transactional
-    public void saveEventDuplicateRejected(String containerName, String blobName) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DUPLICATE_REJECTED));
-    }
-
-    @Transactional
-    public void saveEventError(String containerName, String blobName) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.ERROR));
+    public void saveEvent(String containerName, String blobName, Event event) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, event));
     }
 
     @Transactional(readOnly = true)

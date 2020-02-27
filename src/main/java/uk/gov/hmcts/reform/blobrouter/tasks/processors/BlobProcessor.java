@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
@@ -62,7 +63,7 @@ public class BlobProcessor {
 
         logger.info("Processing {} from {} container", blobName, containerName);
 
-        envelopeService.saveEventFileProcessingStarted(containerName, blobName);
+        envelopeService.saveEvent(containerName, blobName, Event.FILE_PROCESSING_STARTED);
 
         BlobLeaseClient leaseClient = null;
 
@@ -119,7 +120,7 @@ public class BlobProcessor {
             }
         } catch (Exception exception) {
             logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);
-            envelopeService.saveEventError(containerName, blobName);
+            envelopeService.saveEvent(containerName, blobName, Event.ERROR);
         } finally {
             tryToReleaseLease(leaseClient, blobName, containerName);
         }

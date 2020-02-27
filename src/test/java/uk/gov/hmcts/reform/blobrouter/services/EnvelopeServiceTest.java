@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,6 +26,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -184,60 +186,21 @@ class EnvelopeServiceTest {
     }
 
     @Test
-    void should_record_process_start_event() {
-        // when
-        envelopeService.saveEventFileProcessingStarted(CONTAINER_NAME, BLOB_NAME);
+    void should_record_event() {
+        Stream.of(Event.values()).forEach(event -> {
+            // when
+            envelopeService.saveEvent("c", "f", event);
 
-        // then
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.FILE_PROCESSING_STARTED);
+            // then
+            var eventCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+            verify(eventRecordRepository).insert(eventCaptor.capture());
 
-        // and
-        verifyNoInteractions(envelopeRepository);
-    }
+            assertThat(eventCaptor.getValue().container).isEqualTo("c");
+            assertThat(eventCaptor.getValue().fileName).isEqualTo("f");
+            assertThat(eventCaptor.getValue().event).isEqualTo(event);
 
-    @Test
-    void should_record_deletion_from_rejected_container_event() {
-        // when
-        envelopeService.saveEventDeletedFromRejected(CONTAINER_NAME, BLOB_NAME);
-
-        // then
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DELETED_FROM_REJECTED);
-
-        // and
-        verifyNoInteractions(envelopeRepository);
-    }
-
-    @Test
-    void should_record_duplicate_rejected_event() {
-        // when
-        envelopeService.saveEventDuplicateRejected(CONTAINER_NAME, BLOB_NAME);
-
-        // then
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DUPLICATE_REJECTED);
-
-        // and
-        verifyNoInteractions(envelopeRepository);
-    }
-
-    @Test
-    void should_record_error_event() {
-        // when
-        envelopeService.saveEventError(CONTAINER_NAME, BLOB_NAME);
-
-        // then
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-
-        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.ERROR);
-
-        // and
-        verifyNoInteractions(envelopeRepository);
+            reset(eventRecordRepository);
+        });
     }
 
     @Test
