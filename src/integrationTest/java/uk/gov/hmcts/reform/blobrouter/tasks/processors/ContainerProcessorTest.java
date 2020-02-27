@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
         containerProcessor.process(CONTAINER_NAME);
 
         // then
+        ArgumentCaptor<>
         verify(blobProcessor).process("1.zip", CONTAINER_NAME);
         verify(blobProcessor).process("3.zip", CONTAINER_NAME);
         verifyNoMoreInteractions(blobProcessor);

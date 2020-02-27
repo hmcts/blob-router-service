@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ public class BlobProcessor {
 
     private static final Logger logger = getLogger(BlobProcessor.class);
 
-    private final BlobServiceClient storageClient;
     private final BlobDispatcher dispatcher;
     private final EnvelopeService envelopeService;
     private final LeaseClientProvider leaseClientProvider;
@@ -45,14 +43,12 @@ public class BlobProcessor {
     private final Map<String, StorageConfigItem> storageConfig;
 
     public BlobProcessor(
-        BlobServiceClient storageClient,
         BlobDispatcher dispatcher,
         EnvelopeService envelopeService,
         LeaseClientProvider leaseClientProvider,
         BlobVerifier blobVerifier,
         ServiceConfiguration serviceConfiguration
     ) {
-        this.storageClient = storageClient;
         this.dispatcher = dispatcher;
         this.envelopeService = envelopeService;
         this.leaseClientProvider = leaseClientProvider;
@@ -60,7 +56,10 @@ public class BlobProcessor {
         this.storageConfig = serviceConfiguration.getStorageConfig();
     }
 
-    public void process(String blobName, String containerName) {
+    public void process(BlobClient blobClient) {
+        String blobName = blobClient.getBlobName();
+        var containerName = blobClient.getContainerName();
+
         logger.info("Processing {} from {} container", blobName, containerName);
 
         envelopeService.saveEventFileProcessingStarted(containerName, blobName);
@@ -68,10 +67,6 @@ public class BlobProcessor {
         BlobLeaseClient leaseClient = null;
 
         try {
-            BlobClient blobClient = storageClient
-                .getBlobContainerClient(containerName)
-                .getBlobClient(blobName);
-
             leaseClient = leaseClientProvider.get(blobClient);
 
             leaseClient.acquireLease(60);

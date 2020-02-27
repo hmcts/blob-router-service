@@ -67,7 +67,6 @@ class BlobProcessorTest extends BlobStorageBaseTest {
 
         var blobProcessor =
             new BlobProcessor(
-                storageClient,
                 dispatcher,
                 envelopeService,
                 blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient(),
@@ -84,7 +83,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
             .upload(new ByteArrayInputStream(bytes), bytes.length);
 
         // when
-        blobProcessor.process(blobName, sourceContainer);
+        blobProcessor.process(sourceContainerClient.getBlobClient(blobName));
 
         // then
         assertThat(targetContainerClient.listBlobs())
