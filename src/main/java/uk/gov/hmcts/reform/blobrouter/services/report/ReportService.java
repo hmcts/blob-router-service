@@ -30,7 +30,7 @@ public class ReportService {
                 .map(s -> new EnvelopeSummaryResponse(
                         s.container,
                         s.fileName,
-                        LocalDateTime.ofInstant(s.fileCreatedAt, UTC).toLocalDate(),
+                        toLocalDate(s.fileCreatedAt),
                         toLocalTime(s.fileCreatedAt),
                         toLocalDate(s.dispatchedAt),
                         toLocalTime(s.dispatchedAt),
