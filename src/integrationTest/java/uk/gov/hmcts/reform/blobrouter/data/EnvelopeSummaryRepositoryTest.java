@@ -10,13 +10,10 @@ import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
@@ -43,12 +40,11 @@ public class EnvelopeSummaryRepositoryTest {
     @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
     void should_find_within_date_range() {
         // given
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Instant createdAt1 = LocalDateTime.parse("2019-12-19 10:31:25", formatter).toInstant(UTC);
-        Instant createdAt2 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(UTC);
-        Instant createdAt3 = LocalDateTime.parse("2019-12-20 12:34:28", formatter).toInstant(UTC);
-        Instant createdAt4 = LocalDateTime.parse("2019-12-21 13:38:32", formatter).toInstant(UTC);
-        Instant dispatchedAt = LocalDateTime.parse("2019-12-22 13:39:33", formatter).toInstant(UTC);
+        Instant createdAt1 = instant("2019-12-19 10:31:25");
+        Instant createdAt2 = instant("2019-12-20 11:32:26");
+        Instant createdAt3 = instant("2019-12-20 12:34:28");
+        Instant createdAt4 = instant("2019-12-21 13:38:32");
+        Instant dispatchedAt = instant("2019-12-22 13:39:33");
 
         // before the request date
         envelopeRepository.insert(
@@ -63,8 +59,8 @@ public class EnvelopeSummaryRepositoryTest {
 
         // when
         List<EnvelopeSummary> result = reportRepository.getEnvelopeSummary(
-            LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
-            LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
+            instant("2019-12-20 00:00:00"),
+            instant("2019-12-21 00:00:00")
         );
 
         // then
@@ -94,10 +90,9 @@ public class EnvelopeSummaryRepositoryTest {
     @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
     void should_find_in_correct_order() {
         // given
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Instant createdAt1 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(UTC);
-        Instant createdAt2 = LocalDateTime.parse("2019-12-20 12:34:28", formatter).toInstant(UTC);
-        Instant dispatchedAt = LocalDateTime.parse("2019-12-22 13:39:33", formatter).toInstant(UTC);
+        Instant createdAt1 = instant("2019-12-20 11:32:26");
+        Instant createdAt2 = instant("2019-12-20 12:34:28");
+        Instant dispatchedAt = instant("2019-12-22 13:39:33");
 
         // 2 envelopes are on the request date, wrong order
         envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_1, createdAt2, null, Status.REJECTED));
@@ -105,8 +100,8 @@ public class EnvelopeSummaryRepositoryTest {
 
         // when
         List<EnvelopeSummary> result = reportRepository.getEnvelopeSummary(
-            LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
-            LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
+            instant("2019-12-20 00:00:00"),
+            instant("2019-12-21 00:00:00")
         );
 
         // then
@@ -136,10 +131,9 @@ public class EnvelopeSummaryRepositoryTest {
     @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
     void should_skip_bulkscan_container() {
         // given
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        Instant createdAt1 = LocalDateTime.parse("2019-12-20 11:32:26", formatter).toInstant(UTC);
-        Instant createdAt2 = LocalDateTime.parse("2019-12-20 12:33:27", formatter).toInstant(UTC);
-        Instant dispatchedAt = LocalDateTime.parse("2019-12-22 13:39:33", formatter).toInstant(UTC);
+        Instant createdAt1 = instant("2019-12-20 11:32:26");
+        Instant createdAt2 = instant("2019-12-20 12:33:27");
+        Instant dispatchedAt = instant("2019-12-22 13:39:33");
 
         envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_1, createdAt1, dispatchedAt, Status.DISPATCHED));
 
@@ -149,8 +143,8 @@ public class EnvelopeSummaryRepositoryTest {
 
         // when
         List<EnvelopeSummary> result = reportRepository.getEnvelopeSummary(
-            LocalDate.parse("2019-12-20").atStartOfDay().toInstant(UTC),
-            LocalDate.parse("2019-12-21").atStartOfDay().toInstant(UTC)
+            instant("2019-12-20 00:00:00"),
+            instant("2019-12-21 00:00:00")
         );
 
         // then
