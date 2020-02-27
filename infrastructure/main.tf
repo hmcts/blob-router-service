@@ -23,10 +23,10 @@ module "blob-router-db" {
 
 module "reform-blob-router-db" {
   source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product            = "${var.product}-${var.component}"
+  product            = "${var.component}"
   location           = "${var.location_db}"
   env                = "${var.env}"
-  database_name      = "reform_blob_router"
+  database_name      = "blob_router"
   postgresql_user    = "blob_router"
   postgresql_version = "11"
   sku_name           = "GP_Gen5_2"
