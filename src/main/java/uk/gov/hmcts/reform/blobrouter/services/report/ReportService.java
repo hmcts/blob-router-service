@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.time.ZoneOffset.UTC;
@@ -16,7 +15,6 @@ import static java.util.stream.Collectors.toList;
 
 @Service
 public class ReportService {
-    private static final String TIME_FORMAT = "HH:mm:ss";
     private final ReportRepository reportRepository;
 
     public ReportService(ReportRepository reportRepository) {
@@ -52,7 +50,7 @@ public class ReportService {
 
     private LocalTime toLocalTime(Instant instant) {
         if (instant != null) {
-            return LocalTime.parse(DateTimeFormatter.ofPattern(TIME_FORMAT).format(instant.atZone(UTC)));
+            return LocalTime.ofInstant(instant, UTC);
         }
         return null;
     }
