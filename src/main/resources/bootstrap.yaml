@@ -18,4 +18,3 @@ spring:
         blob-router-db-pass: DB_PASSWORD
         reports-email-username: SMTP_USERNAME
         reports-email-password: SMTP_PASSWORD
-
