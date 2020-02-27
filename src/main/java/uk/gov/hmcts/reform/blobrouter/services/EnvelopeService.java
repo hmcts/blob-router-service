@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
 import java.util.List;
@@ -84,6 +85,21 @@ public class EnvelopeService {
     @Transactional(readOnly = true)
     public List<Envelope> getReadyToDeleteDispatches(String containerName) {
         return envelopeRepository.find(Status.DISPATCHED, containerName, false);
+    }
+
+    @Transactional
+    public void markAsDispatched(UUID id) {
+        envelopeRepository
+            .find(id)
+            .ifPresentOrElse(
+                env -> {
+                    envelopeRepository.updateStatus(id, Status.DISPATCHED);
+                    eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, Event.DISPATCHED));
+                },
+                () -> {
+                    throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
+                }
+            );
     }
 
     @Transactional
