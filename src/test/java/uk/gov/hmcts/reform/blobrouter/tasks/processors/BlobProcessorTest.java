@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -77,8 +78,8 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
-        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
-        verify(envelopeService).saveEventError(SOURCE_CONTAINER, "envelope1.zip");
+        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
+        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.ERROR);
         verify(envelopeService, never()).createDispatchedEnvelope(any(), any(), any());
     }
 
@@ -98,7 +99,7 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
-        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
+        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
         verify(envelopeService).createDispatchedEnvelope(eq(SOURCE_CONTAINER), eq(fileName), any());
     }
 
@@ -145,7 +146,7 @@ class BlobProcessorTest {
         // then
         verify(blobDispatcher, times(1))
             .dispatch(eq(fileName), aryEq(BLOB_CONTENT), eq(targetContainerName), eq(BULKSCAN));
-        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
+        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
     }
 
     @Test
@@ -168,7 +169,7 @@ class BlobProcessorTest {
         // then
         verify(blobDispatcher, times(1))
             .dispatch(eq(fileName), aryEq(INTERNAL_ENVELOPE_CONTENT), eq(targetContainerName), eq(CRIME));
-        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
+        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
     }
 
     @Test
@@ -189,7 +190,7 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
-        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
+        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
     }
 
     @Test
@@ -216,7 +217,7 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
-        verify(envelopeService).saveEventFileProcessingStarted(SOURCE_CONTAINER, "envelope1.zip");
+        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
     }
 
     private static byte[] getBlobContent(Map<String, byte[]> zipEntries) {
