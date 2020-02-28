@@ -281,9 +281,15 @@ bootJar {
 import org.flywaydb.gradle.task.FlywayMigrateTask
 
 flyway {
-  url = System.getenv('FLYWAY_URL')
-  user = System.getenv('FLYWAY_USER')
-  password = System.getenv('FLYWAY_PASSWORD')
+
+  user = System.getenv('DB_USER')
+  password = System.getenv('DB_PASSWORD')
+  def port = System.getenv('DB_PORT')
+  def conOption = System.getenv('DB_CONN_OPTIONS')
+  def name = System.getenv('DB_NAME')
+
+  url=  "jdbc:postgresql://${user}:${port}/${name}${conOption}"
+
   baselineOnMigrate = true
   baselineVersion = '000'
 }

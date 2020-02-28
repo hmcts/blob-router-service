@@ -23,8 +23,6 @@ java:
     DB_USER: blob_router@reform-scan-blob-router-{{ .Values.global.environment }}
     DB_CONN_OPTIONS: ?sslmode=require
 
-    FLYWAY_URL: jdbc:postgresql://reform-scan-blob-router-{{ .Values.global.environment }}.postgres.database.azure.com:5432/blob_router?sslmode=require
-    FLYWAY_USER: blob_router@reform-scan-blob-router-{{ .Values.global.environment }}
     FLYWAY_SKIP_MIGRATIONS: true
 
     DELETE_DISPATCHED_FILES_CRON: "0 0/10 * * * *"
