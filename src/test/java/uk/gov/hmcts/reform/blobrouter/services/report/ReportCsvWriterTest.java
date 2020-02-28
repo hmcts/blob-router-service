@@ -1,8 +1,9 @@
-package uk.gov.hmcts.reform.blobrouter.util;
+package uk.gov.hmcts.reform.blobrouter.services.report;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
@@ -19,7 +20,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
-public class CsvWriterTest {
+public class ReportCsvWriterTest {
 
     private static final Tuple HEADERS = tuple(
         "Container",
@@ -30,6 +31,13 @@ public class CsvWriterTest {
         "Time Processed",
         "Status"
     );
+
+    private ReportCsvWriter reportCsvWriter;
+
+    @BeforeEach
+    void setUp() {
+        reportCsvWriter = new ReportCsvWriter();
+    }
 
     @Test
     void should_return_csv_file_with_headers_and_csv_records() throws IOException {
@@ -61,7 +69,7 @@ public class CsvWriterTest {
         );
 
         //when
-        File summaryToCsv = CsvWriter.writeZipFilesSummaryToCsv(csvData);
+        File summaryToCsv = reportCsvWriter.writeEnvelopesSummaryToCsv(csvData);
 
         //then
         List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
@@ -96,7 +104,7 @@ public class CsvWriterTest {
     @Test
     void should_return_csv_file_with_only_headers_when_the_data_is_null() throws IOException {
         //when
-        File summaryToCsv = CsvWriter.writeZipFilesSummaryToCsv(null);
+        File summaryToCsv = reportCsvWriter.writeEnvelopesSummaryToCsv(null);
 
         //then
         List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
@@ -113,7 +121,7 @@ public class CsvWriterTest {
     @Test
     void should_return_csv_file_with_only_headers_when_the_data_is_empty() throws IOException {
         //when
-        File summaryToCsv = CsvWriter.writeZipFilesSummaryToCsv(emptyList());
+        File summaryToCsv = reportCsvWriter.writeEnvelopesSummaryToCsv(emptyList());
 
         //then
         List<CSVRecord> csvRecordList = readCsv(summaryToCsv);

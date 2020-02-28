@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.util;
+package uk.gov.hmcts.reform.blobrouter.services.report;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
@@ -10,22 +10,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
-public final class CsvWriter {
+public class ReportCsvWriter {
 
-    private static final String[] ZIP_FILES_SUMMARY_CSV_HEADERS = {
+    private static final String[] ENVELOPES_SUMMARY_CSV_HEADERS = {
         "Container", "Zip File Name", "Date Received", "Time Received", "Date Processed", "Time Processed", "Status"
     };
 
-    private CsvWriter() {
-        // utility class constructor
-    }
-
-    public static File writeZipFilesSummaryToCsv(
+    public File writeEnvelopesSummaryToCsv(
         List<EnvelopeSummaryItem> data
     ) throws IOException {
         File csvFile = File.createTempFile("Zipfiles-summary-", ".csv");
 
-        CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(ZIP_FILES_SUMMARY_CSV_HEADERS);
+        CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(ENVELOPES_SUMMARY_CSV_HEADERS);
         FileWriter fileWriter = new FileWriter(csvFile);
 
         try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
