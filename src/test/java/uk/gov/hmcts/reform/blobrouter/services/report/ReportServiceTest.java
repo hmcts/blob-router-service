@@ -56,21 +56,21 @@ class ReportServiceTest {
     @Test
     void getDailyReport_should_convert_repo_result() {
         // given
-        final String CONTAINER_1 = "cont1";
-        final String FILE_NAME_1 = "file1.zip";
-        final String FILE_NAME_2 = "file2.zip";
+        final String container1 = "cont1";
+        final String fileName1 = "file1.zip";
+        final String fileName2 = "file2.zip";
 
         EnvelopeSummary es1 = new EnvelopeSummary(
-            CONTAINER_1, 
-            FILE_NAME_1,
+            container1,
+            fileName1,
             instant("2019-01-14 10:11:12"),
             instant("2019-01-15 11:12:13"),
             DISPATCHED,
             true
         );
         EnvelopeSummary es2 = new EnvelopeSummary(
-            CONTAINER_1,
-            FILE_NAME_2,
+            container1,
+            fileName2,
             instant("2019-01-16 12:13:14"),
             null,
             REJECTED,
@@ -89,8 +89,8 @@ class ReportServiceTest {
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new EnvelopeSummaryItem(
-                    CONTAINER_1,
-                    FILE_NAME_1,
+                    container1,
+                    fileName1,
                     localDate("2019-01-14"),
                     localTime("10:11:12"),
                     localDate("2019-01-15"),
@@ -99,8 +99,8 @@ class ReportServiceTest {
                     true
                 ),
                 new EnvelopeSummaryItem(
-                    CONTAINER_1,
-                    FILE_NAME_2,
+                    container1,
+                    fileName2,
                     localDate("2019-01-16"),
                     localTime("12:13:14"),
                     null,
