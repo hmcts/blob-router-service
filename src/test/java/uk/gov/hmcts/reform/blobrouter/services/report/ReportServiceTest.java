@@ -27,9 +27,6 @@ import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.localTime;
 
 @ExtendWith(MockitoExtension.class)
 class ReportServiceTest {
-    private static final String CONTAINER_1 = "cont1";
-    private static final String FILE_NAME_1 = "file1.zip";
-    private static final String FILE_NAME_2 = "file2.zip";
     private ReportService reportService;
 
     @Mock
@@ -59,11 +56,26 @@ class ReportServiceTest {
     @Test
     void getDailyReport_should_convert_repo_result() {
         // given
-        Instant inst1 = instant("2019-01-14 10:11:12");
-        Instant inst2 = instant("2019-01-15 11:12:13");
-        Instant inst3 = instant("2019-01-16 12:13:14");
-        EnvelopeSummary es1 = new EnvelopeSummary(CONTAINER_1, FILE_NAME_1, inst1, inst2, DISPATCHED, true);
-        EnvelopeSummary es2 = new EnvelopeSummary(CONTAINER_1, FILE_NAME_2, inst3, null, REJECTED, false);
+        final String CONTAINER_1 = "cont1";
+        final String FILE_NAME_1 = "file1.zip";
+        final String FILE_NAME_2 = "file2.zip";
+
+        EnvelopeSummary es1 = new EnvelopeSummary(
+            CONTAINER_1, 
+            FILE_NAME_1,
+            instant("2019-01-14 10:11:12"),
+            instant("2019-01-15 11:12:13"),
+            DISPATCHED,
+            true
+        );
+        EnvelopeSummary es2 = new EnvelopeSummary(
+            CONTAINER_1,
+            FILE_NAME_2,
+            instant("2019-01-16 12:13:14"),
+            null,
+            REJECTED,
+            false
+        );
         given(reportRepository.getEnvelopeSummary(any(Instant.class), any(Instant.class)))
             .willReturn(asList(es1, es2));
 
