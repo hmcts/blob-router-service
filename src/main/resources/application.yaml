@@ -70,6 +70,10 @@ service:
       target-storage-account: bulkscan
       target-container: sscs
 
+reports:
+  cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
+  recipients: ${REPORTS_RECIPIENTS:}
+
 flyway:
   skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
 
