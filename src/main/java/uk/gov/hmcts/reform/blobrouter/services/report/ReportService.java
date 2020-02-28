@@ -1,15 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.services.report;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.data.ReportRepository;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
