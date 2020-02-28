@@ -94,6 +94,7 @@ public class EnvelopeService {
             .ifPresentOrElse(
                 env -> {
                     envelopeRepository.updateStatus(id, Status.DISPATCHED);
+                    envelopeRepository.updateDispatchDateTime(id, now());
                     eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, Event.DISPATCHED));
                 },
                 () -> {
