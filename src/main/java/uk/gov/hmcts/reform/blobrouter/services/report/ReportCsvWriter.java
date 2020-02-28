@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.services.report;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
@@ -9,6 +8,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+
+import static java.util.Collections.emptyList;
 
 public class ReportCsvWriter {
 
@@ -25,7 +27,7 @@ public class ReportCsvWriter {
         FileWriter fileWriter = new FileWriter(csvFile);
 
         try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
-            for (EnvelopeSummaryItem summary : CollectionUtils.emptyIfNull(data)) {
+            for (EnvelopeSummaryItem summary : Optional.ofNullable(data).orElse(emptyList())) {
                 printer.printRecord(
                     summary.container,
                     summary.fileName,
