@@ -14,17 +14,17 @@ java:
         - storage-account-primary-key
         - storage-account-secondary-key
         - crime-storage-connection-string
-        - flyway-password
-        - blob-router-POSTGRES-PASS
+        - db-flyway-password
+        - blob-router-db-pass
   environment:
-    DB_HOST: reform-scan-blob-router-{{ .Values.global.environment }}.postgres.database.azure.com
+    DB_HOST: blob-router-{{ .Values.global.environment }}.postgres.database.azure.com
     DB_PORT: '5432'
     DB_NAME: blob_router
-    DB_USER: blob_router@reform-scan-blob-router-{{ .Values.global.environment }}
+    DB_USER: blob_router@blob-router-{{ .Values.global.environment }}
     DB_CONN_OPTIONS: ?sslmode=require
 
-    FLYWAY_URL: jdbc:postgresql://reform-scan-blob-router-{{ .Values.global.environment }}.postgres.database.azure.com:5432/blob_router?sslmode=require
-    FLYWAY_USER: blob_router@reform-scan-blob-router-{{ .Values.global.environment }}
+    FLYWAY_URL: jdbc:postgresql://blob-router-{{ .Values.global.environment }}.postgres.database.azure.com:5432/blob_router?sslmode=require
+    FLYWAY_USER: blob_router@blob-router-{{ .Values.global.environment }}
     FLYWAY_SKIP_MIGRATIONS: true
 
     DELETE_DISPATCHED_FILES_CRON: "0 0/10 * * * *"
