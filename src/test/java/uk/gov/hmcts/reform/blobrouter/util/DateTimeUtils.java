@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-import static java.time.ZoneOffset.UTC;
+import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 public final class DateTimeUtils {
 
@@ -18,7 +18,7 @@ public final class DateTimeUtils {
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     public static Instant instant(String string) {
-        return LocalDateTime.parse(string, dateTimeFormatter).toInstant(UTC);
+        return LocalDateTime.parse(string, dateTimeFormatter).atZone(EUROPE_LONDON_ZONE_ID).toInstant();
     }
 
     public static LocalDate localDate(String string) {

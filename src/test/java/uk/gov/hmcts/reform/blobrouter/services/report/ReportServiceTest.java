@@ -15,7 +15,6 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -28,9 +27,9 @@ import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.localTime;
 
 @ExtendWith(MockitoExtension.class)
 class ReportServiceTest {
-    public static final String CONTAINER_1 = "cont1";
-    public static final String FILE_NAME_1 = "file1.zip";
-    public static final String FILE_NAME_2 = "file2.zip";
+    private static final String CONTAINER_1 = "cont1";
+    private static final String FILE_NAME_1 = "file1.zip";
+    private static final String FILE_NAME_2 = "file2.zip";
     private ReportService reportService;
 
     @Mock
@@ -45,14 +44,15 @@ class ReportServiceTest {
     void getDailyReport_should_convert_date_into_date_range() {
         // given
         LocalDate dt = LocalDate.of(2019, 1, 14);
-        Instant from = instant("2019-01-14 00:00:00");
-        Instant to = instant("2019-01-15 00:00:00");
 
         // when
         reportService.getDailyReport(dt);
 
         // then
-        verify(reportRepository).getEnvelopeSummary(from, to);
+        Instant expectedFrom = instant("2019-01-14 00:00:00");
+        Instant expectedTo = instant("2019-01-15 00:00:00");
+
+        verify(reportRepository).getEnvelopeSummary(expectedFrom, expectedTo);
         verifyNoMoreInteractions(reportRepository);
     }
 
@@ -74,18 +74,9 @@ class ReportServiceTest {
 
         // then
         assertThat(res)
-            .extracting(env -> tuple(
-                env.container,
-                env.fileName,
-                env.dateReceived,
-                env.timeReceived,
-                env.dateProcessed,
-                env.timeProcessed,
-                env.status,
-                env.isDeleted
-            ))
+            .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                tuple(
+                new EnvelopeSummaryItem(
                     CONTAINER_1,
                     FILE_NAME_1,
                     localDate("2019-01-14"),
@@ -95,7 +86,7 @@ class ReportServiceTest {
                     DISPATCHED.name(),
                     true
                 ),
-                tuple(
+                new EnvelopeSummaryItem(
                     CONTAINER_1,
                     FILE_NAME_2,
                     localDate("2019-01-16"),
