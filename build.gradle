@@ -290,10 +290,6 @@ flyway {
 
   url=  "jdbc:postgresql://${user}:${port}/${name}${conOption}"
 
-  println ""
-  println "FLYWAY URL test = " + url
-  println ""
-
   baselineOnMigrate = true
   baselineVersion = '000'
 }
