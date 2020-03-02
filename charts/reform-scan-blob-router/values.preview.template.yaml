@@ -27,6 +27,7 @@ java:
     DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
     DB_USER: "{{ .Values.postgresql.postgresqlUsername}}"
     DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
+    DB_PORT: '5432'
     DB_CONN_OPTIONS: ""
 
     DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
