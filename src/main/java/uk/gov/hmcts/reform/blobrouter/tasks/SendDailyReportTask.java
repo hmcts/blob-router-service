@@ -19,9 +19,9 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-@ConditionalOnExpression("!'${spring.mail.host}'.equals(null) " +
-    "&& !'${spring.mail.host}'.equals('false') " +
-    "&& ${scheduling.task.send-daily-report.enabled:true}")
+@ConditionalOnExpression("!'${spring.mail.host}'.equals(null) "
+    + "&& !'${spring.mail.host}'.equals('false') "
+    + "&& ${scheduling.task.send-daily-report.enabled:true}")
 public class SendDailyReportTask {
     private static final Logger logger = LoggerFactory.getLogger(SendDailyReportTask.class);
 
