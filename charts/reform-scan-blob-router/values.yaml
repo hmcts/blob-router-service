@@ -10,6 +10,9 @@ java:
         - error-notifications-password
         - error-notifications-url
         - error-notifications-username
+        - reports-email-username
+        - reports-email-password
+        - reports-recipients
         - storage-account-name
         - storage-account-primary-key
         - storage-account-secondary-key
