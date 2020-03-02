@@ -268,16 +268,15 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_envelopes_count_for_container_and_time_range() {
         //given
-        Instant fromDate = now();
-        Instant toDate = fromDate.plus(3, ChronoUnit.MINUTES);
+        Instant fromDate = now().minus(5, ChronoUnit.MINUTES);
 
         addEnvelope("C1", "f1", Status.CREATED, fromDate.plusSeconds(60)); // in time range
-        addEnvelope("C3", "f3", Status.DISPATCHED, toDate.minusSeconds(10)); // in time range
-        addEnvelope("C2", "f2", Status.REJECTED, toDate.plusSeconds(30)); // not in time range
+        addEnvelope("C3", "f3", Status.DISPATCHED, fromDate.plusSeconds(10)); // in time range
+        addEnvelope("C2", "f2", Status.REJECTED, fromDate.minusSeconds(30)); // not in time range
         addEnvelope("some-container", "f4", Status.CREATED, fromDate.plusSeconds(30)); // invalid container
 
         // then
-        assertThat(repo.getEnvelopesCount(newHashSet("C1", "C2", "C3", "C4"), fromDate, toDate)).isEqualTo(2);
+        assertThat(repo.getEnvelopesCount(newHashSet("C1", "C2", "C3", "C4"), fromDate, now())).isEqualTo(2);
     }
 
     private void addEnvelope(String container, String fileName, Status status, boolean isDeleted) {
