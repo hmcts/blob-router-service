@@ -24,7 +24,8 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.reject-duplicates.cron: */1 * * * * *",
         "scheduling.task.handle-rejected-files.enabled=true",
         "scheduling.task.handle-rejected-files.cron: */1 * * * * *",
-        "reports.cron: */1 * * * * *"
+        "scheduling.task.send-daily-report.enabled=true",
+        "scheduling.task.send-daily-report.cron: */1 * * * * *"
     }
 )
 @Profile("integration-test")

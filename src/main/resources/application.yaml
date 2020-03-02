@@ -71,7 +71,6 @@ service:
       target-container: sscs
 
 reports:
-  cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
   recipients: ${REPORTS_RECIPIENTS:}
 
 flyway:
@@ -98,7 +97,8 @@ scheduling:
       cron: 0 0 6 * * *
     scan:
       delay: ${TASK_SCAN_DELAY} # In milliseconds
-
+    send-daily-report:
+      cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
 
 proxy:
   host-name: proxyout.reform.hmcts.net

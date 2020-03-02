@@ -1,14 +1,16 @@
-package uk.gov.hmcts.reform.blobrouter.services.report;
+package uk.gov.hmcts.reform.blobrouter.tasks;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
 import uk.gov.hmcts.reform.blobrouter.services.email.EmailSender;
+import uk.gov.hmcts.reform.blobrouter.services.report.ReportCsvWriter;
+import uk.gov.hmcts.reform.blobrouter.services.report.ReportService;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -17,9 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-@ConditionalOnProperty(prefix = "spring.mail", name = "host")
-public class ReportSender {
-    private static final Logger logger = LoggerFactory.getLogger(ReportSender.class);
+@ConditionalOnExpression("!'${spring.mail.host}'.equals(null) " +
+    "&& !'${spring.mail.host}'.equals('false') " +
+    "&& ${scheduling.task.send-daily-report.enabled:true}")
+public class SendDailyReportTask {
+    private static final Logger logger = LoggerFactory.getLogger(SendDailyReportTask.class);
 
     static final String EMAIL_SUBJECT = "Reform Scan daily report";
     static final String EMAIL_BODY = "This is an auto generated email. Do not respond to it.";
@@ -33,7 +37,7 @@ public class ReportSender {
     private final String[] recipients;
 
     // region constructor
-    public ReportSender(
+    public SendDailyReportTask(
         ReportService reportService,
         ReportCsvWriter reportCsvWriter,
         EmailSender emailSender,
@@ -57,7 +61,7 @@ public class ReportSender {
     }
     // endregion
 
-    @Scheduled(cron = "${reports.cron}")
+    @Scheduled(cron = "${scheduling.task.send-daily-report.cron}")
     @SchedulerLock(name = "report-sender")
     public void sendReport() {
         if (recipients.length == 0) {
