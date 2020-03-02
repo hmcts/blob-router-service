@@ -65,56 +65,6 @@ class EnvelopeServiceTest {
     }
 
     @Test
-    void should_create_dispatched_envelope_as_expected() {
-        // when
-        envelopeService.createDispatchedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
-
-        // then
-        var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-
-        verify(envelopeRepository).insert(newEnvelopeCaptor.capture());
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-
-        var envelope = newEnvelopeCaptor.getValue();
-        var event = newEventRecordCaptor.getValue();
-
-        assertThat(envelope.fileName).isEqualTo(BLOB_NAME);
-        assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
-        assertThat(envelope.dispatchedAt).isNotNull();
-
-        assertThat(event.fileName).isEqualTo(BLOB_NAME);
-        assertThat(event.container).isEqualTo(CONTAINER_NAME);
-        assertThat(event.event).isEqualTo(Event.DISPATCHED);
-        assertThat(event.notes).isNull();
-    }
-
-    @Test
-    void should_create_rejected_envelope_as_expected() {
-        // when
-        envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED, REJECTION_REASON);
-
-        // then
-        var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-
-        verify(envelopeRepository).insert(newEnvelopeCaptor.capture());
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-
-        var envelope = newEnvelopeCaptor.getValue();
-        var event = newEventRecordCaptor.getValue();
-
-        assertThat(envelope.fileName).isEqualTo(BLOB_NAME);
-        assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
-        assertThat(envelope.dispatchedAt).isNull();
-
-        assertThat(event.fileName).isEqualTo(BLOB_NAME);
-        assertThat(event.container).isEqualTo(CONTAINER_NAME);
-        assertThat(event.event).isEqualTo(Event.REJECTED);
-        assertThat(event.notes).isEqualTo(REJECTION_REASON);
-    }
-
-    @Test
     void should_create_new_envelope() {
         // given
         var idFromDb = UUID.randomUUID();
