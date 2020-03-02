@@ -17,3 +17,5 @@ spring:
         blob-router-POSTGRES-PASS: DB_PASSWORD
         reports-email-username: SMTP_USERNAME
         reports-email-password: SMTP_PASSWORD
+        reports-recipients: REPORTS_RECIPIENTS
+
