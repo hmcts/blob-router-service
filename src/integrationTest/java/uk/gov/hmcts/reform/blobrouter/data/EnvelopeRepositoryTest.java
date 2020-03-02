@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -265,33 +266,18 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    void should_return_cft_envelopes_count_by_time_range() {
+    void should_return_envelopes_count_for_container_and_time_range() {
         //given
         Instant fromDate = now();
-        Instant toDate = fromDate.plus(5, ChronoUnit.MINUTES);
+        Instant toDate = fromDate.plus(3, ChronoUnit.MINUTES);
 
         addEnvelope("C1", "f1", Status.CREATED, fromDate.plusSeconds(60)); // in time range
         addEnvelope("C3", "f3", Status.DISPATCHED, toDate.minusSeconds(10)); // in time range
         addEnvelope("C2", "f2", Status.REJECTED, toDate.plusSeconds(30)); // not in time range
-        addEnvelope("crime", "f4", Status.CREATED, fromDate.plusSeconds(30)); // not cft envelope
+        addEnvelope("some-container", "f4", Status.CREATED, fromDate.plusSeconds(30)); // invalid container
 
         // then
-        assertThat(repo.getEnvelopesCountInCftContainers(fromDate, toDate)).isEqualTo(2);
-    }
-
-    @Test
-    void should_return_crime_envelopes_count_by_time_range() {
-        //given
-        Instant fromDate = now();
-        Instant toDate = fromDate.plus(5, ChronoUnit.MINUTES);
-
-        addEnvelope("crime", "f1", Status.CREATED, fromDate.plusSeconds(60)); // in time range
-        addEnvelope("crime", "f2", Status.DISPATCHED, fromDate.plusSeconds(120)); // in time range
-        addEnvelope("C1", "f3", Status.CREATED, toDate.plusSeconds(30)); // not crime envelope
-        addEnvelope("C2", "f4", Status.CREATED, fromDate.plusSeconds(30)); // not crime envelope
-
-        // then
-        assertThat(repo.getEnvelopesCountInCrimeContainer(fromDate, toDate)).isEqualTo(2);
+        assertThat(repo.getEnvelopesCount(newHashSet("C1", "C2", "C3", "C4"), fromDate, toDate)).isEqualTo(2);
     }
 
     private void addEnvelope(String container, String fileName, Status status, boolean isDeleted) {
