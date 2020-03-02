@@ -97,5 +97,6 @@ scheduling:
 
 
 proxy:
+  enabled: ${PROXY_ENABLED:true}
   host-name: proxyout.reform.hmcts.net
   port: 8080
