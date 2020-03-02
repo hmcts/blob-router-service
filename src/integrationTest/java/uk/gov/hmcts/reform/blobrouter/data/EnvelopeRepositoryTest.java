@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -263,11 +264,53 @@ public class EnvelopeRepositoryTest {
         assertThat(repo.find(Status.REJECTED, true)).extracting(env -> env.fileName).containsExactly("f4", "f8");
     }
 
+    @Test
+    void should_return_cft_envelopes_count_by_time_range() {
+        //given
+        Instant fromDate = now();
+        Instant toDate = fromDate.plus(5, ChronoUnit.MINUTES);
+
+        addEnvelope("C1", "f1", Status.CREATED, fromDate.plusSeconds(60)); // in time range
+        addEnvelope("C3", "f3", Status.DISPATCHED, toDate.minusSeconds(10)); // in time range
+        addEnvelope("C2", "f2", Status.REJECTED, toDate.plusSeconds(30)); // not in time range
+        addEnvelope("crime", "f4", Status.CREATED, fromDate.plusSeconds(30)); // not cft envelope
+
+        // then
+        assertThat(repo.getEnvelopesCountInCftContainers(fromDate, toDate)).isEqualTo(2);
+    }
+
+    @Test
+    void should_return_crime_envelopes_count_by_time_range() {
+        //given
+        Instant fromDate = now();
+        Instant toDate = fromDate.plus(5, ChronoUnit.MINUTES);
+
+        addEnvelope("crime", "f1", Status.CREATED, fromDate.plusSeconds(60)); // in time range
+        addEnvelope("crime", "f2", Status.DISPATCHED, fromDate.plusSeconds(120)); // in time range
+        addEnvelope("C1", "f3", Status.CREATED, toDate.plusSeconds(30)); // not crime envelope
+        addEnvelope("C2", "f4", Status.CREATED, fromDate.plusSeconds(30)); // not crime envelope
+
+        // then
+        assertThat(repo.getEnvelopesCountInCrimeContainer(fromDate, toDate)).isEqualTo(2);
+    }
+
     private void addEnvelope(String container, String fileName, Status status, boolean isDeleted) {
         UUID id = repo.insert(new NewEnvelope(container, fileName, now(), now(), status));
         if (isDeleted) {
             repo.markAsDeleted(id);
         }
+    }
+
+    private void addEnvelope(String container, String fileName, Status status, Instant fileCreatedAt) {
+        repo.insert(
+            new NewEnvelope(
+                container,
+                fileName,
+                fileCreatedAt,
+                fileCreatedAt.plusSeconds(100),
+                status
+            )
+        );
     }
 
     private NewEnvelope newEnvelope(Status status, String container) {

@@ -125,4 +125,28 @@ public class EnvelopeRepository {
             new MapSqlParameterSource("id", id)
         );
     }
+
+    public Integer getEnvelopesCountInCftContainers(Instant fromDateTime, Instant toDateTime) {
+        return jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM envelopes "
+                + " WHERE container != 'crime' "
+                + " AND file_created_at BETWEEN :fromDateTime AND :toDateTime",
+            new MapSqlParameterSource()
+                .addValue("fromDateTime", Timestamp.from(fromDateTime))
+                .addValue("toDateTime", Timestamp.from(toDateTime)),
+            Integer.class
+        );
+    }
+
+    public Integer getEnvelopesCountInCrimeContainer(Instant fromDateTime, Instant toDateTime) {
+        return jdbcTemplate.queryForObject(
+            "SELECT count(*) FROM envelopes "
+                + " WHERE container = 'crime' "
+                + " AND file_created_at BETWEEN :fromDateTime AND :toDateTime",
+            new MapSqlParameterSource()
+                .addValue("fromDateTime", Timestamp.from(fromDateTime))
+                .addValue("toDateTime", Timestamp.from(toDateTime)),
+            Integer.class
+        );
+    }
 }
