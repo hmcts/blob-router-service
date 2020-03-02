@@ -101,5 +101,6 @@ scheduling:
       cron: ${REPORTS_CRON:0 0 18 ? * MON-FRI}
 
 proxy:
+  enabled: ${PROXY_ENABLED:true}
   host-name: proxyout.reform.hmcts.net
   port: 8080

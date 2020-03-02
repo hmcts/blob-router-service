@@ -9,6 +9,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -35,7 +36,8 @@ public class HttpConfiguration {
     }
 
     @Bean
-    public HttpClient azureHttpClient(
+    @ConditionalOnProperty(prefix = "proxy", name = "enabled", havingValue = "true")
+    public HttpClient azureHttpClientWithProxy(
         @Value("${proxy.host-name}") String proxyHostName,
         @Value("${proxy.port}") int proxyPort
     ) {
@@ -50,6 +52,12 @@ public class HttpConfiguration {
                 )
             )
             .build();
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "proxy", name = "enabled", havingValue = "false")
+    public HttpClient azureHttpClientWithoutProxy() {
+        return new NettyAsyncHttpClientBuilder().build();
     }
 
     private CloseableHttpClient getHttpClient() {
