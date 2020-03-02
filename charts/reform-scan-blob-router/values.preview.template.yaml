@@ -46,6 +46,7 @@ java:
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
     CRIME_ENABLED: true
+    SEND_DAILY_REPORT_ENABLED: false
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}

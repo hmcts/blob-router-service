@@ -31,6 +31,7 @@ java:
     HANDLE_REJECTED_FILES_CRON: "0/30 * * * * *"
     REJECT_DUPLICATES_CRON: "0/30 * * * * *"
     TASK_SCAN_DELAY: "4000" # in millis
+    SEND_DAILY_REPORT_CRON: "0 0 18 ? * MON-FRI"
 
     STORAGE_URL: https://reformscan.{{ .Values.global.environment }}.platform.hmcts.net
     STORAGE_BULKSCAN_URL: https://bulkscan.{{ .Values.global.environment }}.platform.hmcts.net
