@@ -145,4 +145,19 @@ resource "azurerm_key_vault_secret" "db_flyway_password" {
   value        = "${module.reform-blob-router-db.postgresql_password}"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
 }
+
+data "azurerm_key_vault_secret" "smtp_username" {
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  name         = "reports-email-username"
+}
+
+data "azurerm_key_vault_secret" "smtp_password" {
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  name         = "reports-email-password"
+}
+
+data "azurerm_key_vault_secret" "reports_recipients" {
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  name         = "reports-recipients"
+}
 # endregion
