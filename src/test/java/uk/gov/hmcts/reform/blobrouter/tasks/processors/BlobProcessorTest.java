@@ -79,12 +79,7 @@ class BlobProcessorTest {
         newBlobProcessor().process(blobClient);
 
         // then
-        // a new envelope has been created
-        verify(envelopeService).createNewEnvelope(
-            blobClient.getContainerName(),
-            blobClient.getBlobName(),
-            blobClient.getProperties().getLastModified().toInstant()
-        );
+        verifyNewEnvelopeHasBeenCreated();
 
         // dispatcher has been called
         verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
