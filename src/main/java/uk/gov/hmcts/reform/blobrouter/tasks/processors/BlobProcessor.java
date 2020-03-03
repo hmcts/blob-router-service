@@ -74,9 +74,6 @@ public class BlobProcessor {
         envelopeService.saveEvent(containerName, blobName, Event.FILE_PROCESSING_STARTED);
 
         try {
-            leaseClient = leaseClientProvider.get(blobClient);
-
-            leaseClient.acquireLease(60);
             byte[] rawBlob = tryToDownloadBlob(blobClient);
 
             var verificationResult = blobVerifier.verifyZip(blobName, rawBlob);
