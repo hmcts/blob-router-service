@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-@ConditionalOnProperty("${scheduling.task.send-daily-report.enabled:true}")
+@ConditionalOnProperty("scheduling.task.send-daily-report.enabled")
 public class SendDailyReportTask {
     private static final Logger logger = LoggerFactory.getLogger(SendDailyReportTask.class);
 
