@@ -239,7 +239,7 @@ class BlobProcessorTest {
     }
 
     @Test
-    void should_not_create_events_when_lease_cant_be_acquired() {
+    void should_not_create_envelope_or_events_when_lease_cant_be_acquired() {
         // given
         given(blobStorageException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
@@ -253,6 +253,7 @@ class BlobProcessorTest {
         newBlobProcessor().process(blobClient);
 
         // then
+        verify(envelopeService, times(0)).createNewEnvelope(any(), any(), any());
         verify(envelopeService, times(0)).saveEvent(any(), any(), any());
         verify(verifier, times(0)).verifyZip(any(), any());
     }
