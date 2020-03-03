@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static java.time.Instant.now;
@@ -137,4 +138,10 @@ public class EnvelopeService {
                 eventRecordRepository.find(containerName, blobName)
             ));
     }
+
+    @Transactional(readOnly = true)
+    public Integer getEnvelopesCount(Set<String> containers, Instant fromDateTime, Instant toDateTime) {
+        return envelopeRepository.getEnvelopesCount(containers, fromDateTime, toDateTime);
+    }
+
 }
