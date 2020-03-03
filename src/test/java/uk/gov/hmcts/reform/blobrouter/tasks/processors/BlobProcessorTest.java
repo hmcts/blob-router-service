@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,6 +65,7 @@ class BlobProcessorTest {
     @Mock EnvelopeService envelopeService;
     @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
+    @Mock BlobStorageException blobStorageException;
 
     @Test
     void should_not_store_envelope_in_db_when_upload_failed() {
@@ -225,11 +228,12 @@ class BlobProcessorTest {
     @Test
     void should_not_create_events_when_lease_cant_be_acquired() {
         // given
+        given(blobStorageException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
         String fileName = "envelope1.zip";
         blobExists(fileName, SOURCE_CONTAINER, OffsetDateTime.now(), BLOB_CONTENT);
 
-        doThrow(RuntimeException.class)
+        doThrow(blobStorageException)
             .when(blobLeaseClient).acquireLease(anyInt());
 
         // when
