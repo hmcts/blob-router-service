@@ -37,6 +37,10 @@ spring:
           starttls:
             enable: true
     test-connection: false
+  flyway:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}${DB_CONN_OPTIONS}
+    user: ${DB_USER}
+    password: ${DB_PASSWORD}
 
 service:
   storage-config:
@@ -97,5 +101,6 @@ scheduling:
 
 
 proxy:
+  enabled: ${PROXY_ENABLED:true}
   host-name: proxyout.reform.hmcts.net
   port: 8080

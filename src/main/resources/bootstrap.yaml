@@ -14,7 +14,10 @@ spring:
         storage-account-primary-key:  storage.account-key
         storage-account-secondary-key:  storage.account-secondary-key
         crime-storage-connection-string: storage.crime.connection-string
-        db-flyway-password: flyway.password
-        blob-router-POSTGRES-PASS: DB_PASSWORD
         reports-email-username: SMTP_USERNAME
         reports-email-password: SMTP_PASSWORD
+        blob-router-POSTGRES-PASS: DB_PASSWORD
+        blob-router-POSTGRES-USER: DB_USER
+        blob-router-POSTGRES-DATABASE: DB_NAME
+        blob-router-POSTGRES-HOST: DB_HOST
+        blob-router-POSTGRES-PORT: DB_PORT

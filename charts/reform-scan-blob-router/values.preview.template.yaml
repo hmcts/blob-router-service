@@ -27,15 +27,14 @@ java:
     DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
     DB_USER: "{{ .Values.postgresql.postgresqlUsername}}"
     DB_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
+    DB_PORT: '5432'
     DB_CONN_OPTIONS: ""
 
     DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
     TASK_SCAN_DELAY: "1000" # in millis
 
     FLYWAY_SKIP_MIGRATIONS: false
-    FLYWAY_URL: "jdbc:postgresql://{{ .Release.Name }}-postgresql:5432/{{ .Values.postgresql.postgresqlDatabase}}"
-    FLYWAY_USER: "{{ .Values.postgresql.postgresqlUsername}}"
-    FLYWAY_PASSWORD: "{{ .Values.postgresql.postgresqlPassword}}"
+
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
 
     STORAGE_BULKSCAN_URL: https://bulkscan.aat.platform.hmcts.net

@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
@@ -64,20 +65,19 @@ public class BlobProcessor {
 
         logger.info("Processing {} from {} container", blobName, containerName);
 
-        UUID id =
-            envelopeService
-                .createNewEnvelope(
-                    containerName,
-                    blobName,
-                    blobCreationDate
-                );
-
         BlobLeaseClient leaseClient = null;
-
         try {
             leaseClient = leaseClientProvider.get(blobClient);
-
             leaseClient.acquireLease(60);
+
+            UUID id =
+                envelopeService
+                    .createNewEnvelope(
+                        containerName,
+                        blobName,
+                        blobCreationDate
+                    );
+
             byte[] rawBlob = tryToDownloadBlob(blobClient);
 
             var verificationResult = blobVerifier.verifyZip(blobName, rawBlob);
@@ -114,9 +114,14 @@ public class BlobProcessor {
                 );
                 // TODO send notification to Exela
             }
+        } catch (BlobStorageException exc) {
+            if (exc.getErrorCode() == BlobErrorCode.LEASE_ALREADY_PRESENT) {
+                logger.info("Cannot acquire a lease for blob. File name: {}, container: {}", blobName, containerName);
+            } else {
+                handleError(exc, blobClient);
+            }
         } catch (Exception exception) {
-            logger.error("Error occurred while processing {} from {}", blobName, containerName, exception);
-            envelopeService.saveEvent(containerName, blobName, Event.ERROR);
+            handleError(exception, blobClient);
         } finally {
             tryToReleaseLease(leaseClient, blobName, containerName);
         }
@@ -172,5 +177,10 @@ public class BlobProcessor {
                 exception
             );
         }
+    }
+
+    private void handleError(Exception exc, BlobClient blob) {
+        logger.error("Error occurred while processing {} from {}", blob.getBlobName(), blob.getContainerName(), exc);
+        envelopeService.saveEvent(blob.getContainerName(), blob.getBlobName(), Event.ERROR);
     }
 }

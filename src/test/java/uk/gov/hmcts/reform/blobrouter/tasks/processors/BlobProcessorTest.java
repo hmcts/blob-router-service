@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,10 +27,12 @@ import java.util.zip.ZipOutputStream;
 
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -54,13 +58,14 @@ class BlobProcessorTest {
             )
         );
 
-    @Mock BlobClient blobClient;
-    @Mock BlobProperties blobProperties;
+    @Mock(lenient = true) BlobClient blobClient;
+    @Mock(lenient = true) BlobProperties blobProperties;
     @Mock BlobDispatcher blobDispatcher;
     @Mock BlobLeaseClient blobLeaseClient;
     @Mock EnvelopeService envelopeService;
     @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
+    @Mock BlobStorageException blobStorageException;
 
     @Test
     void should_not_update_envelope_status_when_upload_failed() {
@@ -231,6 +236,25 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
+    }
+
+    @Test
+    void should_not_create_events_when_lease_cant_be_acquired() {
+        // given
+        given(blobStorageException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+        String fileName = "envelope1.zip";
+        blobExists(fileName, SOURCE_CONTAINER, OffsetDateTime.now(), BLOB_CONTENT);
+
+        doThrow(blobStorageException)
+            .when(blobLeaseClient).acquireLease(anyInt());
+
+        // when
+        newBlobProcessor().process(blobClient);
+
+        // then
+        verify(envelopeService, times(0)).saveEvent(any(), any(), any());
+        verify(verifier, times(0)).verifyZip(any(), any());
     }
 
     private static byte[] getBlobContent(Map<String, byte[]> zipEntries) {
