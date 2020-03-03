@@ -70,13 +70,7 @@ public class BlobProcessor {
             leaseClient = leaseClientProvider.get(blobClient);
             leaseClient.acquireLease(60);
 
-            UUID id =
-                envelopeService
-                    .createNewEnvelope(
-                        containerName,
-                        blobName,
-                        blobCreationDate
-                    );
+            UUID id = envelopeService.createNewEnvelope(containerName, blobName, blobCreationDate);
 
             byte[] rawBlob = tryToDownloadBlob(blobClient);
 
