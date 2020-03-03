@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 
 import java.time.Instant;
 import java.util.Set;
@@ -16,36 +17,36 @@ public class NewEnvelopesFinder {
 
     private static final Logger logger = getLogger(NewEnvelopesFinder.class);
 
-    private final EnvelopeService envelopeService;
+    private final EnvelopeRepository envelopeRepository;
 
     private final ServiceConfiguration serviceConfig;
 
     private static final String CRIME_CONTAINER = "crime";
 
     public NewEnvelopesFinder(
-        EnvelopeService envelopeService,
+        EnvelopeRepository envelopeRepository,
         ServiceConfiguration serviceConfig
     ) {
-        this.envelopeService = envelopeService;
+        this.envelopeRepository = envelopeRepository;
         this.serviceConfig = serviceConfig;
     }
 
     public void checkNewCftEnvelopesCreated() {
-        checkNewEnvelopesInContainers(getCftContainers());
+        checkNewEnvelopesInContainers(getCftContainers(), "CFT");
     }
 
     public void checkNewCrimeEnvelopesCreated() {
-        checkNewEnvelopesInContainers(singleton(CRIME_CONTAINER));
+        checkNewEnvelopesInContainers(singleton(CRIME_CONTAINER), "CRIME");
     }
 
-    private void checkNewEnvelopesInContainers(Set<String> containers) {
+    private void checkNewEnvelopesInContainers(Set<String> containers, String containersGroupName) {
         Instant toDateTime = Instant.now();
         Instant fromDateTime = toDateTime.minus(1, HOURS); //TODO: read duration from config
 
-        Integer envelopesCount = envelopeService.getEnvelopesCount(containers, fromDateTime, toDateTime);
+        Integer envelopesCount = envelopeRepository.getEnvelopesCount(containers, fromDateTime, toDateTime);
 
         if (envelopesCount == 0) {
-            logger.info("No Envelopes created in the last hour");
+            logger.info("No Envelopes created in {} in the last hour", containersGroupName);
         }
     }
 

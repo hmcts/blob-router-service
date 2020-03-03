@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
-import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,13 +16,11 @@ import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.time.Instant.now;
-import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -32,7 +29,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeServiceTest {
@@ -281,18 +277,4 @@ class EnvelopeServiceTest {
             .isInstanceOf(EnvelopeNotFoundException.class)
             .hasMessageContaining(notExistingId.toString());
     }
-
-    @Test
-    void should_get_envelopes_count_for_the_containers_and_the_date_time_range() {
-        // when
-        Instant from = now();
-        Instant to = from.minus(10, MINUTES);
-        HashSet<String> containers = Sets.newHashSet("c1", "c2");
-        envelopeService.getEnvelopesCount(containers, from, to);
-
-        // then
-        verify(envelopeRepository).getEnvelopesCount(containers, from, to);
-        verifyNoMoreInteractions(envelopeRepository);
-    }
-
 }
