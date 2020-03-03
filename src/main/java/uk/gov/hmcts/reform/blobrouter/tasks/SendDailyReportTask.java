@@ -4,7 +4,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
@@ -19,9 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-@ConditionalOnExpression("!'${spring.mail.host}'.equals(null) "
-    + "&& !'${spring.mail.host}'.equals('false') "
-    + "&& ${scheduling.task.send-daily-report.enabled:true}")
+@ConditionalOnProperty("${scheduling.task.send-daily-report.enabled:true}")
 public class SendDailyReportTask {
     private static final Logger logger = LoggerFactory.getLogger(SendDailyReportTask.class);
 
