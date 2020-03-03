@@ -63,9 +63,15 @@ public class BlobProcessor {
 
         logger.info("Processing {} from {} container", blobName, containerName);
 
-        envelopeService.saveEvent(containerName, blobName, Event.FILE_PROCESSING_STARTED);
+        BlobLeaseClient leaseClient = leaseClientProvider.get(blobClient);
+        try {
+            leaseClient.acquireLease(60);
+        } catch (Exception exc) {
+            logger.info("Unable to acquire a lease for blob. File name: {}, container: {}", blobName, containerName);
+            return;
+        }
 
-        BlobLeaseClient leaseClient = null;
+        envelopeService.saveEvent(containerName, blobName, Event.FILE_PROCESSING_STARTED);
 
         try {
             leaseClient = leaseClientProvider.get(blobClient);
