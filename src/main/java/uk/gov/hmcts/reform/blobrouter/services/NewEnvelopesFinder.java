@@ -38,13 +38,11 @@ public class NewEnvelopesFinder {
         checkNewEnvelopesInContainers(singleton(CRIME_CONTAINER));
     }
 
-    private void checkNewEnvelopesInContainers(Set<String> singleton) {
+    private void checkNewEnvelopesInContainers(Set<String> containers) {
         Instant toDateTime = Instant.now();
         Instant fromDateTime = toDateTime.minus(1, HOURS); //TODO: read duration from config
 
-        Integer envelopesCount = envelopeService.getEnvelopesCount(
-            singleton, fromDateTime, toDateTime
-        );
+        Integer envelopesCount = envelopeService.getEnvelopesCount(containers, fromDateTime, toDateTime);
 
         if (envelopesCount == 0) {
             logger.info("No Envelopes created in the last hour");
