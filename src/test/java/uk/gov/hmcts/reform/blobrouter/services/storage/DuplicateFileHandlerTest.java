@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.data.model.Event;
+import uk.gov.hmcts.reform.blobrouter.data.model.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder;
 
@@ -62,7 +62,7 @@ class DuplicateFileHandlerTest {
         blobs
             .forEach(blob -> {
                 verify(blobMover).moveToRejectedContainer(blob.getName(), "C");
-                verify(envelopeService).saveEvent("C", blob.getName(), Event.DUPLICATE_REJECTED);
+                verify(envelopeService).saveEvent("C", blob.getName(), EventType.DUPLICATE_REJECTED);
             });
     }
 
@@ -81,7 +81,7 @@ class DuplicateFileHandlerTest {
 
         // then
         verify(blobMover).moveToRejectedContainer("b2", "C");
-        verify(envelopeService).saveEvent("C", "b2", Event.DUPLICATE_REJECTED);
+        verify(envelopeService).saveEvent("C", "b2", EventType.DUPLICATE_REJECTED);
     }
 
     private BlobItem blob(String name) {

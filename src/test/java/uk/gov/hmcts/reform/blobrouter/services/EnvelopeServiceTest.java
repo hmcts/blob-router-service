@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Event;
+import uk.gov.hmcts.reform.blobrouter.data.model.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
@@ -93,7 +93,7 @@ class EnvelopeServiceTest {
 
         assertThat(event.fileName).isEqualTo(BLOB_NAME);
         assertThat(event.container).isEqualTo(CONTAINER_NAME);
-        assertThat(event.event).isEqualTo(Event.FILE_PROCESSING_STARTED);
+        assertThat(event.event).isEqualTo(EventType.FILE_PROCESSING_STARTED);
         assertThat(event.notes).isNull();
     }
 
@@ -132,12 +132,12 @@ class EnvelopeServiceTest {
         // and (will be enabled once events recorded)
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
         verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DELETED);
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(EventType.DELETED);
     }
 
     @Test
     void should_record_event() {
-        Stream.of(Event.values()).forEach(event -> {
+        Stream.of(EventType.values()).forEach(event -> {
             // when
             envelopeService.saveEvent("c", "f", event);
 
@@ -172,7 +172,7 @@ class EnvelopeServiceTest {
 
         assertThat(eventCaptor.getValue().fileName).isEqualTo(existingEnvelope.fileName);
         assertThat(eventCaptor.getValue().container).isEqualTo(existingEnvelope.container);
-        assertThat(eventCaptor.getValue().event).isEqualTo(Event.DISPATCHED);
+        assertThat(eventCaptor.getValue().event).isEqualTo(EventType.DISPATCHED);
     }
 
     @Test
@@ -209,7 +209,7 @@ class EnvelopeServiceTest {
 
         assertThat(eventCaptor.getValue().fileName).isEqualTo(existingEnvelope.fileName);
         assertThat(eventCaptor.getValue().container).isEqualTo(existingEnvelope.container);
-        assertThat(eventCaptor.getValue().event).isEqualTo(Event.REJECTED);
+        assertThat(eventCaptor.getValue().event).isEqualTo(EventType.REJECTED);
     }
 
     @Test
