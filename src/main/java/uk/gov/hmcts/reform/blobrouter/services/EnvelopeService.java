@@ -52,31 +52,6 @@ public class EnvelopeService {
         return id;
     }
 
-    @Transactional
-    public UUID createDispatchedEnvelope(String containerName, String blobName, Instant blobCreationDate) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DISPATCHED));
-
-        return envelopeRepository
-            .insert(
-                new NewEnvelope(containerName, blobName, blobCreationDate, now(), Status.DISPATCHED)
-            );
-    }
-
-    @Transactional
-    public UUID createRejectedEnvelope(
-        String containerName,
-        String blobName,
-        Instant blobCreationDate,
-        String rejectionReason
-    ) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.REJECTED, rejectionReason));
-
-        return envelopeRepository
-            .insert(
-                new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.REJECTED)
-            );
-    }
-
     @Transactional(readOnly = true)
     public List<Envelope> getReadyToDeleteRejections() {
         return envelopeRepository.find(Status.REJECTED, false);
