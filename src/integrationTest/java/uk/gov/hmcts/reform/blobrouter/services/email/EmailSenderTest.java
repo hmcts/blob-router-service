@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import uk.gov.hmcts.reform.blobrouter.jupiter.GreenMailExtension;
 
-import javax.activation.DataSource;
-import javax.mail.Address;
 import java.io.File;
 import java.util.Map;
+import javax.activation.DataSource;
+import javax.mail.Address;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;

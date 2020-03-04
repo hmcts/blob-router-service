@@ -7,9 +7,9 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
-import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.util.Map;
+import javax.mail.internet.MimeMessage;
 
 @Component
 @ConditionalOnProperty(prefix = "spring.mail", name = "host")
