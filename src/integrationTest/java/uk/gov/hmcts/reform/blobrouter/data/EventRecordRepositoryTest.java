@@ -17,9 +17,9 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.DISPATCHED;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.FILE_PROCESSING_STARTED;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.REJECTED;
+import static uk.gov.hmcts.reform.blobrouter.data.model.EventType.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.data.model.EventType.FILE_PROCESSING_STARTED;
+import static uk.gov.hmcts.reform.blobrouter.data.model.EventType.REJECTED;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest

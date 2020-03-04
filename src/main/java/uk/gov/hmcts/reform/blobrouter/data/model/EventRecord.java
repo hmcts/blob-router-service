@@ -8,7 +8,7 @@ public class EventRecord {
     public final String container;
     public final String fileName;
     public final Instant createdAt;
-    public final Event event;
+    public final EventType event;
     public final String notes;
 
     public EventRecord(
@@ -16,7 +16,7 @@ public class EventRecord {
         String container,
         String fileName,
         Instant createdAt,
-        Event event,
+        EventType event,
         String notes
     ) {
         this.id = id;
