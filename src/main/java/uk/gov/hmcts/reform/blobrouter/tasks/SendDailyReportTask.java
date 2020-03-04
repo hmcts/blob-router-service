@@ -28,6 +28,7 @@ public class SendDailyReportTask {
     static final String ATTACHMENT_PREFIX = "reform_scan_envelopes_";
     static final String ATTACHMENT_SUFFIX = ".csv";
 
+    private static final String TASK_NAME = "report-sender";
     private final ReportService reportService;
     private final ReportCsvWriter reportCsvWriter;
     private final EmailSender emailSender;
@@ -60,7 +61,7 @@ public class SendDailyReportTask {
     // endregion
 
     @Scheduled(cron = "${scheduling.task.send-daily-report.cron}")
-    @SchedulerLock(name = "report-sender")
+    @SchedulerLock(name = TASK_NAME)
     public void sendReport() {
         if (recipients.length == 0) {
             logger.warn("No recipients configured for reports");
