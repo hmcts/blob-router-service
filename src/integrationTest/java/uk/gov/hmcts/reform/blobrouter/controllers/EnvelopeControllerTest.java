@@ -6,7 +6,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Event;
+import uk.gov.hmcts.reform.blobrouter.data.model.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
 import uk.gov.hmcts.reform.blobrouter.data.model.Status;
 
@@ -50,7 +50,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             container,
             fileName,
             now(),
-            Event.FILE_PROCESSING_STARTED,
+            EventType.FILE_PROCESSING_STARTED,
             null
         );
         EventRecord eventRecordInDb2 = new EventRecord(
@@ -58,7 +58,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             container,
             fileName,
             now(),
-            Event.DISPATCHED,
+            EventType.DISPATCHED,
             null
         );
 
@@ -80,8 +80,8 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value(envelopeInDb.id.toString()))
             .andExpect(jsonPath("$.events[*].event").value(contains(
-                Event.FILE_PROCESSING_STARTED.name(),
-                Event.DISPATCHED.name()
+                EventType.FILE_PROCESSING_STARTED.name(),
+                EventType.DISPATCHED.name()
             )));
     }
 
