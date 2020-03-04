@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventRecord;
 
 import java.time.Instant;
 

@@ -5,9 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

@@ -5,7 +5,7 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import io.restassured.RestAssured;
 import uk.gov.hmcts.reform.blobrouter.config.TestConfiguration;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

@@ -1,4 +1,6 @@
-package uk.gov.hmcts.reform.blobrouter.data.model;
+package uk.gov.hmcts.reform.blobrouter.data.reports;
+
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
 import java.time.Instant;
 

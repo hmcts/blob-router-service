@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 import static com.jayway.awaitility.Awaitility.await;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Status.REJECTED;
+import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArchive;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.uploadFile;

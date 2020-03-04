@@ -1,12 +1,10 @@
-package uk.gov.hmcts.reform.blobrouter.data;
+package uk.gov.hmcts.reform.blobrouter.data.events;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
 
 import java.util.List;
 

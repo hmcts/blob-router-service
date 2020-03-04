@@ -7,7 +7,7 @@ import com.azure.storage.blob.models.BlobStorageException;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import static org.slf4j.LoggerFactory.getLogger;
