@@ -1,7 +1,6 @@
 java:
   environment:
     CRIME_ENABLED: "true"
-    SEND_DAILY_REPORT_ENABLED: "false"
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
     DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
   # Don't modify below here

@@ -42,6 +42,7 @@ java:
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
 
     SMTP_HOST: "false"
+    SEND_DAILY_REPORT_ENABLED: "false"
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   enabled: false
