@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -125,22 +126,16 @@ class SendDailyReportTaskTest {
     }
 
     @Test
-    void sendReport_should_not_call_email_sender_if_empty_recipients() throws Exception {
-        // given
-        sendDailyReportTask = new SendDailyReportTask(
-            reportService,
-            reportCsvWriter,
-            emailSender,
-            FROM,
-            new String[]{}
+    void should_throw_if_empty_recipients() {
+        assertThrows(
+            RuntimeException.class,
+            () -> sendDailyReportTask = new SendDailyReportTask(
+                reportService,
+                reportCsvWriter,
+                emailSender,
+                FROM,
+                new String[]{}
+            )
         );
-
-        // when
-        sendDailyReportTask.sendReport();
-
-        // then
-        verifyNoInteractions(reportService);
-        verifyNoInteractions(reportCsvWriter);
-        verifyNoInteractions(emailSender);
     }
 }
