@@ -39,7 +39,7 @@ public class SchedulerConfigTest {
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
 
         // wait for asynchronous run of the scheduled task in background
-        Thread.sleep(2000);
+        Thread.sleep(5000);
 
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
         assertThat(configCaptor.getAllValues())
