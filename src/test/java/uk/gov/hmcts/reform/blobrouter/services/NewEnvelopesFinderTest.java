@@ -6,24 +6,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class NewEnvelopesFinderTest {
 
     @Mock
-    private EnvelopeService envelopeService;
+    private EnvelopeRepository envelopeRepository;
 
     @Mock
     private ServiceConfiguration serviceConfiguration;
@@ -32,7 +32,7 @@ public class NewEnvelopesFinderTest {
 
     @BeforeEach
     public void setup() {
-        envelopesFinder = new NewEnvelopesFinder(envelopeService, serviceConfiguration);
+        envelopesFinder = new NewEnvelopesFinder(envelopeRepository, serviceConfiguration);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class NewEnvelopesFinderTest {
         given(serviceConfiguration.getEnabledSourceContainers())
             .willReturn(containers);
 
-        given(envelopeService.getEnvelopesCount(
+        given(envelopeRepository.getEnvelopesCount(
             eq(cftContainers), any(), any()
         )).willReturn(1);
 
@@ -53,14 +53,14 @@ public class NewEnvelopesFinderTest {
 
         // then
         verify(serviceConfiguration).getEnabledSourceContainers();
-        verify(envelopeService).getEnvelopesCount(eq(cftContainers), any(), any());
-        verifyNoMoreInteractions(envelopeService);
+        verify(envelopeRepository).getEnvelopesCount(eq(cftContainers), any(), any());
     }
 
     @Test
     void should_check_new_envelopes_in_crime_container() {
         // given
-        given(envelopeService.getEnvelopesCount(
+        given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("crime"));
+        given(envelopeRepository.getEnvelopesCount(
             eq(singleton("crime")), any(), any()
         )).willReturn(1);
 
@@ -68,9 +68,8 @@ public class NewEnvelopesFinderTest {
         envelopesFinder.checkNewCrimeEnvelopesCreated();
 
         // then
-        verifyNoInteractions(serviceConfiguration);
-        verify(envelopeService).getEnvelopesCount(eq(singleton("crime")), any(), any());
-        verifyNoMoreInteractions(envelopeService);
+        verify(serviceConfiguration).getEnabledSourceContainers();
+        verify(envelopeRepository).getEnvelopesCount(eq(singleton("crime")), any(), any());
     }
 
 }

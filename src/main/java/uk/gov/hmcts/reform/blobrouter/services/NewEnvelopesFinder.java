@@ -36,7 +36,13 @@ public class NewEnvelopesFinder {
     }
 
     public void checkNewCrimeEnvelopesCreated() {
-        checkNewEnvelopesInContainers(singleton(CRIME_CONTAINER), "CRIME");
+        if (serviceConfig.getEnabledSourceContainers().contains(CRIME_CONTAINER)) {
+            checkNewEnvelopesInContainers(singleton(CRIME_CONTAINER), "CRIME");
+        } else {
+            logger.info(
+                "Not checking for new envelopes in {} container because container is disabled", CRIME_CONTAINER
+            );
+        }
     }
 
     private void checkNewEnvelopesInContainers(Set<String> containers, String containersGroupName) {
@@ -46,7 +52,9 @@ public class NewEnvelopesFinder {
         Integer envelopesCount = envelopeRepository.getEnvelopesCount(containers, fromDateTime, toDateTime);
 
         if (envelopesCount == 0) {
-            logger.info("No Envelopes created in {} in the last hour", containersGroupName);
+            logger.info(
+                "No Envelopes created in {} between {} and {}", containersGroupName, fromDateTime, toDateTime
+            );
         }
     }
 
