@@ -61,22 +61,20 @@ public class BlobProcessor {
     public void process(BlobClient blobClient) {
         String blobName = blobClient.getBlobName();
         var containerName = blobClient.getContainerName();
+        Instant blobCreationDate = blobClient.getProperties().getLastModified().toInstant();
 
         logger.info("Processing {} from {} container", blobName, containerName);
 
         BlobLeaseClient leaseClient = null;
         try {
             leaseClient = leaseClientProvider.get(blobClient);
-
             leaseClient.acquireLease(60);
 
-            envelopeService.saveEvent(containerName, blobName, Event.FILE_PROCESSING_STARTED);
+            UUID id = envelopeService.createNewEnvelope(containerName, blobName, blobCreationDate);
 
             byte[] rawBlob = tryToDownloadBlob(blobClient);
 
             var verificationResult = blobVerifier.verifyZip(blobName, rawBlob);
-
-            Instant blobCreationDate = blobClient.getProperties().getLastModified().toInstant();
 
             if (verificationResult.isOk) {
                 StorageConfigItem containerConfig = storageConfig.get(containerName);
@@ -90,31 +88,22 @@ public class BlobProcessor {
                     targetStorageAccount
                 );
 
-                UUID envelopeId = envelopeService.createDispatchedEnvelope(
-                    containerName,
-                    blobName,
-                    blobCreationDate
-                );
+                envelopeService.markAsDispatched(id);
 
                 logger.info(
                     "Finished processing {} from {} container. New envelope ID: {}",
                     blobName,
                     containerName,
-                    envelopeId
+                    id
                 );
             } else {
-                UUID envelopeId = envelopeService.createRejectedEnvelope(
-                    containerName,
-                    blobName,
-                    blobCreationDate,
-                    verificationResult.error
-                );
+                envelopeService.markAsRejected(id);
 
                 logger.error(
                     "Rejected Blob. File name: {}, Container: {}, New envelope ID: {}, Reason: {}",
                     blobName,
                     containerName,
-                    envelopeId,
+                    id,
                     verificationResult.error
                 );
                 // TODO send notification to Exela
