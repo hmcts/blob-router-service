@@ -74,7 +74,7 @@ public class NewEnvelopesFinderTest {
     }
 
     @Test
-    void should_check_new_envelopes_in_crime_container_when_crime_is_not_enabled() {
+    void should_not_check_new_envelopes_in_crime_container_when_crime_is_not_enabled() {
         // given
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(asList("c1", "c2"));
 
