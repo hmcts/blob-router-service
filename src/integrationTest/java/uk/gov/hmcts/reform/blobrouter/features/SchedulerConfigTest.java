@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.reject-duplicates.cron: */1 * * * * *",
         "scheduling.task.handle-rejected-files.enabled=true",
         "scheduling.task.handle-rejected-files.cron: */1 * * * * *",
+        "reports.recipients=test@test",
         "scheduling.task.send-daily-report.enabled=true",
         "scheduling.task.send-daily-report.cron: */1 * * * * *"
     }
@@ -39,7 +40,7 @@ public class SchedulerConfigTest {
         ArgumentCaptor<LockConfiguration> configCaptor = ArgumentCaptor.forClass(LockConfiguration.class);
 
         // wait for asynchronous run of the scheduled task in background
-        Thread.sleep(5000);
+        Thread.sleep(2000);
 
         verify(lockProvider, atLeastOnce()).lock(configCaptor.capture());
         assertThat(configCaptor.getAllValues())

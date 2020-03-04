@@ -75,7 +75,7 @@ service:
       target-container: sscs
 
 reports:
-  recipients: ${REPORTS_RECIPIENTS:}
+  recipients: ${REPORTS_RECIPIENTS}
 
 flyway:
   skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
