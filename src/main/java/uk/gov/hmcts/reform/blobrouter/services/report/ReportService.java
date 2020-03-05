@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.report;
 
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.blobrouter.data.ReportRepository;
+import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
 
 import java.time.Instant;

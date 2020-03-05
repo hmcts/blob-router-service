@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 
 import java.time.Instant;
 import java.util.Set;

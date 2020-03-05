@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
-import uk.gov.hmcts.reform.blobrouter.data.model.EventType;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventRecord;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 
 import java.util.Arrays;
 import java.util.Optional;

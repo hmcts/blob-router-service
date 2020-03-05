@@ -5,7 +5,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
 
 import java.io.File;
