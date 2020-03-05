@@ -28,7 +28,7 @@ public class SendDailyReportTask {
     static final String ATTACHMENT_PREFIX = "reform_scan_envelopes_";
     static final String ATTACHMENT_SUFFIX = ".csv";
 
-    private static final String TASK_NAME = "report-sender";
+    private static final String TASK_NAME = "send-daily-report";
     private final ReportService reportService;
     private final ReportCsvWriter reportCsvWriter;
     private final EmailSender emailSender;
