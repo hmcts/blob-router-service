@@ -7,9 +7,9 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
-import uk.gov.hmcts.reform.blobrouter.data.eventsv2.EnvelopeEventRepository;
-import uk.gov.hmcts.reform.blobrouter.data.eventsv2.NewEnvelopeEvent;
+import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 
 import java.util.UUID;
 

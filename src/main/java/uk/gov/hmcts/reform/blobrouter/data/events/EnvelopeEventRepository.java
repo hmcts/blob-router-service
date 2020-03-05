@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.data.eventsv2;
+package uk.gov.hmcts.reform.blobrouter.data.events;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;

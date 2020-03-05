@@ -1,8 +1,7 @@
-package uk.gov.hmcts.reform.blobrouter.data.eventsv2;
+package uk.gov.hmcts.reform.blobrouter.data.events;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
