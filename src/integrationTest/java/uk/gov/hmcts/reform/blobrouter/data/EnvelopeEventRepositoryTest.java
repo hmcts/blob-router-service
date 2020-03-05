@@ -62,7 +62,13 @@ public class EnvelopeEventRepositoryTest {
 
     @Test
     void should_throw_exception_when_trying_to_create_an_event_for_not_existing_envelope() {
-        Throwable exc = catchThrowable(() -> new NewEnvelopeEvent(UUID.randomUUID(), EventType.REJECTED, "note"));
+        // given
+        var event = new NewEnvelopeEvent(UUID.randomUUID(), EventType.REJECTED, "note");
+
+        // when
+        Throwable exc = catchThrowable(() -> eventRepo.insert(event));
+
+        // then
         assertThat(exc).isNotNull();
     }
 
