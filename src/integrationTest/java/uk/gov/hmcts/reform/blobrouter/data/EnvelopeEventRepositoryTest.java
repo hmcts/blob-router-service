@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
@@ -69,7 +70,9 @@ public class EnvelopeEventRepositoryTest {
         Throwable exc = catchThrowable(() -> eventRepo.insert(event));
 
         // then
-        assertThat(exc).isNotNull();
+        assertThat(exc)
+            .isInstanceOf(DataIntegrityViolationException.class)
+            .hasMessageContaining("foreign key");
     }
 
     @Test
