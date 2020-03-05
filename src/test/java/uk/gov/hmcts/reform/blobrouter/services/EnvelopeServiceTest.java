@@ -6,13 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
-import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Event;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventRecordRepository;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
+import uk.gov.hmcts.reform.blobrouter.data.events.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
@@ -65,56 +65,6 @@ class EnvelopeServiceTest {
     }
 
     @Test
-    void should_create_dispatched_envelope_as_expected() {
-        // when
-        envelopeService.createDispatchedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
-
-        // then
-        var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-
-        verify(envelopeRepository).insert(newEnvelopeCaptor.capture());
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-
-        var envelope = newEnvelopeCaptor.getValue();
-        var event = newEventRecordCaptor.getValue();
-
-        assertThat(envelope.fileName).isEqualTo(BLOB_NAME);
-        assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
-        assertThat(envelope.dispatchedAt).isNotNull();
-
-        assertThat(event.fileName).isEqualTo(BLOB_NAME);
-        assertThat(event.container).isEqualTo(CONTAINER_NAME);
-        assertThat(event.event).isEqualTo(Event.DISPATCHED);
-        assertThat(event.notes).isNull();
-    }
-
-    @Test
-    void should_create_rejected_envelope_as_expected() {
-        // when
-        envelopeService.createRejectedEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED, REJECTION_REASON);
-
-        // then
-        var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-
-        verify(envelopeRepository).insert(newEnvelopeCaptor.capture());
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-
-        var envelope = newEnvelopeCaptor.getValue();
-        var event = newEventRecordCaptor.getValue();
-
-        assertThat(envelope.fileName).isEqualTo(BLOB_NAME);
-        assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
-        assertThat(envelope.dispatchedAt).isNull();
-
-        assertThat(event.fileName).isEqualTo(BLOB_NAME);
-        assertThat(event.container).isEqualTo(CONTAINER_NAME);
-        assertThat(event.event).isEqualTo(Event.REJECTED);
-        assertThat(event.notes).isEqualTo(REJECTION_REASON);
-    }
-
-    @Test
     void should_create_new_envelope() {
         // given
         var idFromDb = UUID.randomUUID();
@@ -143,7 +93,7 @@ class EnvelopeServiceTest {
 
         assertThat(event.fileName).isEqualTo(BLOB_NAME);
         assertThat(event.container).isEqualTo(CONTAINER_NAME);
-        assertThat(event.event).isEqualTo(Event.FILE_PROCESSING_STARTED);
+        assertThat(event.event).isEqualTo(EventType.FILE_PROCESSING_STARTED);
         assertThat(event.notes).isNull();
     }
 
@@ -182,12 +132,12 @@ class EnvelopeServiceTest {
         // and (will be enabled once events recorded)
         var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
         verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(Event.DELETED);
+        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(EventType.DELETED);
     }
 
     @Test
     void should_record_event() {
-        Stream.of(Event.values()).forEach(event -> {
+        Stream.of(EventType.values()).forEach(event -> {
             // when
             envelopeService.saveEvent("c", "f", event);
 
@@ -222,7 +172,7 @@ class EnvelopeServiceTest {
 
         assertThat(eventCaptor.getValue().fileName).isEqualTo(existingEnvelope.fileName);
         assertThat(eventCaptor.getValue().container).isEqualTo(existingEnvelope.container);
-        assertThat(eventCaptor.getValue().event).isEqualTo(Event.DISPATCHED);
+        assertThat(eventCaptor.getValue().event).isEqualTo(EventType.DISPATCHED);
     }
 
     @Test
@@ -259,7 +209,7 @@ class EnvelopeServiceTest {
 
         assertThat(eventCaptor.getValue().fileName).isEqualTo(existingEnvelope.fileName);
         assertThat(eventCaptor.getValue().container).isEqualTo(existingEnvelope.container);
-        assertThat(eventCaptor.getValue().event).isEqualTo(Event.REJECTED);
+        assertThat(eventCaptor.getValue().event).isEqualTo(EventType.REJECTED);
     }
 
     @Test

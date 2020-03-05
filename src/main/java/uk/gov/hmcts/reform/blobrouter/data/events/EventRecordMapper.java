@@ -1,9 +1,7 @@
-package uk.gov.hmcts.reform.blobrouter.data;
+package uk.gov.hmcts.reform.blobrouter.data.events;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.data.model.Event;
-import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +16,7 @@ public class EventRecordMapper implements RowMapper<EventRecord> {
             rs.getString("container"),
             rs.getString("file_name"),
             rs.getTimestamp("created_at").toInstant(),
-            Event.valueOf(rs.getString("event")),
+            EventType.valueOf(rs.getString("event")),
             rs.getString("notes")
         );
     }

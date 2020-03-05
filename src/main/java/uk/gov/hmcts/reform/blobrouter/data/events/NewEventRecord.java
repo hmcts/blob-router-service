@@ -1,16 +1,16 @@
-package uk.gov.hmcts.reform.blobrouter.data.model;
+package uk.gov.hmcts.reform.blobrouter.data.events;
 
 public class NewEventRecord {
 
     public final String container;
     public final String fileName;
-    public final Event event;
+    public final EventType event;
     public final String notes;
 
     public NewEventRecord(
         String container,
         String fileName,
-        Event event,
+        EventType event,
         String notes
     ) {
         this.container = container;
@@ -22,7 +22,7 @@ public class NewEventRecord {
     public NewEventRecord(
         String container,
         String fileName,
-        Event event
+        EventType event
     ) {
         this(container, fileName, event, null);
     }

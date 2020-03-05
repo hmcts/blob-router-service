@@ -9,17 +9,18 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventRecord;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventRecordRepository;
+import uk.gov.hmcts.reform.blobrouter.data.events.NewEventRecord;
 
 import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.DISPATCHED;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.FILE_PROCESSING_STARTED;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Event.REJECTED;
+import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.FILE_PROCESSING_STARTED;
+import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.REJECTED;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest

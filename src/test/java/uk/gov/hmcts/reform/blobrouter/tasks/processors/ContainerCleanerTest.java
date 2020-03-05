@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.time.Instant;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.gov.hmcts.reform.blobrouter.data.model.Status.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.DISPATCHED;
 
 @ExtendWith(MockitoExtension.class)
 class ContainerCleanerTest {

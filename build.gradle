@@ -285,13 +285,6 @@ flyway {
   user = System.getenv('DB_USER')
   password = System.getenv('DB_PASSWORD')
 
-  def dbHost = System.getenv('DB_HOST')
-  def dbPort = System.getenv('DB_PORT')
-  def dbConOption = System.getenv('DB_CONN_OPTIONS')
-  def dbName = System.getenv('DB_NAME')
-
-  url = "jdbc:postgresql://${dbHost}:${dbPort}/${dbName}${dbConOption}"
-
   baselineOnMigrate = true
   baselineVersion = '000'
 }

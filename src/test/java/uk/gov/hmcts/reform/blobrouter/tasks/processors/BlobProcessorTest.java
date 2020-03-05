@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.data.model.Event;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -22,6 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -68,8 +68,10 @@ class BlobProcessorTest {
     @Mock BlobStorageException blobStorageException;
 
     @Test
-    void should_not_store_envelope_in_db_when_upload_failed() {
+    void should_not_update_envelope_status_when_upload_failed() {
         // given
+        var id = UUID.randomUUID();
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
@@ -82,15 +84,20 @@ class BlobProcessorTest {
         newBlobProcessor().process(blobClient);
 
         // then
+        verifyNewEnvelopeHasBeenCreated();
+
+        // dispatcher has been called
         verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
-        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
-        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.ERROR);
-        verify(envelopeService, never()).createDispatchedEnvelope(any(), any(), any());
+
+        // but the envelope has not been marked as dispatched
+        verify(envelopeService, never()).markAsDispatched(any());
     }
 
     @Test
     void should_dispatch_valid_file() {
         // given
+        var id = UUID.randomUUID();
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
@@ -104,13 +111,16 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
-        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
-        verify(envelopeService).createDispatchedEnvelope(eq(SOURCE_CONTAINER), eq(fileName), any());
+        verifyNewEnvelopeHasBeenCreated();
+        verify(envelopeService).markAsDispatched(id);
     }
 
     @Test
     void should_reject_file_if_file_verification_fails() {
         // given
+        var id = UUID.randomUUID();
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
@@ -124,12 +134,8 @@ class BlobProcessorTest {
 
         // then
         verifyNoInteractions(blobDispatcher);
-        verify(envelopeService).createRejectedEnvelope(
-            eq(SOURCE_CONTAINER),
-            eq(fileName),
-            any(),
-            eq("error")
-        );
+        verifyNewEnvelopeHasBeenCreated();
+        verify(envelopeService).markAsRejected(id);
     }
 
     @Test
@@ -142,6 +148,9 @@ class BlobProcessorTest {
         setupContainerConfig(sourceContainerName, targetContainerName, BULKSCAN);
         blobExists(fileName, sourceContainerName);
 
+        var id = UUID.randomUUID();
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
@@ -149,9 +158,10 @@ class BlobProcessorTest {
         newBlobProcessor().process(blobClient);
 
         // then
+        verifyNewEnvelopeHasBeenCreated();
         verify(blobDispatcher, times(1))
             .dispatch(eq(fileName), aryEq(BLOB_CONTENT), eq(targetContainerName), eq(BULKSCAN));
-        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
+        verify(envelopeService).markAsDispatched(id);
     }
 
     @Test
@@ -165,6 +175,9 @@ class BlobProcessorTest {
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
+        var id = UUID.randomUUID();
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
@@ -172,9 +185,11 @@ class BlobProcessorTest {
         newBlobProcessor().process(blobClient);
 
         // then
+        verifyNewEnvelopeHasBeenCreated();
         verify(blobDispatcher, times(1))
             .dispatch(eq(fileName), aryEq(INTERNAL_ENVELOPE_CONTENT), eq(targetContainerName), eq(CRIME));
-        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
+
+        verify(envelopeService).markAsDispatched(id);
     }
 
     @Test
@@ -195,7 +210,6 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
-        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
     }
 
     @Test
@@ -222,11 +236,10 @@ class BlobProcessorTest {
 
         // then
         verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
-        verify(envelopeService).saveEvent(SOURCE_CONTAINER, "envelope1.zip", Event.FILE_PROCESSING_STARTED);
     }
 
     @Test
-    void should_not_create_events_when_lease_cant_be_acquired() {
+    void should_not_create_envelope_or_events_when_lease_cant_be_acquired() {
         // given
         given(blobStorageException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
@@ -240,6 +253,7 @@ class BlobProcessorTest {
         newBlobProcessor().process(blobClient);
 
         // then
+        verify(envelopeService, times(0)).createNewEnvelope(any(), any(), any());
         verify(envelopeService, times(0)).saveEvent(any(), any(), any());
         verify(verifier, times(0)).verifyZip(any(), any());
     }
@@ -302,6 +316,14 @@ class BlobProcessorTest {
         containerConfig.setTargetStorageAccount(targetStorageAccount);
 
         given(serviceConfiguration.getStorageConfig()).willReturn(Map.of(sourceContainer, containerConfig));
+    }
+
+    private void verifyNewEnvelopeHasBeenCreated() {
+        verify(envelopeService).createNewEnvelope(
+            blobClient.getContainerName(),
+            blobClient.getBlobName(),
+            blobClient.getProperties().getLastModified().toInstant()
+        );
     }
 
     private BlobProcessor newBlobProcessor() {

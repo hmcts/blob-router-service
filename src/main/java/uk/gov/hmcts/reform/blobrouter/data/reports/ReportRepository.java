@@ -1,9 +1,8 @@
-package uk.gov.hmcts.reform.blobrouter.data;
+package uk.gov.hmcts.reform.blobrouter.data.reports;
 
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import uk.gov.hmcts.reform.blobrouter.data.model.EnvelopeSummary;
 
 import java.sql.Timestamp;
 import java.time.Instant;

@@ -1,6 +1,6 @@
-package uk.gov.hmcts.reform.blobrouter.data.model;
+package uk.gov.hmcts.reform.blobrouter.data.events;
 
-public enum Event {
+public enum EventType {
     FILE_PROCESSING_STARTED,
     DISPATCHED,
     REJECTED,

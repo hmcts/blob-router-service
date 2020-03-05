@@ -4,14 +4,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
-import uk.gov.hmcts.reform.blobrouter.data.EnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.data.EventRecordRepository;
-import uk.gov.hmcts.reform.blobrouter.data.model.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.Event;
-import uk.gov.hmcts.reform.blobrouter.data.model.EventRecord;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEnvelope;
-import uk.gov.hmcts.reform.blobrouter.data.model.NewEventRecord;
-import uk.gov.hmcts.reform.blobrouter.data.model.Status;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventRecord;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventRecordRepository;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
+import uk.gov.hmcts.reform.blobrouter.data.events.NewEventRecord;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
@@ -47,34 +47,9 @@ public class EnvelopeService {
                 new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.CREATED)
             );
 
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.FILE_PROCESSING_STARTED));
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, EventType.FILE_PROCESSING_STARTED));
 
         return id;
-    }
-
-    @Transactional
-    public UUID createDispatchedEnvelope(String containerName, String blobName, Instant blobCreationDate) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.DISPATCHED));
-
-        return envelopeRepository
-            .insert(
-                new NewEnvelope(containerName, blobName, blobCreationDate, now(), Status.DISPATCHED)
-            );
-    }
-
-    @Transactional
-    public UUID createRejectedEnvelope(
-        String containerName,
-        String blobName,
-        Instant blobCreationDate,
-        String rejectionReason
-    ) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, Event.REJECTED, rejectionReason));
-
-        return envelopeRepository
-            .insert(
-                new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.REJECTED)
-            );
     }
 
     @Transactional(readOnly = true)
@@ -95,7 +70,7 @@ public class EnvelopeService {
                 env -> {
                     envelopeRepository.updateStatus(id, Status.DISPATCHED);
                     envelopeRepository.updateDispatchDateTime(id, now());
-                    eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, Event.DISPATCHED));
+                    eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, EventType.DISPATCHED));
                 },
                 () -> {
                     throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
@@ -110,7 +85,7 @@ public class EnvelopeService {
             .ifPresentOrElse(
                 env -> {
                     envelopeRepository.updateStatus(id, Status.REJECTED);
-                    eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, Event.REJECTED));
+                    eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, EventType.REJECTED));
                 },
                 () -> {
                     throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
@@ -121,12 +96,12 @@ public class EnvelopeService {
     @Transactional
     public void markEnvelopeAsDeleted(Envelope envelope) {
         envelopeRepository.markAsDeleted(envelope.id);
-        eventRecordRepository.insert(new NewEventRecord(envelope.container, envelope.fileName, Event.DELETED));
+        eventRecordRepository.insert(new NewEventRecord(envelope.container, envelope.fileName, EventType.DELETED));
     }
 
     @Transactional
-    public void saveEvent(String containerName, String blobName, Event event) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, event));
+    public void saveEvent(String containerName, String blobName, EventType eventType) {
+        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, eventType));
     }
 
     @Transactional(readOnly = true)
