@@ -129,7 +129,7 @@ class SendDailyReportTaskTest {
     void should_throw_if_empty_recipients() {
         assertThrows(
             RuntimeException.class,
-            () -> sendDailyReportTask = new SendDailyReportTask(
+            () -> new SendDailyReportTask(
                 reportService,
                 reportCsvWriter,
                 emailSender,
