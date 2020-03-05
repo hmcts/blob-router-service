@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,6 +26,11 @@ public class EnvelopeEventRepositoryTest {
     @Autowired DbHelper dbHelper;
 
     @Autowired EnvelopeEventRepository eventRepo;
+
+    @AfterEach
+    void tearDown() {
+        dbHelper.deleteAll();
+    }
 
     @Test
     void should_save_and_read_events() {

@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.data.events;
 
-import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
-
 import java.time.Instant;
 import java.util.UUID;
 
