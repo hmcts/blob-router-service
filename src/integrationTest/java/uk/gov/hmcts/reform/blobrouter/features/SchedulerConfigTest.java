@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.handle-rejected-files.enabled=true",
         "scheduling.task.handle-rejected-files.cron: */1 * * * * *",
         "scheduling.task.check-new-envelopes.cron: */1 * * * * *",
-        "scheduling.task.check-new-envelopes.cft.enabled=true"
+        "scheduling.task.check-new-envelopes.enabled=true"
     }
 )
 @Profile("integration-test")
@@ -49,7 +49,7 @@ public class SchedulerConfigTest {
                 "delete-rejected-files",
                 "reject-duplicates",
                 "handle-rejected-files",
-                "check-new-cft-envelopes"
+                "check-new-envelopes"
             );
     }
 }

@@ -11,15 +11,15 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
 @Component
-@ConditionalOnProperty(value = "scheduling.task.check-new-envelopes.cft.enabled")
-public class CheckNewCftEnvelopesTask {
+@ConditionalOnProperty(value = "scheduling.task.check-new-envelopes.enabled")
+public class CheckNewEnvelopesTask {
 
-    private static final String TASK_NAME = "check-new-cft-envelopes";
-    private static final Logger logger = getLogger(CheckNewCftEnvelopesTask.class);
+    private static final String TASK_NAME = "check-new-envelopes";
+    private static final Logger logger = getLogger(CheckNewEnvelopesTask.class);
 
     private final NewEnvelopesFinder newEnvelopesFinder;
 
-    public CheckNewCftEnvelopesTask(NewEnvelopesFinder newEnvelopesFinder) {
+    public CheckNewEnvelopesTask(NewEnvelopesFinder newEnvelopesFinder) {
         this.newEnvelopesFinder = newEnvelopesFinder;
     }
 
@@ -29,6 +29,7 @@ public class CheckNewCftEnvelopesTask {
         logger.info("Started {} job", TASK_NAME);
 
         newEnvelopesFinder.checkNewCftEnvelopesCreated();
+        newEnvelopesFinder.checkNewCrimeEnvelopesCreated();
 
         logger.info("Finished {} job", TASK_NAME);
     }
