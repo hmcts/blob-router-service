@@ -50,7 +50,7 @@ public class SchedulerConfigTest {
                 "delete-rejected-files",
                 "reject-duplicates",
                 "handle-rejected-files",
-                "report-sender"
+                "send-daily-report"
             );
     }
 }
