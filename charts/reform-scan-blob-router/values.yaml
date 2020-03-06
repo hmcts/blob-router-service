@@ -27,6 +27,7 @@ java:
     DELETE_DISPATCHED_FILES_CRON: "0 0/10 * * * *"
     HANDLE_REJECTED_FILES_CRON: "0/30 * * * * *"
     REJECT_DUPLICATES_CRON: "0/30 * * * * *"
+    CHECK_NEW_ENVELOPES_CRON: "0 55 9-17 ? * MON-FRI" # every hour at 55 minutes on weekdays between 9am-6pm
     TASK_SCAN_DELAY: "4000" # in millis
 
     STORAGE_URL: https://reformscan.{{ .Values.global.environment }}.platform.hmcts.net
