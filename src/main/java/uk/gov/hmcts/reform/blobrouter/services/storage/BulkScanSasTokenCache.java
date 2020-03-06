@@ -21,16 +21,17 @@ import static com.azure.storage.common.implementation.StorageImplUtils.parseQuer
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 
 @Service
-public class BulkScanContainerClientCache {
+public class BulkScanSasTokenCache {
 
     private final BulkScanProcessorClient bulkScanSasTokenClient;
-    private final Long refreshSasBeforeExpiry;
+    private final long refreshSasBeforeExpiry;
 
     private static Cache<String, String> tokenCache;
 
-    public BulkScanContainerClientCache(
+    public BulkScanSasTokenCache(
         BulkScanProcessorClient bulkScanSasTokenClient,
-        @Value("${bulk-scan.blob-client.refresh-sas-before-expire-in-sec}") Long refreshSasBeforeExpiry) {
+        @Value("${bulk-scan-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
+    ) {
         this.bulkScanSasTokenClient = bulkScanSasTokenClient;
         this.refreshSasBeforeExpiry = refreshSasBeforeExpiry;
         tokenCache = Caffeine.newBuilder()
@@ -39,7 +40,7 @@ public class BulkScanContainerClientCache {
     }
 
     public String getSasToken(String containerName) {
-        return tokenCache.get(containerName, userName -> this.createSasToken(containerName));
+        return tokenCache.get(containerName, conName -> this.createSasToken(conName));
     }
 
     private String createSasToken(String containerName) {

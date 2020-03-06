@@ -19,18 +19,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class BulkScanContainerClientCacheTest {
+class BulkScanSasTokenCacheTest {
 
     @Mock
     private BulkScanProcessorClient bulkScanProcessorClient;
 
-    private BulkScanContainerClientCache bulkScanContainerClientCache;
+    private BulkScanSasTokenCache bulkScanContainerClientCache;
 
-    private Long refreshSasBeforeExpiry = 30L;
+    private long refreshSasBeforeExpiry = 30;
 
     @BeforeEach
     private void setUp() {
-        this.bulkScanContainerClientCache = new BulkScanContainerClientCache(
+        this.bulkScanContainerClientCache = new BulkScanSasTokenCache(
             bulkScanProcessorClient,
             refreshSasBeforeExpiry
         );
@@ -75,7 +75,7 @@ class BulkScanContainerClientCacheTest {
     }
 
     @Test
-    void should_create_new_sas_token__when_it_is_expired() {
+    void should_create_new_sas_token_when_it_is_expired() {
         String containerName = "container123";
 
         String expiredDate = Constants.ISO_8601_UTC_DATE_FORMATTER

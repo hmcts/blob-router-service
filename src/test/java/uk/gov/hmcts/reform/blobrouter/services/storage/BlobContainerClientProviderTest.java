@@ -21,7 +21,7 @@ public class BlobContainerClientProviderTest {
     private BlobContainerClient crimeClient;
 
     @Mock
-    private BulkScanContainerClientCache bulkScanContainerClientCache;
+    private BulkScanSasTokenCache bulkScanSasTokenCache;
 
     private BlobContainerClientProvider blobContainerClientProvider;
 
@@ -31,7 +31,7 @@ public class BlobContainerClientProviderTest {
             crimeClient,
             "https://example.com",
             HttpClient.createDefault(),
-            bulkScanContainerClientCache
+            bulkScanSasTokenCache
         );
     }
 
@@ -45,10 +45,10 @@ public class BlobContainerClientProviderTest {
     @Test
     void should_retrieve_sas_token_for_bulk_scan_storage() {
         String containerName = "container123";
-        given(bulkScanContainerClientCache.getSasToken(any())).willReturn("token1");
+        given(bulkScanSasTokenCache.getSasToken(any())).willReturn("token1");
         BlobContainerClient client = blobContainerClientProvider.get(TargetStorageAccount.BULKSCAN, containerName);
 
         assertThat(client).isNotNull();
-        verify(bulkScanContainerClientCache).getSasToken(containerName);
+        verify(bulkScanSasTokenCache).getSasToken(containerName);
     }
 }

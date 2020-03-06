@@ -76,9 +76,8 @@ flyway:
 storage-blob-processing-delay-in-minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES}
 public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY} # public key file in der format
 
-bulk-scan:
-  blob-client:
-    refresh-sas-before-expire-in-sec: 30
+bulk-scan-cache:
+    refresh-before-expire-in-sec: 30
 
 scheduling:
   lock_at_most_for: PT10M # 10 minutes in ISO-8601

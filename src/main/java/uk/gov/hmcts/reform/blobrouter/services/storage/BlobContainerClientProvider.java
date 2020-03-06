@@ -14,18 +14,18 @@ public class BlobContainerClientProvider {
     private final BlobContainerClient crimeClient;
     private final String bulkScanStorageUrl;
     private final HttpClient httpClient;
-    private final BulkScanContainerClientCache bulkScanContainerClientCache;
+    private final BulkScanSasTokenCache bulkScanSasTokenCache;
 
     public BlobContainerClientProvider(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
         @Value("${storage.bulkscan.url}") String bulkScanStorageUrl,
         HttpClient httpClient,
-        BulkScanContainerClientCache bulkScanContainerClientCache
+        BulkScanSasTokenCache bulkScanSasTokenCache
     ) {
         this.crimeClient = crimeClient;
         this.bulkScanStorageUrl = bulkScanStorageUrl;
         this.httpClient = httpClient;
-        this.bulkScanContainerClientCache = bulkScanContainerClientCache;
+        this.bulkScanSasTokenCache = bulkScanSasTokenCache;
     }
 
     public BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
@@ -34,7 +34,7 @@ public class BlobContainerClientProvider {
                 // retrieving a SAS token every time we're getting a client, but this will be cached in the future
                 return new BlobContainerClientBuilder()
                     .httpClient(httpClient)
-                    .sasToken(bulkScanContainerClientCache.getSasToken(containerName))
+                    .sasToken(bulkScanSasTokenCache.getSasToken(containerName))
                     .endpoint(bulkScanStorageUrl)
                     .containerName(containerName)
                     .buildClient();
