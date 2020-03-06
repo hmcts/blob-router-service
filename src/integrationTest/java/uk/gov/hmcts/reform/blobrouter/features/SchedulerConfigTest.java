@@ -24,6 +24,9 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.reject-duplicates.cron: */1 * * * * *",
         "scheduling.task.handle-rejected-files.enabled=true",
         "scheduling.task.handle-rejected-files.cron: */1 * * * * *",
+        "scheduling.task.check-new-envelopes.cron: */1 * * * * *",
+        "scheduling.task.check-new-envelopes.enabled=true",
+        "scheduling.task.handle-rejected-files.cron: */1 * * * * *",
         "reports.recipients=test@test",
         "scheduling.task.send-daily-report.enabled=true",
         "scheduling.task.send-daily-report.cron: */1 * * * * *"
@@ -49,6 +52,8 @@ public class SchedulerConfigTest {
                 "delete-dispatched-files",
                 "delete-rejected-files",
                 "reject-duplicates",
+                "handle-rejected-files",
+                "check-new-envelopes",
                 "handle-rejected-files",
                 "send-daily-report"
             );
