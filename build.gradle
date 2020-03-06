@@ -164,7 +164,7 @@ dependencyManagement {
     dependencySet(group: 'com.google.guava', version: '28.2-jre') {
       entry 'guava'
     }
-    dependencySet(group: 'org.testcontainers', version: '1.12.4') {
+    dependencySet(group: 'org.testcontainers', version: '1.13.0') {
       entry 'database-commons' // not tagged to latest. once sorted - remove this section
     }
   }
