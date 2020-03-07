@@ -31,7 +31,6 @@ public class BlobContainerClientProvider {
     public BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
         switch (targetStorageAccount) {
             case BULKSCAN:
-                // retrieving a SAS token every time we're getting a client, but this will be cached in the future
                 return new BlobContainerClientBuilder()
                     .httpClient(httpClient)
                     .sasToken(bulkScanSasTokenCache.getSasToken(containerName))
