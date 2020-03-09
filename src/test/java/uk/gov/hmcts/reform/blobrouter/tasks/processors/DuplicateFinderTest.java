@@ -54,12 +54,11 @@ class DuplicateFinderTest {
         given(envelopeService.findEnvelope("c.zip", "container")).willReturn(Optional.of(notYetDeletedEnvelope));
 
         // when
-        List<BlobItem> result = new DuplicateFinder(storageClient, envelopeService).findIn("container");
+        List<Envelope> result = new DuplicateFinder(storageClient, envelopeService).findIn("container");
 
         // then
         assertThat(result)
-            .extracting(BlobItem::getName)
-            .containsExactly("b.zip");
+            .containsExactly(deletedEnvelope);
     }
 
 
