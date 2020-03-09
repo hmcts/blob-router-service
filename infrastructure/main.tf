@@ -126,3 +126,44 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   value        = "${module.reform-blob-router-db.postgresql_database}"
 }
 # endregion
+
+# region reports secrets
+
+data "azurerm_key_vault_secret" "bulk_scan_reports_email_username" {
+  key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
+  name         = "reports-email-username"
+}
+
+data "azurerm_key_vault_secret" "bulk_scan_reports_email_password" {
+  key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
+  name         = "reports-email-password"
+}
+
+data "azurerm_key_vault_secret" "bulk_scan_reports_recipients" {
+  key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
+  name         = "reports-recipients"
+}
+
+# endregion
+
+# region: copy reports secrets from bulk scan to reform scan
+
+resource "azurerm_key_vault_secret" "reports_email_username" {
+  name         = "reports-email-username"
+  value        = "${data.azurerm_key_vault_secret.bulk_scan_reports_email_username.value}"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+}
+
+resource "azurerm_key_vault_secret" "reports_email_password" {
+  name         = "reports-email-password"
+  value        = "${data.azurerm_key_vault_secret.bulk_scan_reports_email_password.value}"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+}
+
+resource "azurerm_key_vault_secret" "reports_recipients" {
+  name         = "reports-recipients"
+  value        = "${data.azurerm_key_vault_secret.bulk_scan_reports_recipients.value}"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+}
+
+# endregion
