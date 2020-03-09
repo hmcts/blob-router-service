@@ -33,7 +33,7 @@ public class NewEnvelopesFinderTest {
 
     @BeforeEach
     public void setup() {
-        envelopesFinder = new NewEnvelopesFinder(envelopeRepository, serviceConfiguration);
+        envelopesFinder = new NewEnvelopesFinder(envelopeRepository, serviceConfiguration, 10);
     }
 
     @Test

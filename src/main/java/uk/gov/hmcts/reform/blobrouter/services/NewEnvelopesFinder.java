@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
@@ -10,7 +11,7 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.Collections.singleton;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -23,14 +24,18 @@ public class NewEnvelopesFinder {
 
     private final ServiceConfiguration serviceConfig;
 
+    private final long timeInterval;
+
     private static final String CRIME_CONTAINER = "crime";
 
     public NewEnvelopesFinder(
         EnvelopeRepository envelopeRepository,
-        ServiceConfiguration serviceConfig
+        ServiceConfiguration serviceConfig,
+        @Value("${scheduling.task.check-new-envelopes.time-interval}") long timeInterval
     ) {
         this.envelopeRepository = envelopeRepository;
         this.serviceConfig = serviceConfig;
+        this.timeInterval = timeInterval;
     }
 
     public void checkNewCftEnvelopesCreated() {
@@ -49,7 +54,7 @@ public class NewEnvelopesFinder {
 
     private void checkNewEnvelopesInContainers(Set<String> containers, String containersGroupName) {
         Instant toDateTime = Instant.now();
-        Instant fromDateTime = toDateTime.minus(1, HOURS); //TODO: read duration from config
+        Instant fromDateTime = toDateTime.minus(timeInterval, MINUTES);
 
         Integer envelopesCount = envelopeRepository.getEnvelopesCount(containers, fromDateTime, toDateTime);
 
