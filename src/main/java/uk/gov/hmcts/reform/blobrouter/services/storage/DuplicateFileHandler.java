@@ -44,17 +44,17 @@ public class DuplicateFileHandler {
                             logger.info(
                                 "Moving duplicate file to rejected container. Container: {}, File name: {}",
                                 container,
-                                duplicate.getName()
+                                duplicate.fileName
                             );
 
-                            blobMover.moveToRejectedContainer(duplicate.getName(), container);
-                            envelopeService.saveEvent(container, duplicate.getName(), EventType.DUPLICATE_REJECTED);
+                            blobMover.moveToRejectedContainer(duplicate.fileName, container);
+                            envelopeService.saveEvent(container, duplicate.fileName, EventType.DUPLICATE_REJECTED);
 
                         } catch (Exception exc) {
                             logger.error(
                                 "Error moving duplicate file. Container: {}. File name: {}",
                                 container,
-                                duplicate.getName(),
+                                duplicate.fileName,
                                 exc
                             );
                         }
