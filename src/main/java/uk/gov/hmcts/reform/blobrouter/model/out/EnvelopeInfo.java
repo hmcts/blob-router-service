@@ -34,7 +34,7 @@ public class EnvelopeInfo {
     public final boolean isDeleted;
 
     @JsonProperty("events")
-    public final List<EnvelopeEvent> envelopeEvents;
+    public final List<EnvelopeEventResponse> envelopeEvents;
 
     public EnvelopeInfo(
         UUID id,
@@ -45,7 +45,7 @@ public class EnvelopeInfo {
         Instant dispatchedAt,
         Status status,
         boolean isDeleted,
-        List<EnvelopeEvent> envelopeEvents
+        List<EnvelopeEventResponse> envelopeEvents
     ) {
         this.id = id;
         this.container = container;
