@@ -9,7 +9,7 @@
 
 Primary responsibility of this micro service is to retrieve blobs from source blob storage containers and then dispatch
 them to destination blob storage containers based on source containers.
-Currently it only routes blobs(zip files) to CFT and Crime blob storage containers. Blobs are uploaded to source storage 
+Currently it only routes blobs (zip files) to CFT and Crime blob storage containers. Blobs are uploaded to source storage 
 by the third party scanning supplier.
 Before dispatching blobs it verifies if the files were uploaded by third party supplier through non repudiation checks.
 It also provides infrastructure to deploy API management service for retrieving SAS tokens used to upload blobs to source
