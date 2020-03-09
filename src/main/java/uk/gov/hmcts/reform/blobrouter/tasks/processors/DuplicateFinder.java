@@ -31,7 +31,7 @@ public class DuplicateFinder {
             .stream()
             .map(blob -> envelopeService.findEnvelope(blob.getName(), containerName))
             .flatMap(Optional::stream)
-            .filter(envelope -> envelope.isDeleted)
+            .filter(envelope -> envelope.isDeleted) // is deleted -> has already been processed before
             .collect(toList());
     }
 }
