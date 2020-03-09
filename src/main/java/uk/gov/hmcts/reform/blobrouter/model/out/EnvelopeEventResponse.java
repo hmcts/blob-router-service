@@ -1,11 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventRecord;
 
 import java.time.Instant;
 
-public class EnvelopeEvent {
+public class EnvelopeEventResponse {
 
     @JsonProperty("id")
     public final long id;
@@ -19,10 +18,10 @@ public class EnvelopeEvent {
     @JsonProperty("notes")
     public final String notes;
 
-    public EnvelopeEvent(EventRecord eventRecord) {
-        id = eventRecord.id;
-        createdAt = eventRecord.createdAt;
-        event = eventRecord.event.name();
-        notes = eventRecord.notes;
+    public EnvelopeEventResponse(long id, Instant createdAt, String event, String notes) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.event = event;
+        this.notes = notes;
     }
 }
