@@ -175,6 +175,6 @@ public class BlobProcessor {
 
     private void handleError(Exception exc, BlobClient blob) {
         logger.error("Error occurred while processing {} from {}", blob.getBlobName(), blob.getContainerName(), exc);
-        envelopeService.saveEvent(blob.getContainerName(), blob.getBlobName(), EventType.ERROR);
+        // TODO: save error event
     }
 }

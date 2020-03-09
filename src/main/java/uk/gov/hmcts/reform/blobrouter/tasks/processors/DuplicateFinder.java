@@ -1,11 +1,12 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.models.BlobItem;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -23,19 +24,19 @@ public class DuplicateFinder {
         this.envelopeService = envelopeService;
     }
 
-    public List<BlobItem> findIn(String containerName) {
+    public List<Envelope> findIn(String containerName) {
         return storageClient
             .getBlobContainerClient(containerName)
             .listBlobs()
             .stream()
-            .filter(blob -> hasAlreadyBeenProcessed(blob.getName(), containerName))
+            .map(blob -> findProcessedEnvelope(blob.getName(), containerName))
+            .flatMap(Optional::stream)
             .collect(toList());
     }
 
-    private boolean hasAlreadyBeenProcessed(String fileName, String containerName) {
+    private Optional<Envelope> findProcessedEnvelope(String fileName, String containerName) {
         return envelopeService
             .findEnvelope(fileName, containerName)
-            .map(e -> e.isDeleted)
-            .orElse(false);
+            .filter(e -> e.isDeleted);
     }
 }
