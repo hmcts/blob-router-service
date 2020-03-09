@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services.report;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
 
 import java.io.File;
@@ -12,6 +13,7 @@ import java.util.Optional;
 
 import static java.util.Collections.emptyList;
 
+@Component
 public class ReportCsvWriter {
 
     private static final String[] ENVELOPES_SUMMARY_CSV_HEADERS = {

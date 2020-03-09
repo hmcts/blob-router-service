@@ -39,7 +39,7 @@ public class NewEnvelopesFinder {
 
     public void checkNewCrimeEnvelopesCreated() {
         if (serviceConfig.getEnabledSourceContainers().contains(CRIME_CONTAINER)) {
-            checkNewEnvelopesInContainers(singleton(CRIME_CONTAINER), "CRIME");
+            checkNewEnvelopesInContainers(singleton(CRIME_CONTAINER), "Crime");
         } else {
             logger.info(
                 "Not checking for new envelopes in {} container because container is disabled", CRIME_CONTAINER

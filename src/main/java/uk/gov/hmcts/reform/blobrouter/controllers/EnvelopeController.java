@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventRecord;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
-import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeEvent;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeEventResponse;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping(path = "/envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,14 +47,10 @@ public class EnvelopeController {
             dbEnvelope.dispatchedAt,
             dbEnvelope.status,
             dbEnvelope.isDeleted,
-            toResponse(dbEventRecords)
+            dbEventRecords
+                .stream()
+                .map(e -> new EnvelopeEventResponse(e.id, e.createdAt, e.event.name(), e.notes))
+                .collect(toList())
         );
-    }
-
-    private List<EnvelopeEvent> toResponse(List<EventRecord> dbEventRecords) {
-        return dbEventRecords
-            .stream()
-            .map(EnvelopeEvent::new)
-            .collect(Collectors.toList());
     }
 }

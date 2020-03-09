@@ -70,6 +70,9 @@ service:
       target-storage-account: bulkscan
       target-container: sscs
 
+reports:
+  recipients: ${REPORTS_RECIPIENTS}
+
 flyway:
   skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
 
@@ -101,7 +104,9 @@ scheduling:
       enabled: true
     scan:
       delay: ${TASK_SCAN_DELAY} # In milliseconds
-
+    send-daily-report:
+      cron: ${SEND_DAILY_REPORT_CRON}
+      enabled: false
 
 proxy:
   enabled: ${PROXY_ENABLED:true}
