@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -70,7 +71,7 @@ public class BlobProcessor {
                 leaseClient -> {
                     UUID id = envelopeService.createNewEnvelope(containerName, blobName, blobCreationDate);
                     try {
-                        byte[] rawBlob = tryToDownloadBlob(blobClient);
+                        byte[] rawBlob = downloadBlob(blobClient);
 
                         var verificationResult = blobVerifier.verifyZip(blobName, rawBlob);
 
@@ -145,11 +146,17 @@ public class BlobProcessor {
         }
     }
 
-    private byte[] tryToDownloadBlob(BlobClient blobClient) throws IOException {
+    private byte[] downloadBlob(BlobClient blobClient) throws IOException {
         try (var outputStream = new ByteArrayOutputStream()) {
             blobClient.download(outputStream);
 
             return outputStream.toByteArray();
+        } catch (Exception exc) {
+            String errorMessage = exc instanceof IOException
+                ? "Failed to download blob. Consider the possibility of antivirus software blocking the file."
+                : "Failed to download blob";
+
+            throw new ZipFileLoadException(errorMessage, exc);
         }
     }
 
