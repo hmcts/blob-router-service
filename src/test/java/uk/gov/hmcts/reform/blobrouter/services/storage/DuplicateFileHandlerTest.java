@@ -1,17 +1,18 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder;
 
 import java.util.List;
+import java.util.UUID;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -51,18 +52,18 @@ class DuplicateFileHandlerTest {
     @Test
     void should_move_blob_and_store_an_event() {
         // given
-        List<BlobItem> blobs = asList(blob("b1"), blob("b2"));
+        List<Envelope> duplicates = asList(envelope("b1"), envelope("b2"));
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("C"));
-        given(duplicateFinder.findIn("C")).willReturn(blobs);
+        given(duplicateFinder.findIn("C")).willReturn(duplicates);
 
         // when
         handler.handle();
 
         // then
-        blobs
-            .forEach(blob -> {
-                verify(blobMover).moveToRejectedContainer(blob.getName(), "C");
-                verify(envelopeService).saveEvent("C", blob.getName(), EventType.DUPLICATE_REJECTED);
+        duplicates
+            .forEach(d -> {
+                verify(blobMover).moveToRejectedContainer(d.fileName, "C");
+                verify(envelopeService).saveEvent("C", d.fileName, EventType.DUPLICATE_REJECTED);
             });
     }
 
@@ -70,7 +71,11 @@ class DuplicateFileHandlerTest {
     void should_continue_after_failure() {
         // given
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("C"));
-        given(duplicateFinder.findIn("C")).willReturn(asList(blob("b1"), blob("b2")));
+        given(duplicateFinder.findIn("C"))
+            .willReturn(asList(
+                envelope("b1"),
+                envelope("b2")
+            ));
 
         doThrow(RuntimeException.class)
             .when(blobMover)
@@ -84,9 +89,7 @@ class DuplicateFileHandlerTest {
         verify(envelopeService).saveEvent("C", "b2", EventType.DUPLICATE_REJECTED);
     }
 
-    private BlobItem blob(String name) {
-        var blob = new BlobItem();
-        blob.setName(name);
-        return blob;
+    private Envelope envelope(String name) {
+        return new Envelope(UUID.randomUUID(), null, name, null, null, null, null, true);
     }
 }

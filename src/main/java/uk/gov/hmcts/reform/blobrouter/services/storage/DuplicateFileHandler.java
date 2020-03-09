@@ -48,7 +48,7 @@ public class DuplicateFileHandler {
                             );
 
                             blobMover.moveToRejectedContainer(duplicate.fileName, container);
-                            envelopeService.saveEvent(duplicate.id, EventType.DUPLICATE_REJECTED);
+                            envelopeService.saveEvent(container, duplicate.fileName, EventType.DUPLICATE_REJECTED);
 
                         } catch (Exception exc) {
                             logger.error(
