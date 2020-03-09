@@ -164,9 +164,6 @@ dependencyManagement {
     dependencySet(group: 'com.google.guava', version: '28.2-jre') {
       entry 'guava'
     }
-    dependencySet(group: 'org.testcontainers', version: '1.12.4') {
-      entry 'database-commons' // not tagged to latest. once sorted - remove this section
-    }
   }
 }
 
@@ -247,7 +244,7 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.25.1'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.12.5'
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.13.0'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.11'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
