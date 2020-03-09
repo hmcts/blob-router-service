@@ -12,7 +12,7 @@ import java.util.Map;
 import javax.mail.internet.MimeMessage;
 
 @Component
-@ConditionalOnProperty(prefix = "spring.mail", name = "host")
+@ConditionalOnProperty("spring.mail.host")
 public class EmailSender {
 
     private static final Logger log = LoggerFactory.getLogger(EmailSender.class);
