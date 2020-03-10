@@ -79,13 +79,13 @@ public class EnvelopeService {
     }
 
     @Transactional
-    public void markAsRejected(UUID id) {
+    public void markAsRejected(UUID id, String reason) {
         envelopeRepository
             .find(id)
             .ifPresentOrElse(
                 env -> {
                     envelopeRepository.updateStatus(id, Status.REJECTED);
-                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.REJECTED, null));
+                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.REJECTED, reason));
                 },
                 () -> {
                     throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
