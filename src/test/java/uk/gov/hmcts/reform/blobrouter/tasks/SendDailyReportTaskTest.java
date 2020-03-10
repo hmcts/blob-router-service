@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.tasks;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -63,20 +62,11 @@ class SendDailyReportTaskTest {
     @Captor
     private ArgumentCaptor<Map<String, File>> attachmentsCaptor;
 
-    @BeforeEach
-    void setUp() {
-        sendDailyReportTask = new SendDailyReportTask(
-            reportService,
-            reportCsvWriter,
-            emailSender,
-            FROM,
-            recipients
-        );
-    }
-
     @Test
     void sendReport_should_call_email_sender() throws Exception {
         // given
+        sendDailyReportTask = getSendDailyReportTask(recipients);
+
         given(reportService.getDailyReport(any(LocalDate.class))).willReturn(report);
         given(reportCsvWriter.writeEnvelopesSummaryToCsv(report)).willReturn(reportFile);
 
@@ -113,6 +103,8 @@ class SendDailyReportTaskTest {
     @Test
     void sendReport_should_not_call_email_sender_if_csv_writer_throws() throws Exception {
         // given
+        sendDailyReportTask = getSendDailyReportTask(recipients);
+
         given(reportService.getDailyReport(any(LocalDate.class))).willReturn(report);
         given(reportCsvWriter.writeEnvelopesSummaryToCsv(report)).willThrow(new IOException());
 
@@ -129,13 +121,17 @@ class SendDailyReportTaskTest {
     void should_throw_if_empty_recipients() {
         assertThrows(
             RuntimeException.class,
-            () -> new SendDailyReportTask(
-                reportService,
-                reportCsvWriter,
-                emailSender,
-                FROM,
-                new String[]{}
-            )
+            () -> getSendDailyReportTask(new String[]{})
+        );
+    }
+
+    private SendDailyReportTask getSendDailyReportTask(String[] recipients) {
+        return new SendDailyReportTask(
+            reportService,
+            reportCsvWriter,
+            emailSender,
+            FROM,
+            recipients
         );
     }
 }
