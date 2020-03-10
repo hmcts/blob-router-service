@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
-import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +17,7 @@ import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import java.io.ByteArrayInputStream;
@@ -45,6 +45,9 @@ class BlobProcessorTest extends BlobStorageBaseTest {
     private ServiceConfiguration serviceConfiguration;
 
     @Autowired
+    private LeaseAcquirer leaseAcquirer;
+
+    @Autowired
     private DbHelper dbHelper;
 
     @BeforeEach
@@ -69,7 +72,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
             new BlobProcessor(
                 dispatcher,
                 envelopeService,
-                blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient(),
+                leaseAcquirer,
                 new BlobVerifier("signing/test_public_key.der"),
                 serviceConfiguration
             );
