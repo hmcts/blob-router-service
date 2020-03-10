@@ -54,7 +54,8 @@ public class BulkScanSasTokenCache {
         @Override
         public long expireAfterCreate(
             @NonNull String containerName,
-            @NonNull String sasToken, long currentTime
+            @NonNull String sasToken,
+            long currentTime
         ) {
             Map<String, String> map = parseQueryString(sasToken);
             return calculateTimeToExpire(
