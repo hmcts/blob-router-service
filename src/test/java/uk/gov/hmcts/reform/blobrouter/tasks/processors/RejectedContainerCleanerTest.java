@@ -11,10 +11,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -102,6 +105,10 @@ class RejectedContainerCleanerTest {
         given(blobClient2.getContainerName()).willReturn(REJECTED_CONTAINER);
         given(blobClient2.getBlobName()).willReturn(REJECTED_BLOB);
 
+        var envelopeId = UUID.randomUUID();
+        given(envelopeService.findEnvelope(REJECTED_BLOB, REJECTED_CONTAINER))
+            .willReturn(Optional.of(new Envelope(envelopeId, null, null, null, null, null, null, true)));
+
         // when
         cleaner.cleanUp();
 
@@ -113,6 +120,6 @@ class RejectedContainerCleanerTest {
         verify(blobClient2, times(1)).delete();
 
         // and
-        verify(envelopeService).saveEvent(REJECTED_CONTAINER, REJECTED_BLOB, EventType.DELETED_FROM_REJECTED);
+        verify(envelopeService).saveEvent(envelopeId, EventType.DELETED_FROM_REJECTED);
     }
 }

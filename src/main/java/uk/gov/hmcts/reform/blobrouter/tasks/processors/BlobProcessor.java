@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
@@ -175,6 +174,6 @@ public class BlobProcessor {
 
     private void handleError(Exception exc, BlobClient blob) {
         logger.error("Error occurred while processing {} from {}", blob.getBlobName(), blob.getContainerName(), exc);
-        envelopeService.saveEvent(blob.getContainerName(), blob.getBlobName(), EventType.ERROR);
+        // TODO: save error event
     }
 }

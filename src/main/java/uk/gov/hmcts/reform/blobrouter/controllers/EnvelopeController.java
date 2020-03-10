@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventRecord;
+import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeEventResponse;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
@@ -37,7 +37,7 @@ public class EnvelopeController {
             .orElseThrow(EnvelopeNotFoundException::new);
     }
 
-    private EnvelopeInfo toResponse(Envelope dbEnvelope, List<EventRecord> dbEventRecords) {
+    private EnvelopeInfo toResponse(Envelope dbEnvelope, List<EnvelopeEvent> dbEventRecords) {
         return new EnvelopeInfo(
             dbEnvelope.id,
             dbEnvelope.container,
@@ -49,7 +49,7 @@ public class EnvelopeController {
             dbEnvelope.isDeleted,
             dbEventRecords
                 .stream()
-                .map(e -> new EnvelopeEventResponse(e.id, e.createdAt, e.event.name(), e.notes))
+                .map(e -> new EnvelopeEventResponse(e.id, e.createdAt, e.type.name(), e.notes))
                 .collect(toList())
         );
     }
