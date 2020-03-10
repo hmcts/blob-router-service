@@ -63,6 +63,7 @@ public class SendDailyReportTask {
     @Scheduled(cron = "${scheduling.task.send-daily-report.cron}")
     @SchedulerLock(name = TASK_NAME)
     public void sendReport() {
+        logger.info("Started {} job", TASK_NAME);
         final LocalDate reportDate = LocalDate.now();
 
         final List<EnvelopeSummaryItem> report = reportService.getDailyReport(reportDate);
@@ -77,9 +78,10 @@ public class SendDailyReportTask {
                 recipients,
                 Map.of(getReportAttachmentName(reportDate), reportFile)
             );
+            logger.info("Finished {} job", TASK_NAME);
         } catch (Exception ex) {
             logger.error(
-                "Error sending daily report: {}",
+                "Error sending daily report for the date: {}",
                 reportDate,
                 ex
             );
