@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
-import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.SasTokenResponse;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,10 +18,10 @@ import static org.mockito.Mockito.verify;
 public class BlobContainerClientProviderTest {
 
     @Mock
-    BlobContainerClient crimeClient;
+    private BlobContainerClient crimeClient;
 
     @Mock
-    BulkScanProcessorClient bulkScanProcessorClient;
+    private BulkScanSasTokenCache bulkScanSasTokenCache;
 
     private BlobContainerClientProvider blobContainerClientProvider;
 
@@ -31,9 +29,9 @@ public class BlobContainerClientProviderTest {
     private void setUp() {
         this.blobContainerClientProvider = new BlobContainerClientProvider(
             crimeClient,
-            bulkScanProcessorClient,
             "https://example.com",
-            HttpClient.createDefault()
+            HttpClient.createDefault(),
+            bulkScanSasTokenCache
         );
     }
 
@@ -47,11 +45,10 @@ public class BlobContainerClientProviderTest {
     @Test
     void should_retrieve_sas_token_for_bulk_scan_storage() {
         String containerName = "container123";
-        var sasTokenResponse = new SasTokenResponse("token1");
-        given(bulkScanProcessorClient.getSasToken(any())).willReturn(sasTokenResponse);
+        given(bulkScanSasTokenCache.getSasToken(any())).willReturn("token1");
         BlobContainerClient client = blobContainerClientProvider.get(TargetStorageAccount.BULKSCAN, containerName);
 
         assertThat(client).isNotNull();
-        verify(bulkScanProcessorClient).getSasToken(containerName);
+        verify(bulkScanSasTokenCache).getSasToken(containerName);
     }
 }
