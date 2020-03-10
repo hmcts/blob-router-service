@@ -64,6 +64,7 @@ public class RejectedContainerCleaner {
     private void delete(BlobClient blobClient) {
         String containerName = blobClient.getContainerName();
         String blobName = blobClient.getBlobName();
+
         String blobInfo = String.format(
             "Container: %s. File name: %s. Snapshot ID: %s",
             containerName,
@@ -73,7 +74,12 @@ public class RejectedContainerCleaner {
 
         try {
             blobClient.delete();
-            envelopeService.saveEvent(containerName, blobName, EventType.DELETED_FROM_REJECTED);
+            envelopeService
+                .findEnvelope(blobName, containerName)
+                .ifPresentOrElse(
+                    e -> envelopeService.saveEvent(e.id, EventType.DELETED_FROM_REJECTED),
+                    () -> logger.warn("Envelope not found. {}", blobInfo)
+                );
             logger.info("Deleted rejected file. {}", blobInfo);
         } catch (Exception exc) {
             logger.error("Error deleting rejected file. {}", blobInfo, exc);

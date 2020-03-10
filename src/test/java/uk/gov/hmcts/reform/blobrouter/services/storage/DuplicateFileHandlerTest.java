@@ -63,7 +63,7 @@ class DuplicateFileHandlerTest {
         duplicates
             .forEach(d -> {
                 verify(blobMover).moveToRejectedContainer(d.fileName, "C");
-                verify(envelopeService).saveEvent("C", d.fileName, EventType.DUPLICATE_REJECTED);
+                verify(envelopeService).saveEvent(d.id, EventType.DUPLICATE_REJECTED);
             });
     }
 
@@ -71,22 +71,24 @@ class DuplicateFileHandlerTest {
     void should_continue_after_failure() {
         // given
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("C"));
+        var duplicate1 = envelope("b1");
+        var duplicate2 = envelope("b2");
         given(duplicateFinder.findIn("C"))
             .willReturn(asList(
-                envelope("b1"),
-                envelope("b2")
+                duplicate1,
+                duplicate2
             ));
 
         doThrow(RuntimeException.class)
             .when(blobMover)
-            .moveToRejectedContainer("b1", "C"); // fail on first file
+            .moveToRejectedContainer(duplicate1.fileName, "C"); // fail on first file
 
         // when
         handler.handle();
 
         // then
-        verify(blobMover).moveToRejectedContainer("b2", "C");
-        verify(envelopeService).saveEvent("C", "b2", EventType.DUPLICATE_REJECTED);
+        verify(blobMover).moveToRejectedContainer(duplicate2.fileName, "C");
+        verify(envelopeService).saveEvent(duplicate2.id, EventType.DUPLICATE_REJECTED);
     }
 
     private Envelope envelope(String name) {

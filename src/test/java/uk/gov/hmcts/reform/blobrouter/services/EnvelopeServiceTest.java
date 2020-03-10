@@ -10,9 +10,9 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventRecordRepository;
+import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
-import uk.gov.hmcts.reform.blobrouter.data.events.NewEventRecord;
+import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
@@ -42,7 +42,7 @@ class EnvelopeServiceTest {
     private EnvelopeRepository envelopeRepository;
 
     @Mock
-    private EventRecordRepository eventRecordRepository;
+    private EnvelopeEventRepository eventRepository;
 
     private EnvelopeService envelopeService;
 
@@ -50,7 +50,7 @@ class EnvelopeServiceTest {
     void setUp() {
         envelopeService = new EnvelopeService(
             envelopeRepository,
-            eventRecordRepository
+            eventRepository
         );
     }
 
@@ -61,7 +61,7 @@ class EnvelopeServiceTest {
 
         // then
         verify(envelopeRepository).find(BLOB_NAME, CONTAINER_NAME);
-        verifyNoInteractions(eventRecordRepository);
+        verifyNoInteractions(eventRepository);
     }
 
     @Test
@@ -77,13 +77,13 @@ class EnvelopeServiceTest {
         assertThat(id).isEqualTo(idFromDb);
 
         var newEnvelopeCaptor = ArgumentCaptor.forClass(NewEnvelope.class);
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
+        var newEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
 
         verify(envelopeRepository).insert(newEnvelopeCaptor.capture());
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
+        verify(eventRepository).insert(newEventCaptor.capture());
 
         var envelope = newEnvelopeCaptor.getValue();
-        var event = newEventRecordCaptor.getValue();
+        var event = newEventCaptor.getValue();
 
         assertThat(envelope.fileName).isEqualTo(BLOB_NAME);
         assertThat(envelope.container).isEqualTo(CONTAINER_NAME);
@@ -91,9 +91,7 @@ class EnvelopeServiceTest {
         assertThat(envelope.dispatchedAt).isNull();
         assertThat(envelope.fileCreatedAt).isEqualTo(BLOB_CREATED);
 
-        assertThat(event.fileName).isEqualTo(BLOB_NAME);
-        assertThat(event.container).isEqualTo(CONTAINER_NAME);
-        assertThat(event.event).isEqualTo(EventType.FILE_PROCESSING_STARTED);
+        assertThat(event.type).isEqualTo(EventType.FILE_PROCESSING_STARTED);
         assertThat(event.notes).isNull();
     }
 
@@ -106,7 +104,7 @@ class EnvelopeServiceTest {
         // then
         verify(envelopeRepository).find(Status.DISPATCHED, CONTAINER_NAME, false);
         verify(envelopeRepository).find(Status.REJECTED, false);
-        verifyNoInteractions(eventRecordRepository);
+        verifyNoInteractions(eventRepository);
     }
 
     @Test
@@ -130,26 +128,28 @@ class EnvelopeServiceTest {
         verify(envelopeRepository).markAsDeleted(envelope.id);
 
         // and (will be enabled once events recorded)
-        var newEventRecordCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository).insert(newEventRecordCaptor.capture());
-        assertThat(newEventRecordCaptor.getValue().event).isEqualTo(EventType.DELETED);
+        var newEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(eventRepository).insert(newEventCaptor.capture());
+        assertThat(newEventCaptor.getValue().type).isEqualTo(EventType.DELETED);
     }
 
     @Test
     void should_record_event() {
-        Stream.of(EventType.values()).forEach(event -> {
+        Stream.of(EventType.values()).forEach(eventType -> {
+            // given
+            var envelopeId = UUID.randomUUID();
+
             // when
-            envelopeService.saveEvent("c", "f", event);
+            envelopeService.saveEvent(envelopeId, eventType);
 
             // then
-            var eventCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-            verify(eventRecordRepository).insert(eventCaptor.capture());
+            var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+            verify(eventRepository).insert(eventCaptor.capture());
 
-            assertThat(eventCaptor.getValue().container).isEqualTo("c");
-            assertThat(eventCaptor.getValue().fileName).isEqualTo("f");
-            assertThat(eventCaptor.getValue().event).isEqualTo(event);
+            assertThat(eventCaptor.getValue().envelopeId).isEqualTo(envelopeId);
+            assertThat(eventCaptor.getValue().type).isEqualTo(eventType);
 
-            reset(eventRecordRepository);
+            reset(eventRepository);
         });
     }
 
@@ -167,12 +167,11 @@ class EnvelopeServiceTest {
         verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.DISPATCHED);
         verify(envelopeRepository).updateDispatchDateTime(eq(existingEnvelope.id), any());
 
-        var eventCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository).insert(eventCaptor.capture());
+        var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(eventRepository).insert(eventCaptor.capture());
 
-        assertThat(eventCaptor.getValue().fileName).isEqualTo(existingEnvelope.fileName);
-        assertThat(eventCaptor.getValue().container).isEqualTo(existingEnvelope.container);
-        assertThat(eventCaptor.getValue().event).isEqualTo(EventType.DISPATCHED);
+        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
+        assertThat(eventCaptor.getValue().type).isEqualTo(EventType.DISPATCHED);
     }
 
     @Test
@@ -204,12 +203,11 @@ class EnvelopeServiceTest {
         // then
         verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.REJECTED);
 
-        var eventCaptor = ArgumentCaptor.forClass(NewEventRecord.class);
-        verify(eventRecordRepository).insert(eventCaptor.capture());
+        var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(eventRepository).insert(eventCaptor.capture());
 
-        assertThat(eventCaptor.getValue().fileName).isEqualTo(existingEnvelope.fileName);
-        assertThat(eventCaptor.getValue().container).isEqualTo(existingEnvelope.container);
-        assertThat(eventCaptor.getValue().event).isEqualTo(EventType.REJECTED);
+        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
+        assertThat(eventCaptor.getValue().type).isEqualTo(EventType.REJECTED);
     }
 
     @Test
