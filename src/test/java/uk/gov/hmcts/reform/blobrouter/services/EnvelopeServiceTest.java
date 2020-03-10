@@ -198,7 +198,7 @@ class EnvelopeServiceTest {
             .willReturn(Optional.of(existingEnvelope));
 
         // when
-        envelopeService.markAsRejected(existingEnvelope.id);
+        envelopeService.markAsRejected(existingEnvelope.id, "some reason");
 
         // then
         verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.REJECTED);
@@ -208,6 +208,7 @@ class EnvelopeServiceTest {
 
         assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
         assertThat(eventCaptor.getValue().type).isEqualTo(EventType.REJECTED);
+        assertThat(eventCaptor.getValue().notes).isEqualTo("some reason");
     }
 
     @Test
@@ -218,7 +219,7 @@ class EnvelopeServiceTest {
             .willReturn(Optional.empty());
 
         // when
-        var exc = catchThrowable(() -> envelopeService.markAsRejected(notExistingId));
+        var exc = catchThrowable(() -> envelopeService.markAsRejected(notExistingId, "error"));
 
         // then
         assertThat(exc)

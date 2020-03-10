@@ -95,7 +95,7 @@ public class BlobProcessor {
                                 id
                             );
                         } else {
-                            envelopeService.markAsRejected(id);
+                            envelopeService.markAsRejected(id, verificationResult.error);
 
                             logger.error(
                                 "Rejected Blob. File name: {}, Container: {}, New envelope ID: {}, Reason: {}",
