@@ -51,6 +51,8 @@ public class BulkScanSasTokenCache {
 
     private class BulkScanSasTokenCacheExpiry implements Expiry<String, String> {
 
+        public static final String MESSAGE = "Invalid SAS, the SAS expiration time parameter not found.";
+
         @Override
         public long expireAfterCreate(
             @NonNull String containerName,
@@ -62,8 +64,7 @@ public class BulkScanSasTokenCache {
                 Constants.ISO_8601_UTC_DATE_FORMATTER.parse(
                     map.computeIfAbsent(
                         SAS_EXPIRY_TIME, key -> {
-                            throw new InvalidSasTokenException("Invalid SAS, "
-                                                                   + "the SAS expiration time parameter not found.");
+                            throw new InvalidSasTokenException(MESSAGE);
                         }
                     )
                 )
