@@ -8,10 +8,10 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventRecord;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventRecordRepository;
+import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
+import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
-import uk.gov.hmcts.reform.blobrouter.data.events.NewEventRecord;
+import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
@@ -25,14 +25,14 @@ import static java.time.Instant.now;
 public class EnvelopeService {
 
     private final EnvelopeRepository envelopeRepository;
-    private final EventRecordRepository eventRecordRepository;
+    private final EnvelopeEventRepository eventRepository;
 
     public EnvelopeService(
         EnvelopeRepository envelopeRepository,
-        EventRecordRepository eventRecordRepository
+        EnvelopeEventRepository eventRepository
     ) {
         this.envelopeRepository = envelopeRepository;
-        this.eventRecordRepository = eventRecordRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Transactional(readOnly = true)
@@ -47,7 +47,7 @@ public class EnvelopeService {
                 new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.CREATED)
             );
 
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, EventType.FILE_PROCESSING_STARTED));
+        eventRepository.insert(new NewEnvelopeEvent(id, EventType.FILE_PROCESSING_STARTED, null));
 
         return id;
     }
@@ -70,7 +70,7 @@ public class EnvelopeService {
                 env -> {
                     envelopeRepository.updateStatus(id, Status.DISPATCHED);
                     envelopeRepository.updateDispatchDateTime(id, now());
-                    eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, EventType.DISPATCHED));
+                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.DISPATCHED, null));
                 },
                 () -> {
                     throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
@@ -85,7 +85,7 @@ public class EnvelopeService {
             .ifPresentOrElse(
                 env -> {
                     envelopeRepository.updateStatus(id, Status.REJECTED);
-                    eventRecordRepository.insert(new NewEventRecord(env.container, env.fileName, EventType.REJECTED));
+                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.REJECTED, null));
                 },
                 () -> {
                     throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
@@ -96,20 +96,20 @@ public class EnvelopeService {
     @Transactional
     public void markEnvelopeAsDeleted(Envelope envelope) {
         envelopeRepository.markAsDeleted(envelope.id);
-        eventRecordRepository.insert(new NewEventRecord(envelope.container, envelope.fileName, EventType.DELETED));
+        eventRepository.insert(new NewEnvelopeEvent(envelope.id, EventType.DELETED, null));
     }
 
     @Transactional
-    public void saveEvent(String containerName, String blobName, EventType eventType) {
-        eventRecordRepository.insert(new NewEventRecord(containerName, blobName, eventType));
+    public void saveEvent(UUID envelopeId, EventType eventType) {
+        eventRepository.insert(new NewEnvelopeEvent(envelopeId, eventType, null));
     }
 
     @Transactional(readOnly = true)
-    public Optional<Tuple2<Envelope, List<EventRecord>>> getEnvelopeInfo(String blobName, String containerName) {
+    public Optional<Tuple2<Envelope, List<EnvelopeEvent>>> getEnvelopeInfo(String blobName, String containerName) {
         return findEnvelope(blobName, containerName)
             .map(envelope -> Tuples.of(
                 envelope,
-                eventRecordRepository.find(containerName, blobName)
+                eventRepository.findForEnvelope(envelope.id)
             ));
     }
 }

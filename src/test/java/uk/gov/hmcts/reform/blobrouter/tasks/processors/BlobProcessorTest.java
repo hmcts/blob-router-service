@@ -254,7 +254,7 @@ class BlobProcessorTest {
 
         // then
         verify(envelopeService, times(0)).createNewEnvelope(any(), any(), any());
-        verify(envelopeService, times(0)).saveEvent(any(), any(), any());
+        verify(envelopeService, times(0)).saveEvent(any(), any());
         verify(verifier, times(0)).verifyZip(any(), any());
     }
 

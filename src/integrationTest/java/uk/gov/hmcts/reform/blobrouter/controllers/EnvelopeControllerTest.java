@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventRecord;
+import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 
 import java.util.Arrays;
@@ -45,26 +45,24 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             Status.DISPATCHED,
             false
         );
-        EventRecord eventRecordInDb1 = new EventRecord(
+        var eventRecordInDb1 = new EnvelopeEvent(
             1,
-            container,
-            fileName,
-            now(),
+            envelopeInDb.id,
             EventType.FILE_PROCESSING_STARTED,
-            null
+            null,
+            now()
         );
-        EventRecord eventRecordInDb2 = new EventRecord(
+        var eventRecordInDb2 = new EnvelopeEvent(
             2,
-            container,
-            fileName,
-            now(),
+            envelopeInDb.id,
             EventType.DISPATCHED,
-            null
+            null,
+            now()
         );
 
         given(envelopeRepo.find(fileName, container))
             .willReturn(Optional.of(envelopeInDb));
-        given(eventRecordRepo.find(container, fileName))
+        given(eventRecordRepo.findForEnvelope(envelopeInDb.id))
             .willReturn(Arrays.asList(
                 eventRecordInDb1,
                 eventRecordInDb2
