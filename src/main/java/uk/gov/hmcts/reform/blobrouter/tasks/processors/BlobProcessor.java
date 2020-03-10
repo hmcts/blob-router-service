@@ -113,7 +113,7 @@ public class BlobProcessor {
                     }
                 },
                 () -> logger.info(
-                    "Cannot acquire a lease for blob. File name: {}, container: {}",
+                    "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
                     blobName,
                     containerName
                 )

@@ -12,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -51,20 +50,5 @@ class LeaseAcquirerTest {
 
         // then
         assertThat(result).isEmpty();
-    }
-
-    @Test
-    void should_throw_exception_if_lease_cannot_be_acquired_for_unknown_reason() {
-        // given
-        given(blobStorageException.getErrorCode()).willReturn(BlobErrorCode.INTERNAL_ERROR);
-        doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
-
-        var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
-
-        // when
-        var exc = catchThrowable(() -> leaseAcquirer.acquireFor(blobClient));
-
-        // then
-        assertThat(exc).isEqualTo(blobStorageException);
     }
 }
