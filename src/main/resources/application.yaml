@@ -96,6 +96,7 @@ scheduling:
       ttl: PT72H # ISO-8601
       cron: 0 0 6 * * *
     check-new-envelopes:
+      time-interval: PT60M # ISO-8601
       cron: ${CHECK_NEW_ENVELOPES_CRON}
       enabled: true
     scan:
