@@ -120,7 +120,7 @@ class BulkScanSasTokenCacheTest {
     }
 
     @Test
-    void should_remove_from_cache_when_cache_invalidated() {
+    void should_remove_sas_token_from_cache_when_it_is_invalidated() {
         String containerName = "container123";
 
         String expiryDate = Constants.ISO_8601_UTC_DATE_FORMATTER
