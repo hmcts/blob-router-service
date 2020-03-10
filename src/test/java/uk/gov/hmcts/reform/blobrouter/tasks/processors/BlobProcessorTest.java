@@ -128,7 +128,7 @@ class BlobProcessorTest {
         String fileName = "envelope1.zip";
         blobExists(fileName, SOURCE_CONTAINER, blobCreationTime, BLOB_CONTENT);
 
-        given(verifier.verifyZip(any(), any())).willReturn(error("error"));
+        given(verifier.verifyZip(any(), any())).willReturn(error("some error"));
 
         // when
         newBlobProcessor().process(blobClient);
@@ -136,7 +136,7 @@ class BlobProcessorTest {
         // then
         verifyNoInteractions(blobDispatcher);
         verifyNewEnvelopeHasBeenCreated();
-        verify(envelopeService).markAsRejected(id);
+        verify(envelopeService).markAsRejected(id, "some error");
     }
 
     @Test
