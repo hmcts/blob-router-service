@@ -48,14 +48,10 @@ public class SendDailyReportTask {
         this.emailSender = emailSender;
         this.from = from;
 
-        if (recipients == null) {
-            this.recipients = new String[0];
+        if (recipients == null || recipients.length == 0) {
+            throw new RuntimeException("No recipients configured for reports");
         } else {
             this.recipients = Arrays.copyOf(recipients, recipients.length);
-        }
-
-        if (this.recipients.length == 0) {
-            throw new RuntimeException("No recipients configured for reports");
         }
     }
     // endregion
