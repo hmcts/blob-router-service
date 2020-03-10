@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 import static com.azure.storage.common.implementation.Constants.UrlConstants.SAS_EXPIRY_TIME;
 import static com.azure.storage.common.implementation.StorageImplUtils.parseQueryString;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
-import static uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSasTokenException.EXPIRY_NOT_FOUND;
 
 @Service
 public class BulkScanSasTokenCache {
@@ -43,7 +42,7 @@ public class BulkScanSasTokenCache {
     }
 
     public String getSasToken(String containerName) {
-        return tokenCache.get(containerName, conName -> this.createSasToken(conName));
+        return tokenCache.get(containerName, c -> this.createSasToken(c));
     }
 
     private String createSasToken(String containerName) {
@@ -55,13 +54,15 @@ public class BulkScanSasTokenCache {
         @Override
         public long expireAfterCreate(
             @NonNull String containerName,
-            @NonNull String sasToken, long currentTime) {
+            @NonNull String sasToken, long currentTime
+        ) {
             Map<String, String> map = parseQueryString(sasToken);
             return calculateTimeToExpire(
                 Constants.ISO_8601_UTC_DATE_FORMATTER.parse(
                     map.computeIfAbsent(
                         SAS_EXPIRY_TIME, key -> {
-                            throw new InvalidSasTokenException(EXPIRY_NOT_FOUND);
+                            throw new InvalidSasTokenException("Invalid SAS, "
+                                                                   + "the SAS expiration time parameter not found.");
                         }
                     )
                 )
@@ -70,24 +71,41 @@ public class BulkScanSasTokenCache {
 
         @Override
         public long expireAfterUpdate(
-            @NonNull String containerName, @NonNull String sasToken, long currentTime,
-            @NonNegative long currentDuration) {
+            @NonNull String containerName,
+            @NonNull String sasToken,
+            long currentTime,
+            @NonNegative long currentDuration
+        ) {
             return expireAfterCreate(containerName, sasToken, currentTime);
         }
 
         @Override
         public long expireAfterRead(
-            @NonNull String containerName, @NonNull String sasToken, long currentTime,
-            @NonNegative long currentDuration) {
+            @NonNull String containerName,
+            @NonNull String sasToken,
+            long currentTime,
+            @NonNegative long currentDuration
+        ) {
             return currentDuration;
         }
 
+        /**
+         * calculates the remaining time to expire
+         * Do not wait for the full time for expiry if remaining time is less
+         * or equal to refreshSasBeforeExpiry it means cached value is expired.
+         * calculation:
+         * expirytime - (currenttime + refreshSasBeforeExpiry) = remaining time to expire in nano seconds
+         *
+         * @param expiry expiry time for sas token
+         * @return remaining time to expire in nano secs,
+         */
         private long calculateTimeToExpire(TemporalAccessor expiry) {
             return
                 TimeUnit.NANOSECONDS.convert(
                     expiry.getLong(INSTANT_SECONDS)
                         - (OffsetDateTime.now(ZoneOffset.UTC).getLong(INSTANT_SECONDS) + refreshSasBeforeExpiry),
-                    TimeUnit.SECONDS);
+                    TimeUnit.SECONDS
+                );
         }
     }
 }

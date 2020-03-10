@@ -9,11 +9,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.SasTokenResponse;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSasTokenException;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,7 +39,7 @@ class BulkScanSasTokenCacheTest {
     }
 
     @Test
-    void should_create_sas_token() {
+    void should_create_sas_token_when_no_error() {
         String containerName = "container123";
         String token = "sig=examplesign%3D&se=2020-03-05T14%3A54%3A20Z&sv=2019-02-02&sp=wl&sr=c";
         var sasTokenResponse = new SasTokenResponse(token);
@@ -52,7 +54,20 @@ class BulkScanSasTokenCacheTest {
     }
 
     @Test
-    void should_retrieve_sas_token_from_cache() {
+    void should_throw_exception_when_sas_expiry_missing() {
+        String containerName = "container123";
+        String token = "sig=examplesign%3D&sv=2019-02-02&sp=wl&sr=c";
+        var sasTokenResponse = new SasTokenResponse(token);
+
+        given(bulkScanProcessorClient.getSasToken(containerName)).willReturn(sasTokenResponse);
+
+        assertThatThrownBy(() -> bulkScanContainerClientCache.getSasToken(containerName))
+            .isInstanceOf(InvalidSasTokenException.class)
+            .hasMessageContaining("Invalid SAS, the SAS expiration time parameter not found.");
+    }
+
+    @Test
+    void should_retrieve_sas_token_from_cache_when_value_in_cache() {
         String containerName = "container123";
 
         String expiryDate = Constants.ISO_8601_UTC_DATE_FORMATTER
@@ -75,7 +90,7 @@ class BulkScanSasTokenCacheTest {
     }
 
     @Test
-    void should_create_new_sas_token_when_it_is_expired() {
+    void should_create_new_sas_token_when_cache_is_expired() {
         String containerName = "container123";
 
         String expiredDate = Constants.ISO_8601_UTC_DATE_FORMATTER
