@@ -128,8 +128,7 @@ class BulkScanSasTokenCacheTest {
 
         String token1 = "sig=explesign%3D&se=" + Utility.urlEncode(expiryDate) + "&sv=2019-02-02&sp=kk&sr=k";
 
-        String token2 = "sig=edddamplesign%3D&se="+  Utility.urlEncode(expiryDate) +"&sv=2019-02-02&sp=wl&sr=c";
-
+        String token2 = "sig=edddamplesign%3D&se=" + Utility.urlEncode(expiryDate) + "&sv=2019-02-02&sp=wl&sr=c";
 
         given(bulkScanProcessorClient.getSasToken(containerName))
             .willReturn(new SasTokenResponse(token1),new SasTokenResponse(token2));
