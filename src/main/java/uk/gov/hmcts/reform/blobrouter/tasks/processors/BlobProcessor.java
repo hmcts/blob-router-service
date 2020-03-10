@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
@@ -67,9 +68,8 @@ public class BlobProcessor {
             .acquireFor(blobClient)
             .ifPresentOrElse(
                 leaseClient -> {
+                    UUID id = envelopeService.createNewEnvelope(containerName, blobName, blobCreationDate);
                     try {
-                        UUID id = envelopeService.createNewEnvelope(containerName, blobName, blobCreationDate);
-
                         byte[] rawBlob = tryToDownloadBlob(blobClient);
 
                         var verificationResult = blobVerifier.verifyZip(blobName, rawBlob);
@@ -95,7 +95,7 @@ public class BlobProcessor {
                                 id
                             );
                         } else {
-                            envelopeService.markAsRejected(id);
+                            envelopeService.markAsRejected(id, verificationResult.error);
 
                             logger.error(
                                 "Rejected Blob. File name: {}, Container: {}, New envelope ID: {}, Reason: {}",
@@ -107,7 +107,7 @@ public class BlobProcessor {
                             // TODO send notification to Exela
                         }
                     } catch (Exception exception) {
-                        handleError(exception, blobClient);
+                        handleError(id, blobClient, exception);
                     } finally {
                         tryToReleaseLease(leaseClient, blobName, containerName);
                     }
@@ -170,8 +170,14 @@ public class BlobProcessor {
         }
     }
 
-    private void handleError(Exception exc, BlobClient blob) {
-        logger.error("Error occurred while processing {} from {}", blob.getBlobName(), blob.getContainerName(), exc);
-        // TODO: save error event
+    private void handleError(UUID envelopeId, BlobClient blob, Exception exc) {
+        logger.error(
+            "Error occurred while processing blob. File name: {}, Container: {}, Envelope ID: {}",
+            blob.getBlobName(),
+            blob.getContainerName(),
+            envelopeId,
+            exc
+        );
+        envelopeService.saveEvent(envelopeId, EventType.ERROR);
     }
 }

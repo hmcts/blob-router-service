@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -90,6 +91,9 @@ class BlobProcessorTest {
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
+
+        // and error event has been created
+        verify(envelopeService).saveEvent(id, EventType.ERROR);
     }
 
     @Test
@@ -128,7 +132,7 @@ class BlobProcessorTest {
         String fileName = "envelope1.zip";
         blobExists(fileName, SOURCE_CONTAINER, blobCreationTime, BLOB_CONTENT);
 
-        given(verifier.verifyZip(any(), any())).willReturn(error("error"));
+        given(verifier.verifyZip(any(), any())).willReturn(error("some error"));
 
         // when
         newBlobProcessor().process(blobClient);
@@ -136,7 +140,7 @@ class BlobProcessorTest {
         // then
         verifyNoInteractions(blobDispatcher);
         verifyNewEnvelopeHasBeenCreated();
-        verify(envelopeService).markAsRejected(id);
+        verify(envelopeService).markAsRejected(id, "some error");
     }
 
     @Test
