@@ -56,7 +56,7 @@ public class NewEnvelopesFinder {
 
     private void checkNewEnvelopesInContainers(Set<String> containers, String containersGroupName) {
         Instant toDateTime = Instant.now();
-        Instant fromDateTime = toDateTime.minusSeconds(timeInterval.getSeconds());
+        Instant fromDateTime = toDateTime.minus(timeInterval);
 
         Integer envelopesCount = envelopeRepository.getEnvelopesCount(containers, fromDateTime, toDateTime);
 
