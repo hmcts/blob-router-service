@@ -9,6 +9,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSasTokenException;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import static com.azure.storage.common.implementation.Constants.UrlConstants.SAS_EXPIRY_TIME;
 import static com.azure.storage.common.implementation.StorageImplUtils.parseQueryString;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
+import static uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSasTokenException.EXPIRY_NOT_FOUND;
 
 @Service
 public class BulkScanSasTokenCache {
@@ -26,6 +28,7 @@ public class BulkScanSasTokenCache {
     private final BulkScanProcessorClient bulkScanSasTokenClient;
     private final long refreshSasBeforeExpiry;
 
+    //key= container name, value = sastoken
     private static Cache<String, String> tokenCache;
 
     public BulkScanSasTokenCache(
@@ -35,7 +38,7 @@ public class BulkScanSasTokenCache {
         this.bulkScanSasTokenClient = bulkScanSasTokenClient;
         this.refreshSasBeforeExpiry = refreshSasBeforeExpiry;
         tokenCache = Caffeine.newBuilder()
-            .expireAfter(new BulkScanContainerCacheExpiry())
+            .expireAfter(new BulkScanSasTokenCacheExpiry())
             .build();
     }
 
@@ -47,36 +50,44 @@ public class BulkScanSasTokenCache {
         return bulkScanSasTokenClient.getSasToken(containerName).sasToken;
     }
 
-    private long calculateTimeToExpire(TemporalAccessor expiry) {
-        return
-            TimeUnit.NANOSECONDS.convert(
-                expiry.getLong(INSTANT_SECONDS)
-                    - (OffsetDateTime.now(ZoneOffset.UTC).getLong(INSTANT_SECONDS) + refreshSasBeforeExpiry),
-                TimeUnit.SECONDS);
-    }
-
-    private class BulkScanContainerCacheExpiry implements Expiry<String, String> {
+    private class BulkScanSasTokenCacheExpiry implements Expiry<String, String> {
 
         @Override
         public long expireAfterCreate(
-            @NonNull String key,
+            @NonNull String containerName,
             @NonNull String sasToken, long currentTime) {
             Map<String, String> map = parseQueryString(sasToken);
-            return calculateTimeToExpire(Constants.ISO_8601_UTC_DATE_FORMATTER.parse(map.get(SAS_EXPIRY_TIME)));
+            return calculateTimeToExpire(
+                Constants.ISO_8601_UTC_DATE_FORMATTER.parse(
+                    map.computeIfAbsent(
+                        SAS_EXPIRY_TIME, key -> {
+                            throw new InvalidSasTokenException(EXPIRY_NOT_FOUND);
+                        }
+                    )
+                )
+            );
         }
 
         @Override
         public long expireAfterUpdate(
-            @NonNull String key, @NonNull String value, long currentTime,
+            @NonNull String containerName, @NonNull String sasToken, long currentTime,
             @NonNegative long currentDuration) {
-            return currentDuration;
+            return expireAfterCreate(containerName, sasToken, currentTime);
         }
 
         @Override
         public long expireAfterRead(
-            @NonNull String key, @NonNull String value, long currentTime,
+            @NonNull String containerName, @NonNull String sasToken, long currentTime,
             @NonNegative long currentDuration) {
             return currentDuration;
+        }
+
+        private long calculateTimeToExpire(TemporalAccessor expiry) {
+            return
+                TimeUnit.NANOSECONDS.convert(
+                    expiry.getLong(INSTANT_SECONDS)
+                        - (OffsetDateTime.now(ZoneOffset.UTC).getLong(INSTANT_SECONDS) + refreshSasBeforeExpiry),
+                    TimeUnit.SECONDS);
         }
     }
 }
