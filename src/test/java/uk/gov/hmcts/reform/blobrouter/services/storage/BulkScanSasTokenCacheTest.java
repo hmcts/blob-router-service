@@ -119,4 +119,34 @@ class BulkScanSasTokenCacheTest {
         verify(bulkScanProcessorClient,times(2)).getSasToken(containerName);
     }
 
+    @Test
+    void should_remove_from_cache_when_cache_invalidated() {
+        String containerName = "container123";
+
+        String expiryDate = Constants.ISO_8601_UTC_DATE_FORMATTER
+            .format(OffsetDateTime.now(ZoneOffset.UTC).plusSeconds(refreshSasBeforeExpiry).plusSeconds(30));
+
+        String token1 = "sig=explesign%3D&se=" + Utility.urlEncode(expiryDate) + "&sv=2019-02-02&sp=kk&sr=k";
+
+        String token2 = "sig=edddamplesign%3D&se="+  Utility.urlEncode(expiryDate) +"&sv=2019-02-02&sp=wl&sr=c";
+
+
+        given(bulkScanProcessorClient.getSasToken(containerName))
+            .willReturn(new SasTokenResponse(token1),new SasTokenResponse(token2));
+
+        String sasToken1 =
+            bulkScanContainerClientCache.getSasToken(containerName);
+
+        bulkScanContainerClientCache.removeFromCache(containerName);
+
+        String sasToken2 =
+            bulkScanContainerClientCache.getSasToken(containerName);
+
+        assertThat(sasToken1).isEqualTo(token1);
+        assertThat(sasToken2).isEqualTo(token2);
+        assertThat(sasToken1).isNotEqualTo(sasToken2);
+
+        verify(bulkScanProcessorClient,times(2)).getSasToken(containerName);
+    }
+
 }
