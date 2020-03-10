@@ -1,9 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobProperties;
-import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,24 +13,24 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -65,13 +63,14 @@ class BlobProcessorTest {
     @Mock EnvelopeService envelopeService;
     @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
-    @Mock BlobStorageException blobStorageException;
+    @Mock LeaseAcquirer leaseAcquirer;
 
     @Test
     void should_not_update_envelope_status_when_upload_failed() {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
@@ -98,6 +97,7 @@ class BlobProcessorTest {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
@@ -120,6 +120,7 @@ class BlobProcessorTest {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
 
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
@@ -150,6 +151,7 @@ class BlobProcessorTest {
 
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
 
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(ok());
@@ -177,6 +179,7 @@ class BlobProcessorTest {
 
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
 
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(ok());
@@ -201,6 +204,8 @@ class BlobProcessorTest {
         blobExists("envelope1.zip", sourceContainerName, OffsetDateTime.now(), "not zip file's content".getBytes());
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
+
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
 
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(ok());
@@ -228,6 +233,8 @@ class BlobProcessorTest {
 
         setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
 
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
+
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
@@ -241,13 +248,10 @@ class BlobProcessorTest {
     @Test
     void should_not_create_envelope_or_events_when_lease_cant_be_acquired() {
         // given
-        given(blobStorageException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.empty());
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
         String fileName = "envelope1.zip";
         blobExists(fileName, SOURCE_CONTAINER, OffsetDateTime.now(), BLOB_CONTENT);
-
-        doThrow(blobStorageException)
-            .when(blobLeaseClient).acquireLease(anyInt());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -330,7 +334,7 @@ class BlobProcessorTest {
         return new BlobProcessor(
             this.blobDispatcher,
             this.envelopeService,
-            blobClient -> blobLeaseClient,
+            this.leaseAcquirer,
             this.verifier,
             this.serviceConfiguration
         );
