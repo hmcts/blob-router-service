@@ -48,14 +48,10 @@ public class SendDailyReportTask {
         this.emailSender = emailSender;
         this.from = from;
 
-        if (recipients == null) {
-            this.recipients = new String[0];
+        if (recipients == null || recipients.length == 0) {
+            throw new RuntimeException("No recipients configured for reports");
         } else {
             this.recipients = Arrays.copyOf(recipients, recipients.length);
-        }
-
-        if (this.recipients.length == 0) {
-            throw new RuntimeException("No recipients configured for reports");
         }
     }
     // endregion
@@ -63,6 +59,8 @@ public class SendDailyReportTask {
     @Scheduled(cron = "${scheduling.task.send-daily-report.cron}")
     @SchedulerLock(name = TASK_NAME)
     public void sendReport() {
+        logger.info("Started {} job", TASK_NAME);
+
         final LocalDate reportDate = LocalDate.now();
 
         final List<EnvelopeSummaryItem> report = reportService.getDailyReport(reportDate);
@@ -79,11 +77,13 @@ public class SendDailyReportTask {
             );
         } catch (Exception ex) {
             logger.error(
-                "Error sending daily report: {}",
+                "Error sending daily report for the date: {}",
                 reportDate,
                 ex
             );
         }
+
+        logger.info("Finished {} job", TASK_NAME);
     }
 
     private String getReportAttachmentName(LocalDate reportDate) {
