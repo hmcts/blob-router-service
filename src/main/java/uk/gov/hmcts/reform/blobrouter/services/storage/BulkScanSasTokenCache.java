@@ -45,6 +45,10 @@ public class BulkScanSasTokenCache {
         return tokenCache.get(containerName, c -> this.createSasToken(c));
     }
 
+    public void removeFromCache(String containerName) {
+        tokenCache.invalidate(containerName);
+    }
+
     private String createSasToken(String containerName) {
         return bulkScanSasTokenClient.getSasToken(containerName).sasToken;
     }
