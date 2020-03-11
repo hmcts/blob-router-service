@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.tasks;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,10 +37,6 @@ class SendDailyReportTaskTest {
     @Mock
     private EmailSender emailSender;
 
-    private static final String FROM = "From";
-
-    private String[] recipients = new String[]{"rec1", "rec2"};
-
     @Mock
     private List<EnvelopeSummaryItem> report;
 
@@ -63,20 +58,15 @@ class SendDailyReportTaskTest {
     @Captor
     private ArgumentCaptor<Map<String, File>> attachmentsCaptor;
 
-    @BeforeEach
-    void setUp() {
-        sendDailyReportTask = new SendDailyReportTask(
-            reportService,
-            reportCsvWriter,
-            emailSender,
-            FROM,
-            recipients
-        );
-    }
-
     @Test
     void sendReport_should_call_email_sender() throws Exception {
         // given
+        String from = "From";
+
+        String[] recipients = new String[]{"rec1", "rec2"};
+
+        sendDailyReportTask = getSendDailyReportTask(from, recipients);
+
         given(reportService.getDailyReport(any(LocalDate.class))).willReturn(report);
         given(reportCsvWriter.writeEnvelopesSummaryToCsv(report)).willReturn(reportFile);
 
@@ -96,7 +86,7 @@ class SendDailyReportTaskTest {
 
         assertThat(subjectCaptor.getValue()).isEqualTo(SendDailyReportTask.EMAIL_SUBJECT);
         assertThat(bodyCaptor.getValue()).isEqualTo(SendDailyReportTask.EMAIL_BODY);
-        assertThat(fromCaptor.getValue()).isEqualTo(FROM);
+        assertThat(fromCaptor.getValue()).isEqualTo(from);
         assertThat(recipientsCaptor.getValue()).isEqualTo(recipients);
 
         final Map<String, File> attachments = attachmentsCaptor.getValue();
@@ -113,6 +103,12 @@ class SendDailyReportTaskTest {
     @Test
     void sendReport_should_not_call_email_sender_if_csv_writer_throws() throws Exception {
         // given
+        String from = "From";
+
+        String[] recipients = new String[]{"rec1", "rec2"};
+
+        sendDailyReportTask = getSendDailyReportTask(from, recipients);
+
         given(reportService.getDailyReport(any(LocalDate.class))).willReturn(report);
         given(reportCsvWriter.writeEnvelopesSummaryToCsv(report)).willThrow(new IOException());
 
@@ -129,13 +125,17 @@ class SendDailyReportTaskTest {
     void should_throw_if_empty_recipients() {
         assertThrows(
             RuntimeException.class,
-            () -> new SendDailyReportTask(
-                reportService,
-                reportCsvWriter,
-                emailSender,
-                FROM,
-                new String[]{}
-            )
+            () -> getSendDailyReportTask("From", new String[]{})
+        );
+    }
+
+    private SendDailyReportTask getSendDailyReportTask(String from, String[] recipients) {
+        return new SendDailyReportTask(
+            reportService,
+            reportCsvWriter,
+            emailSender,
+            from,
+            recipients
         );
     }
 }
