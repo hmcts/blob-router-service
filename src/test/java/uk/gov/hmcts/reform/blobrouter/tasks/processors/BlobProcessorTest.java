@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
+import com.azure.core.http.HttpResponse;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,10 +34,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
@@ -88,6 +92,63 @@ class BlobProcessorTest {
 
         // dispatcher has been called
         verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
+
+        // but the envelope has not been marked as dispatched
+        verify(envelopeService, never()).markAsDispatched(any());
+
+        // and error event has been created
+        verify(envelopeService).saveEvent(id, EventType.ERROR);
+    }
+
+    @Test
+    void should_not_update_envelope_status_when_blob_is_blocked_for_download() {
+        // given
+        var id = UUID.randomUUID();
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
+        blobExists("envelope1.zip", SOURCE_CONTAINER);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+
+        HttpResponse errorResponse = mock(HttpResponse.class);
+        given(errorResponse.getStatusCode()).willReturn(BAD_GATEWAY.value());
+
+        willThrow(new BlobStorageException("test", errorResponse, null))
+            .given(blobClient)
+            .download(any());
+
+        // when
+        newBlobProcessor().process(blobClient);
+
+        // then
+        verifyNewEnvelopeHasBeenCreated();
+
+        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
+
+        // but the envelope has not been marked as dispatched
+        verify(envelopeService, never()).markAsDispatched(any());
+
+        // and error event has been created
+        verify(envelopeService).saveEvent(id, EventType.ERROR);
+    }
+
+    @Test
+    void should_not_update_envelope_status_when_blob_download_fails_for_unknown_reason() {
+        // given
+        var id = UUID.randomUUID();
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
+        blobExists("envelope1.zip", SOURCE_CONTAINER);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+
+        willThrow(new RuntimeException("test")).given(blobClient).download(any());
+
+        // when
+        newBlobProcessor().process(blobClient);
+
+        // then
+        verifyNewEnvelopeHasBeenCreated();
+
+        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
