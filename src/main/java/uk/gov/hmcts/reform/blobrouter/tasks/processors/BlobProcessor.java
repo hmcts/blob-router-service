@@ -29,12 +29,15 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
 @Component
 @EnableConfigurationProperties(ServiceConfiguration.class)
 public class BlobProcessor {
 
     private static final Logger logger = getLogger(BlobProcessor.class);
+
+    private static final String MESSAGE_FAILED_TO_DOWNLOAD_BLOB = "Failed to download blob";
 
     private final BlobDispatcher dispatcher;
     private final EnvelopeService envelopeService;
@@ -151,12 +154,14 @@ public class BlobProcessor {
             blobClient.download(outputStream);
 
             return outputStream.toByteArray();
-        } catch (Exception exc) {
-            String errorMessage = exc instanceof IOException
-                ? "Failed to download blob. Consider the possibility of antivirus software blocking the file."
-                : "Failed to download blob";
+        } catch (BlobStorageException exc) {
+            String errorMessage = exc.getStatusCode() == BAD_GATEWAY.value()
+                ? "Failed to download blob. It looks like antivirus software may be blocking the file."
+                : MESSAGE_FAILED_TO_DOWNLOAD_BLOB;
 
             throw new ZipFileLoadException(errorMessage, exc);
+        } catch (Exception exc) {
+            throw new ZipFileLoadException(MESSAGE_FAILED_TO_DOWNLOAD_BLOB, exc);
         }
     }
 
