@@ -42,7 +42,7 @@ public class EmailSenderTest {
 
     @BeforeEach
     void setUp() {
-        greenMail.setUser(USERNAME, PASSWORD);
+        greenMail.setUser(FROM_ADDRESS, USERNAME, PASSWORD);
     }
 
     @Test
@@ -58,8 +58,8 @@ public class EmailSenderTest {
             Map.of(FILE_NAME_1, file1, FILE_NAME_2, file2)
         );
 
+        assertThat(greenMail.getReceivedMessages()).hasSize(RECIPIENTS.length);
         MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
-
         assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
         assertThat(msg.getTo())
             .extracting(Address::toString)
@@ -86,8 +86,8 @@ public class EmailSenderTest {
             emptyMap()
         );
 
+        assertThat(greenMail.getReceivedMessages()).hasSize(RECIPIENTS.length);
         MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
-
         assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
         assertThat(msg.getTo())
             .extracting(Address::toString)
