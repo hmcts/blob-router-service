@@ -37,10 +37,6 @@ class SendDailyReportTaskTest {
     @Mock
     private EmailSender emailSender;
 
-    private static final String FROM = "From";
-
-    private String[] recipients = new String[]{"rec1", "rec2"};
-
     @Mock
     private List<EnvelopeSummaryItem> report;
 
@@ -65,7 +61,11 @@ class SendDailyReportTaskTest {
     @Test
     void sendReport_should_call_email_sender() throws Exception {
         // given
-        sendDailyReportTask = getSendDailyReportTask(recipients);
+        String from = "From";
+
+        String[] recipients = new String[]{"rec1", "rec2"};
+
+        sendDailyReportTask = getSendDailyReportTask(from, recipients);
 
         given(reportService.getDailyReport(any(LocalDate.class))).willReturn(report);
         given(reportCsvWriter.writeEnvelopesSummaryToCsv(report)).willReturn(reportFile);
@@ -86,7 +86,7 @@ class SendDailyReportTaskTest {
 
         assertThat(subjectCaptor.getValue()).isEqualTo(SendDailyReportTask.EMAIL_SUBJECT);
         assertThat(bodyCaptor.getValue()).isEqualTo(SendDailyReportTask.EMAIL_BODY);
-        assertThat(fromCaptor.getValue()).isEqualTo(FROM);
+        assertThat(fromCaptor.getValue()).isEqualTo(from);
         assertThat(recipientsCaptor.getValue()).isEqualTo(recipients);
 
         final Map<String, File> attachments = attachmentsCaptor.getValue();
@@ -103,7 +103,11 @@ class SendDailyReportTaskTest {
     @Test
     void sendReport_should_not_call_email_sender_if_csv_writer_throws() throws Exception {
         // given
-        sendDailyReportTask = getSendDailyReportTask(recipients);
+        String from = "From";
+
+        String[] recipients = new String[]{"rec1", "rec2"};
+
+        sendDailyReportTask = getSendDailyReportTask(from, recipients);
 
         given(reportService.getDailyReport(any(LocalDate.class))).willReturn(report);
         given(reportCsvWriter.writeEnvelopesSummaryToCsv(report)).willThrow(new IOException());
@@ -121,16 +125,16 @@ class SendDailyReportTaskTest {
     void should_throw_if_empty_recipients() {
         assertThrows(
             RuntimeException.class,
-            () -> getSendDailyReportTask(new String[]{})
+            () -> getSendDailyReportTask("From", new String[]{})
         );
     }
 
-    private SendDailyReportTask getSendDailyReportTask(String[] recipients) {
+    private SendDailyReportTask getSendDailyReportTask(String from, String[] recipients) {
         return new SendDailyReportTask(
             reportService,
             reportCsvWriter,
             emailSender,
-            FROM,
+            from,
             recipients
         );
     }
