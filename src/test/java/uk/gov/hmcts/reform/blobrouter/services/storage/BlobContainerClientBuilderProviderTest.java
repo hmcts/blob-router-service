@@ -17,7 +17,7 @@ class BlobContainerClientBuilderProviderTest {
         = new BlobContainerClientBuilderProvider(httpClient, "http://example.com");
 
     @Test
-    void getblobContainerClientBuilderProvider() {
+    void should_provide_builder() {
 
         BlobContainerClientBuilder blobContainerClientBuilder = blobContainerClientBuilderProvider
             .getBlobContainerClientBuilder();
