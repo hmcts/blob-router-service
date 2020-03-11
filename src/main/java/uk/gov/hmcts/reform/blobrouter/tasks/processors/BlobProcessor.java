@@ -21,7 +21,6 @@ import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -43,9 +42,7 @@ public class BlobProcessor {
     private final EnvelopeService envelopeService;
     private final LeaseAcquirer leaseAcquirer;
     private final BlobVerifier blobVerifier;
-
-    // container-specific configuration, by container name
-    private final Map<String, StorageConfigItem> storageConfig;
+    private final Map<String, StorageConfigItem> storageConfig; // container-specific configuration, by container name
 
     public BlobProcessor(
         BlobDispatcher dispatcher,
@@ -62,66 +59,74 @@ public class BlobProcessor {
     }
 
     public void process(BlobClient blobClient) {
-        String blobName = blobClient.getBlobName();
-        var containerName = blobClient.getContainerName();
-        Instant blobCreationDate = blobClient.getProperties().getLastModified().toInstant();
-
-        logger.info("Processing {} from {} container", blobName, containerName);
+        logger.info("Processing {} from {} container", blobClient.getBlobName(), blobClient.getContainerName());
 
         leaseAcquirer
             .acquireFor(blobClient)
             .ifPresentOrElse(
                 leaseClient -> {
-                    UUID id = envelopeService.createNewEnvelope(containerName, blobName, blobCreationDate);
+                    UUID id = envelopeService.createNewEnvelope(
+                        blobClient.getContainerName(),
+                        blobClient.getBlobName(),
+                        blobClient.getProperties().getLastModified().toInstant()
+                    );
                     try {
                         byte[] rawBlob = downloadBlob(blobClient);
 
-                        var verificationResult = blobVerifier.verifyZip(blobName, rawBlob);
+                        var verificationResult = blobVerifier.verifyZip(blobClient.getBlobName(), rawBlob);
 
                         if (verificationResult.isOk) {
-                            StorageConfigItem containerConfig = storageConfig.get(containerName);
-                            TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
-                            var targetContainerName = containerConfig.getTargetContainer();
-
-                            dispatcher.dispatch(
-                                blobName,
-                                getContentToUpload(rawBlob, targetStorageAccount),
-                                targetContainerName,
-                                targetStorageAccount
-                            );
-
-                            envelopeService.markAsDispatched(id);
-
-                            logger.info(
-                                "Finished processing {} from {} container. New envelope ID: {}",
-                                blobName,
-                                containerName,
-                                id
-                            );
+                            dispatch(blobClient, id, rawBlob);
                         } else {
-                            envelopeService.markAsRejected(id, verificationResult.error);
-
-                            logger.error(
-                                "Rejected Blob. File name: {}, Container: {}, New envelope ID: {}, Reason: {}",
-                                blobName,
-                                containerName,
-                                id,
-                                verificationResult.error
-                            );
-                            // TODO send notification to Exela
+                            reject(blobClient, id, verificationResult.error);
                         }
                     } catch (Exception exception) {
                         handleError(id, blobClient, exception);
                     } finally {
-                        tryToReleaseLease(leaseClient, blobName, containerName);
+                        tryToReleaseLease(leaseClient, blobClient.getBlobName(), blobClient.getContainerName());
                     }
                 },
                 () -> logger.info(
                     "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
-                    blobName,
-                    containerName
+                    blobClient.getBlobName(),
+                    blobClient.getContainerName()
                 )
             );
+    }
+
+    private void dispatch(BlobClient blob, UUID id, byte[] rawBlob) throws IOException {
+        StorageConfigItem containerConfig = storageConfig.get(blob.getContainerName());
+        TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
+        String targetContainerName = containerConfig.getTargetContainer();
+
+        dispatcher.dispatch(
+            blob.getBlobName(),
+            getContentToUpload(rawBlob, targetStorageAccount),
+            targetContainerName,
+            targetStorageAccount
+        );
+
+        envelopeService.markAsDispatched(id);
+
+        logger.info(
+            "Finished processing {} from {} container. New envelope ID: {}",
+            blob.getBlobName(),
+            blob.getContainerName(),
+            id
+        );
+    }
+
+    private void reject(BlobClient blob, UUID id, String reason) {
+        envelopeService.markAsRejected(id, reason);
+
+        logger.error(
+            "Rejected Blob. File name: {}, Container: {}, New envelope ID: {}, Reason: {}",
+            blob.getBlobName(),
+            blob.getContainerName(),
+            id,
+            reason
+        );
+        // TODO send notification to Exela
     }
 
     private byte[] getContentToUpload(
