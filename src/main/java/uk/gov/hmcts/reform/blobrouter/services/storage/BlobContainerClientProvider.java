@@ -42,12 +42,12 @@ public class BlobContainerClientProvider {
         }
     }
 
-    public void doUpdate(String blobName,
-                         byte[] blobContents,
-                         String destinationContainer,
-                         TargetStorageAccount targetStorageAccount
+    public void doUpdate(
+        String blobName,
+        byte[] blobContents,
+        String destinationContainer,
+        TargetStorageAccount targetStorageAccount
     ) {
-
         try {
             get(targetStorageAccount, destinationContainer)
                 .getBlobClient(blobName)
