@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
@@ -10,23 +9,24 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 public class BlobContainerClientProvider {
 
     private final BlobContainerClient crimeClient;
-    private final BlobContainerClientBuilder blobContainerClientBuilder;
+    private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
     private final BulkScanSasTokenCache bulkScanSasTokenCache;
 
     public BlobContainerClientProvider(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
-        @Qualifier("bulk-scan-blob-client-builder") BlobContainerClientBuilder blobContainerClientBuilder,
+        BlobContainerClientBuilderProvider blobContainerClientBuilderProvider,
         BulkScanSasTokenCache bulkScanSasTokenCache
     ) {
         this.crimeClient = crimeClient;
-        this.blobContainerClientBuilder = blobContainerClientBuilder;
+        this.blobContainerClientBuilderProvider = blobContainerClientBuilderProvider;
         this.bulkScanSasTokenCache = bulkScanSasTokenCache;
     }
 
     public BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
         switch (targetStorageAccount) {
             case BULKSCAN:
-                return blobContainerClientBuilder
+                return blobContainerClientBuilderProvider
+                    .getBlobContainerClientBuilder()
                     .sasToken(bulkScanSasTokenCache.getSasToken(containerName))
                     .containerName(containerName)
                     .buildClient();
