@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -28,12 +29,15 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
 @Component
 @EnableConfigurationProperties(ServiceConfiguration.class)
 public class BlobProcessor {
 
     private static final Logger logger = getLogger(BlobProcessor.class);
+
+    private static final String MESSAGE_FAILED_TO_DOWNLOAD_BLOB = "Failed to download blob";
 
     private final BlobDispatcher dispatcher;
     private final EnvelopeService envelopeService;
@@ -70,7 +74,7 @@ public class BlobProcessor {
                 leaseClient -> {
                     UUID id = envelopeService.createNewEnvelope(containerName, blobName, blobCreationDate);
                     try {
-                        byte[] rawBlob = tryToDownloadBlob(blobClient);
+                        byte[] rawBlob = downloadBlob(blobClient);
 
                         var verificationResult = blobVerifier.verifyZip(blobName, rawBlob);
 
@@ -145,11 +149,19 @@ public class BlobProcessor {
         }
     }
 
-    private byte[] tryToDownloadBlob(BlobClient blobClient) throws IOException {
+    private byte[] downloadBlob(BlobClient blobClient) throws IOException {
         try (var outputStream = new ByteArrayOutputStream()) {
             blobClient.download(outputStream);
 
             return outputStream.toByteArray();
+        } catch (BlobStorageException exc) {
+            String errorMessage = exc.getStatusCode() == BAD_GATEWAY.value()
+                ? "Failed to download blob. It looks like antivirus software may be blocking the file."
+                : MESSAGE_FAILED_TO_DOWNLOAD_BLOB;
+
+            throw new ZipFileLoadException(errorMessage, exc);
+        } catch (Exception exc) {
+            throw new ZipFileLoadException(MESSAGE_FAILED_TO_DOWNLOAD_BLOB, exc);
         }
     }
 
