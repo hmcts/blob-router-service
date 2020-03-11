@@ -37,7 +37,7 @@ public class NewEnvelopesFinder {
 
     private final Clock clock;
 
-    private static final int START_HOUR = 9;
+    private static final int START_HOUR = 10;
     private static final int END_HOUR = 18;
     private static final List<DayOfWeek> WEEKEND = Arrays.asList(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
 
@@ -95,6 +95,6 @@ public class NewEnvelopesFinder {
     private boolean isCurrentTimeInBusinessHours(Clock clock) {
         LocalDateTime now = LocalDateTime.now(clock);
         return !WEEKEND.contains(now.getDayOfWeek()) // not weekend
-            && now.getHour() > START_HOUR && now.getHour() < END_HOUR; // between 10am-6pm
+            && now.getHour() >= START_HOUR && now.getHour() <= END_HOUR; // between 10am-6pm
     }
 }
