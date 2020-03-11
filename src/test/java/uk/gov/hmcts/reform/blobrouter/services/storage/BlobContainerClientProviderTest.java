@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.core.http.HttpClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,14 +24,16 @@ public class BlobContainerClientProviderTest {
     @Mock
     private BulkScanSasTokenCache bulkScanSasTokenCache;
 
+    @Mock
+    private BlobContainerClientBuilder blobContainerClientBuilder;
+
     private BlobContainerClientProvider blobContainerClientProvider;
 
     @BeforeEach
     private void setUp() {
         this.blobContainerClientProvider = new BlobContainerClientProvider(
             crimeClient,
-            "https://example.com",
-            HttpClient.createDefault(),
+            blobContainerClientBuilder,
             bulkScanSasTokenCache
         );
     }
@@ -46,6 +49,11 @@ public class BlobContainerClientProviderTest {
     void should_retrieve_sas_token_for_bulk_scan_storage() {
         String containerName = "container123";
         given(bulkScanSasTokenCache.getSasToken(any())).willReturn("token1");
+        given(blobContainerClientBuilder.containerName(containerName)).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.sasToken("token1")).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.buildClient()).willReturn(mock(BlobContainerClient.class));
+
+
         BlobContainerClient client = blobContainerClientProvider.get(TargetStorageAccount.BULKSCAN, containerName);
 
         assertThat(client).isNotNull();
