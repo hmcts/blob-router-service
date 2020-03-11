@@ -106,7 +106,7 @@ scheduling:
       delay: ${TASK_SCAN_DELAY} # In milliseconds
     send-daily-report:
       cron: ${SEND_DAILY_REPORT_CRON}
-      enabled: false
+      enabled: ${SEND_DAILY_REPORT_ENABLED}
 
 proxy:
   enabled: ${PROXY_ENABLED:true}
