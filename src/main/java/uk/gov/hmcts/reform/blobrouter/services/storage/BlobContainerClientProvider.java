@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
+import com.azure.core.exception.HttpResponseException;
 import com.azure.storage.blob.BlobContainerClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+
+import java.io.ByteArrayInputStream;
 
 @Service
 public class BlobContainerClientProvider {
@@ -22,7 +25,7 @@ public class BlobContainerClientProvider {
         this.bulkScanSasTokenCache = bulkScanSasTokenCache;
     }
 
-    public BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
+    private BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
         switch (targetStorageAccount) {
             case BULKSCAN:
                 return blobContainerClientBuilderProvider
@@ -36,6 +39,29 @@ public class BlobContainerClientProvider {
                 throw new UnknownStorageAccountException(
                     String.format("Client requested for an unknown storage account: %s", targetStorageAccount)
                 );
+        }
+    }
+
+    public void doUpdate(String blobName,
+                         byte[] blobContents,
+                         String destinationContainer,
+                         TargetStorageAccount targetStorageAccount
+    ) {
+
+        try {
+            get(targetStorageAccount, destinationContainer)
+                .getBlobClient(blobName)
+                .getBlockBlobClient()
+                .upload(
+                    new ByteArrayInputStream(blobContents),
+                    blobContents.length
+                );
+        } catch (HttpResponseException ex) {
+            if (targetStorageAccount == TargetStorageAccount.BULKSCAN
+                && (ex.getResponse().getStatusCode() > 399 && ex.getResponse().getStatusCode() < 500)) {
+                bulkScanSasTokenCache.removeFromCache(destinationContainer);
+            }
+            throw ex;
         }
     }
 }

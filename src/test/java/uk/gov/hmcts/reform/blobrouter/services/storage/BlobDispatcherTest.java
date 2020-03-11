@@ -7,18 +7,14 @@ import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.io.ByteArrayInputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 
@@ -44,23 +40,15 @@ class BlobDispatcherTest {
         final byte[] blobContent = "some data".getBytes();
         final String container = "container";
 
-        given(blobContainerClientProvider.get(BULKSCAN, container)).willReturn(blobContainerClient);
-        given(blobContainerClient.getBlobClient(blobName)).willReturn(blobClient);
-        given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
+        doNothing().when(blobContainerClientProvider).doUpdate(blobName, blobContent, container, BULKSCAN);
 
         // when
         dispatcher.dispatch(blobName, blobContent, container, BULKSCAN);
 
         // then
-        ArgumentCaptor<ByteArrayInputStream> data = ArgumentCaptor.forClass(ByteArrayInputStream.class);
+        verify(blobContainerClientProvider)
+            .doUpdate(blobName, blobContent, container, BULKSCAN);
 
-        verify(blockBlobClient)
-            .upload(
-                data.capture(),
-                eq(Long.valueOf(blobContent.length))
-            );
-
-        assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);
     }
 
     @Test
@@ -68,7 +56,7 @@ class BlobDispatcherTest {
         // given
         willThrow(new BlobStorageException("test exception", null, null))
             .given(blobContainerClientProvider)
-            .get(any(), any());
+            .doUpdate(any(), any(), any(), any());
 
         // when
         Throwable exc = catchThrowable(

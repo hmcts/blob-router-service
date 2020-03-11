@@ -4,8 +4,6 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
-import java.io.ByteArrayInputStream;
-
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -32,14 +30,7 @@ public class BlobDispatcher {
             targetStorageAccount
         );
 
-        blobContainerClientProvider
-            .get(targetStorageAccount, destinationContainer)
-            .getBlobClient(blobName)
-            .getBlockBlobClient()
-            .upload(
-                new ByteArrayInputStream(blobContents),
-                blobContents.length
-            );
+        blobContainerClientProvider.doUpdate(blobName, blobContents, destinationContainer, targetStorageAccount);
 
         logger.info(
             "Finished uploading file. Blob name: {}. Container: {}. Storage: {}",
