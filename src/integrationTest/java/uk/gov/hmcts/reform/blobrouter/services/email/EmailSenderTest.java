@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.email;
 
+import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import com.microsoft.applicationinsights.boot.dependencies.google.common.io.Resources;
 import org.apache.commons.mail.util.MimeMessageParser;
@@ -40,9 +41,13 @@ public class EmailSenderTest {
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
 
+    private GreenMailUser greenMailUser;
+
     @BeforeEach
     void setUp() {
-        greenMail.setUser(FROM_ADDRESS, USERNAME, PASSWORD);
+        if (greenMailUser == null) {
+            greenMailUser = greenMail.setUser(FROM_ADDRESS, USERNAME, PASSWORD);
+        }
     }
 
     @Test
