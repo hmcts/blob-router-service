@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -60,16 +61,22 @@ public class BlobProcessor {
 
     public void process(BlobClient blobClient) {
         logger.info("Processing {} from {} container", blobClient.getBlobName(), blobClient.getContainerName());
+        process(
+            blobClient,
+            () -> envelopeService.createNewEnvelope(
+                blobClient.getContainerName(),
+                blobClient.getBlobName(),
+                blobClient.getProperties().getLastModified().toInstant()
+            )
+        );
+    }
 
+    private void process(BlobClient blobClient, Supplier<UUID> envelopeIdSupplier) {
         leaseAcquirer
             .acquireFor(blobClient)
             .ifPresentOrElse(
                 leaseClient -> {
-                    UUID id = envelopeService.createNewEnvelope(
-                        blobClient.getContainerName(),
-                        blobClient.getBlobName(),
-                        blobClient.getProperties().getLastModified().toInstant()
-                    );
+                    UUID id = envelopeIdSupplier.get();
                     try {
                         byte[] rawBlob = downloadBlob(blobClient);
 
