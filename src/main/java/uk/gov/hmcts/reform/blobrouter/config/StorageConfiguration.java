@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
+import com.azure.core.http.HttpClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.BlobServiceClient;
@@ -56,5 +57,15 @@ public class StorageConfiguration {
             .connectionString(connectionString)
             .containerName(containerName)
             .buildClient();
+    }
+
+    @Bean("bulk-scan-blob-client-builder")
+    public BlobContainerClientBuilder getBulkScanBlobContainerClientBuilder(
+        HttpClient httpClient,
+        @Value("${storage.bulkscan.url}") String bulkScanStorageUrl
+    ) {
+        return new BlobContainerClientBuilder()
+            .httpClient(httpClient)
+            .endpoint(bulkScanStorageUrl);
     }
 }
