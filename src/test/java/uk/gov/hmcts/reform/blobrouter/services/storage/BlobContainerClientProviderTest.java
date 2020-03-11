@@ -53,7 +53,7 @@ public class BlobContainerClientProviderTest {
         String containerName = "container123";
         given(bulkScanSasTokenCache.getSasToken(any())).willReturn("token1");
 
-        given(blobContainerClientBuilderProvider.getBlobContainerClientBuilderBean())
+        given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
             .willReturn(blobContainerClientBuilder);
         given(blobContainerClientBuilder.containerName(containerName)).willReturn(blobContainerClientBuilder);
         given(blobContainerClientBuilder.sasToken("token1")).willReturn(blobContainerClientBuilder);

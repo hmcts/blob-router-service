@@ -26,7 +26,7 @@ public class BlobContainerClientProvider {
         switch (targetStorageAccount) {
             case BULKSCAN:
                 return blobContainerClientBuilderProvider
-                    .getBlobContainerClientBuilderBean()
+                    .getBlobContainerClientBuilder()
                     .sasToken(bulkScanSasTokenCache.getSasToken(containerName))
                     .containerName(containerName)
                     .buildClient();

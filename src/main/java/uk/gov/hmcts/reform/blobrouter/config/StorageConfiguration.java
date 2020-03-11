@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
-import com.azure.core.http.HttpClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.BlobServiceClient;
@@ -11,11 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.context.annotation.Scope;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
-
-import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
-
 
 @Profile({"!integration-test"})
 @Configuration
@@ -63,14 +58,4 @@ public class StorageConfiguration {
             .buildClient();
     }
 
-    @Bean("bulk-scan-blob-client-builder")
-    @Scope(SCOPE_PROTOTYPE)
-    public BlobContainerClientBuilder getBulkScanBlobContainerClientBuilder(
-        HttpClient httpClient,
-        @Value("${storage.bulkscan.url}") String bulkScanStorageUrl
-    ) {
-        return new BlobContainerClientBuilder()
-            .httpClient(httpClient)
-            .endpoint(bulkScanStorageUrl);
-    }
 }
