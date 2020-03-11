@@ -27,13 +27,16 @@ public class BlobContainerClientProviderTest {
     @Mock
     private BlobContainerClientBuilder blobContainerClientBuilder;
 
+    @Mock
+    private BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
+
     private BlobContainerClientProvider blobContainerClientProvider;
 
     @BeforeEach
     private void setUp() {
         this.blobContainerClientProvider = new BlobContainerClientProvider(
             crimeClient,
-            blobContainerClientBuilder,
+            blobContainerClientBuilderProvider,
             bulkScanSasTokenCache
         );
     }
@@ -49,6 +52,9 @@ public class BlobContainerClientProviderTest {
     void should_retrieve_sas_token_for_bulk_scan_storage() {
         String containerName = "container123";
         given(bulkScanSasTokenCache.getSasToken(any())).willReturn("token1");
+
+        given(blobContainerClientBuilderProvider.getBlobContainerClientBuilderBean())
+            .willReturn(blobContainerClientBuilder);
         given(blobContainerClientBuilder.containerName(containerName)).willReturn(blobContainerClientBuilder);
         given(blobContainerClientBuilder.sasToken("token1")).willReturn(blobContainerClientBuilder);
         given(blobContainerClientBuilder.buildClient()).willReturn(mock(BlobContainerClient.class));
