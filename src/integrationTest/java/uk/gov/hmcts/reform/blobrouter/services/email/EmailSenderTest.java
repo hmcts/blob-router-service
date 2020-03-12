@@ -1,14 +1,15 @@
 package uk.gov.hmcts.reform.blobrouter.services.email;
 
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import com.microsoft.applicationinsights.boot.dependencies.google.common.io.Resources;
 import org.apache.commons.mail.util.MimeMessageParser;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import uk.gov.hmcts.reform.blobrouter.jupiter.GreenMailExtension;
 
 import java.io.File;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class EmailSenderTest {
     private static final String SUBJECT = "subject";
     private static final String RECIPIENT_1 = "Foo <foo@hmcts.net>";
     private static final String RECIPIENT_2 = "bar@hmcts.net";
-    private static final String[] RECIPIENTS = {RECIPIENT_1, RECIPIENT_2};
+    private static final String[] recipients = {RECIPIENT_1, RECIPIENT_2};
     private static final String FILE_NAME_1 = "email/test1.zip";
     private static final String FILE_NAME_2 = "email/test2.zip";
     private static final String BODY = "body";
@@ -37,12 +38,19 @@ public class EmailSenderTest {
     @Autowired
     private EmailSender emailSender;
 
-    @RegisterExtension
-    static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP);
+    private GreenMail smtpServer;
 
     @BeforeEach
     void setUp() {
-        greenMail.setUser(USERNAME, PASSWORD);
+        smtpServer = new GreenMail(new ServerSetup(ServerSetupTest.SMTP.getPort(), null, ServerSetupTest.SMTP.getProtocol()));
+        smtpServer.setUser(USERNAME, PASSWORD);
+        smtpServer.start();
+        smtpServer.getSmtp();
+    }
+
+    @AfterEach
+    void tearDown() {
+        smtpServer.stop();
     }
 
     @Test
@@ -54,12 +62,12 @@ public class EmailSenderTest {
             SUBJECT,
             BODY,
             FROM_ADDRESS,
-            RECIPIENTS,
+            recipients,
             Map.of(FILE_NAME_1, file1, FILE_NAME_2, file2)
         );
 
-        MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
-
+        assertThat(smtpServer.getReceivedMessages()).hasSize(recipients.length);
+        MimeMessageParser msg = new MimeMessageParser(smtpServer.getReceivedMessages()[0]).parse();
         assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
         assertThat(msg.getTo())
             .extracting(Address::toString)
@@ -82,12 +90,12 @@ public class EmailSenderTest {
             SUBJECT,
             BODY,
             FROM_ADDRESS,
-            RECIPIENTS,
+            recipients,
             emptyMap()
         );
 
-        MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
-
+        assertThat(smtpServer.getReceivedMessages()).hasSize(recipients.length);
+        MimeMessageParser msg = new MimeMessageParser(smtpServer.getReceivedMessages()[0]).parse();
         assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
         assertThat(msg.getTo())
             .extracting(Address::toString)
