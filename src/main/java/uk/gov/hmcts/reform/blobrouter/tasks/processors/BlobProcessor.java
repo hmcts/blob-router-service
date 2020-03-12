@@ -71,6 +71,17 @@ public class BlobProcessor {
         );
     }
 
+    public void continueProcessing(UUID envelopeId, BlobClient blob) {
+        logger.info(
+            "Continuing processing envelope. Envelope ID: {}, file name: {}. container: {}",
+            envelopeId,
+            blob.getBlobName(),
+            blob.getContainerName()
+        );
+
+        process(blob, () -> envelopeId);
+    }
+
     private void process(BlobClient blobClient, Supplier<UUID> envelopeIdSupplier) {
         leaseAcquirer
             .acquireFor(blobClient)
