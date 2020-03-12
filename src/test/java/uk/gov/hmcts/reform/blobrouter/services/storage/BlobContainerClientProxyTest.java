@@ -26,7 +26,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class BlobContainerClientProviderTest {
+public class BlobContainerClientProxyTest {
 
     @Mock
     private BlobContainerClient crimeClient;
@@ -40,7 +40,7 @@ public class BlobContainerClientProviderTest {
     @Mock
     private BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
 
-    private BlobContainerClientProvider blobContainerClientProvider;
+    private BlobContainerClientProxy blobContainerClientProxy;
 
     @Mock
     private BlobContainerClient blobContainerClient;
@@ -57,7 +57,7 @@ public class BlobContainerClientProviderTest {
 
     @BeforeEach
     private void setUp() {
-        this.blobContainerClientProvider = new BlobContainerClientProvider(
+        this.blobContainerClientProxy = new BlobContainerClientProxy(
             crimeClient,
             blobContainerClientBuilderProvider,
             bulkScanSasTokenCache
@@ -69,7 +69,7 @@ public class BlobContainerClientProviderTest {
         given(crimeClient.getBlobClient(blobName)).willReturn(blobClient);
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
 
-        blobContainerClientProvider.doUpdate(
+        blobContainerClientProxy.doUpdate(
             blobName,
             blobContent,
             containerName,
@@ -104,7 +104,7 @@ public class BlobContainerClientProviderTest {
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
 
 
-        blobContainerClientProvider.doUpdate(
+        blobContainerClientProxy.doUpdate(
             blobName,
             blobContent,
             containerName,
@@ -139,7 +139,7 @@ public class BlobContainerClientProviderTest {
             new BlobStorageException("Sas invalid 401", mockHttpResponse, null));
 
         assertThatThrownBy(
-            () -> blobContainerClientProvider.doUpdate(
+            () -> blobContainerClientProxy.doUpdate(
                 blobName,
                 blobContent,
                 containerName,
@@ -159,7 +159,7 @@ public class BlobContainerClientProviderTest {
             new BlobStorageException("Sas invalid 401", mockHttpResponse, null));
 
         assertThatThrownBy(
-            () -> blobContainerClientProvider.doUpdate(
+            () -> blobContainerClientProxy.doUpdate(
                 blobName,
                 blobContent,
                 containerName,
