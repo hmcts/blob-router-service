@@ -53,27 +53,22 @@ class BlobContentExtractorTest {
         );
 
         // when
-        var result = extractor.getContentToUpload(content, TargetStorageAccount.CRIME);
+        var exc = catchThrowable(() -> extractor.getContentToUpload(content, TargetStorageAccount.CRIME));
 
         // then
-        assertThat(result).isEqualTo("internal".getBytes());
+        assertThat(exc).isInstanceOf(InvalidZipArchiveException.class);
     }
 
     @Test
     void should_return_original_zip_for_bulkscan() throws Exception {
         // given
-        var content = getBlobContent(
-            Map.of(
-                ENVELOPE, "foo".getBytes(),
-                SIGNATURE, "bar".getBytes()
-            )
-        );
+        var content = "irrelevant".getBytes();
 
         // when
-        var exc = catchThrowable(() -> extractor.getContentToUpload(content, TargetStorageAccount.BULKSCAN));
+        var result = extractor.getContentToUpload(content, TargetStorageAccount.BULKSCAN);
 
         // then
-        assertThat(exc).isInstanceOf(InvalidZipArchiveException.class);
+        assertThat(result).isEqualTo(content);
     }
 
     private static byte[] getBlobContent(Map<String, byte[]> zipEntries) {
