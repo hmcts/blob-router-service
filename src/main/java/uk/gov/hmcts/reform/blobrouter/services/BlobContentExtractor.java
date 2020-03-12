@@ -33,7 +33,7 @@ public class BlobContentExtractor {
                 );
             }
         } else {
-           return blobContent;
+            return blobContent;
         }
     }
 }
