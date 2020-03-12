@@ -13,20 +13,17 @@ import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
+import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
@@ -41,7 +38,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
@@ -52,15 +48,6 @@ class BlobProcessorTest {
     private static final String TARGET_CONTAINER = "targetContainer1";
     private static final TargetStorageAccount TARGET_STORAGE_ACCOUNT = BULKSCAN;
 
-    private static final byte[] INTERNAL_ENVELOPE_CONTENT = "envelope content is irrelevant".getBytes();
-    private static final byte[] BLOB_CONTENT =
-        getBlobContent(
-            Map.of(
-                "envelope.zip", INTERNAL_ENVELOPE_CONTENT,
-                "signature", "content irrelevant".getBytes()
-            )
-        );
-
     @Mock(lenient = true) BlobClient blobClient;
     @Mock(lenient = true) BlobProperties blobProperties;
     @Mock BlobDispatcher blobDispatcher;
@@ -69,6 +56,7 @@ class BlobProcessorTest {
     @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
     @Mock LeaseAcquirer leaseAcquirer;
+    @Mock BlobContentExtractor blobContentExtractor;
 
     @Test
     void should_not_update_envelope_status_when_upload_failed() {
@@ -167,7 +155,7 @@ class BlobProcessorTest {
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
         String fileName = "envelope1.zip";
-        blobExists(fileName, SOURCE_CONTAINER, blobCreationTime, BLOB_CONTENT);
+        blobExists(fileName, SOURCE_CONTAINER, blobCreationTime);
 
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
@@ -191,7 +179,7 @@ class BlobProcessorTest {
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
         String fileName = "envelope1.zip";
-        blobExists(fileName, SOURCE_CONTAINER, blobCreationTime, BLOB_CONTENT);
+        blobExists(fileName, SOURCE_CONTAINER, blobCreationTime);
 
         given(verifier.verifyZip(any(), any())).willReturn(error("some error"));
 
@@ -205,14 +193,16 @@ class BlobProcessorTest {
     }
 
     @Test
-    void should_upload_the_downloaded_blob_when_target_account_is_bulk_scan() {
+    void should_upload_the_downloaded_blob_when_target_account_is_bulk_scan() throws Exception {
         // given
         var fileName = "envelope1.zip";
         var sourceContainerName = "sourceContainer1";
         var targetContainerName = "targetContainer1";
+        var content = "some zip file content".getBytes();
 
         setupContainerConfig(sourceContainerName, targetContainerName, BULKSCAN);
         blobExists(fileName, sourceContainerName);
+        given(blobContentExtractor.getContentToUpload(any(), any())).willReturn(content);
 
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
@@ -227,87 +217,8 @@ class BlobProcessorTest {
         // then
         verifyNewEnvelopeHasBeenCreated();
         verify(blobDispatcher, times(1))
-            .dispatch(eq(fileName), aryEq(BLOB_CONTENT), eq(targetContainerName), eq(BULKSCAN));
+            .dispatch(eq(fileName), aryEq(content), eq(targetContainerName), eq(BULKSCAN));
         verify(envelopeService).markAsDispatched(id);
-    }
-
-    @Test
-    void should_upload_extracted_envelope_when_target_account_is_crime() {
-        // given
-        var fileName = "envelope1.zip";
-        var sourceContainerName = "sourceContainer1";
-        var targetContainerName = "targetContainer1";
-
-        blobExists(fileName, sourceContainerName);
-
-        setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
-
-        var id = UUID.randomUUID();
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
-
-        // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
-
-        // when
-        newBlobProcessor().process(blobClient);
-
-        // then
-        verifyNewEnvelopeHasBeenCreated();
-        verify(blobDispatcher, times(1))
-            .dispatch(eq(fileName), aryEq(INTERNAL_ENVELOPE_CONTENT), eq(targetContainerName), eq(CRIME));
-
-        verify(envelopeService).markAsDispatched(id);
-    }
-
-    @Test
-    void should_not_upload_to_crime_when_blob_is_not_zip() {
-        // given
-        var sourceContainerName = "sourceContainer1";
-        var targetContainerName = "targetContainer1";
-
-        blobExists("envelope1.zip", sourceContainerName, OffsetDateTime.now(), "not zip file's content".getBytes());
-
-        setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
-
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
-
-        // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
-
-        // when
-        newBlobProcessor().process(blobClient);
-
-        // then
-        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
-    }
-
-    @Test
-    void should_not_upload_to_crime_when_blob_does_not_contain_envelope_entry() {
-        // given
-        var sourceContainerName = "sourceContainer1";
-        var targetContainerName = "targetContainer1";
-
-        // blob contains signature file only
-        blobExists(
-            "envelope1.zip",
-            sourceContainerName,
-            OffsetDateTime.now(),
-            getBlobContent(Map.of("signature", "test".getBytes()))
-        );
-
-        setupContainerConfig(sourceContainerName, targetContainerName, CRIME);
-
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
-
-        // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
-
-        // when
-        newBlobProcessor().process(blobClient);
-
-        // then
-        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
     }
 
     @Test
@@ -316,7 +227,7 @@ class BlobProcessorTest {
         given(leaseAcquirer.acquireFor(any())).willReturn(Optional.empty());
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
         String fileName = "envelope1.zip";
-        blobExists(fileName, SOURCE_CONTAINER, OffsetDateTime.now(), BLOB_CONTENT);
+        blobExists(fileName, SOURCE_CONTAINER, OffsetDateTime.now());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -327,38 +238,16 @@ class BlobProcessorTest {
         verify(verifier, times(0)).verifyZip(any(), any());
     }
 
-    private static byte[] getBlobContent(Map<String, byte[]> zipEntries) {
-        try (
-            var outputStream = new ByteArrayOutputStream();
-            var zipOutputStream = new ZipOutputStream(outputStream)
-        ) {
-            for (var entry : zipEntries.entrySet()) {
-                var fileName = entry.getKey();
-                var fileBytes = entry.getValue();
-
-                zipOutputStream.putNextEntry(new ZipEntry(fileName));
-                zipOutputStream.write(fileBytes);
-                zipOutputStream.closeEntry();
-            }
-
-            return outputStream.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create test blob content", e);
-        }
-    }
-
     private void blobExists(String blobName, String containerName) {
-        blobExists(blobName, containerName, OffsetDateTime.now(), BLOB_CONTENT);
+        blobExists(blobName, containerName, OffsetDateTime.now());
     }
 
-    private void blobExists(String blobName, String containerName, OffsetDateTime time, byte[] contentToDownload) {
+    private void blobExists(String blobName, String containerName, OffsetDateTime time) {
         given(blobClient.getBlobName()).willReturn(blobName);
         given(blobClient.getContainerName()).willReturn(containerName);
         given(blobClient.getProperties()).willReturn(blobProperties);
 
-        if (contentToDownload != null) {
-            setupDownloadedBlobContent(contentToDownload);
-        }
+        setupDownloadedBlobContent("some content".getBytes());
 
         given(blobProperties.getLastModified()).willReturn(time);
     }
@@ -401,6 +290,7 @@ class BlobProcessorTest {
             this.envelopeService,
             this.leaseAcquirer,
             this.verifier,
+            this.blobContentExtractor,
             this.serviceConfiguration
         );
     }
