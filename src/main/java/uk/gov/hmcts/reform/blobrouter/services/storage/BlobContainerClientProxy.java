@@ -42,7 +42,7 @@ public class BlobContainerClientProxy {
         }
     }
 
-    public void doUpdate(
+    public void upload(
         String blobName,
         byte[] blobContents,
         String destinationContainer,
