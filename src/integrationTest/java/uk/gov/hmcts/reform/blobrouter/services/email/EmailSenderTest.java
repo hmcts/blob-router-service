@@ -30,7 +30,7 @@ public class EmailSenderTest {
     private static final String SUBJECT = "subject";
     private static final String RECIPIENT_1 = "Foo <foo@hmcts.net>";
     private static final String RECIPIENT_2 = "bar@hmcts.net";
-    private static final String[] recipients = {RECIPIENT_1, RECIPIENT_2};
+    private static final String[] RECIPIENTS = {RECIPIENT_1, RECIPIENT_2};
     private static final String FILE_NAME_1 = "email/test1.zip";
     private static final String FILE_NAME_2 = "email/test2.zip";
     private static final String BODY = "body";
@@ -68,11 +68,11 @@ public class EmailSenderTest {
             SUBJECT,
             BODY,
             FROM_ADDRESS,
-            recipients,
+            RECIPIENTS,
             Map.of(FILE_NAME_1, file1, FILE_NAME_2, file2)
         );
 
-        assertThat(smtpServer.getReceivedMessages()).hasSize(recipients.length);
+        assertThat(smtpServer.getReceivedMessages()).hasSize(RECIPIENTS.length);
         MimeMessageParser msg = new MimeMessageParser(smtpServer.getReceivedMessages()[0]).parse();
         assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
         assertThat(msg.getTo())
@@ -96,11 +96,11 @@ public class EmailSenderTest {
             SUBJECT,
             BODY,
             FROM_ADDRESS,
-            recipients,
+            RECIPIENTS,
             emptyMap()
         );
 
-        assertThat(smtpServer.getReceivedMessages()).hasSize(recipients.length);
+        assertThat(smtpServer.getReceivedMessages()).hasSize(RECIPIENTS.length);
         MimeMessageParser msg = new MimeMessageParser(smtpServer.getReceivedMessages()[0]).parse();
         assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
         assertThat(msg.getTo())
