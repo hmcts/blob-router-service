@@ -128,7 +128,7 @@ public class BlobContainerClientProviderTest {
     }
 
     @Test
-    void should_remove_from_cache_when_target_bulk_scan_and_exception_with_40x_status() {
+    void should_invalidate_cache_when_target_storage_bulk_scan_and_error_response_40x() {
 
         HttpResponse mockHttpResponse = mock(HttpResponse.class);
         given(mockHttpResponse.getStatusCode()).willReturn(401);
@@ -152,7 +152,7 @@ public class BlobContainerClientProviderTest {
     }
 
     @Test
-    void should_not_remove_from_cache_when_target_crime_even_exception_with_40x_status() {
+    void should_not_invalidate_cache_when_target_storage_crime_and_error_response_40x() {
 
         HttpResponse mockHttpResponse = mock(HttpResponse.class);
         given(crimeClient.getBlobClient(any())).willThrow(
