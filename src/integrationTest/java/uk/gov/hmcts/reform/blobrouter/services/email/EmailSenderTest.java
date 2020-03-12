@@ -63,7 +63,6 @@ public class EmailSenderTest {
             Map.of(FILE_NAME_1, file1, FILE_NAME_2, file2)
         );
 
-        assertThat(greenMail.getReceivedMessages()).hasSize(RECIPIENTS.length);
         MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
         assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
         assertThat(msg.getTo())
@@ -91,7 +90,6 @@ public class EmailSenderTest {
             emptyMap()
         );
 
-        assertThat(greenMail.getReceivedMessages()).hasSize(RECIPIENTS.length);
         MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
         assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
         assertThat(msg.getTo())
