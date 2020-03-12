@@ -71,23 +71,18 @@ class BlobContentExtractorTest {
         assertThat(result).isEqualTo(content);
     }
 
-    private static byte[] getBlobContent(Map<String, byte[]> zipEntries) {
+    private static byte[] getBlobContent(Map<String, byte[]> zipEntries) throws IOException {
         try (
             var outputStream = new ByteArrayOutputStream();
             var zipOutputStream = new ZipOutputStream(outputStream)
         ) {
             for (var entry : zipEntries.entrySet()) {
-                var fileName = entry.getKey();
-                var fileBytes = entry.getValue();
-
-                zipOutputStream.putNextEntry(new ZipEntry(fileName));
-                zipOutputStream.write(fileBytes);
+                zipOutputStream.putNextEntry(new ZipEntry(entry.getKey()));
+                zipOutputStream.write(entry.getValue());
                 zipOutputStream.closeEntry();
             }
 
             return outputStream.toByteArray();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create test blob content", e);
         }
     }
 }
