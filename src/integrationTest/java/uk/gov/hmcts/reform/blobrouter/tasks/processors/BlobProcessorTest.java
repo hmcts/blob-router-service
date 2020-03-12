@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +16,10 @@ import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientBuilderProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BulkScanSasTokenCache;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
@@ -25,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.DISPATCHED;
 import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSignDir;
 
@@ -33,7 +37,13 @@ import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSig
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest extends BlobStorageBaseTest {
 
-    @Mock BlobContainerClientProvider containerClientProvider;
+    private BlobContainerClientProvider containerClientProvider;
+
+    @Mock
+    private BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
+
+    @Mock
+    private BlobContainerClientBuilder blobContainerClientBuilder;
 
     @Autowired
     private EnvelopeService envelopeService;
@@ -52,6 +62,11 @@ class BlobProcessorTest extends BlobStorageBaseTest {
 
     @BeforeEach
     void setUp() {
+        containerClientProvider = new BlobContainerClientProvider(
+            mock(BlobContainerClient.class),
+            blobContainerClientBuilderProvider,
+            mock(BulkScanSasTokenCache.class)
+        );
         dbHelper.deleteAll();
     }
 
@@ -65,7 +80,12 @@ class BlobProcessorTest extends BlobStorageBaseTest {
         BlobContainerClient targetContainerClient = createContainer(targetContainer);
 
         // configure Dispatcher to always send files to docker target container.
-        given(containerClientProvider.get(any(), any())).willReturn(targetContainerClient);
+        given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+            .willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.sasToken(any())).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.containerName(any())).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.buildClient()).willReturn(targetContainerClient);
+
         var dispatcher = new BlobDispatcher(containerClientProvider);
 
         var blobProcessor =
