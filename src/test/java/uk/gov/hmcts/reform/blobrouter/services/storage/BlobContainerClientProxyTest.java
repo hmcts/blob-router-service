@@ -69,7 +69,7 @@ public class BlobContainerClientProxyTest {
         given(crimeClient.getBlobClient(blobName)).willReturn(blobClient);
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
 
-        blobContainerClientProxy.doUpdate(
+        blobContainerClientProxy.update(
             blobName,
             blobContent,
             containerName,
@@ -104,7 +104,7 @@ public class BlobContainerClientProxyTest {
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
 
 
-        blobContainerClientProxy.doUpdate(
+        blobContainerClientProxy.update(
             blobName,
             blobContent,
             containerName,
@@ -139,7 +139,7 @@ public class BlobContainerClientProxyTest {
             new BlobStorageException("Sas invalid 401", mockHttpResponse, null));
 
         assertThatThrownBy(
-            () -> blobContainerClientProxy.doUpdate(
+            () -> blobContainerClientProxy.update(
                 blobName,
                 blobContent,
                 containerName,
@@ -159,7 +159,7 @@ public class BlobContainerClientProxyTest {
             new BlobStorageException("Sas invalid 401", mockHttpResponse, null));
 
         assertThatThrownBy(
-            () -> blobContainerClientProxy.doUpdate(
+            () -> blobContainerClientProxy.update(
                 blobName,
                 blobContent,
                 containerName,

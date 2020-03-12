@@ -30,7 +30,7 @@ public class BlobDispatcher {
             targetStorageAccount
         );
 
-        blobContainerClientProxy.doUpdate(blobName, blobContents, destinationContainer, targetStorageAccount);
+        blobContainerClientProxy.update(blobName, blobContents, destinationContainer, targetStorageAccount);
 
         logger.info(
             "Finished uploading file. Blob name: {}. Container: {}. Storage: {}",

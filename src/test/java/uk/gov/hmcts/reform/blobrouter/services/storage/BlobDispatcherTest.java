@@ -40,14 +40,14 @@ class BlobDispatcherTest {
         final byte[] blobContent = "some data".getBytes();
         final String container = "container";
 
-        doNothing().when(blobContainerClientProxy).doUpdate(blobName, blobContent, container, BULKSCAN);
+        doNothing().when(blobContainerClientProxy).update(blobName, blobContent, container, BULKSCAN);
 
         // when
         dispatcher.dispatch(blobName, blobContent, container, BULKSCAN);
 
         // then
         verify(blobContainerClientProxy)
-            .doUpdate(blobName, blobContent, container, BULKSCAN);
+            .update(blobName, blobContent, container, BULKSCAN);
 
     }
 
@@ -56,7 +56,7 @@ class BlobDispatcherTest {
         // given
         willThrow(new BlobStorageException("test exception", null, null))
             .given(blobContainerClientProxy)
-            .doUpdate(any(), any(), any(), any());
+            .update(any(), any(), any(), any());
 
         // when
         Throwable exc = catchThrowable(

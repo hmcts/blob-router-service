@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.Expiry;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
@@ -20,10 +21,12 @@ import java.util.concurrent.TimeUnit;
 import static com.azure.storage.common.implementation.Constants.UrlConstants.SAS_EXPIRY_TIME;
 import static com.azure.storage.common.implementation.StorageImplUtils.parseQueryString;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
 public class BulkScanSasTokenCache {
 
+    private static final Logger logger = getLogger(BulkScanSasTokenCache.class);
     private final BulkScanProcessorClient bulkScanSasTokenClient;
     private final long refreshSasBeforeExpiry;
 
@@ -42,14 +45,17 @@ public class BulkScanSasTokenCache {
     }
 
     public String getSasToken(String containerName) {
+        logger.info("Get sas token for Container: {}", containerName);
         return tokenCache.get(containerName, c -> this.createSasToken(c));
     }
 
     public void removeFromCache(String containerName) {
+        logger.info("Invalidate cache for Container: {}", containerName);
         tokenCache.invalidate(containerName);
     }
 
     private String createSasToken(String containerName) {
+        logger.info("Make sas token call for Container: {}", containerName);
         return bulkScanSasTokenClient.getSasToken(containerName).sasToken;
     }
 
