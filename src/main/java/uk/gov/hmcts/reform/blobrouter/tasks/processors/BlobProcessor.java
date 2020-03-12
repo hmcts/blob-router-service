@@ -10,24 +10,19 @@ import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
-import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ZipFileLoadException;
+import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
-import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
-import static com.google.common.io.ByteStreams.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
@@ -43,6 +38,7 @@ public class BlobProcessor {
     private final EnvelopeService envelopeService;
     private final LeaseAcquirer leaseAcquirer;
     private final BlobVerifier blobVerifier;
+    private final BlobContentExtractor blobContentExtractor;
     private final Map<String, StorageConfigItem> storageConfig; // container-specific configuration, by container name
 
     public BlobProcessor(
@@ -50,12 +46,14 @@ public class BlobProcessor {
         EnvelopeService envelopeService,
         LeaseAcquirer leaseAcquirer,
         BlobVerifier blobVerifier,
+        BlobContentExtractor blobContentExtractor,
         ServiceConfiguration serviceConfiguration
     ) {
         this.dispatcher = dispatcher;
         this.envelopeService = envelopeService;
         this.leaseAcquirer = leaseAcquirer;
         this.blobVerifier = blobVerifier;
+        this.blobContentExtractor = blobContentExtractor;
         this.storageConfig = serviceConfiguration.getStorageConfig();
     }
 
@@ -104,12 +102,11 @@ public class BlobProcessor {
     private void dispatch(BlobClient blob, UUID id, byte[] rawBlob) throws IOException {
         StorageConfigItem containerConfig = storageConfig.get(blob.getContainerName());
         TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
-        String targetContainerName = containerConfig.getTargetContainer();
 
         dispatcher.dispatch(
             blob.getBlobName(),
-            getContentToUpload(rawBlob, targetStorageAccount),
-            targetContainerName,
+            blobContentExtractor.getContentToUpload(rawBlob, targetStorageAccount),
+            containerConfig.getTargetContainer(),
             targetStorageAccount
         );
 
@@ -134,31 +131,6 @@ public class BlobProcessor {
             reason
         );
         // TODO send notification to Exela
-    }
-
-    private byte[] getContentToUpload(
-        byte[] blobContent,
-        TargetStorageAccount targetStorageAccount
-    ) throws IOException {
-        return targetStorageAccount == TargetStorageAccount.CRIME
-            ? extractEnvelopeContent(blobContent)
-            : blobContent;
-    }
-
-    private byte[] extractEnvelopeContent(byte[] blobContent) throws IOException {
-        try (var zipStream = new ZipInputStream(new ByteArrayInputStream(blobContent))) {
-            ZipEntry entry = null;
-
-            while ((entry = zipStream.getNextEntry()) != null) {
-                if (ZipVerifiers.ENVELOPE.equals(entry.getName())) {
-                    return toByteArray(zipStream);
-                }
-            }
-
-            throw new InvalidZipArchiveException(
-                String.format("ZIP file doesn't contain the required %s entry", ZipVerifiers.ENVELOPE)
-            );
-        }
     }
 
     private byte[] downloadBlob(BlobClient blobClient) throws IOException {

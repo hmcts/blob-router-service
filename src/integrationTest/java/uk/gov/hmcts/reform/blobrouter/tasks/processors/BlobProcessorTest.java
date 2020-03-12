@@ -14,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientBuilderProvider;
@@ -58,6 +59,9 @@ class BlobProcessorTest extends BlobStorageBaseTest {
     private LeaseAcquirer leaseAcquirer;
 
     @Autowired
+    private BlobContentExtractor contentExtractor;
+
+    @Autowired
     private DbHelper dbHelper;
 
     @BeforeEach
@@ -94,6 +98,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
                 envelopeService,
                 leaseAcquirer,
                 new BlobVerifier("signing/test_public_key.der"),
+                contentExtractor,
                 serviceConfiguration
             );
 
