@@ -42,7 +42,13 @@ public class EmailSenderTest {
 
     @BeforeEach
     void setUp() {
-        smtpServer = new GreenMail(new ServerSetup(ServerSetupTest.SMTP.getPort(), null, ServerSetupTest.SMTP.getProtocol()));
+        smtpServer = new GreenMail(
+            new ServerSetup(
+                ServerSetupTest.SMTP.getPort(),
+                null,
+                ServerSetupTest.SMTP.getProtocol()
+            )
+        );
         smtpServer.setUser(USERNAME, PASSWORD);
         smtpServer.start();
         smtpServer.getSmtp();
