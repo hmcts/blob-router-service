@@ -79,7 +79,7 @@ class ContainerProcessorTest {
     }
 
     @Test
-    void should_skip_envelope_that_is_not() {
+    void should_skip_envelope_that_is_not_stale() {
         // given
         var envelope = new Envelope(
             UUID.randomUUID(),
