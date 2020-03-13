@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -23,8 +24,14 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @ExtendWith(MockitoExtension.class)
 public class BlobProcessorContinuationTest {
@@ -33,37 +40,84 @@ public class BlobProcessorContinuationTest {
     @Mock EnvelopeService envelopeService;
     @Mock LeaseAcquirer leaseAcquirer;
     @Mock BlobVerifier verifier;
+    @Mock BlobContentExtractor contentExtractor;
     @Mock ServiceConfiguration serviceConfiguration;
     @Mock BlobLeaseClient blobLeaseClient;
-    @Mock BlobClient blobClient;
+    @Mock(lenient = true) BlobClient blobClient;
 
     BlobProcessor blobProcessor;
 
     @BeforeEach
     void setUp() {
-        blobProcessor = new BlobProcessor(
-            blobDispatcher,
-            envelopeService,
-            leaseAcquirer,
-            verifier,
-            serviceConfiguration
-        );
-
         given(serviceConfiguration.getStorageConfig())
             .willReturn(Map.of(
                 "s1", cfg("s1", "t1", BULKSCAN),
                 "s2", cfg("s2", "t2", CRIME)
             ));
+        blobProcessor = new BlobProcessor(
+            blobDispatcher,
+            envelopeService,
+            leaseAcquirer,
+            verifier,
+            contentExtractor,
+            serviceConfiguration
+        );
     }
 
     @Test
-    void should_not_create_new_envelope() {
-        blobExists("hello.zip", "s1",);
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
-
+    void should_continue_processing_valid_envelope() throws Exception {
+        // given
         var id = UUID.randomUUID();
+        var fileName = "hello.zip";
+        var containerName = "s1";
+        var content = "same content".getBytes();
+
+        blobExists(fileName, containerName);
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
+        given(contentExtractor.getContentToUpload(any(), any())).willReturn(content);
+
+        // when
         blobProcessor.continueProcessing(id, blobClient);
 
+        // then
+        verify(envelopeService, never()).createNewEnvelope(any(), any(), any());
+        verify(envelopeService).markAsDispatched(id);
+        verify(blobDispatcher).dispatch(fileName, content, "t1", BULKSCAN);
+    }
+
+    @Test
+    void should_reject_invalid_envelope() throws Exception {
+        // given
+        var id = UUID.randomUUID();
+        var validationError = "error message";
+
+        blobExists("hello.zip", "s1");
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
+        given(verifier.verifyZip(any(), any())).willReturn(error(validationError));
+
+        // when
+        blobProcessor.continueProcessing(id, blobClient);
+
+        // then
+        verify(envelopeService).markAsRejected(id, validationError);
+        verifyNoMoreInteractions(envelopeService);
+
+        verifyNoInteractions(blobDispatcher);
+    }
+
+    @Test
+    void should_skip_the_file_if_lease_cannot_be_acquired() {
+        // given
+        blobExists("hello.zip", "s1");
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.empty());
+
+        // when
+        blobProcessor.continueProcessing(UUID.randomUUID(), blobClient);
+
+        // then
+        verifyNoInteractions(envelopeService);
+        verifyNoInteractions(blobDispatcher);
     }
 
     private StorageConfigItem cfg(String source, String target, TargetStorageAccount targetAccount) {
@@ -75,19 +129,13 @@ public class BlobProcessorContinuationTest {
         return cfg;
     }
 
-    private void blobExists(String blobName, String containerName, byte[] contentToDownload) {
+    private void blobExists(String blobName, String containerName) {
         given(blobClient.getBlobName()).willReturn(blobName);
         given(blobClient.getContainerName()).willReturn(containerName);
 
-        if (contentToDownload != null) {
-            setupDownloadedBlobContent(contentToDownload);
-        }
-    }
-
-    private void setupDownloadedBlobContent(byte[] content) {
         will(invocation -> {
             var outputStream = (OutputStream) invocation.getArguments()[0];
-            outputStream.write(content);
+            outputStream.write("some content".getBytes());
             return null;
         })
             .given(blobClient)
