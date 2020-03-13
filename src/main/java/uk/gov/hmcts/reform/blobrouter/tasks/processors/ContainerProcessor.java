@@ -82,20 +82,10 @@ public class ContainerProcessor {
             .ifPresentOrElse(
                 envelope -> {
                     if (isStale(envelope)) {
-                        logger.warn(
-                            "Found stale envelope. Resuming its processing. Envelope ID: {}",
-                            envelope.id
-                        );
+                        logger.warn("Found stale envelope. Resuming its processing. {}", envelope.getBasicInfo());
                         blobProcessor.continueProcessing(envelope.id, blob);
                     } else {
-                        logger.info(
-                            "Envelope already processed in system, skipping."
-                                + " ID: {}, filename: {}, container: {}, state: {}",
-                            envelope.id,
-                            envelope.fileName,
-                            envelope.container,
-                            envelope.status.name()
-                        );
+                        logger.info("Envelope already processed in system, skipping. {}", envelope.getBasicInfo());
                     }
                 },
                 () -> blobProcessor.process(blob)
