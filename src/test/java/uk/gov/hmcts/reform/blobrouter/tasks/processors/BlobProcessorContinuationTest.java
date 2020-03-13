@@ -34,6 +34,7 @@ import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationR
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("checkstyle:variabledeclarationusagedistance")
 public class BlobProcessorContinuationTest {
 
     @Mock BlobDispatcher blobDispatcher;
