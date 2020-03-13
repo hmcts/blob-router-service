@@ -54,13 +54,13 @@ class ContainerProcessorTest {
     }
 
     @Test
-    void should_continue_processing_stale_envelope() {
+    void should_continue_processing_blob_for_which_envelope_already_exists() {
         // given
         var envelope = new Envelope(
             UUID.randomUUID(),
             "some_container",
             "hello.zip",
-            now().minus(ContainerProcessor.STALE_AGE).minusSeconds(1), // stale
+            now(),
             null,
             null,
             Status.CREATED,
@@ -79,27 +79,17 @@ class ContainerProcessorTest {
     }
 
     @Test
-    void should_skip_envelope_that_is_not_stale() {
+    void should_process_blob_if_envelope_does_not_exist_yet() {
         // given
-        var envelope = new Envelope(
-            UUID.randomUUID(),
-            "some_container",
-            "hello.zip",
-            now().minus(ContainerProcessor.STALE_AGE).plusSeconds(10), // NOT stale
-            null,
-            null,
-            Status.CREATED,
-            false
-        );
-
-        storageHasBlob(envelope.fileName, envelope.container);
-        dbHas(envelope);
+        storageHasBlob("x.zip", "container");
+        given(envelopeService.findEnvelope(any(), any())).willReturn(Optional.empty());
 
         // when
-        containerProcessor.process(envelope.container);
+        containerProcessor.process("container");
 
         // then
-        verifyNoInteractions(blobProcessor);
+        verify(blobProcessor).process(blobClient);
+        verifyNoMoreInteractions(blobProcessor);
     }
 
     private void storageHasBlob(String fileName, String containerName) {
