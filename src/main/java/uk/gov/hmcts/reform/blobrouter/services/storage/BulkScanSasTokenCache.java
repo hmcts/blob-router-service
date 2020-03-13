@@ -56,7 +56,9 @@ public class BulkScanSasTokenCache {
 
     private String createSasToken(String containerName) {
         logger.info("Make sas token call for Container: {}", containerName);
-        return bulkScanSasTokenClient.getSasToken(containerName).sasToken;
+        String sasToken = bulkScanSasTokenClient.getSasToken(containerName).sasToken;
+        logger.info("Received sasToken: {}", sasToken);
+        return sasToken;
     }
 
     private class BulkScanSasTokenCacheExpiry implements Expiry<String, String> {
@@ -112,12 +114,14 @@ public class BulkScanSasTokenCache {
          * @return remaining time to expire in nano secs,
          */
         private long calculateTimeToExpire(TemporalAccessor expiry) {
-            return
-                TimeUnit.NANOSECONDS.convert(
-                    expiry.getLong(INSTANT_SECONDS)
-                        - (OffsetDateTime.now(ZoneOffset.UTC).getLong(INSTANT_SECONDS) + refreshSasBeforeExpiry),
-                    TimeUnit.SECONDS
-                );
+            long remainingTime = TimeUnit.NANOSECONDS.convert(
+                expiry.getLong(INSTANT_SECONDS)
+                    - (OffsetDateTime.now(ZoneOffset.UTC).getLong(INSTANT_SECONDS) + refreshSasBeforeExpiry),
+                TimeUnit.SECONDS
+            );
+            logger.info("Cache remainingTime: {}", remainingTime);
+
+            return remainingTime;
         }
     }
 }
