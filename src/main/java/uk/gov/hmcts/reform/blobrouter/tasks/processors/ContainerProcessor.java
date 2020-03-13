@@ -6,15 +6,24 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
+import java.time.Duration;
 import java.time.Instant;
 
+import static java.time.Instant.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class ContainerProcessor {
+
+    /**
+     * How much time needs to pass before envelope in CREATED status can be considered stale.
+     */
+    public static final Duration STALE_AGE = Duration.ofMinutes(5);
 
     private static final Logger logger = getLogger(ContainerProcessor.class);
 
@@ -71,16 +80,30 @@ public class ContainerProcessor {
         envelopeService
             .findEnvelope(blob.getBlobName(), blob.getContainerName())
             .ifPresentOrElse(
-                envelope -> logger.info(
-                    "Envelope already processed in system, skipping."
-                        + " ID: {}, filename: {}, container: {}, state: {}",
-                    envelope.id,
-                    envelope.fileName,
-                    envelope.container,
-                    envelope.status.name()
-                ),
+                envelope -> {
+                    if (isStale(envelope)) {
+                        logger.warn(
+                            "Found stale envelope. Resuming its processing. Envelope ID: {}",
+                            envelope.id
+                        );
+                        blobProcessor.continueProcessing(envelope.id, blob);
+                    } else {
+                        logger.info(
+                            "Envelope already processed in system, skipping."
+                                + " ID: {}, filename: {}, container: {}, state: {}",
+                            envelope.id,
+                            envelope.fileName,
+                            envelope.container,
+                            envelope.status.name()
+                        );
+                    }
+                },
                 () -> blobProcessor.process(blob)
             );
+    }
 
+    private boolean isStale(Envelope envelope) {
+        return envelope.status == Status.CREATED
+            && envelope.createdAt.isBefore(now().minus(STALE_AGE));
     }
 }
