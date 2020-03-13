@@ -59,7 +59,7 @@ public class BlobProcessor {
 
     public void process(BlobClient blobClient) {
         logger.info("Processing {} from {} container", blobClient.getBlobName(), blobClient.getContainerName());
-        process(
+        handle(
             blobClient,
             () -> envelopeService.createNewEnvelope(
                 blobClient.getContainerName(),
@@ -69,7 +69,18 @@ public class BlobProcessor {
         );
     }
 
-    private void process(BlobClient blobClient, Supplier<UUID> envelopeIdSupplier) {
+    public void continueProcessing(UUID envelopeId, BlobClient blob) {
+        logger.info(
+            "Continuing processing envelope. Envelope ID: {}, file name: {}. container: {}",
+            envelopeId,
+            blob.getBlobName(),
+            blob.getContainerName()
+        );
+
+        handle(blob, () -> envelopeId);
+    }
+
+    private void handle(BlobClient blobClient, Supplier<UUID> envelopeIdSupplier) {
         leaseAcquirer
             .acquireFor(blobClient)
             .ifPresentOrElse(
