@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
-import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy;
 
 import java.util.Map;
 
@@ -29,7 +29,7 @@ public class SasTokenControllerTest extends ControllerTestBase {
     private MockMvc mockMvc;
 
     @MockBean
-    private BlobContainerClientProvider blobContainerClientProvider;
+    private BlobContainerClientProxy blobContainerClientProxy;
 
     @Test
     public void should_generate_sas_token_when_service_is_configured() throws Exception {
