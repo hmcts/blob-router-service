@@ -21,7 +21,7 @@ import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCA
 @ExtendWith(MockitoExtension.class)
 class BlobDispatcherTest {
 
-    @Mock BlobContainerClientProvider blobContainerClientProvider;
+    @Mock BlobContainerClientProxy blobContainerClientProxy;
     @Mock BlobContainerClient blobContainerClient;
     @Mock BlobClient blobClient;
     @Mock BlockBlobClient blockBlobClient;
@@ -30,7 +30,7 @@ class BlobDispatcherTest {
 
     @BeforeEach
     void setUp() {
-        dispatcher = new BlobDispatcher(blobContainerClientProvider);
+        dispatcher = new BlobDispatcher(blobContainerClientProxy);
     }
 
     @Test
@@ -40,14 +40,14 @@ class BlobDispatcherTest {
         final byte[] blobContent = "some data".getBytes();
         final String container = "container";
 
-        doNothing().when(blobContainerClientProvider).doUpdate(blobName, blobContent, container, BULKSCAN);
+        doNothing().when(blobContainerClientProxy).upload(blobName, blobContent, container, BULKSCAN);
 
         // when
         dispatcher.dispatch(blobName, blobContent, container, BULKSCAN);
 
         // then
-        verify(blobContainerClientProvider)
-            .doUpdate(blobName, blobContent, container, BULKSCAN);
+        verify(blobContainerClientProxy)
+            .upload(blobName, blobContent, container, BULKSCAN);
 
     }
 
@@ -55,8 +55,8 @@ class BlobDispatcherTest {
     void should_rethrow_exceptions() {
         // given
         willThrow(new BlobStorageException("test exception", null, null))
-            .given(blobContainerClientProvider)
-            .doUpdate(any(), any(), any(), any());
+            .given(blobContainerClientProxy)
+            .upload(any(), any(), any(), any());
 
         // when
         Throwable exc = catchThrowable(

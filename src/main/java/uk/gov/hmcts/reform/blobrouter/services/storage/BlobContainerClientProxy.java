@@ -9,13 +9,13 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import java.io.ByteArrayInputStream;
 
 @Service
-public class BlobContainerClientProvider {
+public class BlobContainerClientProxy {
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
     private final BulkScanSasTokenCache bulkScanSasTokenCache;
 
-    public BlobContainerClientProvider(
+    public BlobContainerClientProxy(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
         BlobContainerClientBuilderProvider blobContainerClientBuilderProvider,
         BulkScanSasTokenCache bulkScanSasTokenCache
@@ -42,7 +42,7 @@ public class BlobContainerClientProvider {
         }
     }
 
-    public void doUpdate(
+    public void upload(
         String blobName,
         byte[] blobContents,
         String destinationContainer,
