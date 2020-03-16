@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,19 +54,9 @@ class ContainerProcessorTest {
     }
 
     @Test
-    void should_continue_processing_blob_for_which_envelope_already_exists() {
+    void should_continue_processing_blob_for_which_envelope_in_created_status_exists() {
         // given
-        var envelope = new Envelope(
-            UUID.randomUUID(),
-            "some_container",
-            "hello.zip",
-            now(),
-            null,
-            null,
-            Status.CREATED,
-            false
-        );
-
+        var envelope = envelope(Status.CREATED);
         storageHasBlob(envelope.fileName, envelope.container);
         dbHas(envelope);
 
@@ -75,6 +66,20 @@ class ContainerProcessorTest {
         // then
         verify(blobProcessor).continueProcessing(envelope.id, blobClient);
         verifyNoMoreInteractions(blobProcessor);
+    }
+
+    @Test
+    void should_skip_blob_if_corresponding_envelope_is_not_in_created_status() {
+        // given
+        var envelope = envelope(Status.DISPATCHED);
+        storageHasBlob(envelope.fileName, envelope.container);
+        dbHas(envelope);
+
+        // when
+        containerProcessor.process(envelope.container);
+
+        // then
+        verifyNoInteractions(blobProcessor);
     }
 
     @Test
@@ -106,6 +111,19 @@ class ContainerProcessorTest {
     private void dbHas(Envelope envelope) {
         given(envelopeService.findEnvelope(envelope.fileName, envelope.container))
             .willReturn(Optional.of(envelope));
+    }
+
+    private Envelope envelope(Status status) {
+        return new Envelope(
+            UUID.randomUUID(),
+            "some_container",
+            "hello.zip",
+            now(),
+            null,
+            null,
+            status,
+            false
+        );
     }
 
     private BlobItem blob(String name) {
