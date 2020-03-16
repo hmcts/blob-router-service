@@ -4,6 +4,7 @@ import com.icegreen.greenmail.util.ServerSetupTest;
 import com.microsoft.applicationinsights.boot.dependencies.google.common.io.Resources;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Disabled
 public class EmailSenderTest {
 
     // as defined in application.properties
