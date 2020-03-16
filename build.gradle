@@ -51,7 +51,7 @@ tasks.withType(JavaCompile) {
 }
 
 test {
-  failFast = true
+  failFast = false
 }
 
 task functional(type: Test) {
