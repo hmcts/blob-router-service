@@ -11,10 +11,10 @@ public class BlobDispatcher {
 
     private static final Logger logger = getLogger(BlobDispatcher.class);
 
-    private final BlobContainerClientProvider blobContainerClientProvider;
+    private final BlobContainerClientProxy blobContainerClientProxy;
 
-    public BlobDispatcher(BlobContainerClientProvider blobContainerClientProvider) {
-        this.blobContainerClientProvider = blobContainerClientProvider;
+    public BlobDispatcher(BlobContainerClientProxy blobContainerClientProxy) {
+        this.blobContainerClientProxy = blobContainerClientProxy;
     }
 
     public void dispatch(
@@ -30,7 +30,7 @@ public class BlobDispatcher {
             targetStorageAccount
         );
 
-        blobContainerClientProvider.doUpdate(blobName, blobContents, destinationContainer, targetStorageAccount);
+        blobContainerClientProxy.upload(blobName, blobContents, destinationContainer, targetStorageAccount);
 
         logger.info(
             "Finished uploading file. Blob name: {}. Container: {}. Storage: {}",

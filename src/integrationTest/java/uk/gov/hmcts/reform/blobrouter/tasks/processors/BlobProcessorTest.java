@@ -18,7 +18,7 @@ import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientBuilderProvider;
-import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProvider;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BulkScanSasTokenCache;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
@@ -38,7 +38,7 @@ import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSig
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest extends BlobStorageBaseTest {
 
-    private BlobContainerClientProvider containerClientProvider;
+    private BlobContainerClientProxy containerClientProvider;
 
     @Mock
     private BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -66,7 +66,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
 
     @BeforeEach
     void setUp() {
-        containerClientProvider = new BlobContainerClientProvider(
+        containerClientProvider = new BlobContainerClientProxy(
             mock(BlobContainerClient.class),
             blobContainerClientBuilderProvider,
             mock(BulkScanSasTokenCache.class)
