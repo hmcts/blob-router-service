@@ -128,7 +128,7 @@ public class BlobProcessorContinuationTest {
     }
 
     @Test
-    void should_skip_the_file_if_it_is_not_in_CREATED_status() {
+    void should_skip_the_file_if_it_is_not_in_the_created_status() {
         // given
         var id = UUID.randomUUID();
         blobExists("hello.zip", "s1");
