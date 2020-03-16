@@ -10,6 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
@@ -75,6 +77,7 @@ public class BlobProcessorContinuationTest {
 
         blobExists(fileName, containerName);
         given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
+        given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.CREATED)));
         given(verifier.verifyZip(any(), any())).willReturn(ok());
         given(contentExtractor.getContentToUpload(any(), any())).willReturn(content);
 
@@ -82,6 +85,7 @@ public class BlobProcessorContinuationTest {
         blobProcessor.continueProcessing(id, blobClient);
 
         // then
+        verify(envelopeService).findEnvelope(id);
         verify(envelopeService, never()).createNewEnvelope(any(), any(), any());
         verify(envelopeService).markAsDispatched(id);
         verify(blobDispatcher).dispatch(fileName, content, "t1", BULKSCAN);
@@ -95,12 +99,14 @@ public class BlobProcessorContinuationTest {
 
         blobExists("hello.zip", "s1");
         given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
+        given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.CREATED)));
         given(verifier.verifyZip(any(), any())).willReturn(error(validationError));
 
         // when
         blobProcessor.continueProcessing(id, blobClient);
 
         // then
+        verify(envelopeService).findEnvelope(id);
         verify(envelopeService).markAsRejected(id, validationError);
         verifyNoMoreInteractions(envelopeService);
 
@@ -118,6 +124,23 @@ public class BlobProcessorContinuationTest {
 
         // then
         verifyNoInteractions(envelopeService);
+        verifyNoInteractions(blobDispatcher);
+    }
+
+    @Test
+    void should_skip_the_file_if_it_is_not_in_CREATED_status() {
+        // given
+        var id = UUID.randomUUID();
+        blobExists("hello.zip", "s1");
+        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
+        given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.DISPATCHED)));
+
+        // when
+        blobProcessor.continueProcessing(id, blobClient);
+
+        // then
+        verify(envelopeService).findEnvelope(id);
+        verifyNoMoreInteractions(envelopeService);
         verifyNoInteractions(blobDispatcher);
     }
 
@@ -141,5 +164,9 @@ public class BlobProcessorContinuationTest {
         })
             .given(blobClient)
             .download(any());
+    }
+
+    private Envelope envelope(UUID id, Status status) {
+        return new Envelope(id, "container", "file_name", null, null, null, status, false);
     }
 }
