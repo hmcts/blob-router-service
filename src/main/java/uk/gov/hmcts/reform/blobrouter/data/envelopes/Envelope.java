@@ -33,4 +33,14 @@ public class Envelope {
         this.status = status;
         this.isDeleted = isDeleted;
     }
+
+    public String getBasicInfo() {
+        return String.format(
+            "Envelope ID: %s, File name: %s, Container: %s, Status: %s",
+            this.id,
+            this.fileName,
+            this.container,
+            this.status
+        );
+    }
 }
