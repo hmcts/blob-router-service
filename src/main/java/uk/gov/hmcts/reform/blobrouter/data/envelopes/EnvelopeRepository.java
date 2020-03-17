@@ -36,25 +36,6 @@ public class EnvelopeRepository {
         }
     }
 
-    public Optional<Envelope> findLast(String fileName, String container) {
-        try {
-            Envelope envelope = jdbcTemplate.queryForObject(
-                "SELECT * FROM envelopes"
-                    + " WHERE file_name = :fileName"
-                    + " AND container = :container"
-                    + " ORDER BY created_at DESC"
-                    + " LIMIT 1",
-                new MapSqlParameterSource()
-                    .addValue("fileName", fileName)
-                    .addValue("container", container),
-                this.mapper
-            );
-            return Optional.of(envelope);
-        } catch (EmptyResultDataAccessException ex) {
-            return Optional.empty();
-        }
-    }
-
     public List<Envelope> find(Status status, String container, boolean isDeleted) {
         return jdbcTemplate.query(
             "SELECT * FROM envelopes WHERE status = :status AND container = :container AND is_deleted = :isDeleted",
@@ -74,6 +55,25 @@ public class EnvelopeRepository {
                 .addValue("isDeleted", isDeleted),
             this.mapper
         );
+    }
+
+    public Optional<Envelope> findLast(String fileName, String container) {
+        try {
+            Envelope envelope = jdbcTemplate.queryForObject(
+                "SELECT * FROM envelopes"
+                    + " WHERE file_name = :fileName"
+                    + " AND container = :container"
+                    + " ORDER BY created_at DESC"
+                    + " LIMIT 1",
+                new MapSqlParameterSource()
+                    .addValue("fileName", fileName)
+                    .addValue("container", container),
+                this.mapper
+            );
+            return Optional.of(envelope);
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
     }
 
     public UUID insert(NewEnvelope envelope) {
