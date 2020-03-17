@@ -119,7 +119,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
             .as("File should be copied to target container")
             .containsExactly(blobName);
 
-        assertThat(envelopeRepo.find(blobName, sourceContainer))
+        assertThat(envelopeRepo.findLast(blobName, sourceContainer))
             .as("Envelope in the DB has been created")
             .hasValueSatisfying(envelope -> assertThat(envelope.status).isEqualTo(DISPATCHED));
     }

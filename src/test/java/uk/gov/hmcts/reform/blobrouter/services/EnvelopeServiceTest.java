@@ -57,10 +57,10 @@ class EnvelopeServiceTest {
     @Test
     void should_only_call_envelope_repository_to_get_envelope() {
         // when
-        envelopeService.findEnvelope(BLOB_NAME, CONTAINER_NAME);
+        envelopeService.findLastEnvelope(BLOB_NAME, CONTAINER_NAME);
 
         // then
-        verify(envelopeRepository).find(BLOB_NAME, CONTAINER_NAME);
+        verify(envelopeRepository).findLast(BLOB_NAME, CONTAINER_NAME);
         verifyNoInteractions(eventRepository);
     }
 
