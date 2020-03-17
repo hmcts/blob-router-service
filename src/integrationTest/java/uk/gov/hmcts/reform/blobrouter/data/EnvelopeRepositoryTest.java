@@ -216,31 +216,33 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    void should_find_envelopes_by_container_and_file_name() {
+    void should_find_last_envelope_by_container_and_file_name() {
         // given
         final String fileName = "foo.bar";
         final String container = "bar";
 
         // and
-        repo.insert(new NewEnvelope(container, fileName, now(), now(), Status.DISPATCHED));
+        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(99), now(), Status.DISPATCHED));
+        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(10), null, Status.REJECTED));
 
         // when
-        Optional<Envelope> result = repo.find(fileName, container);
+        Optional<Envelope> result = repo.findLast(fileName, container);
 
         // then
         assertThat(result).hasValueSatisfying(envelope -> {
             assertThat(envelope.fileName).isEqualTo(fileName);
             assertThat(envelope.container).isEqualTo(container);
+            assertThat(envelope.status).isEqualTo(Status.REJECTED);
         });
     }
 
     @Test
-    void should_return_empty_optional_when_envelope_for_given_container_and_file_name_does_not_exist() {
+    void should_return_empty_optional_when_last_envelope_for_given_container_and_file_name_does_not_exist() {
         // given
         repo.insert(new NewEnvelope("a", "b", now(), now(), Status.DISPATCHED));
 
         // when
-        Optional<Envelope> result = repo.find("some_other_file_name", "some_other_container");
+        Optional<Envelope> result = repo.findLast("some_other_file_name", "some_other_container");
 
         // then
         assertThat(result).isEmpty();
