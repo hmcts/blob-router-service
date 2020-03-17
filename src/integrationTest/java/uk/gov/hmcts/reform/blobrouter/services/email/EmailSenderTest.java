@@ -95,7 +95,7 @@ public class EmailSenderTest {
         assertThat(headers).contains("From: " + FROM_ADDRESS);
         assertThat(headers).contains("To: " + RECIPIENT_1 + ", " + RECIPIENT_2);
         assertThat(headers).contains("Subject: " + SUBJECT);
-        assertThat(msg.getContentType().startsWith(MULTIPART_MIXED_VALUE)).isTrue();
+        assertThat(msg.getContentType()).startsWith(MULTIPART_MIXED_VALUE);
         Multipart multipartReceived = (Multipart) msg.getContent();
 
         assertThat(multipartReceived.getCount()).isEqualTo(3);
