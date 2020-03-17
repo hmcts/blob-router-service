@@ -92,9 +92,9 @@ public class EmailSenderTest {
         assertThat(greenMail.getReceivedMessages()).hasSize(RECIPIENTS.length);
         MimeMessage msg = greenMail.getReceivedMessages()[0];
         String headers = GreenMailUtil.getHeaders(msg);
-        assertThat(headers.contains("From: " + FROM_ADDRESS)).isTrue();
-        assertThat(headers.contains("To: " + RECIPIENT_1 + ", " + RECIPIENT_2)).isTrue();
-        assertThat(headers.contains("Subject: " + SUBJECT)).isTrue();
+        assertThat(headers).contains("From: " + FROM_ADDRESS);
+        assertThat(headers).contains("To: " + RECIPIENT_1 + ", " + RECIPIENT_2);
+        assertThat(headers).contains("Subject: " + SUBJECT);
         assertThat(msg.getContentType().startsWith(MULTIPART_MIXED_VALUE)).isTrue();
         Multipart multipartReceived = (Multipart) msg.getContent();
 
@@ -102,11 +102,11 @@ public class EmailSenderTest {
 
         MimeBodyPart msgTextPart = (MimeBodyPart) multipartReceived.getBodyPart(0);
         String msgTextContentType = msgTextPart.getContentType();
-        assertThat(msgTextContentType.contains(MULTIPART_RELATED_VALUE)).isTrue();
+        assertThat(msgTextContentType).contains(MULTIPART_RELATED_VALUE);
         InputStream msgTextContent = msgTextPart.getInputStream();
         byte[] msgTextData = IOUtils.toByteArray(msgTextContent);
         String text = new String(msgTextData);
-        assertThat(text.contains(BODY)).isTrue();
+        assertThat(text).contains(BODY);
 
         MimeBodyPart msgFilePart1 = (MimeBodyPart) multipartReceived.getBodyPart(1);
         MimeBodyPart msgFilePart2 = (MimeBodyPart) multipartReceived.getBodyPart(2);
