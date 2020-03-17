@@ -40,6 +40,11 @@ public class EnvelopeService {
         return envelopeRepository.find(blobName, containerName);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<Envelope> findEnvelope(UUID id) {
+        return envelopeRepository.find(id);
+    }
+
     @Transactional
     public UUID createNewEnvelope(String containerName, String blobName, Instant blobCreationDate) {
         UUID id = envelopeRepository

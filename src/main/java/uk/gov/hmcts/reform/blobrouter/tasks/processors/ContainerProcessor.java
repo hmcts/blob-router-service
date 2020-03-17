@@ -6,6 +6,7 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
@@ -71,16 +72,14 @@ public class ContainerProcessor {
         envelopeService
             .findEnvelope(blob.getBlobName(), blob.getContainerName())
             .ifPresentOrElse(
-                envelope -> logger.info(
-                    "Envelope already processed in system, skipping."
-                        + " ID: {}, filename: {}, container: {}, state: {}",
-                    envelope.id,
-                    envelope.fileName,
-                    envelope.container,
-                    envelope.status.name()
-                ),
+                envelope -> {
+                    if (envelope.status == Status.CREATED) {
+                        blobProcessor.continueProcessing(envelope.id, blob);
+                    } else {
+                        logger.info("Envelope already processed in system, skipping. {}", envelope.getBasicInfo());
+                    }
+                },
                 () -> blobProcessor.process(blob)
             );
-
     }
 }
