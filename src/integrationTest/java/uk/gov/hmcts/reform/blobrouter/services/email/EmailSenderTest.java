@@ -108,10 +108,6 @@ public class EmailSenderTest {
         String text = new String(msgTextData);
         assertThat(text.contains(BODY)).isTrue();
 
-        MimeBodyPart msgFilePart1 = (MimeBodyPart) multipartReceived.getBodyPart(1);
-        System.out.println("----------- " + msgFilePart1.getContentType());
-        MimeBodyPart msgFilePart2 = (MimeBodyPart) multipartReceived.getBodyPart(2);
-        System.out.println("----------- " + msgFilePart2.getContentType());
         assertThat(asList(msgFilePart1, msgFilePart2)
             .stream()
             .map(p -> {
