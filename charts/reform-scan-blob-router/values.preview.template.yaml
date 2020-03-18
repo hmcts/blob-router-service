@@ -15,6 +15,10 @@ java:
     STORAGE_CRIME_ACCOUNT_KEY:
       secretRef: storage-secret-crime-{{ .Release.Name }}
       key: accessKey
+  keyVaults:
+    reform-scan:
+      resourceGroup: reform-scan
+      secrets:
   environment:
     DB_HOST: "{{ .Release.Name }}-postgresql"
     DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
