@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.storage.blob.BlobContainerClient;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
@@ -58,7 +59,7 @@ public class BlobContainerClientProxy {
                 );
         } catch (HttpResponseException ex) {
             if (targetStorageAccount == TargetStorageAccount.BULKSCAN
-                && (ex.getResponse().getStatusCode() > 399 && ex.getResponse().getStatusCode() < 500)) {
+                && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
                 bulkScanSasTokenCache.removeFromCache(destinationContainer);
             }
             throw ex;
