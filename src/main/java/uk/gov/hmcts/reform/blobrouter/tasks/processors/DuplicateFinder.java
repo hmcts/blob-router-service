@@ -29,7 +29,7 @@ public class DuplicateFinder {
             .getBlobContainerClient(containerName)
             .listBlobs()
             .stream()
-            .map(blob -> envelopeService.findEnvelope(blob.getName(), containerName))
+            .map(blob -> envelopeService.findLastEnvelope(blob.getName(), containerName))
             .flatMap(Optional::stream)
             .filter(envelope -> envelope.isDeleted) // is deleted -> has already been processed before
             .collect(toList());

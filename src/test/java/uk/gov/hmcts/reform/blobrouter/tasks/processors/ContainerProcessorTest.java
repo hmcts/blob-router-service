@@ -86,7 +86,7 @@ class ContainerProcessorTest {
     void should_process_blob_if_envelope_does_not_exist_yet() {
         // given
         storageHasBlob("x.zip", "container");
-        given(envelopeService.findEnvelope(any(), any())).willReturn(Optional.empty());
+        given(envelopeService.findLastEnvelope(any(), any())).willReturn(Optional.empty());
 
         // when
         containerProcessor.process("container");
@@ -109,7 +109,7 @@ class ContainerProcessorTest {
     }
 
     private void dbHas(Envelope envelope) {
-        given(envelopeService.findEnvelope(envelope.fileName, envelope.container))
+        given(envelopeService.findLastEnvelope(envelope.fileName, envelope.container))
             .willReturn(Optional.of(envelope));
     }
 

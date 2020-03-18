@@ -70,7 +70,7 @@ public class ContainerProcessor {
 
     private void processBlob(BlobClient blob) {
         envelopeService
-            .findEnvelope(blob.getBlobName(), blob.getContainerName())
+            .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {

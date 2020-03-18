@@ -5,19 +5,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import reactor.util.function.Tuples;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.Instant.now;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -60,13 +60,14 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             now()
         );
 
-        given(envelopeRepo.find(fileName, container))
-            .willReturn(Optional.of(envelopeInDb));
-        given(eventRecordRepo.findForEnvelope(envelopeInDb.id))
-            .willReturn(Arrays.asList(
-                eventRecordInDb1,
-                eventRecordInDb2
-            ));
+        given(envelopeService.getEnvelopeInfo(fileName, container))
+            .willReturn(Optional.of(Tuples.of(
+                envelopeInDb,
+                asList(
+                    eventRecordInDb1,
+                    eventRecordInDb2
+                )
+            )));
 
         mockMvc
             .perform(
@@ -88,7 +89,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         final String fileName = "hello.zip";
         final String container = "foo";
 
-        given(envelopeRepo.find(fileName, container))
+        given(envelopeService.getEnvelopeInfo(fileName, container))
             .willReturn(Optional.empty());
 
         mockMvc
@@ -99,7 +100,5 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isNotFound());
-
-        verifyNoInteractions(eventRecordRepo);
     }
 }

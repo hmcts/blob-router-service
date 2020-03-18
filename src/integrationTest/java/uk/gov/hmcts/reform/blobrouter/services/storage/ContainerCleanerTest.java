@@ -155,8 +155,8 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
 
     private void assertFilesIsDeleteState(boolean isDeleted, List<String> fileNames) {
         for (String fileName : fileNames) {
-            assertThat(envelopeRepository.find(fileName, CONTAINER_NAME).isPresent()).isTrue();
-            assertThat(envelopeRepository.find(fileName, CONTAINER_NAME).get().isDeleted).isEqualTo(isDeleted);
+            assertThat(envelopeRepository.findLast(fileName, CONTAINER_NAME).isPresent()).isTrue();
+            assertThat(envelopeRepository.findLast(fileName, CONTAINER_NAME).get().isDeleted).isEqualTo(isDeleted);
         }
     }
 }
