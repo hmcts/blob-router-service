@@ -57,6 +57,16 @@ public class EnvelopeRepository {
         );
     }
 
+    public List<Envelope> find(String fileName, String container) {
+        return jdbcTemplate.query(
+            "SELECT * FROM envelopes WHERE file_name = :fileName AND container = :container",
+            new MapSqlParameterSource()
+                .addValue("fileName", fileName)
+                .addValue("container", container),
+            this.mapper
+        );
+    }
+
     public Optional<Envelope> findLast(String fileName, String container) {
         try {
             Envelope envelope = jdbcTemplate.queryForObject(
