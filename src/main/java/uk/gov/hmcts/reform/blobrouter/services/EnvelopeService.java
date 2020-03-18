@@ -36,8 +36,13 @@ public class EnvelopeService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Envelope> findEnvelope(String blobName, String containerName) {
-        return envelopeRepository.find(blobName, containerName);
+    public Optional<Envelope> findLastEnvelope(String blobName, String containerName) {
+        return envelopeRepository.findLast(blobName, containerName);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<Envelope> findEnvelope(UUID id) {
+        return envelopeRepository.find(id);
     }
 
     @Transactional
@@ -106,7 +111,7 @@ public class EnvelopeService {
 
     @Transactional(readOnly = true)
     public Optional<Tuple2<Envelope, List<EnvelopeEvent>>> getEnvelopeInfo(String blobName, String containerName) {
-        return findEnvelope(blobName, containerName)
+        return findLastEnvelope(blobName, containerName)
             .map(envelope -> Tuples.of(
                 envelope,
                 eventRepository.findForEnvelope(envelope.id)

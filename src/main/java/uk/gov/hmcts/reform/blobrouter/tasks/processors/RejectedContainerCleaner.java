@@ -75,7 +75,7 @@ public class RejectedContainerCleaner {
         try {
             blobClient.delete();
             envelopeService
-                .findEnvelope(blobName, containerName)
+                .findLastEnvelope(blobName, containerName)
                 .ifPresentOrElse(
                     e -> envelopeService.saveEvent(e.id, EventType.DELETED_FROM_REJECTED),
                     () -> logger.warn("Envelope not found. {}", blobInfo)
