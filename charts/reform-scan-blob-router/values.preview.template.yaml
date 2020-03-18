@@ -19,9 +19,9 @@ java:
     reform-scan:
       resourceGroup: reform-scan
       secrets:
-        - error-notifications-password
-        - error-notifications-url
-        - error-notifications-username
+        - reports-email-username
+        - reports-email-password
+        - reports-recipients
   environment:
     DB_HOST: "{{ .Release.Name }}-postgresql"
     DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
