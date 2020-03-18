@@ -269,6 +269,21 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
+    void should_find_envelopes_by_file_name_and_container() {
+        //given
+        var id1 = addEnvelope("xxx","C1");
+        var id2 = addEnvelope("xxx","C1");
+        var id3 = addEnvelope("yyy","C1");
+        var id4 = addEnvelope("xxx","C2");
+
+        // then
+        assertThat(repo.find("xxx", "C1")).extracting(env -> env.id).containsExactly(id1, id2);
+        assertThat(repo.find("yyy", "C1")).extracting(env -> env.id).containsExactly(id3);
+        assertThat(repo.find("xxx", "C2")).extracting(env -> env.id).containsExactly(id4);
+        assertThat(repo.find("aaa", "C1")).isEmpty();
+    }
+
+    @Test
     void should_return_envelopes_count_for_container_and_time_range() {
         //given
         Instant fromDate = now().minus(5, ChronoUnit.MINUTES);
@@ -282,11 +297,16 @@ public class EnvelopeRepositoryTest {
         assertThat(repo.getEnvelopesCount(newHashSet("C1", "C2", "C3", "C4"), fromDate, now())).isEqualTo(2);
     }
 
-    private void addEnvelope(String container, String fileName, Status status, boolean isDeleted) {
+    private UUID addEnvelope(String fileName, String container) {
+        return addEnvelope(container, fileName, Status.CREATED, false);
+    }
+
+    private UUID addEnvelope(String container, String fileName, Status status, boolean isDeleted) {
         UUID id = repo.insert(new NewEnvelope(container, fileName, now(), now(), status));
         if (isDeleted) {
             repo.markAsDeleted(id);
         }
+        return id;
     }
 
     private void addEnvelope(String container, String fileName, Status status, Instant fileCreatedAt) {
