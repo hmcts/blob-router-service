@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
@@ -21,6 +22,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.time.Instant.now;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -209,6 +211,38 @@ class EnvelopeServiceTest {
         assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
         assertThat(eventCaptor.getValue().type).isEqualTo(EventType.REJECTED);
         assertThat(eventCaptor.getValue().notes).isEqualTo("some reason");
+    }
+
+    @Test
+    void should_build_envelope_info() {
+        // given
+        var envelope1 = new Envelope(UUID.randomUUID(), "b", "a", now(), now(), now(), Status.DISPATCHED, true);
+        var event1a = new EnvelopeEvent(1L, envelope1.id, EventType.FILE_PROCESSING_STARTED, null, now());
+        var event1b = new EnvelopeEvent(2L, envelope1.id, EventType.DISPATCHED, null, now());
+
+        var envelope2 = new Envelope(UUID.randomUUID(), "b", "a", now(), now(), now(), Status.REJECTED, true);
+        var event2a = new EnvelopeEvent(3L, envelope2.id, EventType.FILE_PROCESSING_STARTED, null, now());
+        var event2b = new EnvelopeEvent(4L, envelope2.id, EventType.REJECTED, null, now());
+
+        given(envelopeRepository.find("a", "b")).willReturn(asList(envelope1, envelope2));
+        given(eventRepository.findForEnvelope(envelope1.id)).willReturn(asList(event1a, event1b));
+        given(eventRepository.findForEnvelope(envelope2.id)).willReturn(asList(event2a, event2b));
+
+        // when
+        var result = envelopeService.getEnvelopeInfo("a", "b");
+
+        // then
+        assertThat(result).hasSize(2);
+
+        assertThat(result.get(0).getT1()).isEqualToComparingFieldByField(envelope1);
+        assertThat(result.get(0).getT2())
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(event1a, event1b);
+
+        assertThat(result.get(1).getT1()).isEqualToComparingFieldByField(envelope2);
+        assertThat(result.get(1).getT2())
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(event2a, event2b);
     }
 
     @Test
