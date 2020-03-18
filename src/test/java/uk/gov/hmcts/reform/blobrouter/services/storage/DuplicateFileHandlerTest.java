@@ -49,7 +49,7 @@ class DuplicateFileHandlerTest {
     }
 
     @Test
-    void should_move_blob_and_store_an_event() {
+    void should_move_blob__to_rejected_container_and_create_a_new_envelope() {
         // given
         List<Duplicate> duplicates = asList(
             new Duplicate("b1", "C", now()),
