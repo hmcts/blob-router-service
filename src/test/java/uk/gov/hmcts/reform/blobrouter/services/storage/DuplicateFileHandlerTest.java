@@ -10,16 +10,13 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder.Duplicate;
 
-import java.util.List;
 import java.util.UUID;
 
 import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
