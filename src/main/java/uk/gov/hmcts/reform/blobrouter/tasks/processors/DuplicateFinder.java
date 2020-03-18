@@ -2,11 +2,10 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobServiceClient;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
+import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -24,14 +23,32 @@ public class DuplicateFinder {
         this.envelopeService = envelopeService;
     }
 
-    public List<Envelope> findIn(String containerName) {
+    public List<Duplicate> findIn(String containerName) {
         return storageClient
             .getBlobContainerClient(containerName)
             .listBlobs()
             .stream()
-            .map(blob -> envelopeService.findLastEnvelope(blob.getName(), containerName))
-            .flatMap(Optional::stream)
-            .filter(envelope -> envelope.isDeleted) // is deleted -> has already been processed before
+            .filter(b -> isDuplicate(b.getName(), containerName))
+            .map(b -> new Duplicate(b.getName(), containerName, b.getProperties().getLastModified().toInstant()))
             .collect(toList());
+    }
+
+    private boolean isDuplicate(String fileName, String container) {
+        return envelopeService
+            .findLastEnvelope(fileName, container)
+            .filter(envelope -> envelope.isDeleted)
+            .isPresent();
+    }
+
+    public static class Duplicate {
+        public final String fileName;
+        public final String container;
+        public final Instant blobCreatedAt;
+
+        public Duplicate(String fileName, String container, Instant blobCreatedAt) {
+            this.fileName = fileName;
+            this.container = container;
+            this.blobCreatedAt = blobCreatedAt;
+        }
     }
 }
