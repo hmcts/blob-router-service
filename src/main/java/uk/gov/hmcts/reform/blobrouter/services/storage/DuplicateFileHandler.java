@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder;
 
@@ -46,9 +45,14 @@ public class DuplicateFileHandler {
                                 container,
                                 duplicate.fileName
                             );
+                            var id = envelopeService.createNewEnvelope(
+                                duplicate.container,
+                                duplicate.fileName,
+                                duplicate.blobCreatedAt
+                            );
 
+                            envelopeService.markAsRejected(id, "Duplicate");
                             blobMover.moveToRejectedContainer(duplicate.fileName, container);
-                            envelopeService.saveEvent(duplicate.id, EventType.DUPLICATE_REJECTED);
 
                         } catch (Exception exc) {
                             logger.error(

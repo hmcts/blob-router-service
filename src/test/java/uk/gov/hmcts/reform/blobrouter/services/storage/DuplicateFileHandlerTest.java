@@ -6,14 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
-import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder;
+import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder.Duplicate;
 
 import java.util.List;
-import java.util.UUID;
 
+import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.BDDMockito.given;
@@ -52,7 +51,10 @@ class DuplicateFileHandlerTest {
     @Test
     void should_move_blob_and_store_an_event() {
         // given
-        List<Envelope> duplicates = asList(envelope("b1"), envelope("b2"));
+        List<Duplicate> duplicates = asList(
+            new Duplicate("b1", "C", now()),
+            new Duplicate("b2", "C", now())
+        );
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("C"));
         given(duplicateFinder.findIn("C")).willReturn(duplicates);
 
@@ -62,8 +64,8 @@ class DuplicateFileHandlerTest {
         // then
         duplicates
             .forEach(d -> {
+                verify(envelopeService).createNewEnvelope(d.container, d.fileName, d.blobCreatedAt);
                 verify(blobMover).moveToRejectedContainer(d.fileName, "C");
-                verify(envelopeService).saveEvent(d.id, EventType.DUPLICATE_REJECTED);
             });
     }
 
@@ -71,8 +73,8 @@ class DuplicateFileHandlerTest {
     void should_continue_after_failure() {
         // given
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("C"));
-        var duplicate1 = envelope("b1");
-        var duplicate2 = envelope("b2");
+        var duplicate1 = new Duplicate("b1", "C", now());
+        var duplicate2 = new Duplicate("b2", "C", now());
         given(duplicateFinder.findIn("C"))
             .willReturn(asList(
                 duplicate1,
@@ -88,10 +90,5 @@ class DuplicateFileHandlerTest {
 
         // then
         verify(blobMover).moveToRejectedContainer(duplicate2.fileName, "C");
-        verify(envelopeService).saveEvent(duplicate2.id, EventType.DUPLICATE_REJECTED);
-    }
-
-    private Envelope envelope(String name) {
-        return new Envelope(UUID.randomUUID(), null, name, null, null, null, null, true);
     }
 }
