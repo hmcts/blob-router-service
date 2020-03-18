@@ -19,6 +19,9 @@ java:
     reform-scan:
       resourceGroup: reform-scan
       secrets:
+        - reports-email-username
+        - reports-email-password
+        - reports-recipients
   environment:
     DB_HOST: "{{ .Release.Name }}-postgresql"
     DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
