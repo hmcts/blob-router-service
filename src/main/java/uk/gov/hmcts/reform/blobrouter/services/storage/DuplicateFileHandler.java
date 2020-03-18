@@ -10,6 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
 public class DuplicateFileHandler {
+    public static final String EVENT_MESSAGE = "Duplicate envelope";
 
     private static final Logger logger = getLogger(DuplicateFileHandler.class);
 
@@ -51,7 +52,7 @@ public class DuplicateFileHandler {
                                 duplicate.blobCreatedAt
                             );
 
-                            envelopeService.markAsRejected(id, "Duplicate");
+                            envelopeService.markAsRejected(id, EVENT_MESSAGE);
                             blobMover.moveToRejectedContainer(duplicate.fileName, container);
 
                         } catch (Exception exc) {

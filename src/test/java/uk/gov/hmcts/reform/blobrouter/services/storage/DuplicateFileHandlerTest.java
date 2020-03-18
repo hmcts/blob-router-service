@@ -11,11 +11,15 @@ import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder.Duplicate;
 
 import java.util.List;
+import java.util.UUID;
 
 import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
@@ -51,22 +55,26 @@ class DuplicateFileHandlerTest {
     @Test
     void should_move_blob_to_rejected_container_and_create_a_new_envelope() {
         // given
-        List<Duplicate> duplicates = asList(
-            new Duplicate("b1", "C", now()),
-            new Duplicate("b2", "C", now())
-        );
+        var duplicate1 = new Duplicate("b1", "C", now());
+        var duplicate2 = new Duplicate("b2", "C", now());
+        var id1 = UUID.randomUUID();
+        var id2 = UUID.randomUUID();
+
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("C"));
-        given(duplicateFinder.findIn("C")).willReturn(duplicates);
+        given(duplicateFinder.findIn("C")).willReturn(asList(duplicate1, duplicate2));
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id1, id2);
 
         // when
         handler.handle();
 
         // then
-        duplicates
-            .forEach(d -> {
-                verify(envelopeService).createNewEnvelope(d.container, d.fileName, d.blobCreatedAt);
-                verify(blobMover).moveToRejectedContainer(d.fileName, "C");
-            });
+        verify(envelopeService).createNewEnvelope(duplicate1.container, duplicate1.fileName, duplicate1.blobCreatedAt);
+        verify(envelopeService).markAsRejected(id1, DuplicateFileHandler.EVENT_MESSAGE);
+        verify(blobMover).moveToRejectedContainer(duplicate1.fileName, duplicate1.container);
+
+        verify(envelopeService).createNewEnvelope(duplicate2.container, duplicate2.fileName, duplicate2.blobCreatedAt);
+        verify(envelopeService).markAsRejected(id2, DuplicateFileHandler.EVENT_MESSAGE);
+        verify(blobMover).moveToRejectedContainer(duplicate2.fileName, duplicate2.container);
     }
 
     @Test
