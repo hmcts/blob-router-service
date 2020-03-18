@@ -7,9 +7,6 @@ spring:
       name: reform-scan
       aliases:
         app-insights-instrumentation-key: azure.application-insights.instrumentation-key
-        error-notifications-password: clients.error-notifications.password
-        error-notifications-url: clients.error-notifications.url
-        error-notifications-username: clients.error-notifications.username
         storage-account-name: storage.account-name
         storage-account-primary-key:  storage.account-key
         storage-account-secondary-key:  storage.account-secondary-key
