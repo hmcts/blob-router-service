@@ -4,11 +4,14 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
 
@@ -22,17 +25,20 @@ public class ContainerProcessor {
     private final BlobServiceClient storageClient;
     private final BlobProcessor blobProcessor;
     private final BlobReadinessChecker blobReadinessChecker;
+    private final LeaseAcquirer leaseAcquirer;
     private final EnvelopeService envelopeService;
 
     public ContainerProcessor(
         BlobServiceClient storageClient,
         BlobProcessor blobProcessor,
         BlobReadinessChecker blobReadinessChecker,
+        LeaseAcquirer leaseAcquirer,
         EnvelopeService envelopeService
     ) {
         this.storageClient = storageClient;
         this.blobProcessor = blobProcessor;
         this.blobReadinessChecker = blobReadinessChecker;
+        this.leaseAcquirer = leaseAcquirer;
         this.envelopeService = envelopeService;
     }
 
@@ -69,17 +75,36 @@ public class ContainerProcessor {
     }
 
     private void processBlob(BlobClient blob) {
-        envelopeService
-            .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
+        leaseAcquirer
+            .acquireFor(blob)
             .ifPresentOrElse(
-                envelope -> {
-                    if (envelope.status == Status.CREATED) {
-                        blobProcessor.continueProcessing(envelope.id, blob);
-                    } else {
-                        logger.info("Envelope already processed in system, skipping. {}", envelope.getBasicInfo());
-                    }
+                lease -> {
+                    envelopeService
+                        .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
+                        .ifPresentOrElse(
+                            envelope -> handleBlobWithExistingEnvelope(blob, envelope, lease),
+                            () -> handleBlobWithoutEnvelope(blob, lease)
+                        );
                 },
-                () -> blobProcessor.process(blob)
+                () -> {
+                    logger.info(
+                        "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
+                        blob.getBlobName(),
+                        blob.getContainerName()
+                    );
+                }
             );
+    }
+
+    private void handleBlobWithExistingEnvelope(BlobClient blob, Envelope envelope, BlobLeaseClient lease) {
+        if (envelope.status == Status.CREATED) {
+            blobProcessor.continueProcessing(envelope.id, blob, lease);
+        } else {
+            logger.info("Envelope already processed in system, skipping. {}", envelope.getBasicInfo());
+        }
+    }
+
+    private void handleBlobWithoutEnvelope(BlobClient blob, BlobLeaseClient lease) {
+        blobProcessor.process(blob, lease);
     }
 }

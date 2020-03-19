@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
-import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.blobrouter.util.Condition;
 
 import java.io.ByteArrayOutputStream;
@@ -38,7 +37,6 @@ public class BlobProcessor {
 
     private final BlobDispatcher dispatcher;
     private final EnvelopeService envelopeService;
-    private final LeaseAcquirer leaseAcquirer;
     private final BlobVerifier blobVerifier;
     private final BlobContentExtractor blobContentExtractor;
     private final Map<String, StorageConfigItem> storageConfig; // container-specific configuration, by container name
@@ -46,23 +44,22 @@ public class BlobProcessor {
     public BlobProcessor(
         BlobDispatcher dispatcher,
         EnvelopeService envelopeService,
-        LeaseAcquirer leaseAcquirer,
         BlobVerifier blobVerifier,
         BlobContentExtractor blobContentExtractor,
         ServiceConfiguration serviceConfiguration
     ) {
         this.dispatcher = dispatcher;
         this.envelopeService = envelopeService;
-        this.leaseAcquirer = leaseAcquirer;
         this.blobVerifier = blobVerifier;
         this.blobContentExtractor = blobContentExtractor;
         this.storageConfig = serviceConfiguration.getStorageConfig();
     }
 
-    public void process(BlobClient blobClient) {
+    public void process(BlobClient blobClient, BlobLeaseClient leaseClient) {
         logger.info("Processing {} from {} container", blobClient.getBlobName(), blobClient.getContainerName());
         handle(
             blobClient,
+            leaseClient,
             () -> envelopeService.createNewEnvelope(
                 blobClient.getContainerName(),
                 blobClient.getBlobName(),
@@ -72,7 +69,7 @@ public class BlobProcessor {
         );
     }
 
-    public void continueProcessing(UUID envelopeId, BlobClient blob) {
+    public void continueProcessing(UUID envelopeId, BlobClient blob, BlobLeaseClient leaseClient) {
         logger.info(
             "Continuing processing envelope. Envelope ID: {}, file name: {}. container: {}",
             envelopeId,
@@ -82,6 +79,7 @@ public class BlobProcessor {
 
         handle(
             blob,
+            leaseClient,
             () -> envelopeId,
             new Condition(
                 () -> envelopeService.findEnvelope(envelopeId).filter(e -> e.status == Status.CREATED).isPresent(),
@@ -92,45 +90,35 @@ public class BlobProcessor {
 
     private void handle(
         BlobClient blobClient,
+        BlobLeaseClient leaseClient,
         Supplier<UUID> envelopeIdSupplier,
         Condition postLeaseCondition
     ) {
-        leaseAcquirer
-            .acquireFor(blobClient)
-            .ifPresentOrElse(
-                leaseClient -> {
-                    if (postLeaseCondition.isMet()) {
-                        UUID id = envelopeIdSupplier.get();
-                        try {
-                            byte[] rawBlob = downloadBlob(blobClient);
+        if (postLeaseCondition.isMet()) {
+            UUID id = envelopeIdSupplier.get();
+            try {
+                byte[] rawBlob = downloadBlob(blobClient);
 
-                            var verificationResult = blobVerifier.verifyZip(blobClient.getBlobName(), rawBlob);
+                var verificationResult = blobVerifier.verifyZip(blobClient.getBlobName(), rawBlob);
 
-                            if (verificationResult.isOk) {
-                                dispatch(blobClient, id, rawBlob);
-                            } else {
-                                reject(blobClient, id, verificationResult.error);
-                            }
-                        } catch (Exception exception) {
-                            handleError(id, blobClient, exception);
-                        } finally {
-                            tryToReleaseLease(leaseClient, blobClient.getBlobName(), blobClient.getContainerName());
-                        }
-                    } else {
-                        logger.info(
-                            "Skipping file: {}. File name: {}, container: {}",
-                            postLeaseCondition.getMessage(),
-                            blobClient.getBlobName(),
-                            blobClient.getContainerName()
-                        );
-                    }
-                },
-                () -> logger.info(
-                    "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
-                    blobClient.getBlobName(),
-                    blobClient.getContainerName()
-                )
+                if (verificationResult.isOk) {
+                    dispatch(blobClient, id, rawBlob);
+                } else {
+                    reject(blobClient, id, verificationResult.error);
+                }
+            } catch (Exception exception) {
+                handleError(id, blobClient, exception);
+            } finally {
+                tryToReleaseLease(leaseClient, blobClient.getBlobName(), blobClient.getContainerName());
+            }
+        } else {
+            logger.info(
+                "Skipping file: {}. File name: {}, container: {}",
+                postLeaseCondition.getMessage(),
+                blobClient.getBlobName(),
+                blobClient.getContainerName()
             );
+        }
     }
 
     private void dispatch(BlobClient blob, UUID id, byte[] rawBlob) throws IOException {

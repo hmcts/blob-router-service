@@ -17,12 +17,10 @@ import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
-import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.AdditionalMatchers.aryEq;
@@ -55,7 +53,6 @@ class BlobProcessorTest {
     @Mock EnvelopeService envelopeService;
     @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
-    @Mock LeaseAcquirer leaseAcquirer;
     @Mock BlobContentExtractor blobContentExtractor;
 
     @Test
@@ -63,7 +60,6 @@ class BlobProcessorTest {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
@@ -73,7 +69,7 @@ class BlobProcessorTest {
             .dispatch(any(), any(), any(), any());
 
         // when
-        newBlobProcessor().process(blobClient);
+        newBlobProcessor().process(blobClient, blobLeaseClient);
 
         // then
         verifyNewEnvelopeHasBeenCreated();
@@ -93,7 +89,6 @@ class BlobProcessorTest {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
@@ -105,7 +100,7 @@ class BlobProcessorTest {
             .download(any());
 
         // when
-        newBlobProcessor().process(blobClient);
+        newBlobProcessor().process(blobClient, blobLeaseClient);
 
         // then
         verifyNewEnvelopeHasBeenCreated();
@@ -124,14 +119,13 @@ class BlobProcessorTest {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
         willThrow(new RuntimeException("test")).given(blobClient).download(any());
 
         // when
-        newBlobProcessor().process(blobClient);
+        newBlobProcessor().process(blobClient, blobLeaseClient);
 
         // then
         verifyNewEnvelopeHasBeenCreated();
@@ -150,7 +144,6 @@ class BlobProcessorTest {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
@@ -160,7 +153,7 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
-        newBlobProcessor().process(blobClient);
+        newBlobProcessor().process(blobClient, blobLeaseClient);
 
         // then
         verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
@@ -173,7 +166,6 @@ class BlobProcessorTest {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
 
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
 
@@ -184,7 +176,7 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(error("some error"));
 
         // when
-        newBlobProcessor().process(blobClient);
+        newBlobProcessor().process(blobClient, blobLeaseClient);
 
         // then
         verifyNoInteractions(blobDispatcher);
@@ -206,36 +198,18 @@ class BlobProcessorTest {
 
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
 
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
-        newBlobProcessor().process(blobClient);
+        newBlobProcessor().process(blobClient, blobLeaseClient);
 
         // then
         verifyNewEnvelopeHasBeenCreated();
         verify(blobDispatcher, times(1))
             .dispatch(eq(fileName), aryEq(content), eq(targetContainerName), eq(BULKSCAN));
         verify(envelopeService).markAsDispatched(id);
-    }
-
-    @Test
-    void should_not_create_envelope_or_events_when_lease_cant_be_acquired() {
-        // given
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.empty());
-        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
-        String fileName = "envelope1.zip";
-        blobExists(fileName, SOURCE_CONTAINER, OffsetDateTime.now());
-
-        // when
-        newBlobProcessor().process(blobClient);
-
-        // then
-        verify(envelopeService, times(0)).createNewEnvelope(any(), any(), any());
-        verify(envelopeService, times(0)).saveEvent(any(), any());
-        verify(verifier, times(0)).verifyZip(any(), any());
     }
 
     private void blobExists(String blobName, String containerName) {
@@ -288,7 +262,6 @@ class BlobProcessorTest {
         return new BlobProcessor(
             this.blobDispatcher,
             this.envelopeService,
-            this.leaseAcquirer,
             this.verifier,
             this.blobContentExtractor,
             this.serviceConfiguration
