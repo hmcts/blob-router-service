@@ -70,6 +70,10 @@ service:
       target-storage-account: bulkscan
       target-container: sscs
 
+queue:
+  notifications:
+    connection-string: ${NOTIFICATIONS_QUEUE_CONNECTION_STRING}
+
 reports:
   recipients: ${REPORTS_RECIPIENTS}
 
