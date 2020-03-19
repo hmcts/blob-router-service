@@ -55,7 +55,7 @@ public abstract class FunctionalTestBase {
             .get("/envelopes")
             .then()
             .statusCode(OK.value())
-            .body("status", equalTo(status.name()))
-            .body("is_deleted", equalTo(isDeleted));
+            .body("data[0].status", equalTo(status.name()))
+            .body("data[0].is_deleted", equalTo(isDeleted));
     }
 }
