@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +42,6 @@ public class BlobProcessorContinuationTest {
     @Mock BlobVerifier verifier;
     @Mock BlobContentExtractor contentExtractor;
     @Mock ServiceConfiguration serviceConfiguration;
-    @Mock BlobLeaseClient blobLeaseClient;
     @Mock(lenient = true) BlobClient blobClient;
 
     BlobProcessor blobProcessor;
@@ -78,7 +76,7 @@ public class BlobProcessorContinuationTest {
         given(contentExtractor.getContentToUpload(any(), any())).willReturn(content);
 
         // when
-        blobProcessor.continueProcessing(id, blobClient, blobLeaseClient);
+        blobProcessor.continueProcessing(id, blobClient);
 
         // then
         verify(envelopeService).findEnvelope(id);
@@ -98,7 +96,7 @@ public class BlobProcessorContinuationTest {
         given(verifier.verifyZip(any(), any())).willReturn(error(validationError));
 
         // when
-        blobProcessor.continueProcessing(id, blobClient, blobLeaseClient);
+        blobProcessor.continueProcessing(id, blobClient);
 
         // then
         verify(envelopeService).findEnvelope(id);
@@ -116,7 +114,7 @@ public class BlobProcessorContinuationTest {
         given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.DISPATCHED)));
 
         // when
-        blobProcessor.continueProcessing(id, blobClient, blobLeaseClient);
+        blobProcessor.continueProcessing(id, blobClient);
 
         // then
         verify(envelopeService).findEnvelope(id);

@@ -70,7 +70,7 @@ class ContainerProcessorTest {
         containerProcessor.process(envelope.container);
 
         // then
-        verify(blobProcessor).continueProcessing(envelope.id, blobClient, leaseClient);
+        verify(blobProcessor).continueProcessing(envelope.id, blobClient);
         verifyNoMoreInteractions(blobProcessor);
     }
 
@@ -100,7 +100,7 @@ class ContainerProcessorTest {
         containerProcessor.process("container");
 
         // then
-        verify(blobProcessor).process(blobClient, leaseClient);
+        verify(blobProcessor).process(blobClient);
         verifyNoMoreInteractions(blobProcessor);
     }
 

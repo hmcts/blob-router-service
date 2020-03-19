@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientBuilde
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BulkScanSasTokenCache;
-import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import java.io.ByteArrayInputStream;
@@ -47,7 +46,6 @@ class BlobProcessorTest extends BlobStorageBaseTest {
     @Autowired EnvelopeService envelopeService;
     @Autowired EnvelopeRepository envelopeRepo;
     @Autowired ServiceConfiguration serviceConfiguration;
-    @Autowired LeaseAcquirer leaseAcquirer;
     @Autowired BlobContentExtractor contentExtractor;
     @Autowired DbHelper dbHelper;
 
@@ -98,7 +96,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
             .upload(new ByteArrayInputStream(bytes), bytes.length);
 
         // when
-        blobProcessor.process(blobClient, leaseAcquirer.acquireFor(blobClient).get());
+        blobProcessor.process(blobClient);
 
         // then
         assertThat(targetContainerClient.listBlobs())

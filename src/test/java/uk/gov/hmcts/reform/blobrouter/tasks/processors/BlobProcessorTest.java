@@ -4,7 +4,6 @@ import com.azure.core.http.HttpResponse;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobStorageException;
-import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -49,7 +48,6 @@ class BlobProcessorTest {
     @Mock(lenient = true) BlobClient blobClient;
     @Mock(lenient = true) BlobProperties blobProperties;
     @Mock BlobDispatcher blobDispatcher;
-    @Mock BlobLeaseClient blobLeaseClient;
     @Mock EnvelopeService envelopeService;
     @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
@@ -69,7 +67,7 @@ class BlobProcessorTest {
             .dispatch(any(), any(), any(), any());
 
         // when
-        newBlobProcessor().process(blobClient, blobLeaseClient);
+        newBlobProcessor().process(blobClient);
 
         // then
         verifyNewEnvelopeHasBeenCreated();
@@ -100,7 +98,7 @@ class BlobProcessorTest {
             .download(any());
 
         // when
-        newBlobProcessor().process(blobClient, blobLeaseClient);
+        newBlobProcessor().process(blobClient);
 
         // then
         verifyNewEnvelopeHasBeenCreated();
@@ -125,7 +123,7 @@ class BlobProcessorTest {
         willThrow(new RuntimeException("test")).given(blobClient).download(any());
 
         // when
-        newBlobProcessor().process(blobClient, blobLeaseClient);
+        newBlobProcessor().process(blobClient);
 
         // then
         verifyNewEnvelopeHasBeenCreated();
@@ -153,7 +151,7 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
-        newBlobProcessor().process(blobClient, blobLeaseClient);
+        newBlobProcessor().process(blobClient);
 
         // then
         verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
@@ -176,7 +174,7 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(error("some error"));
 
         // when
-        newBlobProcessor().process(blobClient, blobLeaseClient);
+        newBlobProcessor().process(blobClient);
 
         // then
         verifyNoInteractions(blobDispatcher);
@@ -203,7 +201,7 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         // when
-        newBlobProcessor().process(blobClient, blobLeaseClient);
+        newBlobProcessor().process(blobClient);
 
         // then
         verifyNewEnvelopeHasBeenCreated();

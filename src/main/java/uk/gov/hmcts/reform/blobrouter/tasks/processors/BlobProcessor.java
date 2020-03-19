@@ -55,11 +55,10 @@ public class BlobProcessor {
         this.storageConfig = serviceConfiguration.getStorageConfig();
     }
 
-    public void process(BlobClient blobClient, BlobLeaseClient leaseClient) {
+    public void process(BlobClient blobClient) {
         logger.info("Processing {} from {} container", blobClient.getBlobName(), blobClient.getContainerName());
         handle(
             blobClient,
-            leaseClient,
             () -> envelopeService.createNewEnvelope(
                 blobClient.getContainerName(),
                 blobClient.getBlobName(),
@@ -69,7 +68,7 @@ public class BlobProcessor {
         );
     }
 
-    public void continueProcessing(UUID envelopeId, BlobClient blob, BlobLeaseClient leaseClient) {
+    public void continueProcessing(UUID envelopeId, BlobClient blob) {
         logger.info(
             "Continuing processing envelope. Envelope ID: {}, file name: {}. container: {}",
             envelopeId,
@@ -79,7 +78,6 @@ public class BlobProcessor {
 
         handle(
             blob,
-            leaseClient,
             () -> envelopeId,
             new Condition(
                 () -> envelopeService.findEnvelope(envelopeId).filter(e -> e.status == Status.CREATED).isPresent(),
@@ -90,7 +88,6 @@ public class BlobProcessor {
 
     private void handle(
         BlobClient blobClient,
-        BlobLeaseClient leaseClient,
         Supplier<UUID> envelopeIdSupplier,
         Condition postLeaseCondition
     ) {
@@ -108,8 +105,6 @@ public class BlobProcessor {
                 }
             } catch (Exception exception) {
                 handleError(id, blobClient, exception);
-            } finally {
-                tryToReleaseLease(leaseClient, blobClient.getBlobName(), blobClient.getContainerName());
             }
         } else {
             logger.info(
@@ -168,23 +163,6 @@ public class BlobProcessor {
             throw new ZipFileLoadException(errorMessage, exc);
         } catch (Exception exc) {
             throw new ZipFileLoadException(MESSAGE_FAILED_TO_DOWNLOAD_BLOB, exc);
-        }
-    }
-
-    private void tryToReleaseLease(BlobLeaseClient leaseClient, String blobName, String containerName) {
-        try {
-            leaseClient.releaseLease();
-        } catch (BlobStorageException exception) {
-            // this will mean there was a problem acquiring lease in the first place
-            // or call to release the lease genuinely went wrong.
-            // warning as lease will expire anyway and normally should sort itself out
-            logger.warn(
-                "Could not release the lease with ID {}. Blob: {}, container: {}",
-                leaseClient.getLeaseId(),
-                blobName,
-                containerName,
-                exception
-            );
         }
     }
 

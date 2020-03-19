@@ -77,7 +77,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
 
         // then
         var blobArgCaptor = ArgumentCaptor.forClass(BlobClient.class);
-        verify(blobProcessor, times(2)).process(blobArgCaptor.capture(), any());
+        verify(blobProcessor, times(2)).process(blobArgCaptor.capture());
 
         assertThat(blobArgCaptor.getAllValues())
             .extracting(BlobClientBase::getBlobName)
@@ -95,7 +95,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
         containerProcessor.process(CONTAINER_NAME);
 
         // then
-        verify(blobProcessor, never()).process(any(), any());
+        verify(blobProcessor, never()).process(any());
     }
 
     void upload(BlobContainerClient containerClient, String fileName) {
