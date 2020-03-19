@@ -15,6 +15,9 @@ java:
     STORAGE_CRIME_ACCOUNT_KEY:
       secretRef: storage-secret-crime-{{ .Release.Name }}
       key: accessKey
+    SB_CONN_STRING:
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      key: connectionString
   keyVaults:
     reform-scan:
       resourceGroup: reform-scan
@@ -45,6 +48,8 @@ java:
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
     CRIME_ENABLED: true
+
+    NOTIFICATIONS_QUEUE_CONNECTION_STRING: "$(SB_CONN_STRING);EntityPath=notifications"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
@@ -81,3 +86,14 @@ crimeblobstorage:
   setup:
     containers:
       - bs-sit-scans-received
+
+servicebus:
+  resourceGroup: reform-scan-aks
+  teamName: "BSP"
+  location: uksouth
+  serviceplan: basic
+  setup:
+    queues:
+      - name: notifications
+  enabled: true
+

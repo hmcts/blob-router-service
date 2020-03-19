@@ -19,6 +19,7 @@ java:
         - blob-router-POSTGRES-HOST
         - blob-router-POSTGRES-PORT
         - blob-router-POSTGRES-DATABASE
+        - notifications-queue-send-connection-string
 
   environment:
     DB_CONN_OPTIONS: ?sslmode=require
@@ -47,4 +48,7 @@ reformblobstorage:
 cftblobstorage:
   enabled: false
 crimeblobstorage:
+  enabled: false
+
+servicebus:
   enabled: false

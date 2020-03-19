@@ -19,3 +19,4 @@ spring:
         blob-router-POSTGRES-DATABASE: DB_NAME
         blob-router-POSTGRES-HOST: DB_HOST
         blob-router-POSTGRES-PORT: DB_PORT
+        notifications-queue-send-connection-string: NOTIFICATIONS_QUEUE_CONNECTION_STRING
