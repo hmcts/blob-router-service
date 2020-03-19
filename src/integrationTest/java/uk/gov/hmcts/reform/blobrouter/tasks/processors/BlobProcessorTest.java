@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
@@ -96,7 +97,6 @@ class BlobProcessorTest extends BlobStorageBaseTest {
             new BlobProcessor(
                 dispatcher,
                 envelopeService,
-                leaseAcquirer,
                 new BlobVerifier("signing/test_public_key.der"),
                 contentExtractor,
                 serviceConfiguration
@@ -105,13 +105,14 @@ class BlobProcessorTest extends BlobStorageBaseTest {
         var blobName = "hello.zip";
         byte[] bytes = zipAndSignDir("storage/valid", "signing/test_private_key.der");
 
-        sourceContainerClient
-            .getBlobClient(blobName)
+        BlobClient blobClient = sourceContainerClient.getBlobClient(blobName);
+
+        blobClient
             .getBlockBlobClient()
             .upload(new ByteArrayInputStream(bytes), bytes.length);
 
         // when
-        blobProcessor.process(sourceContainerClient.getBlobClient(blobName));
+        blobProcessor.process(blobClient, leaseAcquirer.acquireFor(blobClient).get());
 
         // then
         assertThat(targetContainerClient.listBlobs())
