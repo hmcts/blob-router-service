@@ -49,3 +49,6 @@ cftblobstorage:
   enabled: false
 crimeblobstorage:
   enabled: false
+
+servicebus:
+  enabled: false
