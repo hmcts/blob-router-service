@@ -90,6 +90,20 @@ class ContainerProcessorTest {
     }
 
     @Test
+    void should_skip_blob_if_lease_cannot_be_acquired() {
+        // given
+        var envelope = envelope(Status.CREATED);
+        storageHasBlob(envelope.fileName, envelope.container);
+        leaseCannotBeAcquired();
+
+        // when
+        containerProcessor.process(envelope.container);
+
+        // then
+        verifyNoInteractions(blobProcessor);
+    }
+
+    @Test
     void should_process_blob_if_envelope_does_not_exist_yet() {
         // given
         storageHasBlob("x.zip", "container");
@@ -123,6 +137,10 @@ class ContainerProcessorTest {
 
     private void leaseCanBeAcquired() {
         given(leaseAcquirer.acquireFor(blobClient)).willReturn(Optional.of(leaseClient));
+    }
+
+    private void leaseCannotBeAcquired() {
+        given(leaseAcquirer.acquireFor(blobClient)).willReturn(Optional.empty());
     }
 
     private Envelope envelope(Status status) {
