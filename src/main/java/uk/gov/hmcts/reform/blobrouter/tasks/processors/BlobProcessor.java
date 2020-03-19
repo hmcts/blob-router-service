@@ -88,9 +88,9 @@ public class BlobProcessor {
     private void handle(
         BlobClient blobClient,
         Supplier<UUID> envelopeIdSupplier,
-        Condition postLeaseCondition
+        Condition processingCondition
     ) {
-        if (postLeaseCondition.isMet()) {
+        if (processingCondition.isMet()) {
             UUID id = envelopeIdSupplier.get();
             try {
                 byte[] rawBlob = downloadBlob(blobClient);
@@ -108,7 +108,7 @@ public class BlobProcessor {
         } else {
             logger.info(
                 "Skipping file: {}. File name: {}, container: {}",
-                postLeaseCondition.getMessage(),
+                processingCondition.getMessage(),
                 blobClient.getBlobName(),
                 blobClient.getContainerName()
             );
