@@ -36,20 +36,11 @@ class ContainerCleanerTest {
 
     private ContainerCleaner containerCleaner;
 
-    @Mock
-    private EnvelopeService envelopeService;
-
-    @Mock
-    private BlobServiceClient storageClient;
-
-    @Mock
-    private BlobContainerClient containerClient;
-
-    @Mock
-    private BlobClient blobClient1;
-
-    @Mock
-    private BlobClient blobClient2;
+    @Mock EnvelopeService envelopeService;
+    @Mock BlobServiceClient storageClient;
+    @Mock BlobContainerClient containerClient;
+    @Mock BlobClient blobClient1;
+    @Mock BlobClient blobClient2;
 
     private static final Envelope ENVELOPE_1 = createEnvelope(UUID.randomUUID(), DISPATCHED, "file1.zip");
     private static final Envelope ENVELOPE_2 = createEnvelope(UUID.randomUUID(), DISPATCHED, "file2.zip");
