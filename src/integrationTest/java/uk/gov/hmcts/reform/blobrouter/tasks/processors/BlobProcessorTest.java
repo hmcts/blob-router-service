@@ -38,31 +38,17 @@ import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSig
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest extends BlobStorageBaseTest {
 
-    private BlobContainerClientProxy containerClientProvider;
+    BlobContainerClientProxy containerClientProvider;
 
-    @Mock
-    private BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
+    @Mock BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
+    @Mock BlobContainerClientBuilder blobContainerClientBuilder;
 
-    @Mock
-    private BlobContainerClientBuilder blobContainerClientBuilder;
-
-    @Autowired
-    private EnvelopeService envelopeService;
-
-    @Autowired
-    private EnvelopeRepository envelopeRepo;
-
-    @Autowired
-    private ServiceConfiguration serviceConfiguration;
-
-    @Autowired
-    private LeaseAcquirer leaseAcquirer;
-
-    @Autowired
-    private BlobContentExtractor contentExtractor;
-
-    @Autowired
-    private DbHelper dbHelper;
+    @Autowired EnvelopeService envelopeService;
+    @Autowired EnvelopeRepository envelopeRepo;
+    @Autowired ServiceConfiguration serviceConfiguration;
+    @Autowired LeaseAcquirer leaseAcquirer;
+    @Autowired BlobContentExtractor contentExtractor;
+    @Autowired DbHelper dbHelper;
 
     @BeforeEach
     void setUp() {

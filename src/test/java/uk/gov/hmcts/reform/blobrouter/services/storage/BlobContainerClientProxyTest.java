@@ -28,28 +28,16 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 public class BlobContainerClientProxyTest {
 
-    @Mock
-    private BlobContainerClient crimeClient;
+    @Mock BlobContainerClient crimeClient;
+    @Mock BulkScanSasTokenCache bulkScanSasTokenCache;
+    @Mock BlobContainerClientBuilder blobContainerClientBuilder;
+    @Mock BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
 
-    @Mock
-    private BulkScanSasTokenCache bulkScanSasTokenCache;
+    BlobContainerClientProxy blobContainerClientProxy;
 
-    @Mock
-    private BlobContainerClientBuilder blobContainerClientBuilder;
-
-    @Mock
-    private BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
-
-    private BlobContainerClientProxy blobContainerClientProxy;
-
-    @Mock
-    private BlobContainerClient blobContainerClient;
-
-    @Mock
-    private BlobClient blobClient;
-
-    @Mock
-    private BlockBlobClient blockBlobClient;
+    @Mock BlobContainerClient blobContainerClient;
+    @Mock BlobClient blobClient;
+    @Mock BlockBlobClient blockBlobClient;
 
     final String containerName = "container123";
     final String blobName = "hello.zip";
