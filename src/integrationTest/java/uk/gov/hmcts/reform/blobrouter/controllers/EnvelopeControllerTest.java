@@ -11,12 +11,14 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.Instant.now;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -61,7 +63,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         );
 
         given(envelopeService.getEnvelopeInfo(fileName, container))
-            .willReturn(Optional.of(Tuples.of(
+            .willReturn(singletonList(Tuples.of(
                 envelopeInDb,
                 asList(
                     eventRecordInDb1,
@@ -77,20 +79,21 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(envelopeInDb.id.toString()))
-            .andExpect(jsonPath("$.events[*].event").value(contains(
+            .andExpect(jsonPath("$.data", hasSize(1)))
+            .andExpect(jsonPath("$.data[0].id").value(envelopeInDb.id.toString()))
+            .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
                 EventType.FILE_PROCESSING_STARTED.name(),
                 EventType.DISPATCHED.name()
             )));
     }
 
     @Test
-    void should_return_404_if_envelope_for_given_file_name_and_container_does_not_exist() throws Exception {
+    void should_return_empty_result_if_envelope_for_given_file_name_and_container_does_not_exist() throws Exception {
         final String fileName = "hello.zip";
         final String container = "foo";
 
         given(envelopeService.getEnvelopeInfo(fileName, container))
-            .willReturn(Optional.empty());
+            .willReturn(emptyList());
 
         mockMvc
             .perform(
@@ -99,6 +102,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
                     .queryParam("container", container)
             )
             .andDo(print())
-            .andExpect(status().isNotFound());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data", hasSize(0)));
     }
 }

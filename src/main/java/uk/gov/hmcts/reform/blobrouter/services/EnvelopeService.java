@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.Instant.now;
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class EnvelopeService {
@@ -110,11 +111,14 @@ public class EnvelopeService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Tuple2<Envelope, List<EnvelopeEvent>>> getEnvelopeInfo(String blobName, String containerName) {
-        return findLastEnvelope(blobName, containerName)
+    public List<Tuple2<Envelope, List<EnvelopeEvent>>> getEnvelopeInfo(String blobName, String containerName) {
+        return envelopeRepository
+            .find(blobName, containerName)
+            .stream()
             .map(envelope -> Tuples.of(
                 envelope,
                 eventRepository.findForEnvelope(envelope.id)
-            ));
+            ))
+            .collect(toList());
     }
 }

@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
-import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeEventResponse;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
+import uk.gov.hmcts.reform.blobrouter.model.out.SearchResult;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.util.List;
@@ -27,14 +27,18 @@ public class EnvelopeController {
     }
 
     @GetMapping()
-    public EnvelopeInfo findEnvelope(
+    public SearchResult findEnvelopes(
         @RequestParam("file_name") String fileName,
         @RequestParam("container") String container
     ) {
-        return envelopeService
+        return new SearchResult(
+            envelopeService
             .getEnvelopeInfo(fileName, container)
+            .stream()
             .map(tuple -> toResponse(tuple.getT1(), tuple.getT2()))
-            .orElseThrow(EnvelopeNotFoundException::new);
+            .collect(toList())
+        );
+
     }
 
     private EnvelopeInfo toResponse(Envelope dbEnvelope, List<EnvelopeEvent> dbEventRecords) {
