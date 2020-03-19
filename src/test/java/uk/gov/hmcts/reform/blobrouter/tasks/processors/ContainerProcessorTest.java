@@ -6,6 +6,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobItemProperties;
+import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -35,10 +37,12 @@ class ContainerProcessorTest {
     @Mock BlobServiceClient storageClient;
     @Mock BlobProcessor blobProcessor;
     @Mock BlobReadinessChecker blobReadinessChecker;
+    @Mock LeaseAcquirer leaseAcquirer;
     @Mock EnvelopeService envelopeService;
 
     @Mock BlobContainerClient containerClient;
     @Mock BlobClient blobClient;
+    @Mock BlobLeaseClient leaseClient;
     @Mock PagedIterable<BlobItem> listBlobsResult;
 
     ContainerProcessor containerProcessor;
@@ -49,6 +53,7 @@ class ContainerProcessorTest {
             storageClient,
             blobProcessor,
             blobReadinessChecker,
+            leaseAcquirer,
             envelopeService
         );
     }
@@ -58,13 +63,14 @@ class ContainerProcessorTest {
         // given
         var envelope = envelope(Status.CREATED);
         storageHasBlob(envelope.fileName, envelope.container);
+        leaseCanBeAcquired();
         dbHas(envelope);
 
         // when
         containerProcessor.process(envelope.container);
 
         // then
-        verify(blobProcessor).continueProcessing(envelope.id, blobClient);
+        verify(blobProcessor).continueProcessing(envelope.id, blobClient, leaseClient);
         verifyNoMoreInteractions(blobProcessor);
     }
 
@@ -73,6 +79,7 @@ class ContainerProcessorTest {
         // given
         var envelope = envelope(Status.DISPATCHED);
         storageHasBlob(envelope.fileName, envelope.container);
+        leaseCanBeAcquired();
         dbHas(envelope);
 
         // when
@@ -86,13 +93,14 @@ class ContainerProcessorTest {
     void should_process_blob_if_envelope_does_not_exist_yet() {
         // given
         storageHasBlob("x.zip", "container");
+        leaseCanBeAcquired();
         given(envelopeService.findLastEnvelope(any(), any())).willReturn(Optional.empty());
 
         // when
         containerProcessor.process("container");
 
         // then
-        verify(blobProcessor).process(blobClient);
+        verify(blobProcessor).process(blobClient, leaseClient);
         verifyNoMoreInteractions(blobProcessor);
     }
 
@@ -111,6 +119,10 @@ class ContainerProcessorTest {
     private void dbHas(Envelope envelope) {
         given(envelopeService.findLastEnvelope(envelope.fileName, envelope.container))
             .willReturn(Optional.of(envelope));
+    }
+
+    private void leaseCanBeAcquired() {
+        given(leaseAcquirer.acquireFor(blobClient)).willReturn(Optional.of(leaseClient));
     }
 
     private Envelope envelope(Status status) {
