@@ -205,9 +205,9 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
 
   // region: feign clients
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.1.RELEASE'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '10.4.0'
-  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '10.4.0'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.2.RELEASE'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '10.8'
+  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '10.8'
   // end region
 
   // following includes web, actuator and validator.
