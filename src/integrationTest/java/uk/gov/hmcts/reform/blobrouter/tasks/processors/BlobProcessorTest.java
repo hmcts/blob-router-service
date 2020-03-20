@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
@@ -21,7 +22,6 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientBuilde
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BulkScanSasTokenCache;
-import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import java.io.ByteArrayInputStream;
@@ -46,7 +46,6 @@ class BlobProcessorTest extends BlobStorageBaseTest {
     @Autowired EnvelopeService envelopeService;
     @Autowired EnvelopeRepository envelopeRepo;
     @Autowired ServiceConfiguration serviceConfiguration;
-    @Autowired LeaseAcquirer leaseAcquirer;
     @Autowired BlobContentExtractor contentExtractor;
     @Autowired DbHelper dbHelper;
 
@@ -82,7 +81,6 @@ class BlobProcessorTest extends BlobStorageBaseTest {
             new BlobProcessor(
                 dispatcher,
                 envelopeService,
-                leaseAcquirer,
                 new BlobVerifier("signing/test_public_key.der"),
                 contentExtractor,
                 serviceConfiguration
@@ -91,13 +89,14 @@ class BlobProcessorTest extends BlobStorageBaseTest {
         var blobName = "hello.zip";
         byte[] bytes = zipAndSignDir("storage/valid", "signing/test_private_key.der");
 
-        sourceContainerClient
-            .getBlobClient(blobName)
+        BlobClient blobClient = sourceContainerClient.getBlobClient(blobName);
+
+        blobClient
             .getBlockBlobClient()
             .upload(new ByteArrayInputStream(bytes), bytes.length);
 
         // when
-        blobProcessor.process(sourceContainerClient.getBlobClient(blobName));
+        blobProcessor.process(blobClient);
 
         // then
         assertThat(targetContainerClient.listBlobs())

@@ -16,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import java.time.Instant;
@@ -35,6 +36,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
     private static final String CONTAINER_NAME = "my-container";
 
     @Autowired EnvelopeService envelopeService;
+    @Autowired LeaseAcquirer leaseAcquirer;
     @Autowired DbHelper dbHelper;
 
     @Mock BlobProcessor blobProcessor;
@@ -49,6 +51,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
             storageClient,
             blobProcessor,
             blobReadinessChecker,
+            leaseAcquirer,
             envelopeService
         );
         containerClient = createContainer(CONTAINER_NAME);

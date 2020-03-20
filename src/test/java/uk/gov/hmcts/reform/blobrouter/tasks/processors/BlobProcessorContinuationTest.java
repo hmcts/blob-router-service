@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +15,6 @@ import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
-import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.io.OutputStream;
 import java.util.Map;
@@ -41,11 +39,9 @@ public class BlobProcessorContinuationTest {
 
     @Mock BlobDispatcher blobDispatcher;
     @Mock EnvelopeService envelopeService;
-    @Mock LeaseAcquirer leaseAcquirer;
     @Mock BlobVerifier verifier;
     @Mock BlobContentExtractor contentExtractor;
     @Mock ServiceConfiguration serviceConfiguration;
-    @Mock BlobLeaseClient blobLeaseClient;
     @Mock(lenient = true) BlobClient blobClient;
 
     BlobProcessor blobProcessor;
@@ -60,7 +56,6 @@ public class BlobProcessorContinuationTest {
         blobProcessor = new BlobProcessor(
             blobDispatcher,
             envelopeService,
-            leaseAcquirer,
             verifier,
             contentExtractor,
             serviceConfiguration
@@ -76,7 +71,6 @@ public class BlobProcessorContinuationTest {
         var content = "same content".getBytes();
 
         blobExists(fileName, containerName);
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
         given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.CREATED)));
         given(verifier.verifyZip(any(), any())).willReturn(ok());
         given(contentExtractor.getContentToUpload(any(), any())).willReturn(content);
@@ -98,7 +92,6 @@ public class BlobProcessorContinuationTest {
         var validationError = "error message";
 
         blobExists("hello.zip", "s1");
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
         given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.CREATED)));
         given(verifier.verifyZip(any(), any())).willReturn(error(validationError));
 
@@ -114,25 +107,10 @@ public class BlobProcessorContinuationTest {
     }
 
     @Test
-    void should_skip_the_file_if_lease_cannot_be_acquired() {
-        // given
-        blobExists("hello.zip", "s1");
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.empty());
-
-        // when
-        blobProcessor.continueProcessing(UUID.randomUUID(), blobClient);
-
-        // then
-        verifyNoInteractions(envelopeService);
-        verifyNoInteractions(blobDispatcher);
-    }
-
-    @Test
     void should_skip_the_file_if_it_is_not_in_the_created_status() {
         // given
         var id = UUID.randomUUID();
         blobExists("hello.zip", "s1");
-        given(leaseAcquirer.acquireFor(any())).willReturn(Optional.of(blobLeaseClient));
         given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.DISPATCHED)));
 
         // when
