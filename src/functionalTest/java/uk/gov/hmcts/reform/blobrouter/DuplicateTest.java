@@ -11,7 +11,7 @@ import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArc
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.uploadFile;
 
-public class DuplicateTest extends FunctionalTestBase  {
+public class DuplicateTest extends FunctionalTestBase {
 
     @Override
     @BeforeEach

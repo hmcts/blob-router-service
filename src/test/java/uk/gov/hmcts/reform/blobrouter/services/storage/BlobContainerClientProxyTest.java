@@ -61,7 +61,8 @@ public class BlobContainerClientProxyTest {
             blobName,
             blobContent,
             containerName,
-            TargetStorageAccount.CRIME);
+            TargetStorageAccount.CRIME
+        );
 
         // then
         ArgumentCaptor<ByteArrayInputStream> data = ArgumentCaptor.forClass(ByteArrayInputStream.class);
@@ -96,7 +97,8 @@ public class BlobContainerClientProxyTest {
             blobName,
             blobContent,
             containerName,
-            TargetStorageAccount.BULKSCAN);
+            TargetStorageAccount.BULKSCAN
+        );
 
         verify(bulkScanSasTokenCache).getSasToken(containerName);
 
