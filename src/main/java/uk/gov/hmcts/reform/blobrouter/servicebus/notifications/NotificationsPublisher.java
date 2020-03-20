@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.Notificatio
 
 import java.util.UUID;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Service
 public class NotificationsPublisher implements INotificationsPublisher {
@@ -30,14 +30,14 @@ public class NotificationsPublisher implements INotificationsPublisher {
     }
 
     @Override
-    public void notify(NotificationMsg notificationMsg) {
+    public void publish(NotificationMsg notificationMsg) {
         try {
             String messageBody = objectMapper.writeValueAsString(notificationMsg);
 
             IMessage message = new Message(
                 UUID.randomUUID().toString(),
                 messageBody,
-                APPLICATION_JSON.toString()
+                APPLICATION_JSON_VALUE
             );
 
             queueClient.send(message);

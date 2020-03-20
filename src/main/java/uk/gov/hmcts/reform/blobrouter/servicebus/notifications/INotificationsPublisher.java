@@ -4,6 +4,6 @@ import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.Notificatio
 
 public interface INotificationsPublisher {
 
-    void notify(NotificationMsg notificationMsg);
+    void publish(NotificationMsg notificationMsg);
 
 }

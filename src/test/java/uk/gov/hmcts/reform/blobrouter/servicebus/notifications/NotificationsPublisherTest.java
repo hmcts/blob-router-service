@@ -48,7 +48,7 @@ class NotificationsPublisherTest {
         );
 
         // when
-        notifier.notify(notificationMsg);
+        notifier.publish(notificationMsg);
 
         // then
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
@@ -88,7 +88,7 @@ class NotificationsPublisherTest {
 
         // when
         Throwable exc = catchThrowable(
-            () -> notifier.notify(notificationMsg)
+            () -> notifier.publish(notificationMsg)
         );
 
         // then
