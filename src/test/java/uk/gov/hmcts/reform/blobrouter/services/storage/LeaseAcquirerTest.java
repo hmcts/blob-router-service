@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -90,5 +91,26 @@ class LeaseAcquirerTest {
         verify(onFailure).run();
 
         verify(leaseClient, never()).releaseLease();
+    }
+
+    @Test
+    void should_handle_error_when_releasing_lease() {
+        // given
+        var onSuccess = mock(Runnable.class);
+        var onFailure = mock(Runnable.class);
+
+        doThrow(blobStorageException).when(leaseClient).releaseLease();
+
+        var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
+
+        // when
+        var exc = catchThrowable(() -> leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure));
+
+        // then
+        assertThat(exc).isNull();
+        verify(onSuccess).run();
+        verify(onFailure, never()).run();
+
+        verify(leaseClient).releaseLease();
     }
 }
