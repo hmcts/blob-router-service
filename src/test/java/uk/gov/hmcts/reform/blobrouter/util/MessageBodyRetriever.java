@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.servicebus;
+package uk.gov.hmcts.reform.blobrouter.util;
 
 import com.microsoft.azure.servicebus.MessageBody;
 import org.springframework.util.CollectionUtils;
