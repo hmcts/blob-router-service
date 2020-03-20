@@ -15,6 +15,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -50,5 +52,43 @@ class LeaseAcquirerTest {
 
         // then
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void should_run_provided_action_when_lease_was_acquired() {
+        // given
+        var onSuccess = mock(Runnable.class);
+        var onFailure = mock(Runnable.class);
+
+        var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure);
+
+        // then
+        verify(onSuccess).run();
+        verify(onFailure, never()).run();
+
+        verify(leaseClient).releaseLease();
+    }
+
+    @Test
+    void should_run_provided_action_when_lease_was_not_acquired() {
+        // given
+        var onSuccess = mock(Runnable.class);
+        var onFailure = mock(Runnable.class);
+
+        doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
+
+        var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure);
+
+        // then
+        verify(onSuccess, never()).run();
+        verify(onFailure).run();
+
+        verify(leaseClient, never()).releaseLease();
     }
 }
