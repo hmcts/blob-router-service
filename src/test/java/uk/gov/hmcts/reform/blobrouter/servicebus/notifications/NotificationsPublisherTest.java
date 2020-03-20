@@ -12,8 +12,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import uk.gov.hmcts.reform.blobrouter.util.MessageBodyRetriever;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
+import uk.gov.hmcts.reform.blobrouter.util.MessageBodyRetriever;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
