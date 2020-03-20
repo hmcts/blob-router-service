@@ -26,7 +26,7 @@ public class ReportRepository {
 
     public List<EnvelopeSummary> getEnvelopeSummary(Instant from, Instant to) {
         return jdbcTemplate.query(
-              "SELECT container, file_name, file_created_at, dispatched_at, status, is_deleted "
+            "SELECT container, file_name, file_created_at, dispatched_at, status, is_deleted "
                 + "FROM envelopes "
                 + "WHERE container <> '" + EXCLUDED_CONTAINER + "' "
                 + "  AND file_created_at >= :from "

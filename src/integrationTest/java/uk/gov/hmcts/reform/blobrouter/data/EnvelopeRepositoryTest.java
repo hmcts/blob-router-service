@@ -271,10 +271,10 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_find_envelopes_by_file_name_and_container() {
         //given
-        var id1 = addEnvelope("xxx","C1");
-        var id2 = addEnvelope("xxx","C1");
-        var id3 = addEnvelope("yyy","C1");
-        var id4 = addEnvelope("xxx","C2");
+        var id1 = addEnvelope("xxx", "C1");
+        var id2 = addEnvelope("xxx", "C1");
+        var id3 = addEnvelope("yyy", "C1");
+        var id4 = addEnvelope("xxx", "C2");
 
         // then
         assertThat(repo.find("xxx", "C1")).extracting(env -> env.id).containsExactly(id1, id2);

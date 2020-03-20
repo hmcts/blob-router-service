@@ -33,10 +33,10 @@ public class EnvelopeController {
     ) {
         return new SearchResult(
             envelopeService
-            .getEnvelopeInfo(fileName, container)
-            .stream()
-            .map(tuple -> toResponse(tuple.getT1(), tuple.getT2()))
-            .collect(toList())
+                .getEnvelopeInfo(fileName, container)
+                .stream()
+                .map(tuple -> toResponse(tuple.getT1(), tuple.getT2()))
+                .collect(toList())
         );
 
     }

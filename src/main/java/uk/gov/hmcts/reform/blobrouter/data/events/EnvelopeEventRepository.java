@@ -39,7 +39,7 @@ public class EnvelopeEventRepository {
                 .addValue("type", event.type.name())
                 .addValue("notes", event.notes),
             keyHolder,
-            new String[]{ "id" }
+            new String[]{"id"}
         );
 
         return (long) keyHolder.getKey();

@@ -17,6 +17,6 @@ class DeleteRejectedFilesTaskTest {
     @Test
     void should_call_cleaner() {
         new DeleteRejectedFilesTask(cleaner).run();
-        verify(cleaner,times(1)).cleanUp();
+        verify(cleaner, times(1)).cleanUp();
     }
 }

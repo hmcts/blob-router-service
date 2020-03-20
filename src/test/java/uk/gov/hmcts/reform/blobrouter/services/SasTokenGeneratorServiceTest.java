@@ -58,7 +58,7 @@ class SasTokenGeneratorServiceTest {
         OffsetDateTime expiresAt = OffsetDateTime.parse(queryParams.get("se")[0]); //expiry datetime for the signature
         assertThat(expiresAt).isBetween(now, now.plusSeconds(300));
         assertThat(queryParams.get("sp")).contains("wl");//access permissions(write-w,list-l)
-        assertThat(queryParams.get("spr")).containsExactlyInAnyOrder("https","http");
+        assertThat(queryParams.get("spr")).containsExactlyInAnyOrder("https", "http");
     }
 
     @Test

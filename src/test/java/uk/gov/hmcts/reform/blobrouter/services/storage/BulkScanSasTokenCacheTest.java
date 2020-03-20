@@ -86,7 +86,7 @@ class BulkScanSasTokenCacheTest {
             bulkScanContainerClientCache.getSasToken(containerName);
 
         assertThat(sasToken).isSameAs(sasToken2);
-        verify(bulkScanProcessorClient,times(1)).getSasToken(containerName);
+        verify(bulkScanProcessorClient, times(1)).getSasToken(containerName);
     }
 
     @Test
@@ -116,7 +116,7 @@ class BulkScanSasTokenCacheTest {
         assertThat(sasToken2).isNotNull();
 
         assertThat(sasToken1).isNotSameAs(sasToken2);
-        verify(bulkScanProcessorClient,times(2)).getSasToken(containerName);
+        verify(bulkScanProcessorClient, times(2)).getSasToken(containerName);
     }
 
     @Test
@@ -131,7 +131,7 @@ class BulkScanSasTokenCacheTest {
         String token2 = "sig=edddamplesign%3D&se=" + Utility.urlEncode(expiryDate) + "&sv=2019-02-02&sp=wl&sr=c";
 
         given(bulkScanProcessorClient.getSasToken(containerName))
-            .willReturn(new SasTokenResponse(token1),new SasTokenResponse(token2));
+            .willReturn(new SasTokenResponse(token1), new SasTokenResponse(token2));
 
         String sasToken1 =
             bulkScanContainerClientCache.getSasToken(containerName);
@@ -145,7 +145,7 @@ class BulkScanSasTokenCacheTest {
         assertThat(sasToken2).isEqualTo(token2);
         assertThat(sasToken1).isNotEqualTo(sasToken2);
 
-        verify(bulkScanProcessorClient,times(2)).getSasToken(containerName);
+        verify(bulkScanProcessorClient, times(2)).getSasToken(containerName);
     }
 
 }

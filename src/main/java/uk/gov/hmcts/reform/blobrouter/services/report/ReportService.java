@@ -26,19 +26,20 @@ public class ReportService {
         var from = date.atStartOfDay().atZone(EUROPE_LONDON_ZONE_ID).toInstant();
         var to = date.atStartOfDay().plusDays(1).atZone(EUROPE_LONDON_ZONE_ID).toInstant();
 
-        return reportRepository.getEnvelopeSummary(from, to).stream()
-                .map(s -> new EnvelopeSummaryItem(
-                        s.container,
-                        s.fileName,
-                        toLocalDate(s.fileCreatedAt),
-                        toLocalTime(s.fileCreatedAt),
-                        toLocalDate(s.dispatchedAt),
-                        toLocalTime(s.dispatchedAt),
-                        s.status.name(),
-                        s.isDeleted
-                    )
-                )
-                .collect(toList());
+        return reportRepository
+            .getEnvelopeSummary(from, to)
+            .stream()
+            .map(s -> new EnvelopeSummaryItem(
+                s.container,
+                s.fileName,
+                toLocalDate(s.fileCreatedAt),
+                toLocalTime(s.fileCreatedAt),
+                toLocalDate(s.dispatchedAt),
+                toLocalTime(s.dispatchedAt),
+                s.status.name(),
+                s.isDeleted
+            ))
+            .collect(toList());
     }
 
     private LocalDate toLocalDate(Instant instant) {
