@@ -173,7 +173,7 @@ repositories {
 
 def versions = [
   junit           : '5.6.0',
-  junitPlatform   : '1.6.0',
+  junitPlatform   : '1.6.1',
   reformLogging   : '5.1.1',
   springBoot      : springBoot.class.package.implementationVersion
 ]
@@ -193,8 +193,8 @@ dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.11'
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.1.4'
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.5.1'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.5.1'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.5.2'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.5.2'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.5.0'
 
@@ -204,9 +204,9 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
 
   // region: feign clients
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.1.RELEASE'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '10.4.0'
-  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '10.4.0'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.2.RELEASE'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '10.8'
+  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '10.8'
   // end region
 
   // following includes web, actuator and validator.
