@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.servicebus.notifications;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.servicebus.Message;
+import com.microsoft.azure.servicebus.MessageBody;
 import com.microsoft.azure.servicebus.QueueClient;
 import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +13,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.springframework.util.CollectionUtils;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
-import uk.gov.hmcts.reform.blobrouter.util.MessageBodyRetriever;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -58,7 +61,7 @@ class NotificationsPublisherTest {
 
         assertThat(message.getContentType()).isEqualTo("application/json");
 
-        String messageBodyJson = new String(MessageBodyRetriever.getBinaryData(message.getMessageBody()));
+        String messageBodyJson = new String(getBinaryData(message.getMessageBody()));
         String expectedMessageBodyJson = String.format(
             "{\"zip_file_name\":\"%s\", \"jurisdiction\":\"%s\", \"po_box\":\"%s\", "
                 + "\"document_control_number\":\"%s\", \"error_code\":\"%s\", \"error_description\":\"%s\", "
@@ -98,5 +101,11 @@ class NotificationsPublisherTest {
                 "An error occurred when trying to publish notification for "
                     + "Blob name: A.zip, Jurisdiction: TEST, PO Box: 123"
             ).hasCause(exceptionToThrow);
+    }
+
+    public static byte[] getBinaryData(MessageBody messageBody) {
+        List<byte[]> binaryData = messageBody.getBinaryData();
+
+        return CollectionUtils.isEmpty(binaryData) ? null : binaryData.get(0);
     }
 }
