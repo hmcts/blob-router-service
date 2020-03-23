@@ -14,7 +14,7 @@ import java.util.UUID;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Service
-public class NotificationsPublisher implements INotificationsPublisher {
+public class NotificationsPublisher {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationsPublisher.class);
 
@@ -29,7 +29,6 @@ public class NotificationsPublisher implements INotificationsPublisher {
         this.objectMapper = objectMapper;
     }
 
-    @Override
     public void publish(NotificationMsg notificationMsg) {
         try {
             String messageBody = objectMapper.writeValueAsString(notificationMsg);
