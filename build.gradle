@@ -241,10 +241,10 @@ dependencies {
   integrationTestImplementation group: 'com.azure', name: 'azure-core-test', version: '1.1.0', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
   }
-  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.1.RELEASE', {
+  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.2.RELEASE', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.25.1'
+  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.13.0'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.11'
 
