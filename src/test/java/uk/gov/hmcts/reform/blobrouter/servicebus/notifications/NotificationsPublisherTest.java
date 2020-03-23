@@ -35,7 +35,7 @@ class NotificationsPublisherTest {
     }
 
     @Test
-    void notify_should_send_message_with_right_content() throws Exception {
+    void publish_should_send_message_with_right_content() throws Exception {
         // given
         NotificationMsg notificationMsg = new NotificationMsg(
             "test.zip",
@@ -75,7 +75,7 @@ class NotificationsPublisherTest {
     }
 
     @Test
-    void notify_should_throw_exception_when_queue_client_fails() throws Exception {
+    void publish_should_throw_exception_when_queue_client_fails() throws Exception {
         // given
         NotificationMsg notificationMsg = new NotificationMsg(
             "A.zip", "TEST", "123", null, "Xyz", "error", "service1"
