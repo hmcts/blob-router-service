@@ -23,6 +23,7 @@ public class LeaseAcquirer {
         this.leaseClientProvider = leaseClientProvider;
     }
 
+    @Deprecated
     public Optional<BlobLeaseClient> acquireFor(BlobClient blobClient) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
@@ -40,6 +41,43 @@ public class LeaseAcquirer {
             }
 
             return Optional.empty();
+        }
+    }
+
+    public void ifAcquiredOrElse(BlobClient blobClient, Runnable onSuccess, Runnable onFailure) {
+        try {
+            var leaseClient = leaseClientProvider.get(blobClient);
+            leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
+
+            onSuccess.run();
+
+            release(leaseClient, blobClient);
+
+        } catch (BlobStorageException exc) {
+            if (exc.getErrorCode() != BlobErrorCode.LEASE_ALREADY_PRESENT) {
+                logger.error(
+                    "Error acquiring lease for blob. File name: {}, Container: {}",
+                    blobClient.getBlobName(),
+                    blobClient.getContainerName(),
+                    exc
+                );
+            }
+
+            onFailure.run();
+        }
+    }
+
+    private void release(BlobLeaseClient leaseClient, BlobClient blobClient) {
+        try {
+            leaseClient.releaseLease();
+        } catch (BlobStorageException exc) {
+            logger.warn(
+                "Could not release the lease with ID {}. Blob: {}, container: {}",
+                leaseClient.getLeaseId(),
+                blobClient.getBlobName(),
+                blobClient.getContainerName(),
+                exc
+            );
         }
     }
 }
