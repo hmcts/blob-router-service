@@ -42,20 +42,18 @@ public class NotificationsPublisher {
             queueClient.send(message);
 
             logger.info(
-                "Sent message to Notifications queue. Blob name: {} Jurisdiction: {} PO Box: {} Error code: {}",
+                "Sent message to Notifications queue. File name: {} Container: {} Error code: {}",
                 notificationMsg.zipFileName,
-                notificationMsg.jurisdiction,
-                notificationMsg.poBox,
+                notificationMsg.container,
                 notificationMsg.errorCode
             );
         } catch (Exception ex) {
             throw new NotificationsPublishingException(
                 String.format(
                     "An error occurred when trying to publish notification for "
-                        + "Blob name: %s, Jurisdiction: %s, PO Box: %s",
+                        + "File name: %s, Container: %s",
                     notificationMsg.zipFileName,
-                    notificationMsg.jurisdiction,
-                    notificationMsg.poBox
+                    notificationMsg.container
                 ),
                 ex
             );
