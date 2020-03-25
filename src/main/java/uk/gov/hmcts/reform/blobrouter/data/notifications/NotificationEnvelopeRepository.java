@@ -24,7 +24,7 @@ public class NotificationEnvelopeRepository {
             "SELECT env.file_name, env.container, event.type as error_type, event.notes as description "
                 + " FROM envelopes env, envelope_events event "
                 + " WHERE env.id = event.envelope_id "
-                + " AND env.status = 'REJECTED' AND event.type = 'REJECTED'",
+                + " AND event.type = 'REJECTED'",
             this.mapper
         );
     }
