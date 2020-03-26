@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.data.notifications;
+package uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope;
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -6,12 +6,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public class NotificationEnvelopeRepository {
+public class RejectedEnvelopeRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final RejectedEnvelopeMapper mapper;
 
-    public NotificationEnvelopeRepository(
+    public RejectedEnvelopeRepository(
         NamedParameterJdbcTemplate jdbcTemplate,
         RejectedEnvelopeMapper mapper
     ) {

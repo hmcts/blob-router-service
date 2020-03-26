@@ -11,8 +11,8 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
-import uk.gov.hmcts.reform.blobrouter.data.notifications.NotificationEnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.data.notifications.RejectedEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelopeRepository;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class RejectedEnvelopeRepositoryTest {
     @Autowired
     private EnvelopeEventRepository eventRepo;
     @Autowired
-    private NotificationEnvelopeRepository notificationEnvelopeRepo;
+    private RejectedEnvelopeRepository rejectedEnvelopeRepo;
     @Autowired
     private DbHelper dbHelper;
 
@@ -57,7 +57,7 @@ public class RejectedEnvelopeRepositoryTest {
         eventRepo.insert(new NewEnvelopeEvent(envelopeId4, EventType.REJECTED, "notes3"));
 
         // when
-        List<RejectedEnvelope> rejectedEnvelopes = notificationEnvelopeRepo.getRejectedEnvelopes();
+        List<RejectedEnvelope> rejectedEnvelopes = rejectedEnvelopeRepo.getRejectedEnvelopes();
 
         // then
         assertThat(rejectedEnvelopes).hasSize(2);
@@ -88,7 +88,7 @@ public class RejectedEnvelopeRepositoryTest {
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.ERROR, "notes3"));
 
         // when
-        List<RejectedEnvelope> rejectedEnvelopes = notificationEnvelopeRepo.getRejectedEnvelopes();
+        List<RejectedEnvelope> rejectedEnvelopes = rejectedEnvelopeRepo.getRejectedEnvelopes();
 
         // then
         assertThat(rejectedEnvelopes).isEmpty();

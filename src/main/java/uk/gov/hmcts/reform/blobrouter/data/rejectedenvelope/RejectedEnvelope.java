@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.data.notifications;
+package uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope;
 
 public class RejectedEnvelope {
 
