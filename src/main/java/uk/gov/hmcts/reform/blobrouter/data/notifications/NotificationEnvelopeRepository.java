@@ -9,19 +9,19 @@ import java.util.List;
 public class NotificationEnvelopeRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final NotificationEnvelopeMapper mapper;
+    private final RejectedEnvelopeMapper mapper;
 
     public NotificationEnvelopeRepository(
         NamedParameterJdbcTemplate jdbcTemplate,
-        NotificationEnvelopeMapper mapper
+        RejectedEnvelopeMapper mapper
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
     }
 
-    public List<NotificationEnvelope> getRejectedEnvelopes() {
+    public List<RejectedEnvelope> getRejectedEnvelopes() {
         return jdbcTemplate.query(
-            "SELECT env.file_name, env.container, event.type as error_type, event.notes as description "
+            "SELECT env.file_name, env.container, event.notes as errorDescription "
                 + " FROM envelopes env, envelope_events event "
                 + " WHERE env.id = event.envelope_id "
                 + " AND event.type = 'REJECTED'",

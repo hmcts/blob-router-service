@@ -1,22 +1,19 @@
 package uk.gov.hmcts.reform.blobrouter.data.notifications;
 
-public class NotificationEnvelope {
+public class RejectedEnvelope {
 
     public final String container;
     public final String fileName;
-    public final String errorType;
-    public final String notes;
+    public final String errorDescription;
 
-    public NotificationEnvelope(
+    public RejectedEnvelope(
         String container,
         String fileName,
-        String errorType,
-        String notes
+        String errorDescription
     ) {
         this.container = container;
         this.fileName = fileName;
-        this.errorType = errorType;
-        this.notes = notes;
+        this.errorDescription = errorDescription;
     }
 
 }

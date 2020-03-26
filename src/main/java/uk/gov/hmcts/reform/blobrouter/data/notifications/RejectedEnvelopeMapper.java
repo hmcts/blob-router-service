@@ -7,15 +7,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @Component
-public class NotificationEnvelopeMapper implements RowMapper<NotificationEnvelope> {
+public class RejectedEnvelopeMapper implements RowMapper<RejectedEnvelope> {
 
     @Override
-    public NotificationEnvelope mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new NotificationEnvelope(
+    public RejectedEnvelope mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new RejectedEnvelope(
             rs.getString("container"),
             rs.getString("file_name"),
-            rs.getString("error_type"),
-            rs.getString("description")
+            rs.getString("errorDescription")
         );
     }
 }

@@ -11,8 +11,8 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
-import uk.gov.hmcts.reform.blobrouter.data.notifications.NotificationEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.notifications.NotificationEnvelopeRepository;
+import uk.gov.hmcts.reform.blobrouter.data.notifications.RejectedEnvelope;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
-public class NotificationEnvelopeRepositoryTest {
+public class RejectedEnvelopeRepositoryTest {
     @Autowired
     private EnvelopeRepository envelopeRepo;
     @Autowired
@@ -57,7 +57,7 @@ public class NotificationEnvelopeRepositoryTest {
         eventRepo.insert(new NewEnvelopeEvent(envelopeId4, EventType.REJECTED, "notes3"));
 
         // when
-        List<NotificationEnvelope> rejectedEnvelopes = notificationEnvelopeRepo.getRejectedEnvelopes();
+        List<RejectedEnvelope> rejectedEnvelopes = notificationEnvelopeRepo.getRejectedEnvelopes();
 
         // then
         assertThat(rejectedEnvelopes).hasSize(2);
@@ -65,8 +65,8 @@ public class NotificationEnvelopeRepositoryTest {
         assertThat(rejectedEnvelopes)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new NotificationEnvelope("c1", "file3.zip", "REJECTED", "notes2"),
-                new NotificationEnvelope("c2", "file4.zip", "REJECTED", "notes3")
+                new RejectedEnvelope("c1", "file3.zip", "notes2"),
+                new RejectedEnvelope("c2", "file4.zip", "notes3")
             );
     }
 
@@ -88,7 +88,7 @@ public class NotificationEnvelopeRepositoryTest {
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.ERROR, "notes3"));
 
         // when
-        List<NotificationEnvelope> rejectedEnvelopes = notificationEnvelopeRepo.getRejectedEnvelopes();
+        List<RejectedEnvelope> rejectedEnvelopes = notificationEnvelopeRepo.getRejectedEnvelopes();
 
         // then
         assertThat(rejectedEnvelopes).isEmpty();
