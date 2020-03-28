@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
-public class RejectedEnvelopeRepositoryTest {
+class RejectedEnvelopeRepositoryTest {
     @Autowired
     private EnvelopeRepository envelopeRepo;
     @Autowired
@@ -65,8 +65,8 @@ public class RejectedEnvelopeRepositoryTest {
         assertThat(rejectedEnvelopes)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
-                new RejectedEnvelope("c1", "file3.zip", "notes2"),
-                new RejectedEnvelope("c2", "file4.zip", "notes3")
+                new RejectedEnvelope(envelopeId3, "c1", "file3.zip", "notes2"),
+                new RejectedEnvelope(envelopeId4, "c2", "file4.zip", "notes3")
             );
     }
 
