@@ -42,8 +42,7 @@ class NotificationsPublisherTest {
         // given
         NotificationMsg notificationMsg = new NotificationMsg(
             "test.zip",
-            "ABC",
-            "PO123",
+            "C1",
             "1234",
             "Invalid Signature",
             "Signature verification failed",
@@ -63,12 +62,10 @@ class NotificationsPublisherTest {
 
         String messageBodyJson = new String(getBinaryData(message.getMessageBody()));
         String expectedMessageBodyJson = String.format(
-            "{\"zip_file_name\":\"%s\", \"jurisdiction\":\"%s\", \"po_box\":\"%s\", "
-                + "\"document_control_number\":\"%s\", \"error_code\":\"%s\", \"error_description\":\"%s\", "
-                + "\"service\":\"%s\"}",
+            "{\"zip_file_name\":\"%s\", \"container\":\"%s\", \"document_control_number\":\"%s\", "
+                + "\"error_code\":\"%s\", \"error_description\":\"%s\", \"service\":\"%s\"}",
             notificationMsg.zipFileName,
-            notificationMsg.jurisdiction,
-            notificationMsg.poBox,
+            notificationMsg.container,
             notificationMsg.documentControlNumber,
             notificationMsg.errorCode,
             notificationMsg.errorDescription,
@@ -81,7 +78,7 @@ class NotificationsPublisherTest {
     void publish_should_throw_exception_when_queue_client_fails() throws Exception {
         // given
         NotificationMsg notificationMsg = new NotificationMsg(
-            "A.zip", "TEST", "123", null, "Xyz", "error", "service1"
+            "A.zip", "C1", "123", null, "Xyz", "service1"
         );
 
         ServiceBusException exceptionToThrow = new ServiceBusException(true, "test exception");
@@ -99,7 +96,7 @@ class NotificationsPublisherTest {
             .isInstanceOf(NotificationsPublishingException.class)
             .hasMessage(
                 "An error occurred when trying to publish notification for "
-                    + "Blob name: A.zip, Jurisdiction: TEST, PO Box: 123"
+                    + "File name: A.zip, Container: C1"
             ).hasCause(exceptionToThrow);
     }
 
