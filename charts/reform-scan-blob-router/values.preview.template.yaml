@@ -35,6 +35,7 @@ java:
 
     DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
     TASK_SCAN_DELAY: "1000" # in millis
+    SEND_NOTIFICATIONS_CRON: "0/10 * * * * *"
 
     FLYWAY_SKIP_MIGRATIONS: false
 
