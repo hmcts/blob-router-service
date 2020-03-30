@@ -7,11 +7,8 @@ public class NotificationMsg {
     @JsonProperty("zip_file_name")
     public final String zipFileName;
 
-    @JsonProperty("jurisdiction")
-    public final String jurisdiction;
-
-    @JsonProperty("po_box")
-    public final String poBox;
+    @JsonProperty("container")
+    public final String container;
 
     @JsonProperty("document_control_number")
     public final String documentControlNumber;
@@ -27,16 +24,14 @@ public class NotificationMsg {
 
     public NotificationMsg(
         String zipFileName,
-        String jurisdiction,
-        String poBox,
+        String container,
         String documentControlNumber,
         String errorCode,
         String errorDescription,
         String service
     ) {
         this.zipFileName = zipFileName;
-        this.jurisdiction = jurisdiction;
-        this.poBox = poBox;
+        this.container = container;
         this.documentControlNumber = documentControlNumber;
         this.errorCode = errorCode;
         this.errorDescription = errorDescription;
