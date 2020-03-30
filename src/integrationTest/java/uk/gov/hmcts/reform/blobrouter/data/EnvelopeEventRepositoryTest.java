@@ -18,6 +18,7 @@ import java.util.UUID;
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.tuple;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
@@ -42,23 +43,22 @@ public class EnvelopeEventRepositoryTest {
         var event2 = new NewEnvelopeEvent(envelopeId, EventType.DELETED, "note 2");
 
         // when
-        eventRepo.insert(event1);
-        eventRepo.insert(event2);
+        long eventId1 = eventRepo.insert(event1);
+        long eventId2 = eventRepo.insert(event2);
 
         var eventsInDb = eventRepo.findForEnvelope(envelopeId);
 
         // then
-        assertThat(eventsInDb).hasSize(2);
+        assertThat(eventsInDb)
+            .hasSize(2)
+            .extracting(e -> tuple(e.id, e.envelopeId, e.type, e.notes))
+            .containsExactlyInAnyOrder(
+                tuple(eventId1, envelopeId, event1.type, event1.notes),
+                tuple(eventId2, envelopeId, event2.type, event2.notes)
+            );
 
-        assertThat(eventsInDb.get(0).id).isNotNull();
-        assertThat(eventsInDb.get(0).envelopeId).isEqualTo(event1.envelopeId);
         assertThat(eventsInDb.get(0).createdAt).isNotNull();
-        assertThat(eventsInDb.get(0).notes).isEqualTo(event1.notes);
-
-        assertThat(eventsInDb.get(1).id).isNotNull();
-        assertThat(eventsInDb.get(1).envelopeId).isEqualTo(event2.envelopeId);
         assertThat(eventsInDb.get(1).createdAt).isNotNull();
-        assertThat(eventsInDb.get(1).notes).isEqualTo(event2.notes);
     }
 
     @Test
