@@ -6,7 +6,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobItemProperties;
-import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +25,7 @@ import java.util.stream.Stream;
 import static java.time.Instant.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -42,7 +42,6 @@ class ContainerProcessorTest {
 
     @Mock BlobContainerClient containerClient;
     @Mock BlobClient blobClient;
-    @Mock BlobLeaseClient leaseClient;
     @Mock PagedIterable<BlobItem> listBlobsResult;
 
     ContainerProcessor containerProcessor;
@@ -136,11 +135,19 @@ class ContainerProcessorTest {
     }
 
     private void leaseCanBeAcquired() {
-        given(leaseAcquirer.acquireFor(blobClient)).willReturn(Optional.of(leaseClient));
+        doAnswer(invocation -> {
+            var okAction = (Runnable) invocation.getArgument(1);
+            okAction.run();
+            return null;
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
     }
 
     private void leaseCannotBeAcquired() {
-        given(leaseAcquirer.acquireFor(blobClient)).willReturn(Optional.empty());
+        doAnswer(invocation -> {
+            var failureAction = (Runnable) invocation.getArgument(2);
+            failureAction.run();
+            return null;
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
     }
 
     private Envelope envelope(Status status) {

@@ -4,8 +4,6 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
-import com.azure.storage.blob.models.BlobStorageException;
-import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
@@ -76,26 +74,22 @@ public class ContainerProcessor {
     }
 
     private void processBlob(BlobClient blob) {
-        leaseAcquirer
-            .acquireFor(blob)
-            .ifPresentOrElse(
-                lease -> {
-                    envelopeService
-                        .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
-                        .ifPresentOrElse(
-                            envelope -> handleBlobWithExistingEnvelope(blob, envelope),
-                            () -> handleBlobWithoutEnvelope(blob)
-                        );
-                    release(lease, blob);
-                },
-                () -> {
-                    logger.info(
-                        "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
-                        blob.getBlobName(),
-                        blob.getContainerName()
+        leaseAcquirer.ifAcquiredOrElse(
+            blob,
+            () -> {
+                envelopeService
+                    .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
+                    .ifPresentOrElse(
+                        envelope -> handleBlobWithExistingEnvelope(blob, envelope),
+                        () -> handleBlobWithoutEnvelope(blob)
                     );
-                }
-            );
+            },
+            () -> logger.info(
+                "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
+                blob.getBlobName(),
+                blob.getContainerName()
+            )
+        );
     }
 
     private void handleBlobWithExistingEnvelope(BlobClient blob, Envelope envelope) {
@@ -108,19 +102,5 @@ public class ContainerProcessor {
 
     private void handleBlobWithoutEnvelope(BlobClient blob) {
         blobProcessor.process(blob);
-    }
-
-    private void release(BlobLeaseClient leaseClient, BlobClient blobClient) {
-        try {
-            leaseClient.releaseLease();
-        } catch (BlobStorageException exc) {
-            logger.warn(
-                "Could not release the lease with ID {}. Blob: {}, container: {}",
-                leaseClient.getLeaseId(),
-                blobClient.getBlobName(),
-                blobClient.getContainerName(),
-                exc
-            );
-        }
     }
 }
