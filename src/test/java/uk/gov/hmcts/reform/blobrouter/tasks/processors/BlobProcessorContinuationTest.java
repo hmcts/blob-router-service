@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
 import java.io.OutputStream;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -71,7 +70,6 @@ public class BlobProcessorContinuationTest {
         var content = "same content".getBytes();
 
         blobExists(fileName, containerName);
-        given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.CREATED)));
         given(verifier.verifyZip(any(), any())).willReturn(ok());
         given(contentExtractor.getContentToUpload(any(), any())).willReturn(content);
 
@@ -79,7 +77,6 @@ public class BlobProcessorContinuationTest {
         blobProcessor.continueProcessing(id, blobClient);
 
         // then
-        verify(envelopeService).findEnvelope(id);
         verify(envelopeService, never()).createNewEnvelope(any(), any(), any());
         verify(envelopeService).markAsDispatched(id);
         verify(blobDispatcher).dispatch(fileName, content, "t1", BULKSCAN);
@@ -92,33 +89,15 @@ public class BlobProcessorContinuationTest {
         var validationError = "error message";
 
         blobExists("hello.zip", "s1");
-        given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.CREATED)));
         given(verifier.verifyZip(any(), any())).willReturn(error(validationError));
 
         // when
         blobProcessor.continueProcessing(id, blobClient);
 
         // then
-        verify(envelopeService).findEnvelope(id);
         verify(envelopeService).markAsRejected(id, validationError);
         verifyNoMoreInteractions(envelopeService);
 
-        verifyNoInteractions(blobDispatcher);
-    }
-
-    @Test
-    void should_skip_the_file_if_it_is_not_in_the_created_status() {
-        // given
-        var id = UUID.randomUUID();
-        blobExists("hello.zip", "s1");
-        given(envelopeService.findEnvelope(id)).willReturn(Optional.of(envelope(id, Status.DISPATCHED)));
-
-        // when
-        blobProcessor.continueProcessing(id, blobClient);
-
-        // then
-        verify(envelopeService).findEnvelope(id);
-        verifyNoMoreInteractions(envelopeService);
         verifyNoInteractions(blobDispatcher);
     }
 
