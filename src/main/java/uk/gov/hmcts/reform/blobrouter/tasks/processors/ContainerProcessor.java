@@ -74,25 +74,22 @@ public class ContainerProcessor {
     }
 
     private void processBlob(BlobClient blob) {
-        leaseAcquirer
-            .ifAcquiredOrElse(
-                blob,
-                () -> {
-                    envelopeService
-                        .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
-                        .ifPresentOrElse(
-                            envelope -> handleBlobWithExistingEnvelope(blob, envelope),
-                            () -> handleBlobWithoutEnvelope(blob)
-                        );
-                },
-                () -> {
-                    logger.info(
-                        "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
-                        blob.getBlobName(),
-                        blob.getContainerName()
+        leaseAcquirer.ifAcquiredOrElse(
+            blob,
+            () -> {
+                envelopeService
+                    .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
+                    .ifPresentOrElse(
+                        envelope -> handleBlobWithExistingEnvelope(blob, envelope),
+                        () -> handleBlobWithoutEnvelope(blob)
                     );
-                }
-            );
+            },
+            () -> logger.info(
+                "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
+                blob.getBlobName(),
+                blob.getContainerName()
+            )
+        );
     }
 
     private void handleBlobWithExistingEnvelope(BlobClient blob, Envelope envelope) {
