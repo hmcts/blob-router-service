@@ -8,14 +8,12 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
-import uk.gov.hmcts.reform.blobrouter.util.Condition;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,8 +60,7 @@ public class BlobProcessor {
                 blobClient.getContainerName(),
                 blobClient.getBlobName(),
                 blobClient.getProperties().getLastModified().toInstant()
-            ),
-            new Condition(() -> true, null)
+            )
         );
     }
 
@@ -77,41 +74,27 @@ public class BlobProcessor {
 
         handle(
             blob,
-            () -> envelopeId,
-            new Condition(
-                () -> envelopeService.findEnvelope(envelopeId).filter(e -> e.status == Status.CREATED).isPresent(),
-                "Envelope is not in the CREATED status"
-            )
+            () -> envelopeId
         );
     }
 
     private void handle(
         BlobClient blobClient,
-        Supplier<UUID> envelopeIdSupplier,
-        Condition processingCondition
+        Supplier<UUID> envelopeIdSupplier
     ) {
-        if (processingCondition.isMet()) {
-            UUID id = envelopeIdSupplier.get();
-            try {
-                byte[] rawBlob = downloadBlob(blobClient);
+        UUID id = envelopeIdSupplier.get();
+        try {
+            byte[] rawBlob = downloadBlob(blobClient);
 
-                var verificationResult = blobVerifier.verifyZip(blobClient.getBlobName(), rawBlob);
+            var verificationResult = blobVerifier.verifyZip(blobClient.getBlobName(), rawBlob);
 
-                if (verificationResult.isOk) {
-                    dispatch(blobClient, id, rawBlob);
-                } else {
-                    reject(blobClient, id, verificationResult.error);
-                }
-            } catch (Exception exception) {
-                handleError(id, blobClient, exception);
+            if (verificationResult.isOk) {
+                dispatch(blobClient, id, rawBlob);
+            } else {
+                reject(blobClient, id, verificationResult.error);
             }
-        } else {
-            logger.info(
-                "Skipping file: {}. File name: {}, container: {}",
-                processingCondition.getMessage(),
-                blobClient.getBlobName(),
-                blobClient.getContainerName()
-            );
+        } catch (Exception exception) {
+            handleError(id, blobClient, exception);
         }
     }
 
