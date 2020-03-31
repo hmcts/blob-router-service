@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelopeRepository;
@@ -12,11 +13,12 @@ import java.util.List;
 
 import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.NOTIFICATION_SENT;
 
+@Service
 public class NotificationService {
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
-    private static final String SERVICE_NAME = "Blob_Router";
+    private static final String SERVICE_NAME = "blob_router";
 
     private final NotificationsPublisher notificationsPublisher;
 
