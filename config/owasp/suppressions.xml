@@ -5,9 +5,9 @@
     <cpe regex="true">cpe:\/a:apache:groovy:(2\.5\.10)</cpe>
     <cpe regex="true">cpe:\/a:apache:sling:(0\.1\.0)</cpe>
   </suppress>
-  <suppress until="2020-03-31">
+  <suppress until="2020-06-30">
     <notes><![CDATA[
-   file name: spring-security-crypto-5.2.1.RELEASE.jar. No fix available
+   file name: spring-security-crypto-5.2.2.RELEASE.jar. No fix available
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
     <cve>CVE-2018-1258</cve>
