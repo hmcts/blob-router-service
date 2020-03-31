@@ -53,16 +53,18 @@ class RejectedEnvelopeRepositoryTest {
         );
 
         eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.DISPATCHED, "notes1"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.DELETED, "notes1"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.FILE_PROCESSING_STARTED, "notes1"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.REJECTED, "notes2"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId4, EventType.REJECTED, "notes3"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId4, EventType.DELETED_FROM_REJECTED, "notes3"));
 
         // when
         List<RejectedEnvelope> rejectedEnvelopes = rejectedEnvelopeRepo.getRejectedEnvelopes();
 
         // then
-        assertThat(rejectedEnvelopes).hasSize(2);
-
         assertThat(rejectedEnvelopes)
+            .hasSize(2)
             .usingFieldByFieldElementComparator()
             .containsExactlyInAnyOrder(
                 new RejectedEnvelope(envelopeId3, "c1", "file3.zip", "notes2"),
@@ -92,5 +94,44 @@ class RejectedEnvelopeRepositoryTest {
 
         // then
         assertThat(rejectedEnvelopes).isEmpty();
+    }
+
+    @Test
+    void should_filter_the_rejected_envelopes_when_notification_is_already_sent() {
+        // given
+        var envelopeId1 = envelopeRepo.insert(
+            new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.REJECTED)
+        );
+        var envelopeId2 = envelopeRepo.insert(
+            new NewEnvelope("c2", "file2.zip", now(), now().plusSeconds(100), Status.REJECTED)
+        );
+        var envelopeId3 = envelopeRepo.insert(
+            new NewEnvelope("c1", "file3.zip", now(), now().plusSeconds(100), Status.DISPATCHED)
+        );
+
+        /* rejected and notification_sent */
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.REJECTED, "notes1"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.DELETED, "notes1"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.NOTIFICATION_SENT, null));
+
+        /* rejected but notification not sent */
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.FILE_PROCESSING_STARTED, "notes1"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.REJECTED, "notes2"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.DELETED, null));
+
+        /* not rejected */
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.FILE_PROCESSING_STARTED, "notes3"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.DISPATCHED, null));
+
+        // when
+        List<RejectedEnvelope> rejectedEnvelopes = rejectedEnvelopeRepo.getRejectedEnvelopes();
+
+        // then
+        assertThat(rejectedEnvelopes)
+            .hasSize(1)
+            .usingFieldByFieldElementComparator()
+            .containsExactlyInAnyOrder(
+                new RejectedEnvelope(envelopeId2, "c2", "file2.zip", "notes2")
+            );
     }
 }
