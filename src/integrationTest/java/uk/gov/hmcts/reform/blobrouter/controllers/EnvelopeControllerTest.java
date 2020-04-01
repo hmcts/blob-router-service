@@ -45,6 +45,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             now(),
             now(),
             Status.DISPATCHED,
+            false,
             false
         );
         var eventRecordInDb1 = new EnvelopeEvent(
