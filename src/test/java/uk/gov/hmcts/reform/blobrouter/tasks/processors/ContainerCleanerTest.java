@@ -156,6 +156,7 @@ class ContainerCleanerTest {
             Instant.now(),
             Instant.now(),
             status,
+            false,
             false
         );
     }

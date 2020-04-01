@@ -21,7 +21,8 @@ public class EnvelopeMapper implements RowMapper<Envelope> {
             rs.getTimestamp("dispatched_at") == null
                 ? null : rs.getTimestamp("dispatched_at").toInstant(),
             Status.valueOf(rs.getString("status")),
-            rs.getBoolean("is_deleted")
+            rs.getBoolean("is_deleted"),
+            rs.getBoolean("pending_notification")
         );
     }
 }

@@ -120,6 +120,7 @@ class EnvelopeServiceTest {
             BLOB_CREATED,
             now(),
             Status.DISPATCHED,
+            false,
             false
         );
 
@@ -158,7 +159,9 @@ class EnvelopeServiceTest {
     @Test
     void should_mark_envelope_as_dispatched() {
         // given
-        var existingEnvelope = new Envelope(UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false);
+        var existingEnvelope = new Envelope(
+            UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false, false
+        );
         given(envelopeRepository.find(existingEnvelope.id))
             .willReturn(Optional.of(existingEnvelope));
 
@@ -195,7 +198,9 @@ class EnvelopeServiceTest {
     @Test
     void should_mark_envelope_as_rejected() {
         // given
-        var existingEnvelope = new Envelope(UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false);
+        var existingEnvelope = new Envelope(
+            UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false, false
+        );
         given(envelopeRepository.find(existingEnvelope.id))
             .willReturn(Optional.of(existingEnvelope));
 
@@ -216,11 +221,15 @@ class EnvelopeServiceTest {
     @Test
     void should_build_envelope_info() {
         // given
-        var envelope1 = new Envelope(UUID.randomUUID(), "b", "a", now(), now(), now(), Status.DISPATCHED, true);
+        var envelope1 = new Envelope(
+            UUID.randomUUID(), "b", "a", now(), now(), now(), Status.DISPATCHED, true, false
+        );
         var event1a = new EnvelopeEvent(1L, envelope1.id, EventType.FILE_PROCESSING_STARTED, null, now());
         var event1b = new EnvelopeEvent(2L, envelope1.id, EventType.DISPATCHED, null, now());
 
-        var envelope2 = new Envelope(UUID.randomUUID(), "b", "a", now(), now(), now(), Status.REJECTED, true);
+        var envelope2 = new Envelope(
+            UUID.randomUUID(), "b", "a", now(), now(), now(), Status.REJECTED, true, false
+        );
         var event2a = new EnvelopeEvent(3L, envelope2.id, EventType.FILE_PROCESSING_STARTED, null, now());
         var event2b = new EnvelopeEvent(4L, envelope2.id, EventType.REJECTED, null, now());
 
