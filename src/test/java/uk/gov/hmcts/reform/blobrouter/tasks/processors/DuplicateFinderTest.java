@@ -44,8 +44,8 @@ class DuplicateFinderTest {
     @Test
     void should_return_duplicate_when_envelope_already_exists_and_is_marked_as_deleted() {
         // given
-        Envelope deletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, true);
-        Envelope notYetDeletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, false);
+        Envelope deletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, true, false);
+        Envelope notYetDeletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, false, false);
 
         var blobs = Stream.of(
             blob("a.zip"),

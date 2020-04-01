@@ -159,6 +159,7 @@ class ContainerProcessorTest {
             null,
             null,
             status,
+            false,
             false
         );
     }
