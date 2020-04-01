@@ -21,24 +21,22 @@ public class RejectedEnvelopeRepository {
 
     public List<RejectedEnvelope> getRejectedEnvelopes() {
         return jdbcTemplate.query(
-            "SELECT env.id, env.container, env.file_name, e.type, e.notes as errorDescription "
+            "SELECT env.id, env.container, env.file_name, e.notes as errorDescription "
                 + " FROM envelopes env "
+                + " JOIN envelope_events e "
+                + "     ON e.envelope_id = env.id "
                 + " JOIN "
-                + " envelope_events e ON e.envelope_id = env.id " /* get container and file_name from envelope */
-                + " JOIN "
-                + " (SELECT envelope_id, SUM(notification_event) AS notification_sent_count "
-                + "  FROM "
-                + "     (SELECT envelope_id, type, "
-                + "      (CASE WHEN type = 'NOTIFICATION_SENT' THEN 1 else 0 END) AS notification_event "
-                + "      FROM envelope_events "
-                + "      WHERE type IN ('REJECTED', 'NOTIFICATION_SENT') "
-                + "      GROUP BY envelope_id, type "
-                + "     ) events " /* envelopes having Rejected and Notification_sent events */
-                + "  GROUP BY envelope_id "
-                + " ) rejected_envelopes " /* rejected envelope_ids from events */
-                + " ON e.envelope_id = rejected_envelopes.envelope_id " /* join on events and rejected envelopes */
+                + "     (SELECT envelope_id, count(type) AS events_count "
+                + "     FROM "
+                + "         (SELECT envelope_id, type "
+                + "         FROM envelope_events "
+                + "         WHERE type IN ('REJECTED', 'NOTIFICATION_SENT') "
+                + "     ) events " /* Rejected and Notification_sent events */
+                + "     GROUP BY envelope_id "
+                + " ) rejected_envelopes " /* envelope_ids and events_count which would be 2 if notification_sent */
+                + "     ON e.envelope_id = rejected_envelopes.envelope_id "
                 + " WHERE e.type = 'REJECTED' "
-                + "     AND rejected_envelopes.notification_sent_count = 0", /* filter notification_sent */
+                + "     AND rejected_envelopes.events_count = 1", /* filter notification_sent events */
             this.mapper
         );
     }
