@@ -100,6 +100,12 @@ public class EnvelopeService {
     }
 
     @Transactional
+    public void markPendingNotificationAsSent(UUID id) {
+        envelopeRepository.updatePendingNotification(id);
+        eventRepository.insert(new NewEnvelopeEvent(id, EventType.NOTIFICATION_SENT, null));
+    }
+
+    @Transactional
     public void markEnvelopeAsDeleted(Envelope envelope) {
         envelopeRepository.markAsDeleted(envelope.id);
         eventRepository.insert(new NewEnvelopeEvent(envelope.id, EventType.DELETED, null));

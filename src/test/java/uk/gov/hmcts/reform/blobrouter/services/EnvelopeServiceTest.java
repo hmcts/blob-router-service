@@ -269,4 +269,24 @@ class EnvelopeServiceTest {
             .isInstanceOf(EnvelopeNotFoundException.class)
             .hasMessageContaining(notExistingId.toString());
     }
+
+    @Test
+    void should_update_envelope_pending_notification_as_true() {
+        // given
+        var existingEnvelope = new Envelope(
+            UUID.randomUUID(), "c", "f", null, null, null, Status.REJECTED, false, false
+        );
+
+        // when
+        envelopeService.markPendingNotificationAsSent(existingEnvelope.id);
+
+        // then
+        verify(envelopeRepository).updatePendingNotification(existingEnvelope.id);
+
+        var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(eventRepository).insert(eventCaptor.capture());
+
+        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
+        assertThat(eventCaptor.getValue().type).isEqualTo(EventType.NOTIFICATION_SENT);
+    }
 }

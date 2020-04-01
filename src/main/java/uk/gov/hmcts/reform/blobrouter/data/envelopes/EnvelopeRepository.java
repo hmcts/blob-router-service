@@ -136,6 +136,15 @@ public class EnvelopeRepository {
         );
     }
 
+    public int updatePendingNotification(UUID id) {
+        return jdbcTemplate.update(
+            "UPDATE envelopes "
+                + "SET pending_notification = True "
+                + "WHERE id = :id",
+            new MapSqlParameterSource("id", id)
+        );
+    }
+
     public Integer getEnvelopesCount(Set<String> containers, Instant fromDateTime, Instant toDateTime) {
         return jdbcTemplate.queryForObject(
             "SELECT count(*) FROM envelopes "
