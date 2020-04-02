@@ -209,6 +209,7 @@ class EnvelopeServiceTest {
 
         // then
         verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.REJECTED);
+        verify(envelopeRepository).updatePendingNotification(existingEnvelope.id, true);
 
         var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
         verify(eventRepository).insert(eventCaptor.capture());
@@ -268,5 +269,25 @@ class EnvelopeServiceTest {
         assertThat(exc)
             .isInstanceOf(EnvelopeNotFoundException.class)
             .hasMessageContaining(notExistingId.toString());
+    }
+
+    @Test
+    void should_mark_envelope_as_notification_sent() {
+        // given
+        var existingEnvelope = new Envelope(
+            UUID.randomUUID(), "c", "f", null, null, null, Status.REJECTED, false, true
+        );
+
+        // when
+        envelopeService.markPendingNotificationAsSent(existingEnvelope.id);
+
+        // then
+        verify(envelopeRepository).updatePendingNotification(existingEnvelope.id, false);
+
+        var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(eventRepository).insert(eventCaptor.capture());
+
+        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
+        assertThat(eventCaptor.getValue().type).isEqualTo(EventType.NOTIFICATION_SENT);
     }
 }

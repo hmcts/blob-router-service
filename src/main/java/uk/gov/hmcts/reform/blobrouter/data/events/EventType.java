@@ -8,4 +8,5 @@ public enum EventType {
     DELETED_FROM_REJECTED,
     DUPLICATE_REJECTED,
     ERROR,
+    NOTIFICATION_SENT,
 }
