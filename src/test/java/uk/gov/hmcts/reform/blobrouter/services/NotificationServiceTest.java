@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.NotificationsPublisher;
@@ -58,8 +57,8 @@ class NotificationServiceTest {
         // then
         verify(rejectedEnvelopeRepository).getRejectedEnvelopes();
         verify(notificationsPublisher, times(2)).publish(any(NotificationMsg.class));
-        verify(envelopeService).saveEvent(envelopeId1, EventType.NOTIFICATION_SENT);
-        verify(envelopeService).saveEvent(envelopeId1, EventType.NOTIFICATION_SENT);
+        verify(envelopeService).markPendingNotificationAsSent(envelopeId1);
+        verify(envelopeService).markPendingNotificationAsSent(envelopeId2);
     }
 
     @Test

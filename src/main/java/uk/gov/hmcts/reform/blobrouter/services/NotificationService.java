@@ -11,8 +11,6 @@ import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.Notificatio
 
 import java.util.List;
 
-import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.NOTIFICATION_SENT;
-
 @Service
 public class NotificationService {
 
@@ -44,7 +42,7 @@ public class NotificationService {
                     "Send message to notifications queue. File name: {} Container: {}", env.fileName, env.container
                 );
                 notificationsPublisher.publish(mapToNotificationMessage(env));
-                envelopeService.saveEvent(env.envelopeId, NOTIFICATION_SENT);
+                envelopeService.markPendingNotificationAsSent(env.envelopeId);
             }
         );
     }

@@ -21,22 +21,11 @@ public class RejectedEnvelopeRepository {
 
     public List<RejectedEnvelope> getRejectedEnvelopes() {
         return jdbcTemplate.query(
-            "SELECT env.id, env.container, env.file_name, e.notes as errorDescription "
-                + " FROM envelopes env "
-                + " JOIN envelope_events e "
-                + "     ON e.envelope_id = env.id "
-                + " JOIN "
-                + "     (SELECT envelope_id, count(type) AS events_count "
-                + "     FROM "
-                + "         (SELECT envelope_id, type "
-                + "         FROM envelope_events "
-                + "         WHERE type IN ('REJECTED', 'NOTIFICATION_SENT') "
-                + "     ) events " /* Rejected and Notification_sent events */
-                + "     GROUP BY envelope_id "
-                + " ) rejected_envelopes " /* envelope_ids and events_count which would be 2 if notification_sent */
-                + "     ON e.envelope_id = rejected_envelopes.envelope_id "
-                + " WHERE e.type = 'REJECTED' "
-                + "     AND rejected_envelopes.events_count = 1", /* filter notification_sent events */
+            "SELECT env.id, env.file_name, env.container, event.notes as errorDescription "
+                + " FROM envelopes env, envelope_events event "
+                + " WHERE env.id = event.envelope_id "
+                + "     AND event.type = 'REJECTED' "
+                + "     AND env.pending_notification IS TRUE ",
             this.mapper
         );
     }

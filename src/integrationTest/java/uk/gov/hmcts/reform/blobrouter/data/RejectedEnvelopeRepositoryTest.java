@@ -37,7 +37,7 @@ class RejectedEnvelopeRepositoryTest {
     }
 
     @Test
-    void should_get_the_rejected_envelopes() {
+    void should_get_the_rejected_envelopes_with_notifications_pending() {
         // given
         envelopeRepo.insert(
             new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.REJECTED)
@@ -53,11 +53,13 @@ class RejectedEnvelopeRepositoryTest {
         );
 
         eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.DISPATCHED, "notes1"));
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.DELETED, "notes1"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.FILE_PROCESSING_STARTED, "notes1"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.REJECTED, "notes2"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId4, EventType.REJECTED, "notes3"));
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId4, EventType.DELETED_FROM_REJECTED, "notes3"));
+
+        /* notifications pending */
+        envelopeRepo.updatePendingNotification(envelopeId3, true);
+        envelopeRepo.updatePendingNotification(envelopeId4, true);
 
         // when
         List<RejectedEnvelope> rejectedEnvelopes = rejectedEnvelopeRepo.getRejectedEnvelopes();
@@ -73,7 +75,7 @@ class RejectedEnvelopeRepositoryTest {
     }
 
     @Test
-    void should_get_empty_results_when_no_rejected_envelopes_found() {
+    void should_get_empty_results_when_no_rejected_envelopes_with_pending_notifications_found() {
         // given
         var envelopeId1 = envelopeRepo.insert(
             new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.CREATED)
@@ -88,6 +90,8 @@ class RejectedEnvelopeRepositoryTest {
         eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.FILE_PROCESSING_STARTED, "notes1"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.DISPATCHED, "notes2"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.ERROR, "notes3"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.REJECTED, "notes2"));
+        envelopeRepo.updatePendingNotification(envelopeId3, false); // notification sent
 
         // when
         List<RejectedEnvelope> rejectedEnvelopes = rejectedEnvelopeRepo.getRejectedEnvelopes();
@@ -99,27 +103,26 @@ class RejectedEnvelopeRepositoryTest {
     @Test
     void should_filter_the_rejected_envelopes_when_notification_is_already_sent() {
         // given
+        /* rejected and notification_sent */
         var envelopeId1 = envelopeRepo.insert(
             new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.REJECTED)
         );
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.REJECTED, "notes1"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.DELETED, "notes1"));
+        envelopeRepo.updatePendingNotification(envelopeId1, false);
+
+        /* rejected but notification not sent */
         var envelopeId2 = envelopeRepo.insert(
             new NewEnvelope("c2", "file2.zip", now(), now().plusSeconds(100), Status.REJECTED)
         );
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.FILE_PROCESSING_STARTED, "notes1"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.REJECTED, "notes2"));
+        envelopeRepo.updatePendingNotification(envelopeId2, true);
+
+        /* not rejected */
         var envelopeId3 = envelopeRepo.insert(
             new NewEnvelope("c1", "file3.zip", now(), now().plusSeconds(100), Status.DISPATCHED)
         );
-
-        /* rejected and notification_sent */
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.REJECTED, "notes1"));
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.DELETED, "notes1"));
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.NOTIFICATION_SENT, null));
-
-        /* rejected but notification not sent */
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.FILE_PROCESSING_STARTED, "notes1"));
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.REJECTED, "notes2"));
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.DELETED, null));
-
-        /* not rejected */
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.FILE_PROCESSING_STARTED, "notes3"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.DISPATCHED, null));
 
