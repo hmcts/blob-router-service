@@ -24,7 +24,8 @@ public class RejectedEnvelopeRepository {
             "SELECT env.id, env.file_name, env.container, event.notes as errorDescription "
                 + " FROM envelopes env, envelope_events event "
                 + " WHERE env.id = event.envelope_id "
-                + " AND event.type = 'REJECTED'",
+                + "     AND event.type = 'REJECTED' "
+                + "     AND env.pending_notification IS TRUE ",
             this.mapper
         );
     }
