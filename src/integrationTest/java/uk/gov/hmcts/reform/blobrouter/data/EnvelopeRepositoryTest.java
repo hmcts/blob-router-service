@@ -113,6 +113,28 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
+    void should_update_envelope_as_notification_sent() {
+        // given
+        var newEnvelope = new NewEnvelope(
+            "container",
+            "hello.zip",
+            now(),
+            now().plusSeconds(100),
+            Status.REJECTED
+        );
+
+        UUID id = repo.insert(newEnvelope);
+
+        // when
+        int updateCount = repo.updatePendingNotification(id, false);
+        Optional<Envelope> envelopeAfterUpdate = repo.find(id);
+
+        // then
+        assertThat(updateCount).isEqualTo(1);
+        assertThat(envelopeAfterUpdate).hasValueSatisfying(env -> assertThat(env.pendingNotification).isEqualTo(false));
+    }
+
+    @Test
     void should_update_envelopes_status() {
         // given
         var oldStatus = Status.DISPATCHED;
