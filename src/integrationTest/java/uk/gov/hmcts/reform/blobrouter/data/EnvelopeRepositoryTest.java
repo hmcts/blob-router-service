@@ -284,10 +284,18 @@ public class EnvelopeRepositoryTest {
         addEnvelope("C2", "f8", Status.REJECTED, true);
 
         // then
-        assertThat(repo.find(Status.DISPATCHED, false)).extracting(env -> env.fileName).containsExactly("f1", "f5");
-        assertThat(repo.find(Status.DISPATCHED, true)).extracting(env -> env.fileName).containsExactly("f3", "f7");
-        assertThat(repo.find(Status.REJECTED, false)).extracting(env -> env.fileName).containsExactly("f2", "f6");
-        assertThat(repo.find(Status.REJECTED, true)).extracting(env -> env.fileName).containsExactly("f4", "f8");
+        assertThat(repo.find(Status.DISPATCHED, false))
+            .extracting(env -> env.fileName)
+            .containsExactlyInAnyOrder("f1", "f5");
+        assertThat(repo.find(Status.DISPATCHED, true))
+            .extracting(env -> env.fileName)
+            .containsExactlyInAnyOrder("f3", "f7");
+        assertThat(repo.find(Status.REJECTED, false))
+            .extracting(env -> env.fileName)
+            .containsExactlyInAnyOrder("f2", "f6");
+        assertThat(repo.find(Status.REJECTED, true))
+            .extracting(env -> env.fileName)
+            .containsExactlyInAnyOrder("f4", "f8");
     }
 
     @Test
