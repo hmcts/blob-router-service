@@ -51,6 +51,7 @@ public class EnvelopeController {
             dbEnvelope.dispatchedAt,
             dbEnvelope.status,
             dbEnvelope.isDeleted,
+            dbEnvelope.pendingNotification,
             dbEventRecords
                 .stream()
                 .map(e -> new EnvelopeEventResponse(e.id, e.createdAt, e.type.name(), e.notes))
