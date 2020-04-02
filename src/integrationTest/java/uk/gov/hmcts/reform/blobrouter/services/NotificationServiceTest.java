@@ -119,11 +119,11 @@ class NotificationServiceTest {
         envelopeService.saveEvent(envelopeId3, DELETED);
 
         // when
-        notificationService.sendNotifications();
+        notificationService.sendNotifications(); //1st time
+        notificationService.sendNotifications(); //2nd time
 
-        // then
         verify(notificationsPublisher).publish(notificationMsgCaptor.capture());
-        verify(notificationsPublisher, times(1)).publish(any());
+        verify(notificationsPublisher, times(1)).publish(any()); // message published only once
 
         NotificationMsg msgCaptorValue = notificationMsgCaptor.getValue();
         assertThat(msgCaptorValue.zipFileName).isEqualTo("blob3.zip");
