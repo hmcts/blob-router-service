@@ -33,6 +33,9 @@ public class EnvelopeInfo {
     @JsonProperty("is_deleted")
     public final boolean isDeleted;
 
+    @JsonProperty("pending_notification")
+    public final boolean pendingNotification;
+
     @JsonProperty("events")
     public final List<EnvelopeEventResponse> envelopeEvents;
 
@@ -45,6 +48,7 @@ public class EnvelopeInfo {
         Instant dispatchedAt,
         Status status,
         boolean isDeleted,
+        boolean pendingNotification,
         List<EnvelopeEventResponse> envelopeEvents
     ) {
         this.id = id;
@@ -55,6 +59,7 @@ public class EnvelopeInfo {
         this.dispatchedAt = dispatchedAt;
         this.status = status;
         this.isDeleted = isDeleted;
+        this.pendingNotification = pendingNotification;
         this.envelopeEvents = envelopeEvents;
     }
 }

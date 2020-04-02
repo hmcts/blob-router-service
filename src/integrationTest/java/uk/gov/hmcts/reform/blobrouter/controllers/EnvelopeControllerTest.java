@@ -82,6 +82,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data", hasSize(1)))
             .andExpect(jsonPath("$.data[0].id").value(envelopeInDb.id.toString()))
+            .andExpect(jsonPath("$.data[0].pending_notification").value(envelopeInDb.pendingNotification))
             .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
                 EventType.FILE_PROCESSING_STARTED.name(),
                 EventType.DISPATCHED.name()
