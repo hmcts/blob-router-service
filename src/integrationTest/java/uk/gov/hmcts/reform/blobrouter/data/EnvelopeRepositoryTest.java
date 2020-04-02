@@ -124,8 +124,6 @@ public class EnvelopeRepositoryTest {
         );
 
         UUID id = repo.insert(newEnvelope);
-        Optional<Envelope> envelope = repo.find(id);
-        assertThat(envelope).hasValueSatisfying(env -> assertThat(env.pendingNotification).isEqualTo(false));
 
         // when
         int updateCount = repo.updatePendingNotification(id);
