@@ -91,6 +91,7 @@ public class EnvelopeService {
             .ifPresentOrElse(
                 env -> {
                     envelopeRepository.updateStatus(id, Status.REJECTED);
+                    envelopeRepository.updatePendingNotification(id, true); // notification pending
                     eventRepository.insert(new NewEnvelopeEvent(id, EventType.REJECTED, reason));
                 },
                 () -> {
@@ -101,7 +102,7 @@ public class EnvelopeService {
 
     @Transactional
     public void markPendingNotificationAsSent(UUID id) {
-        envelopeRepository.updatePendingNotification(id);
+        envelopeRepository.updatePendingNotification(id, false);
         eventRepository.insert(new NewEnvelopeEvent(id, EventType.NOTIFICATION_SENT, null));
     }
 

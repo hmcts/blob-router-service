@@ -136,12 +136,14 @@ public class EnvelopeRepository {
         );
     }
 
-    public int updatePendingNotification(UUID id) {
+    public int updatePendingNotification(UUID id, Boolean notificationPending) {
         return jdbcTemplate.update(
             "UPDATE envelopes "
-                + "SET pending_notification = True "
+                + "SET pending_notification = :notificationPending "
                 + "WHERE id = :id",
-            new MapSqlParameterSource("id", id)
+            new MapSqlParameterSource()
+                .addValue("id", id)
+                .addValue("notificationPending", notificationPending)
         );
     }
 

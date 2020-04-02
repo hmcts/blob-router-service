@@ -209,6 +209,7 @@ class EnvelopeServiceTest {
 
         // then
         verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.REJECTED);
+        verify(envelopeRepository).updatePendingNotification(existingEnvelope.id, true);
 
         var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
         verify(eventRepository).insert(eventCaptor.capture());
@@ -271,17 +272,17 @@ class EnvelopeServiceTest {
     }
 
     @Test
-    void should_update_envelope_pending_notification_as_true() {
+    void should_mark_envelope_as_notification_sent() {
         // given
         var existingEnvelope = new Envelope(
-            UUID.randomUUID(), "c", "f", null, null, null, Status.REJECTED, false, false
+            UUID.randomUUID(), "c", "f", null, null, null, Status.REJECTED, false, true
         );
 
         // when
         envelopeService.markPendingNotificationAsSent(existingEnvelope.id);
 
         // then
-        verify(envelopeRepository).updatePendingNotification(existingEnvelope.id);
+        verify(envelopeRepository).updatePendingNotification(existingEnvelope.id, false);
 
         var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
         verify(eventRepository).insert(eventCaptor.capture());
