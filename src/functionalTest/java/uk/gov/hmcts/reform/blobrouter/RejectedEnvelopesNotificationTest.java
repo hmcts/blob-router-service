@@ -9,8 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jayway.awaitility.Awaitility.await;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.springframework.http.HttpStatus.OK;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArchive;
@@ -57,7 +57,7 @@ public class RejectedEnvelopesNotificationTest extends FunctionalTestBase {
             .body("data[0].status", equalTo(REJECTED.name()))
             .body("data[0].pending_notification", equalTo(false))
             .body(
-                "data[0].events.event", contains(EventType.REJECTED.name(), EventType.NOTIFICATION_SENT.name())
+                "data[0].events.event", hasItems(EventType.REJECTED.name(), EventType.NOTIFICATION_SENT.name())
             );
     }
 }
