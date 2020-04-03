@@ -57,7 +57,7 @@ public class RejectedEnvelopesNotificationTest extends FunctionalTestBase {
             .body("data[0].status", equalTo(REJECTED.name()))
             .body("data[0].pending_notification", equalTo(false))
             .body(
-                "$.data[0].events[*].event", contains(EventType.REJECTED.name(), EventType.NOTIFICATION_SENT.name())
+                "data[0].events[*].type", contains(EventType.REJECTED.name(), EventType.NOTIFICATION_SENT.name())
             );
     }
 }
