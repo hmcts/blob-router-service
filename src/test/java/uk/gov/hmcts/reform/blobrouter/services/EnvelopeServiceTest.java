@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
@@ -225,14 +226,14 @@ class EnvelopeServiceTest {
         var envelope1 = new Envelope(
             UUID.randomUUID(), "b", "a", now(), now(), now(), Status.DISPATCHED, true, false
         );
-        var event1a = new EnvelopeEvent(1L, envelope1.id, EventType.FILE_PROCESSING_STARTED, null, now());
-        var event1b = new EnvelopeEvent(2L, envelope1.id, EventType.DISPATCHED, null, now());
+        var event1a = new EnvelopeEvent(1L, envelope1.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
+        var event1b = new EnvelopeEvent(2L, envelope1.id, EventType.DISPATCHED, null, null, now());
 
         var envelope2 = new Envelope(
             UUID.randomUUID(), "b", "a", now(), now(), now(), Status.REJECTED, true, false
         );
-        var event2a = new EnvelopeEvent(3L, envelope2.id, EventType.FILE_PROCESSING_STARTED, null, now());
-        var event2b = new EnvelopeEvent(4L, envelope2.id, EventType.REJECTED, null, now());
+        var event2a = new EnvelopeEvent(3L, envelope2.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
+        var event2b = new EnvelopeEvent(4L, envelope2.id, EventType.REJECTED, ErrorCode.ERR_AV_FAILED, null, now());
 
         given(envelopeRepository.find("a", "b")).willReturn(asList(envelope1, envelope2));
         given(eventRepository.findForEnvelope(envelope1.id)).willReturn(asList(event1a, event1b));

@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
@@ -53,7 +54,7 @@ public class EnvelopeService {
                 new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.CREATED)
             );
 
-        eventRepository.insert(new NewEnvelopeEvent(id, EventType.FILE_PROCESSING_STARTED, null));
+        eventRepository.insert(new NewEnvelopeEvent(id, EventType.FILE_PROCESSING_STARTED, null, null));
 
         return id;
     }
@@ -76,7 +77,7 @@ public class EnvelopeService {
                 env -> {
                     envelopeRepository.updateStatus(id, Status.DISPATCHED);
                     envelopeRepository.updateDispatchDateTime(id, now());
-                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.DISPATCHED, null));
+                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.DISPATCHED, null, null));
                 },
                 () -> {
                     throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
@@ -92,7 +93,12 @@ public class EnvelopeService {
                 env -> {
                     envelopeRepository.updateStatus(id, Status.REJECTED);
                     envelopeRepository.updatePendingNotification(id, true); // notification pending
-                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.REJECTED, reason));
+                    eventRepository.insert(new NewEnvelopeEvent(
+                        id,
+                        EventType.REJECTED,
+                        ErrorCode.ERR_AV_FAILED,
+                        reason
+                    ));
                 },
                 () -> {
                     throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
@@ -103,18 +109,18 @@ public class EnvelopeService {
     @Transactional
     public void markPendingNotificationAsSent(UUID id) {
         envelopeRepository.updatePendingNotification(id, false);
-        eventRepository.insert(new NewEnvelopeEvent(id, EventType.NOTIFICATION_SENT, null));
+        eventRepository.insert(new NewEnvelopeEvent(id, EventType.NOTIFICATION_SENT, null, null));
     }
 
     @Transactional
     public void markEnvelopeAsDeleted(Envelope envelope) {
         envelopeRepository.markAsDeleted(envelope.id);
-        eventRepository.insert(new NewEnvelopeEvent(envelope.id, EventType.DELETED, null));
+        eventRepository.insert(new NewEnvelopeEvent(envelope.id, EventType.DELETED, null, null));
     }
 
     @Transactional
     public void saveEvent(UUID envelopeId, EventType eventType) {
-        eventRepository.insert(new NewEnvelopeEvent(envelopeId, eventType, null));
+        eventRepository.insert(new NewEnvelopeEvent(envelopeId, eventType, null, null));
     }
 
     @Transactional(readOnly = true)
