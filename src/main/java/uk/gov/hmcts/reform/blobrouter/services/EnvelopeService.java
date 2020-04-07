@@ -91,6 +91,7 @@ public class EnvelopeService {
             .ifPresentOrElse(
                 env -> {
                     envelopeRepository.updateStatus(id, Status.REJECTED);
+                    envelopeRepository.updatePendingNotification(id, true); // notification pending
                     // TODO: save error_code
                     eventRepository.insert(new NewEnvelopeEvent(id, EventType.REJECTED, null, reason));
                 },
