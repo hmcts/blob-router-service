@@ -91,13 +91,8 @@ public class EnvelopeService {
             .ifPresentOrElse(
                 env -> {
                     envelopeRepository.updateStatus(id, Status.REJECTED);
-                    envelopeRepository.updatePendingNotification(id, true); // notification pending
-                    eventRepository.insert(new NewEnvelopeEvent(
-                        id,
-                        EventType.REJECTED,
-                        null,
-                        reason
-                    ));
+                    // TODO: save error_code
+                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.REJECTED, null, reason));
                 },
                 () -> {
                     throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
