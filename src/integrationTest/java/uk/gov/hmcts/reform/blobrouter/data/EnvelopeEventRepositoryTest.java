@@ -40,7 +40,7 @@ public class EnvelopeEventRepositoryTest {
         // given
         var envelopeId = envelopeRepo.insert(new NewEnvelope("c", "f", now(), null, Status.CREATED));
 
-        var event1 = new NewEnvelopeEvent(envelopeId, EventType.REJECTED, ErrorCode.ERR_METAFILE_INVALID, "note 1");
+        var event1 = new NewEnvelopeEvent(envelopeId, EventType.REJECTED, null, "note 1");
         var event2 = new NewEnvelopeEvent(envelopeId, EventType.DELETED, null, "note 2");
 
         // when
