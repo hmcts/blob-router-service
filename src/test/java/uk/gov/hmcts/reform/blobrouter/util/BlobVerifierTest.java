@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidConfigException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 
@@ -41,7 +42,8 @@ class BlobVerifierTest {
         // then
         var result = verifier.verifyZip("test.zip", zipBytes);
         assertThat(result.isOk).isFalse();
-        assertThat(result.error).isEqualTo("Invalid signature");
+        assertThat(result.error).isEqualTo(ErrorCode.ERR_SIG_VERIFY_FAILED);
+        assertThat(result.errorDescription).isEqualTo("Invalid signature");
     }
 
 
@@ -53,7 +55,8 @@ class BlobVerifierTest {
         // then
         var result = verifier.verifyZip("test.zip", zipBytes);
         assertThat(result.isOk).isFalse();
-        assertThat(result.error).isEqualTo("Invalid zip archive");
+        assertThat(result.error).isEqualTo(ErrorCode.ERR_METAFILE_INVALID);
+        assertThat(result.errorDescription).isEqualTo("Invalid zip archive");
     }
 
     @Test
@@ -64,7 +67,8 @@ class BlobVerifierTest {
         // then
         var result = verifier.verifyZip("test.zip", zipBytes);
         assertThat(result.isOk).isFalse();
-        assertThat(result.error).isEqualTo("Invalid zip archive");
+        assertThat(result.error).isEqualTo(ErrorCode.ERR_METAFILE_INVALID);
+        assertThat(result.errorDescription).isEqualTo("Invalid zip archive");
     }
 
     @Test

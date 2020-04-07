@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder.Duplicate;
@@ -66,11 +67,11 @@ class DuplicateFileHandlerTest {
 
         // then
         verify(envelopeService).createNewEnvelope(duplicate1.container, duplicate1.fileName, duplicate1.blobCreatedAt);
-        verify(envelopeService).markAsRejected(id1, DuplicateFileHandler.EVENT_MESSAGE);
+        verify(envelopeService).markAsRejected(id1, ErrorCode.ERR_METAFILE_INVALID, DuplicateFileHandler.EVENT_MESSAGE);
         verify(blobMover).moveToRejectedContainer(duplicate1.fileName, duplicate1.container);
 
         verify(envelopeService).createNewEnvelope(duplicate2.container, duplicate2.fileName, duplicate2.blobCreatedAt);
-        verify(envelopeService).markAsRejected(id2, DuplicateFileHandler.EVENT_MESSAGE);
+        verify(envelopeService).markAsRejected(id2, ErrorCode.ERR_METAFILE_INVALID, DuplicateFileHandler.EVENT_MESSAGE);
         verify(blobMover).moveToRejectedContainer(duplicate2.fileName, duplicate2.container);
     }
 
