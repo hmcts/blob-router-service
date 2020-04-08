@@ -15,6 +15,7 @@ public class EnvelopeEventMapper implements RowMapper<EnvelopeEvent> {
             rs.getLong("id"),
             UUID.fromString(rs.getString("envelope_id")),
             EventType.valueOf(rs.getString("type")),
+            rs.getString("error_code") != null ? ErrorCode.valueOf(rs.getString("error_code")) : null,
             rs.getString("notes"),
             rs.getTimestamp("created_at").toInstant()
         );

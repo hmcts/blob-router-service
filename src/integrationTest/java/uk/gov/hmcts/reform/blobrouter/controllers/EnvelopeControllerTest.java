@@ -53,12 +53,14 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             envelopeInDb.id,
             EventType.FILE_PROCESSING_STARTED,
             null,
+            null,
             now()
         );
         var eventRecordInDb2 = new EnvelopeEvent(
             2,
             envelopeInDb.id,
             EventType.DISPATCHED,
+            null,
             null,
             now()
         );
