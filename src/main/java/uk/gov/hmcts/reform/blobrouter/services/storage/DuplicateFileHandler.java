@@ -53,7 +53,7 @@ public class DuplicateFileHandler {
                                 duplicate.blobCreatedAt
                             );
 
-                            envelopeService.markAsRejected(id, ErrorCode.ERR_METAFILE_INVALID, EVENT_MESSAGE);
+                            envelopeService.markAsRejected(id, ErrorCode.ERR_ZIP_PROCESSING_FAILED, EVENT_MESSAGE);
                             blobMover.moveToRejectedContainer(duplicate.fileName, container);
 
                         } catch (Exception exc) {

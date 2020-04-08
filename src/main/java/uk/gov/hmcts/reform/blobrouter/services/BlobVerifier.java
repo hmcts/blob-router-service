@@ -48,7 +48,7 @@ public class BlobVerifier {
             return error(ErrorCode.ERR_SIG_VERIFY_FAILED, "Invalid signature");
         } catch (InvalidZipArchiveException ex) {
             logger.info("Invalid zip archive. Blob name: {}", blobName, ex);
-            return error(ErrorCode.ERR_METAFILE_INVALID, "Invalid zip archive");
+            return error(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
         } catch (IOException ex) {
             logger.info("Error occurred when verifying file. Blob name: {}", blobName, ex);
             return error(null, null);

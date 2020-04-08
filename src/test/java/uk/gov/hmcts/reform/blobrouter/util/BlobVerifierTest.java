@@ -55,7 +55,7 @@ class BlobVerifierTest {
         // then
         var result = verifier.verifyZip("test.zip", zipBytes);
         assertThat(result.isOk).isFalse();
-        assertThat(result.error).isEqualTo(ErrorCode.ERR_METAFILE_INVALID);
+        assertThat(result.error).isEqualTo(ErrorCode.ERR_ZIP_PROCESSING_FAILED);
         assertThat(result.errorDescription).isEqualTo("Invalid zip archive");
     }
 
@@ -67,7 +67,7 @@ class BlobVerifierTest {
         // then
         var result = verifier.verifyZip("test.zip", zipBytes);
         assertThat(result.isOk).isFalse();
-        assertThat(result.error).isEqualTo(ErrorCode.ERR_METAFILE_INVALID);
+        assertThat(result.error).isEqualTo(ErrorCode.ERR_ZIP_PROCESSING_FAILED);
         assertThat(result.errorDescription).isEqualTo("Invalid zip archive");
     }
 

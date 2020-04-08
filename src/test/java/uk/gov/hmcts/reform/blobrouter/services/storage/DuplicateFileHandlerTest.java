@@ -24,10 +24,14 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class DuplicateFileHandlerTest {
 
-    @Mock EnvelopeService envelopeService;
-    @Mock BlobMover blobMover;
-    @Mock DuplicateFinder duplicateFinder;
-    @Mock ServiceConfiguration serviceConfiguration;
+    @Mock
+    EnvelopeService envelopeService;
+    @Mock
+    BlobMover blobMover;
+    @Mock
+    DuplicateFinder duplicateFinder;
+    @Mock
+    ServiceConfiguration serviceConfiguration;
 
     DuplicateFileHandler handler;
 
@@ -67,11 +71,13 @@ class DuplicateFileHandlerTest {
 
         // then
         verify(envelopeService).createNewEnvelope(duplicate1.container, duplicate1.fileName, duplicate1.blobCreatedAt);
-        verify(envelopeService).markAsRejected(id1, ErrorCode.ERR_METAFILE_INVALID, DuplicateFileHandler.EVENT_MESSAGE);
+        verify(envelopeService)
+            .markAsRejected(id1, ErrorCode.ERR_ZIP_PROCESSING_FAILED, DuplicateFileHandler.EVENT_MESSAGE);
         verify(blobMover).moveToRejectedContainer(duplicate1.fileName, duplicate1.container);
 
         verify(envelopeService).createNewEnvelope(duplicate2.container, duplicate2.fileName, duplicate2.blobCreatedAt);
-        verify(envelopeService).markAsRejected(id2, ErrorCode.ERR_METAFILE_INVALID, DuplicateFileHandler.EVENT_MESSAGE);
+        verify(envelopeService)
+            .markAsRejected(id2, ErrorCode.ERR_ZIP_PROCESSING_FAILED, DuplicateFileHandler.EVENT_MESSAGE);
         verify(blobMover).moveToRejectedContainer(duplicate2.fileName, duplicate2.container);
     }
 
