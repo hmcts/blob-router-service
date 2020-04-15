@@ -24,14 +24,10 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class DuplicateFileHandlerTest {
 
-    @Mock
-    EnvelopeService envelopeService;
-    @Mock
-    BlobMover blobMover;
-    @Mock
-    DuplicateFinder duplicateFinder;
-    @Mock
-    ServiceConfiguration serviceConfiguration;
+    @Mock EnvelopeService envelopeService;
+    @Mock BlobMover blobMover;
+    @Mock DuplicateFinder duplicateFinder;
+    @Mock ServiceConfiguration serviceConfiguration;
 
     DuplicateFileHandler handler;
 

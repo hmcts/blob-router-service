@@ -51,7 +51,7 @@ public class BlobVerifier {
             return error(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
         } catch (IOException ex) {
             logger.info("Error occurred when verifying file. Blob name: {}", blobName, ex);
-            return error(null, null);
+            return error(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
         }
     }
 
