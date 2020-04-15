@@ -35,7 +35,7 @@ public class DuplicateTest extends FunctionalTestBase {
         // and
         uploadFile(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName, content);
         await("Wait for the blob to disappear from source container")
-            .atMost(3, TimeUnit.MINUTES)
+            .atMost(2, TimeUnit.MINUTES)
             .until(() -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName));
 
         // when
@@ -43,8 +43,8 @@ public class DuplicateTest extends FunctionalTestBase {
         uploadFile(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName, content);
 
         // then
-        await("Wait for the duplicate blob to disappear from source container")
-            .atMost(3, TimeUnit.MINUTES)
+        await("Wait for the blob to disappear from source container")
+            .atMost(2, TimeUnit.MINUTES)
             .until(() -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName));
     }
 }
