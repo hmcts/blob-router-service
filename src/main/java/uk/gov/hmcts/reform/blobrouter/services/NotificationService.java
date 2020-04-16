@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.NotificationsPublisher;
@@ -52,7 +51,7 @@ public class NotificationService {
             envelope.fileName,
             envelope.container,
             null,
-            EventType.REJECTED.name(),
+            envelope.errorCode,
             envelope.errorDescription,
             SERVICE_NAME
         );

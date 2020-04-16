@@ -19,6 +19,7 @@ import java.util.List;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
@@ -55,8 +56,10 @@ class RejectedEnvelopeRepositoryTest {
 
         eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.DISPATCHED, null, "notes1"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.FILE_PROCESSING_STARTED, null, "notes1"));
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.REJECTED, null, "notes2"));
-        eventRepo.insert(new NewEnvelopeEvent(envelopeId4, EventType.REJECTED, null, "notes3"));
+        eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.REJECTED, ErrorCode.ERR_AV_FAILED, "notes2"));
+        eventRepo.insert(
+            new NewEnvelopeEvent(envelopeId4, EventType.REJECTED, ErrorCode.ERR_SIG_VERIFY_FAILED, "notes3")
+        );
 
         /* notifications pending */
         envelopeRepo.updatePendingNotification(envelopeId3, true);
@@ -68,10 +71,10 @@ class RejectedEnvelopeRepositoryTest {
         // then
         assertThat(rejectedEnvelopes)
             .hasSize(2)
-            .usingFieldByFieldElementComparator()
+            .extracting(e -> tuple(e.envelopeId, e.container, e.fileName, e.errorCode, e.errorDescription))
             .containsExactlyInAnyOrder(
-                new RejectedEnvelope(envelopeId3, "c1", "file3.zip", "notes2"),
-                new RejectedEnvelope(envelopeId4, "c2", "file4.zip", "notes3")
+                tuple(envelopeId3, "c1", "file3.zip", ErrorCode.ERR_AV_FAILED, "notes2"),
+                tuple(envelopeId4, "c2", "file4.zip", ErrorCode.ERR_SIG_VERIFY_FAILED, "notes3")
             );
     }
 
@@ -138,9 +141,9 @@ class RejectedEnvelopeRepositoryTest {
         // then
         assertThat(rejectedEnvelopes)
             .hasSize(1)
-            .usingFieldByFieldElementComparator()
+            .extracting(e -> tuple(e.envelopeId, e.container, e.fileName, e.errorCode, e.errorDescription))
             .containsExactlyInAnyOrder(
-                new RejectedEnvelope(envelopeId2, "c2", "file2.zip", "notes2")
+                tuple(envelopeId2, "c2", "file2.zip", ErrorCode.ERR_METAFILE_INVALID, "notes2")
             );
     }
 }
