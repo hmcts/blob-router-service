@@ -2,15 +2,11 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.sas.BlobContainerSasPermission;
-import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
@@ -52,17 +48,12 @@ public class BlobMover {
     }
 
     private void copy(BlobClient targetBlob, BlobClient sourceBlob, String loggingContext) {
-        String sasToken = sourceBlob
-            .generateSas(
-                new BlobServiceSasSignatureValues(
-                    OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
-                    new BlobContainerSasPermission().setReadPermission(true)
-                )
-            );
-        targetBlob
-            .getBlockBlobClient()
-            .copyFromUrl(sourceBlob.getBlockBlobClient().getBlobUrl() + "?" + sasToken);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        sourceBlob.download(outputStream);
+        byte[] blobContent = outputStream.toByteArray();
 
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(blobContent);
+        targetBlob.upload(inputStream, blobContent.length, true);
         logger.info("File successfully uploaded to rejected container. " + loggingContext);
     }
 
