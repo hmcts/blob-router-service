@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 
 public class NotificationMsg {
 
@@ -14,7 +15,7 @@ public class NotificationMsg {
     public final String documentControlNumber;
 
     @JsonProperty("error_code")
-    public final String errorCode;
+    public final ErrorCode errorCode;
 
     @JsonProperty("error_description")
     public final String errorDescription;
@@ -26,7 +27,7 @@ public class NotificationMsg {
         String zipFileName,
         String container,
         String documentControlNumber,
-        String errorCode,
+        ErrorCode errorCode,
         String errorDescription,
         String service
     ) {

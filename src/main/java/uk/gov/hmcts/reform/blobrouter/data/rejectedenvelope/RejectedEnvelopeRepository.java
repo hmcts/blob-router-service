@@ -21,7 +21,7 @@ public class RejectedEnvelopeRepository {
 
     public List<RejectedEnvelope> getRejectedEnvelopes() {
         return jdbcTemplate.query(
-            "SELECT env.id, env.file_name, env.container, event.notes as errorDescription "
+            "SELECT env.id, env.file_name, env.container, event.error_code, event.notes as errorDescription "
                 + " FROM envelopes env, envelope_events event "
                 + " WHERE env.id = event.envelope_id "
                 + "     AND event.type = 'REJECTED' "

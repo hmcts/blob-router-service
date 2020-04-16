@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.NotificationsPublisher;
@@ -46,8 +47,8 @@ class NotificationServiceTest {
         UUID envelopeId2 = UUID.randomUUID();
         given(rejectedEnvelopeRepository.getRejectedEnvelopes()).willReturn(
             asList(
-                new RejectedEnvelope(envelopeId1, "c1", "test1.zip", "notes1"),
-                new RejectedEnvelope(envelopeId2, "c2", "test2.zip", "notes1")
+                new RejectedEnvelope(envelopeId1, "c1", "test1.zip", ErrorCode.ERR_ZIP_PROCESSING_FAILED, "notes1"),
+                new RejectedEnvelope(envelopeId2, "c2", "test2.zip", ErrorCode.ERR_AV_FAILED, "notes1")
             )
         );
 

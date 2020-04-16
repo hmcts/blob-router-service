@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.util.CollectionUtils;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
 
 import java.util.List;
@@ -44,7 +45,7 @@ class NotificationsPublisherTest {
             "test.zip",
             "C1",
             "1234",
-            "Invalid Signature",
+            ErrorCode.ERR_SIG_VERIFY_FAILED,
             "Signature verification failed",
             "blob-router"
         );
