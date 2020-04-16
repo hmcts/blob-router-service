@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
@@ -91,7 +92,7 @@ public class BlobProcessor {
             if (verificationResult.isOk) {
                 dispatch(blobClient, id, rawBlob);
             } else {
-                reject(blobClient, id, verificationResult.error);
+                reject(blobClient, id, verificationResult.error, verificationResult.errorDescription);
             }
         } catch (Exception exception) {
             handleError(id, blobClient, exception);
@@ -119,17 +120,16 @@ public class BlobProcessor {
         );
     }
 
-    private void reject(BlobClient blob, UUID id, String reason) {
-        envelopeService.markAsRejected(id, reason);
+    private void reject(BlobClient blob, UUID id, ErrorCode error, String errorDescription) {
+        envelopeService.markAsRejected(id, error, errorDescription);
 
         logger.error(
             "Rejected Blob. File name: {}, Container: {}, New envelope ID: {}, Reason: {}",
             blob.getBlobName(),
             blob.getContainerName(),
             id,
-            reason
+            errorDescription
         );
-        // TODO send notification to Exela
     }
 
     private byte[] downloadBlob(BlobClient blobClient) throws IOException {

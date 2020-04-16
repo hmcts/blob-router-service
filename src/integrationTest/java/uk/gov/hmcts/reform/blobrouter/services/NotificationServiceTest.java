@@ -15,6 +15,7 @@ import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.NotificationsPublisher;
@@ -71,7 +72,7 @@ class NotificationServiceTest {
         // given
         // rejected envelope
         var envelopeId1 = envelopeService.createNewEnvelope("bulkscan", "blob1.zip", now());
-        envelopeService.markAsRejected(envelopeId1, "duplicate file");
+        envelopeService.markAsRejected(envelopeId1, ErrorCode.ERR_METAFILE_INVALID, "duplicate file");
 
         // envelope that is not rejected
         var envelopeId2 = envelopeService.createNewEnvelope("bulkscan", "blob2.zip", now());
@@ -79,7 +80,7 @@ class NotificationServiceTest {
 
         // rejected envelope
         var envelopeId3 = envelopeService.createNewEnvelope("testcontainer", "blob3.zip", now());
-        envelopeService.markAsRejected(envelopeId3, "invalid signature");
+        envelopeService.markAsRejected(envelopeId3, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
         envelopeService.saveEvent(envelopeId3, DELETED);
 
         // when
@@ -104,7 +105,7 @@ class NotificationServiceTest {
         // given
         // rejected and notification_sent
         var envelopeId1 = envelopeService.createNewEnvelope("bulkscan", "blob1.zip", now());
-        envelopeService.markAsRejected(envelopeId1, "duplicate file");
+        envelopeService.markAsRejected(envelopeId1, ErrorCode.ERR_METAFILE_INVALID, "duplicate file");
         envelopeService.saveEvent(envelopeId1, DELETED);
         envelopeService.markPendingNotificationAsSent(envelopeId1);
 
@@ -115,7 +116,7 @@ class NotificationServiceTest {
 
         // rejected but notification NOT sent
         var envelopeId3 = envelopeService.createNewEnvelope("bulkscan", "blob3.zip", now());
-        envelopeService.markAsRejected(envelopeId3, "invalid signature");
+        envelopeService.markAsRejected(envelopeId3, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
         envelopeService.saveEvent(envelopeId3, DELETED);
 
         // when

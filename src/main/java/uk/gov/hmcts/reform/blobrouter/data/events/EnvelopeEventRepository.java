@@ -32,11 +32,12 @@ public class EnvelopeEventRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(
-            "INSERT INTO envelope_events (envelope_id, type, notes, created_at) "
-                + "VALUES (:envelopeId, :type, :notes, CURRENT_TIMESTAMP)",
+            "INSERT INTO envelope_events (envelope_id, type, error_code, notes, created_at) "
+                + "VALUES (:envelopeId, :type, :errorCode, :notes, CURRENT_TIMESTAMP)",
             new MapSqlParameterSource()
                 .addValue("envelopeId", event.envelopeId)
                 .addValue("type", event.type.name())
+                .addValue("errorCode", event.errorCode != null ? event.errorCode.name() : null)
                 .addValue("notes", event.notes),
             keyHolder,
             new String[]{"id"}

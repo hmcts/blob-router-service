@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
@@ -171,7 +172,7 @@ class BlobProcessorTest {
         String fileName = "envelope1.zip";
         blobExists(fileName, SOURCE_CONTAINER, blobCreationTime);
 
-        given(verifier.verifyZip(any(), any())).willReturn(error("some error"));
+        given(verifier.verifyZip(any(), any())).willReturn(error(ErrorCode.ERR_SIG_VERIFY_FAILED, "some error"));
 
         // when
         newBlobProcessor().process(blobClient);
@@ -179,7 +180,7 @@ class BlobProcessorTest {
         // then
         verifyNoInteractions(blobDispatcher);
         verifyNewEnvelopeHasBeenCreated();
-        verify(envelopeService).markAsRejected(id, "some error");
+        verify(envelopeService).markAsRejected(id, ErrorCode.ERR_SIG_VERIFY_FAILED, "some error");
     }
 
     @Test

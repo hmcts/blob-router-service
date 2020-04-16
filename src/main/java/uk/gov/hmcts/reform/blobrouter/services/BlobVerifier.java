@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidConfigException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
@@ -44,31 +45,33 @@ public class BlobVerifier {
             return ok();
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
-            return error("Invalid signature");
+            return error(ErrorCode.ERR_SIG_VERIFY_FAILED, "Invalid signature");
         } catch (InvalidZipArchiveException ex) {
             logger.info("Invalid zip archive. Blob name: {}", blobName, ex);
-            return error("Invalid zip archive");
+            return error(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
         } catch (IOException ex) {
             logger.info("Error occurred when verifying file. Blob name: {}", blobName, ex);
-            return error(null);
+            return error(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
         }
     }
 
     public static class VerificationResult {
         public final boolean isOk;
-        public final String error;
+        public final ErrorCode error;
+        public final String errorDescription;
 
-        private VerificationResult(boolean isOk, String error) {
+        private VerificationResult(boolean isOk, ErrorCode error, String errorDescription) {
             this.isOk = isOk;
             this.error = error;
+            this.errorDescription = errorDescription;
         }
 
         public static VerificationResult ok() {
-            return new VerificationResult(true, null);
+            return new VerificationResult(true, null, null);
         }
 
-        public static VerificationResult error(String error) {
-            return new VerificationResult(false, error);
+        public static VerificationResult error(ErrorCode error, String reason) {
+            return new VerificationResult(false, error, reason);
         }
     }
 }

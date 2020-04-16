@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.DuplicateFinder;
 
@@ -52,7 +53,7 @@ public class DuplicateFileHandler {
                                 duplicate.blobCreatedAt
                             );
 
-                            envelopeService.markAsRejected(id, EVENT_MESSAGE);
+                            envelopeService.markAsRejected(id, ErrorCode.ERR_ZIP_PROCESSING_FAILED, EVENT_MESSAGE);
                             blobMover.moveToRejectedContainer(duplicate.fileName, container);
 
                         } catch (Exception exc) {

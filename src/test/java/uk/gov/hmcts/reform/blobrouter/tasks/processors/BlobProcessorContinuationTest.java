@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
@@ -89,13 +90,13 @@ public class BlobProcessorContinuationTest {
         var validationError = "error message";
 
         blobExists("hello.zip", "s1");
-        given(verifier.verifyZip(any(), any())).willReturn(error(validationError));
+        given(verifier.verifyZip(any(), any())).willReturn(error(ErrorCode.ERR_METAFILE_INVALID, validationError));
 
         // when
         blobProcessor.continueProcessing(id, blobClient);
 
         // then
-        verify(envelopeService).markAsRejected(id, validationError);
+        verify(envelopeService).markAsRejected(id, ErrorCode.ERR_METAFILE_INVALID, validationError);
         verifyNoMoreInteractions(envelopeService);
 
         verifyNoInteractions(blobDispatcher);

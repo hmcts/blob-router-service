@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
+import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
@@ -85,15 +86,14 @@ public class EnvelopeService {
     }
 
     @Transactional
-    public void markAsRejected(UUID id, String reason) {
+    public void markAsRejected(UUID id, ErrorCode errorCode, String reason) {
         envelopeRepository
             .find(id)
             .ifPresentOrElse(
                 env -> {
                     envelopeRepository.updateStatus(id, Status.REJECTED);
                     envelopeRepository.updatePendingNotification(id, true); // notification pending
-                    // TODO: save error_code
-                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.REJECTED, null, reason));
+                    eventRepository.insert(new NewEnvelopeEvent(id, EventType.REJECTED, errorCode, reason));
                 },
                 () -> {
                     throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
