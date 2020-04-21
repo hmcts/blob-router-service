@@ -51,6 +51,8 @@ java:
     CRIME_ENABLED: true
 
     NOTIFICATIONS_QUEUE_CONNECTION_STRING: "$(SB_CONN_STRING);EntityPath=notifications"
+
+    SEND_DAILY_REPORT_ENABLED: "false"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
