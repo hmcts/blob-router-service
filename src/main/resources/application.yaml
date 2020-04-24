@@ -85,6 +85,7 @@ flyway:
   skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
 
 storage-blob-processing-delay-in-minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES}
+include-write-permission-in-storage-sas-token: ${INCLUDE_WRITE_PERMISSION_IN_STORAGE_SAS_TOKEN:true}
 public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY} # public key file in der format
 
 bulk-scan-cache:

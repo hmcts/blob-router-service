@@ -41,7 +41,8 @@ class SasTokenGeneratorServiceTest {
 
         tokenGeneratorService = new SasTokenGeneratorService(
             storageCredentials,
-            serviceConfiguration
+            serviceConfiguration,
+            true
         );
     }
 
@@ -62,6 +63,19 @@ class SasTokenGeneratorServiceTest {
     }
 
     @Test
+    void should_set_the_right_permissions_in_token() {
+        String tokenWithWritePermission =
+            tokenGeneratorService(true).generateSasToken(VALID_SERVICE);
+
+        assertTokenHasPermissions(tokenWithWritePermission, "wl");
+
+        String tokenWithoutWritePermission =
+            tokenGeneratorService(false).generateSasToken(VALID_SERVICE);
+
+        assertTokenHasPermissions(tokenWithoutWritePermission, "cl");
+    }
+
+    @Test
     void should_throw_exception_when_requested_service_is_not_configured() {
         assertThatThrownBy(() -> tokenGeneratorService.generateSasToken("nonexistingservice"))
             .isInstanceOf(ServiceConfigNotFoundException.class)
@@ -77,7 +91,7 @@ class SasTokenGeneratorServiceTest {
 
     @Test
     void should_throw_exception_when_requested_sas_credentials_are_not_configured() {
-        tokenGeneratorService = new SasTokenGeneratorService(null, serviceConfiguration);
+        tokenGeneratorService = new SasTokenGeneratorService(null, serviceConfiguration, true);
         assertThatThrownBy(() -> tokenGeneratorService.generateSasToken(VALID_SERVICE))
             .isInstanceOf(UnableToGenerateSasTokenException.class)
             .hasMessage("Unable to generate SAS token for service " + VALID_SERVICE);
@@ -89,5 +103,23 @@ class SasTokenGeneratorServiceTest {
         config.setSourceContainer(name);
         config.setEnabled(enabled);
         return config;
+    }
+
+    private SasTokenGeneratorService tokenGeneratorService(boolean includeWritePermissionInSasToken) {
+        var storageCredentials = new StorageSharedKeyCredential(
+            "testAccountName", "dGVzdGtleQ=="
+        );
+
+        return new SasTokenGeneratorService(
+            storageCredentials,
+            serviceConfiguration,
+            includeWritePermissionInSasToken
+        );
+    }
+
+    private void assertTokenHasPermissions(String sasToken, String expectedPermissions) {
+        String decodedSasToken = Utility.urlDecode(sasToken);
+        Map<String, String[]> queryParams = StorageImplUtils.parseQueryStringSplitValues(decodedSasToken);
+        assertThat(queryParams.get("sp")).isEqualTo(new String[]{expectedPermissions});
     }
 }
