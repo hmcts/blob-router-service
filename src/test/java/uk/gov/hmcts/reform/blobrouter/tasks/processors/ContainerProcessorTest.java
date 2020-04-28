@@ -78,13 +78,13 @@ class ContainerProcessorTest {
         // given
         var envelope = envelope(Status.DISPATCHED);
         storageHasBlob(envelope.fileName, envelope.container);
-        leaseCanBeAcquired();
         dbHas(envelope);
 
         // when
         containerProcessor.process(envelope.container);
 
         // then
+        verifyNoInteractions(leaseAcquirer);
         verifyNoInteractions(blobProcessor);
     }
 
