@@ -82,7 +82,7 @@ public class ContainerProcessor {
             .filter(envelope -> !Status.CREATED.equals(envelope.status)) // can skip envelope?
             .ifPresentOrElse(
                 envelope -> logger.info(
-                    "Envelope already processed in system,skipping. {} ", envelope.getBasicInfo()
+                    "Envelope already processed in system, skipping. {} ", envelope.getBasicInfo()
                 ),
                 () -> handleBlob(optionalEnvelope, blob)
             );
