@@ -1,12 +1,13 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
+import static com.azure.storage.blob.models.BlobErrorCode.LEASE_ALREADY_PRESENT;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -31,7 +32,7 @@ public class LeaseAcquirer {
             release(leaseClient, blobClient);
 
         } catch (BlobStorageException exc) {
-            if (exc.getErrorCode() != BlobErrorCode.LEASE_ALREADY_PRESENT) {
+            if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
                 logger.error(
                     "Error acquiring lease for blob. File name: {}, Container: {}",
                     blobClient.getBlobName(),
