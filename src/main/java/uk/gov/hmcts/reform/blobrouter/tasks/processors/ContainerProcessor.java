@@ -78,8 +78,7 @@ public class ContainerProcessor {
         Optional<Envelope> optionalEnvelope = envelopeService
             .findLastEnvelope(blob.getBlobName(), blob.getContainerName());
 
-        envelopeService
-            .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
+        optionalEnvelope
             .filter(envelope -> !Status.CREATED.equals(envelope.status)) // can skip envelope?
             .ifPresentOrElse(
                 envelope -> logger.info(
