@@ -78,38 +78,31 @@ public class ContainerProcessor {
         Optional<Envelope> optionalEnvelope = envelopeService
             .findLastEnvelope(blob.getBlobName(), blob.getContainerName());
 
-        if (canProcess(optionalEnvelope)) {
-            leaseAcquirer.ifAcquiredOrElse(
-                blob,
-                () -> {
-                    optionalEnvelope.ifPresentOrElse(
-                        envelope -> handleBlobWithExistingEnvelope(blob, envelope),
-                        () -> handleBlobWithoutEnvelope(blob)
-                    );
-                },
-                () -> logger.info(
-                    "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
-                    blob.getBlobName(),
-                    blob.getContainerName()
-                )
+        envelopeService
+            .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
+            .filter(envelope -> !Status.CREATED.equals(envelope.status)) // can skip envelope?
+            .ifPresentOrElse(
+                envelope -> logger.info(
+                    "Envelope already processed in system,skipping. {} ", envelope.getBasicInfo()
+                ),
+                () -> handleBlob(optionalEnvelope, blob)
             );
-        } else {
-            optionalEnvelope.ifPresent(
-                env -> logger.info("Envelope already processed in system,skipping. {} ", env.getBasicInfo())
-            );
-        }
     }
 
-    private boolean canProcess(Optional<Envelope> optionalEnvelope) {
-        return optionalEnvelope.map(e -> Status.CREATED.equals(e.status))
-            .orElse(true);
-    }
-
-    private void handleBlobWithExistingEnvelope(BlobClient blob, Envelope envelope) {
-        blobProcessor.continueProcessing(envelope.id, blob);
-    }
-
-    private void handleBlobWithoutEnvelope(BlobClient blob) {
-        blobProcessor.process(blob);
+    private void handleBlob(Optional<Envelope> optionalEnvelope, BlobClient blob) {
+        leaseAcquirer.ifAcquiredOrElse(
+            blob,
+            () -> {
+                optionalEnvelope.ifPresentOrElse(
+                    envelope -> blobProcessor.continueProcessing(envelope.id, blob),
+                    () -> blobProcessor.process(blob)
+                );
+            },
+            () -> logger.info(
+                "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
+                blob.getBlobName(),
+                blob.getContainerName()
+            )
+        );
     }
 }
