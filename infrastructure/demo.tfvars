@@ -1,0 +1,1 @@
+allowed_client_certificate_thumbprints = ["2A1EE53E044632145C89FE428128080353127DF6"]
