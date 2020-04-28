@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -74,30 +75,38 @@ public class ContainerProcessor {
     }
 
     private void processBlob(BlobClient blob) {
-        leaseAcquirer.ifAcquiredOrElse(
-            blob,
-            () -> {
-                envelopeService
-                    .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
-                    .ifPresentOrElse(
+        Optional<Envelope> optionalEnvelope = envelopeService
+            .findLastEnvelope(blob.getBlobName(), blob.getContainerName());
+
+        if (canProcess(optionalEnvelope)) {
+            leaseAcquirer.ifAcquiredOrElse(
+                blob,
+                () -> {
+                    optionalEnvelope.ifPresentOrElse(
                         envelope -> handleBlobWithExistingEnvelope(blob, envelope),
                         () -> handleBlobWithoutEnvelope(blob)
                     );
-            },
-            () -> logger.info(
-                "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
-                blob.getBlobName(),
-                blob.getContainerName()
-            )
-        );
+                },
+                () -> logger.info(
+                    "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
+                    blob.getBlobName(),
+                    blob.getContainerName()
+                )
+            );
+        } else {
+            optionalEnvelope.ifPresent(
+                env -> logger.info("Envelope already processed in system,skipping. {} ", env.getBasicInfo())
+            );
+        }
+    }
+
+    private boolean canProcess(Optional<Envelope> optionalEnvelope) {
+        return optionalEnvelope.map(e -> Status.CREATED.equals(e.status))
+            .orElse(true);
     }
 
     private void handleBlobWithExistingEnvelope(BlobClient blob, Envelope envelope) {
-        if (envelope.status == Status.CREATED) {
-            blobProcessor.continueProcessing(envelope.id, blob);
-        } else {
-            logger.info("Envelope already processed in system, skipping. {}", envelope.getBasicInfo());
-        }
+        blobProcessor.continueProcessing(envelope.id, blob);
     }
 
     private void handleBlobWithoutEnvelope(BlobClient blob) {
