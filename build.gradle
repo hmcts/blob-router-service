@@ -251,7 +251,7 @@ dependencies {
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.14.1'
-  integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.12'
+  integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation libraries.junit5
