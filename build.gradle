@@ -164,6 +164,11 @@ dependencyManagement {
     dependencySet(group: 'com.google.guava', version: '28.2-jre') {
       entry 'guava'
     }
+    // CVE-2020-9488. remove once dependency is resolved by spring boot logging
+    dependencySet(group: 'org.apache.logging.log4j', version: '2.13.2') {
+      entry 'log4j-to-slf4j'
+      entry 'log4j-api'
+    }
   }
 }
 
