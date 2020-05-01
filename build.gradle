@@ -161,7 +161,7 @@ dependencyCheck {
 
 dependencyManagement {
   dependencies {
-    dependencySet(group: 'com.google.guava', version: '28.2-jre') {
+    dependencySet(group: 'com.google.guava', version: '29.0-jre') {
       entry 'guava'
     }
     // CVE-2020-9488. remove once dependency is resolved by spring boot logging
