@@ -142,6 +142,38 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 }
 # endregion
 
+# region staging DB secrets
+resource "azurerm_key_vault_secret" "STAGING_POSTGRES-USER" {
+  name         = "${var.component}-staging-POSTGRES-USER"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.user_name}"
+}
+
+resource "azurerm_key_vault_secret" "STAGING_POSTGRES-PASS" {
+  name         = "${var.component}-staging-POSTGRES-PASS"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.postgresql_password}"
+}
+
+resource "azurerm_key_vault_secret" "STAGING_POSTGRES_HOST" {
+  name         = "${var.component}-staging-POSTGRES-HOST"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.host_name}"
+}
+
+resource "azurerm_key_vault_secret" "STAGING_POSTGRES_PORT" {
+  name         = "${var.component}-staging-POSTGRES-PORT"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.postgresql_listen_port}"
+}
+
+resource "azurerm_key_vault_secret" "STAGING_POSTGRES_DATABASE" {
+  name         = "${var.component}--stagingPOSTGRES-DATABASE"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.postgresql_database}"
+}
+# endregion
+
 # region reports secrets
 
 data "azurerm_key_vault_secret" "bulk_scan_reports_email_username" {
