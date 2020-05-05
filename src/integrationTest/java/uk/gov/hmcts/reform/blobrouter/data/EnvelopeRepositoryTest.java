@@ -17,9 +17,11 @@ import java.util.UUID;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
@@ -331,7 +333,7 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_envelopes_for_the_requested_date() {
         //given
-        Instant date = Instant.parse("2020-05-03T08:15:23.456Z");
+        Instant date = instant("2020-05-03 08:15:23");
         addEnvelope("C1", "f1", Status.CREATED, date);
         addEnvelope("C2", "f2", Status.DISPATCHED, date.plus(8, HOURS));
         addEnvelope("C3", "f3", Status.DISPATCHED, date.plus(2, HOURS));
@@ -339,24 +341,25 @@ public class EnvelopeRepositoryTest {
         addEnvelope("C3", "f4", Status.DISPATCHED, date.minus(9, HOURS)); //previous day
 
         // when
-        Instant fromDate = Instant.parse("2020-05-03T00:00:00.000Z");
-        Instant toDate = Instant.parse("2020-05-04T00:00:00.000Z");
+        Instant fromDate = instant("2020-05-03 00:00:00");
+        Instant toDate = instant("2020-05-04 00:00:00");
         List<Envelope> envelopes = repo.getEnvelopes(fromDate, toDate);
 
         // then
-        assertThat(envelopes).isEqualTo(3);
+        assertThat(envelopes).isNotEmpty()
+            .hasSize(3);
     }
 
     @Test
     void should_return_empty_list_when_no_envelopes_exist_for_the_requested_date() {
         //given
-        Instant date = Instant.parse("2020-05-03T08:15:23.456Z");
-        addEnvelope("C3", "f4", Status.DISPATCHED, date.plus(18, HOURS)); //next day
-        addEnvelope("C3", "f4", Status.DISPATCHED, date.minus(9, HOURS)); //previous day
+        Instant date = instant("2020-05-03 10:15:23");
+        addEnvelope("C3", "f4", Status.DISPATCHED, date.plus(1, DAYS)); //next day
+        addEnvelope("C3", "f4", Status.DISPATCHED, date.minus(1, DAYS)); //previous day
 
         // when
-        Instant fromDate = Instant.parse("2020-05-03T00:00:00.000Z");
-        Instant toDate = Instant.parse("2020-05-04T00:00:00.000Z");
+        Instant fromDate = instant("2020-05-03 00:00:00");
+        Instant toDate = instant("2020-05-04 00:00:00");
         List<Envelope> envelopes = repo.getEnvelopes(fromDate, toDate);
 
         // then
