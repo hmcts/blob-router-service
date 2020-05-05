@@ -1,2 +1,2 @@
-CREATE INDEX envelopes_file_name_container_idx
-ON envelopes (file_name, container);
+CREATE INDEX envelopes_container_file_name_idx
+ON envelopes (container, file_name);
