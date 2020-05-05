@@ -11,13 +11,14 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles({"integration-test", "db-test"})
@@ -316,7 +317,7 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_envelopes_count_for_container_and_time_range() {
         //given
-        Instant fromDate = now().minus(5, ChronoUnit.MINUTES);
+        Instant fromDate = now().minus(5, MINUTES);
 
         addEnvelope("C1", "f1", Status.CREATED, fromDate.plusSeconds(60)); // in time range
         addEnvelope("C3", "f3", Status.DISPATCHED, fromDate.plusSeconds(10)); // in time range
@@ -325,6 +326,41 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(repo.getEnvelopesCount(newHashSet("C1", "C2", "C3", "C4"), fromDate, now())).isEqualTo(2);
+    }
+
+    @Test
+    void should_return_envelopes_for_the_requested_date() {
+        //given
+        Instant date = Instant.parse("2020-05-03T08:15:23.456Z");
+        addEnvelope("C1", "f1", Status.CREATED, date);
+        addEnvelope("C2", "f2", Status.DISPATCHED, date.plus(8, HOURS));
+        addEnvelope("C3", "f3", Status.DISPATCHED, date.plus(2, HOURS));
+        addEnvelope("C3", "f4", Status.DISPATCHED, date.plus(18, HOURS)); //next day
+        addEnvelope("C3", "f4", Status.DISPATCHED, date.minus(9, HOURS)); //previous day
+
+        // when
+        Instant fromDate = Instant.parse("2020-05-03T00:00:00.000Z");
+        Instant toDate = Instant.parse("2020-05-04T00:00:00.000Z");
+        List<Envelope> envelopes = repo.getEnvelopes(fromDate, toDate);
+
+        // then
+        assertThat(envelopes).isEqualTo(3);
+    }
+
+    @Test
+    void should_return_empty_list_when_no_envelopes_exist_for_the_requested_date() {
+        //given
+        Instant date = Instant.parse("2020-05-03T08:15:23.456Z");
+        addEnvelope("C3", "f4", Status.DISPATCHED, date.plus(18, HOURS)); //next day
+        addEnvelope("C3", "f4", Status.DISPATCHED, date.minus(9, HOURS)); //previous day
+
+        // when
+        Instant fromDate = Instant.parse("2020-05-03T00:00:00.000Z");
+        Instant toDate = Instant.parse("2020-05-04T00:00:00.000Z");
+        List<Envelope> envelopes = repo.getEnvelopes(fromDate, toDate);
+
+        // then
+        assertThat(envelopes).isEmpty();
     }
 
     private UUID addEnvelope(String fileName, String container) {

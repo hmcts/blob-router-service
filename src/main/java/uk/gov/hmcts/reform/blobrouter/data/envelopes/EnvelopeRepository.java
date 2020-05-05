@@ -159,4 +159,14 @@ public class EnvelopeRepository {
             Integer.class
         );
     }
+
+    public List<Envelope> getEnvelopes(Instant fromDateTime, Instant toDateTime) {
+        return jdbcTemplate.query(
+            "SELECT * FROM envelopes WHERE file_created_at BETWEEN :fromDateTime AND :toDateTime",
+            new MapSqlParameterSource()
+                .addValue("fromDateTime", Timestamp.from(fromDateTime))
+                .addValue("toDateTime", Timestamp.from(toDateTime)),
+            this.mapper
+        );
+    }
 }
