@@ -21,6 +21,21 @@ module "reform-blob-router-db" {
   subscription       = "${var.subscription}"
 }
 
+# Staging DB to be used by AAT staging pod for functional tests
+module "reform-blob-router-staging-db" {
+  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
+  product            = "${var.component}-staging"
+  location           = "${var.location_db}"
+  env                = "${var.env}"
+  database_name      = "blob_router"
+  postgresql_user    = "blob_router"
+  postgresql_version = "11"
+  sku_name           = "GP_Gen5_2"
+  sku_tier           = "GeneralPurpose"
+  common_tags        = "${var.common_tags}"
+  subscription       = "${var.subscription}"
+}
+
 # region: key vault definitions
 
 data "azurerm_key_vault" "bulk_scan_key_vault" {
