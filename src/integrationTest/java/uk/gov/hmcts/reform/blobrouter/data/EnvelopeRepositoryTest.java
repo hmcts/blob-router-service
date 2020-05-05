@@ -310,7 +310,7 @@ public class EnvelopeRepositoryTest {
         var id4 = addEnvelope("xxx", "C2");
 
         // then
-        assertThat(repo.find("xxx", "C1")).extracting(env -> env.id).containsExactly(id1, id2);
+        assertThat(repo.find("xxx", "C1")).extracting(env -> env.id).containsExactlyInAnyOrder(id1, id2);
         assertThat(repo.find("yyy", "C1")).extracting(env -> env.id).containsExactly(id3);
         assertThat(repo.find("xxx", "C2")).extracting(env -> env.id).containsExactly(id4);
         assertThat(repo.find("aaa", "C1")).isEmpty();

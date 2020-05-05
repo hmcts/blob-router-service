@@ -21,6 +21,21 @@ module "reform-blob-router-db" {
   subscription       = "${var.subscription}"
 }
 
+# Staging DB to be used by AAT staging pod for functional tests
+module "reform-blob-router-staging-db" {
+  source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
+  product            = "${var.component}-staging"
+  location           = "${var.location_db}"
+  env                = "${var.env}"
+  database_name      = "blob_router"
+  postgresql_user    = "blob_router"
+  postgresql_version = "11"
+  sku_name           = "GP_Gen5_2"
+  sku_tier           = "GeneralPurpose"
+  common_tags        = "${var.common_tags}"
+  subscription       = "${var.subscription}"
+}
+
 # region: key vault definitions
 
 data "azurerm_key_vault" "bulk_scan_key_vault" {
@@ -124,6 +139,38 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
   name         = "${var.component}-POSTGRES-DATABASE"
   key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
   value        = "${module.reform-blob-router-db.postgresql_database}"
+}
+# endregion
+
+# region staging DB secrets
+resource "azurerm_key_vault_secret" "staging_db_user" {
+  name         = "${var.component}-staging-db-user"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.user_name}"
+}
+
+resource "azurerm_key_vault_secret" "staging_db_password" {
+  name         = "${var.component}-staging-db-password"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.postgresql_password}"
+}
+
+resource "azurerm_key_vault_secret" "staging_db_host" {
+  name         = "${var.component}-staging-db-host"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.host_name}"
+}
+
+resource "azurerm_key_vault_secret" "staging_db_port" {
+  name         = "${var.component}-staging-db-port"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.postgresql_listen_port}"
+}
+
+resource "azurerm_key_vault_secret" "staging_db_name" {
+  name         = "${var.component}-staging-db-name"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
+  value        = "${module.reform-blob-router-staging-db.postgresql_database}"
 }
 # endregion
 
