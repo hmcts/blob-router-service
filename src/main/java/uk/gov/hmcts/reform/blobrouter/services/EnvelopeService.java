@@ -23,7 +23,6 @@ import java.util.UUID;
 
 import static java.time.Instant.now;
 import static java.util.stream.Collectors.toList;
-import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Service
 public class EnvelopeService {
@@ -133,10 +132,7 @@ public class EnvelopeService {
     }
 
     @Transactional(readOnly = true)
-    public List<Envelope> getEnvelopes(LocalDate date) {
-        var from = date.atStartOfDay().atZone(EUROPE_LONDON_ZONE_ID).toInstant();
-        var to = date.atStartOfDay().plusDays(1).atZone(EUROPE_LONDON_ZONE_ID).toInstant();
-
-        return envelopeRepository.getEnvelopes(from, to);
+    public List<Envelope> getEnvelopes(String blobName, String containerName, LocalDate date) {
+        return envelopeRepository.findEnvelopes(blobName, containerName, date);
     }
 }

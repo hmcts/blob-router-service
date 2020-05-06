@@ -34,7 +34,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeServiceTest {
@@ -297,15 +296,13 @@ class EnvelopeServiceTest {
     }
 
     @Test
-    void should_get_envelopes_for_the_requested_date() {
+    void should_call_envelope_repository_with_the_filename_container_and_requested_date_values() {
         // when
-        envelopeService.getEnvelopes(LocalDate.of(2020, 5, 3));
+        LocalDate date = LocalDate.of(2020, 5, 3);
+        envelopeService.getEnvelopes("file1", "c1", date);
 
         // then
-        Instant expectedFrom = instant("2020-05-03 00:00:00");
-        Instant expectedTo = instant("2020-05-04 00:00:00");
-
-        verify(envelopeRepository).getEnvelopes(expectedFrom, expectedTo);
+        verify(envelopeRepository).findEnvelopes("file1", "c1", date);
         verifyNoMoreInteractions(envelopeRepository);
     }
 }
