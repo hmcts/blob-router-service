@@ -42,8 +42,6 @@ java:
     TASK_SCAN_DELAY: "1000" # in millis
     SEND_NOTIFICATIONS_CRON: "0/10 * * * * *"
 
-    FLYWAY_SKIP_MIGRATIONS: false
-
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
 
     STORAGE_BULKSCAN_URL: https://bulkscan.aat.platform.hmcts.net
