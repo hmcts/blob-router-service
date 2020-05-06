@@ -25,6 +25,11 @@ java:
         - reports-email-username
         - reports-email-password
         - reports-recipients
+        - blob-router-staging-db-password
+        - blob-router-staging-db-user
+        - blob-router-staging-db-host
+        - blob-router-staging-db-port
+        - blob-router-staging-db-name
   environment:
     DB_HOST: "{{ .Release.Name }}-postgresql"
     DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
