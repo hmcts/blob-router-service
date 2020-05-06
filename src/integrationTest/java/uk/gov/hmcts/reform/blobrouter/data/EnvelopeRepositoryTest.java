@@ -350,7 +350,7 @@ public class EnvelopeRepositoryTest {
         addEnvelope("f3", "C2");
 
         // when
-        List<Envelope> envelopes = repo.findEnvelopes("C2", null, LocalDate.now());
+        List<Envelope> envelopes = repo.findEnvelopes(null, "C2", LocalDate.now());
 
         // then
         assertThat(envelopes).isNotEmpty().hasSize(1);
@@ -366,7 +366,7 @@ public class EnvelopeRepositoryTest {
         addEnvelope("f3", "C1");
 
         // when
-        List<Envelope> envelopes = repo.findEnvelopes("C1", "f1", LocalDate.now());
+        List<Envelope> envelopes = repo.findEnvelopes("f1", "C1", LocalDate.now());
 
         // then
         assertThat(envelopes).isNotEmpty().hasSize(1);
