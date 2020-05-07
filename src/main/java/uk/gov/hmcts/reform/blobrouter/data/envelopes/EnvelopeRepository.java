@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data.envelopes;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -7,9 +8,11 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.UUID;
 
 @Repository
@@ -157,6 +160,34 @@ public class EnvelopeRepository {
                 .addValue("fromDateTime", Timestamp.from(fromDateTime))
                 .addValue("toDateTime", Timestamp.from(toDateTime)),
             Integer.class
+        );
+    }
+
+    public List<Envelope> findEnvelopes(String fileName, String container, LocalDate date) {
+        StringJoiner whereClause = new StringJoiner(" AND ", " WHERE ", "");
+        whereClause.setEmptyValue(""); // default value when all query params are null/empty
+
+        MapSqlParameterSource parameterSource = new MapSqlParameterSource();
+
+        if (StringUtils.isNotEmpty(fileName)) {
+            whereClause.add("file_name = :fileName");
+            parameterSource.addValue("fileName", fileName);
+        }
+
+        if (StringUtils.isNotEmpty(container)) {
+            whereClause.add("container = :container");
+            parameterSource.addValue("container", container);
+        }
+
+        if (date != null) {
+            whereClause.add("DATE(created_at) = :date");
+            parameterSource.addValue("date", date);
+        }
+
+        return jdbcTemplate.query(
+            "SELECT * FROM envelopes" + whereClause.toString(),
+            parameterSource,
+            this.mapper
         );
     }
 }

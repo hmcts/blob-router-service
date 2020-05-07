@@ -11,13 +11,14 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles({"integration-test", "db-test"})
@@ -316,7 +317,7 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_envelopes_count_for_container_and_time_range() {
         //given
-        Instant fromDate = now().minus(5, ChronoUnit.MINUTES);
+        Instant fromDate = now().minus(5, MINUTES);
 
         addEnvelope("C1", "f1", Status.CREATED, fromDate.plusSeconds(60)); // in time range
         addEnvelope("C3", "f3", Status.DISPATCHED, fromDate.plusSeconds(10)); // in time range
@@ -325,6 +326,81 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(repo.getEnvelopesCount(newHashSet("C1", "C2", "C3", "C4"), fromDate, now())).isEqualTo(2);
+    }
+
+    @Test
+    void should_return_envelopes_for_the_requested_date() {
+        //given
+        addEnvelope("C1", "f1");
+        addEnvelope("C3", "f2");
+        addEnvelope("C3", "f3");
+
+        // when
+        List<Envelope> envelopes = repo.findEnvelopes(null, null, LocalDate.now());
+
+        // then
+        assertThat(envelopes).isNotEmpty().hasSize(3);
+    }
+
+    @Test
+    void should_return_envelopes_for_the_requested_date_and_container() {
+        //given
+        addEnvelope("f1", "C1");
+        addEnvelope("f2", "C1");
+        addEnvelope("f3", "C2");
+
+        // when
+        List<Envelope> envelopes = repo.findEnvelopes(null, "C2", LocalDate.now());
+
+        // then
+        assertThat(envelopes).isNotEmpty().hasSize(1);
+        assertThat(envelopes.get(0).container).isEqualTo("C2");
+        assertThat(envelopes.get(0).fileName).isEqualTo("f3");
+    }
+
+    @Test
+    void should_return_envelopes_for_the_requested_date_container_and_filename() {
+        //given
+        addEnvelope("f1", "C1");
+        addEnvelope("f2", "C1");
+        addEnvelope("f3", "C1");
+
+        // when
+        List<Envelope> envelopes = repo.findEnvelopes("f1", "C1", LocalDate.now());
+
+        // then
+        assertThat(envelopes).isNotEmpty().hasSize(1);
+        assertThat(envelopes.get(0).container).isEqualTo("C1");
+        assertThat(envelopes.get(0).fileName).isEqualTo("f1");
+    }
+
+    @Test
+    void should_return_all_envelopes_when_all_params_are_null() {
+        //given
+        addEnvelope("f1", "C1");
+        addEnvelope("f2", "C2");
+        addEnvelope("f3", "C2");
+
+        // when
+        List<Envelope> envelopes = repo.findEnvelopes(null, null, null);
+
+        // then
+        assertThat(envelopes).isNotEmpty().hasSize(3);
+    }
+
+    @Test
+    void should_return_empty_list_when_no_envelopes_exist_for_the_requested_date() {
+        //given
+        addEnvelope("C1", "f1");
+        addEnvelope("C2", "f2");
+
+        // when
+        List<Envelope> envelopes = repo.findEnvelopes(
+            null, null, LocalDate.now().minusDays(1)
+        ); //query for previous day
+
+        // then
+        assertThat(envelopes).isEmpty();
     }
 
     private UUID addEnvelope(String fileName, String container) {

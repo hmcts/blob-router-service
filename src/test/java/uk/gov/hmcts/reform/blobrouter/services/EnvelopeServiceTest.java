@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -32,6 +33,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeServiceTest {
@@ -291,5 +293,16 @@ class EnvelopeServiceTest {
 
         assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
         assertThat(eventCaptor.getValue().type).isEqualTo(EventType.NOTIFICATION_SENT);
+    }
+
+    @Test
+    void should_call_envelope_repository_with_the_filename_container_and_requested_date_values() {
+        // when
+        LocalDate date = LocalDate.of(2020, 5, 3);
+        envelopeService.getEnvelopes("file1", "c1", date);
+
+        // then
+        verify(envelopeRepository).findEnvelopes("file1", "c1", date);
+        verifyNoMoreInteractions(envelopeRepository);
     }
 }
