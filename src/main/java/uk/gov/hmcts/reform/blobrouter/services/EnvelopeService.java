@@ -132,7 +132,18 @@ public class EnvelopeService {
     }
 
     @Transactional(readOnly = true)
-    public List<Envelope> getEnvelopes(String blobName, String containerName, LocalDate date) {
-        return envelopeRepository.findEnvelopes(blobName, containerName, date);
+    public List<Tuple2<Envelope, List<EnvelopeEvent>>> getEnvelopes(
+        String blobName,
+        String containerName,
+        LocalDate date
+    ) {
+        return envelopeRepository
+            .findEnvelopes(blobName, containerName, date)
+            .stream()
+            .map(envelope -> Tuples.of(
+                envelope,
+                eventRepository.findForEnvelope(envelope.id)
+            ))
+            .collect(toList());
     }
 }
