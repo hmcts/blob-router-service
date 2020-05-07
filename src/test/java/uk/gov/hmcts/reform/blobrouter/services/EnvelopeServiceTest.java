@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 
 import static java.time.Instant.now;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -312,26 +311,25 @@ class EnvelopeServiceTest {
         var event2a = new EnvelopeEvent(3L, envelope2.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
 
         LocalDate date = LocalDate.now();
-        given(envelopeRepository.findEnvelopes("", "c1", date)).willReturn(asList(envelope1, envelope2));
-        given(eventRepository.findForEnvelope(envelope1.id)).willReturn(asList(event1a, event1b));
-        given(eventRepository.findForEnvelope(envelope2.id)).willReturn(singletonList(event2a));
+        given(envelopeRepository.findEnvelopes("", "c1", date)).willReturn(asList(envelope2, envelope1));
+        given(eventRepository.findForEnvelopes(asList(envelope2.id, envelope1.id))).willReturn(
+            asList(event2a, event1b, event1a)
+        );
 
         // when
-        List<Tuple2<Envelope, List<EnvelopeEvent>>> envelopes = envelopeService.getEnvelopes(
-            "", "c1", date
-        );
+        List<Tuple2<Envelope, List<EnvelopeEvent>>> envelopes = envelopeService.getEnvelopes("", "c1", date);
 
         // then
         assertThat(envelopes).hasSize(2);
 
-        assertThat(envelopes.get(0).getT1()).isEqualToComparingFieldByField(envelope1);
+        assertThat(envelopes.get(0).getT1()).isEqualToComparingFieldByField(envelope2);
         assertThat(envelopes.get(0).getT2())
             .usingFieldByFieldElementComparator()
-            .containsExactlyInAnyOrder(event1a, event1b);
+            .containsOnly(event2a);
 
-        assertThat(envelopes.get(1).getT1()).isEqualToComparingFieldByField(envelope2);
+        assertThat(envelopes.get(1).getT1()).isEqualToComparingFieldByField(envelope1);
         assertThat(envelopes.get(1).getT2())
             .usingFieldByFieldElementComparator()
-            .containsOnly(event2a);
+            .containsExactly(event1b, event1a); // should be ordered by event id
     }
 }

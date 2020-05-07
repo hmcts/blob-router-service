@@ -28,6 +28,14 @@ public class EnvelopeEventRepository {
         );
     }
 
+    public List<EnvelopeEvent> findForEnvelopes(List<UUID> envelopeIds) {
+        return jdbcTemplate.query(
+            "SELECT * FROM envelope_events WHERE envelope_id in (:envelopeIds) ORDER BY id DESC",
+            new MapSqlParameterSource("envelopeIds", envelopeIds),
+            this.mapper
+        );
+    }
+
     public long insert(NewEnvelopeEvent event) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 

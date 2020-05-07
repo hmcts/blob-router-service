@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import java.util.UUID;
 
 import static java.time.Instant.now;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.tuple;
@@ -80,4 +81,46 @@ public class EnvelopeEventRepositoryTest {
     void should_return_empty_list_when_there_are_no_events_for_given_envelope() {
         assertThat(eventRepo.findForEnvelope(UUID.randomUUID())).isEmpty();
     }
+
+    @Test
+    void should_return_events_for_envelope_ids_order_by_created_at() {
+        // given
+        var envelopeId1 = envelopeRepo.insert(new NewEnvelope("c1", "f1", now(), null, Status.CREATED));
+        var envelopeId2 = envelopeRepo.insert(new NewEnvelope("c2", "f2", now(), null, Status.DISPATCHED));
+
+        var event1a = new NewEnvelopeEvent(envelopeId1, EventType.FILE_PROCESSING_STARTED, null, "note 1");
+        var event2a = new NewEnvelopeEvent(envelopeId2, EventType.FILE_PROCESSING_STARTED, null, "note 3");
+        var event2b = new NewEnvelopeEvent(envelopeId2, EventType.DISPATCHED, null, "note 4");
+
+        // when
+        var eventId1a = eventRepo.insert(event1a);
+        var eventId2a = eventRepo.insert(event2a);
+        var eventId2b = eventRepo.insert(event2b);
+
+        var eventsInDb = eventRepo.findForEnvelopes(asList(envelopeId1, envelopeId2));
+
+        // then
+        assertThat(eventsInDb)
+            .hasSize(3)
+            .extracting(e -> tuple(e.id, e.envelopeId, e.type, e.errorCode, e.notes))
+            .containsExactly(
+                tuple(eventId2b, envelopeId2, event2b.type, event2b.errorCode, event2b.notes),
+                tuple(eventId2a, envelopeId2, event2a.type, event2a.errorCode, event2a.notes),
+                tuple(eventId1a, envelopeId1, event1a.type, event1a.errorCode, event1a.notes)
+            );
+    }
+
+    @Test
+    void should_return_empty_when_no_events_exist_for_envelopes() {
+        // given
+        var envelopeId1 = envelopeRepo.insert(new NewEnvelope("c1", "f1", now(), null, Status.CREATED));
+        var envelopeId2 = envelopeRepo.insert(new NewEnvelope("c2", "f2", now(), null, Status.CREATED));
+
+        // when
+        var eventsInDb = eventRepo.findForEnvelopes(asList(envelopeId1, envelopeId2));
+
+        // then
+        assertThat(eventsInDb).isEmpty();
+    }
+
 }
