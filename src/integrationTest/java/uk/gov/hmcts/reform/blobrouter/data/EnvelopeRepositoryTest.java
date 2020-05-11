@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
+@SuppressWarnings("checkstyle:variabledeclarationusagedistance")
 public class EnvelopeRepositoryTest {
 
     @Autowired private EnvelopeRepository repo;

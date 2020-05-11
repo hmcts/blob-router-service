@@ -9,6 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
@@ -20,7 +21,6 @@ import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.tuple;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
@@ -53,10 +53,10 @@ public class EnvelopeEventRepositoryTest {
         // then
         assertThat(eventsInDb)
             .hasSize(2)
-            .extracting(e -> tuple(e.id, e.envelopeId, e.type, e.errorCode, e.notes))
+            .usingElementComparatorIgnoringFields("createdAt")
             .containsExactlyInAnyOrder(
-                tuple(eventId1, envelopeId, event1.type, event1.errorCode, event1.notes),
-                tuple(eventId2, envelopeId, event2.type, event2.errorCode, event2.notes)
+                new EnvelopeEvent(eventId1, envelopeId, event1.type, event1.errorCode, event1.notes, now()),
+                new EnvelopeEvent(eventId2, envelopeId, event2.type, event2.errorCode, event2.notes, now())
             );
 
         assertThat(eventsInDb.get(0).createdAt).isNotNull();
@@ -102,11 +102,11 @@ public class EnvelopeEventRepositoryTest {
         // then
         assertThat(eventsInDb)
             .hasSize(3)
-            .extracting(e -> tuple(e.id, e.envelopeId, e.type, e.errorCode, e.notes))
+            .usingElementComparatorIgnoringFields("createdAt")
             .containsExactly(
-                tuple(eventId2b, envelopeId2, event2b.type, event2b.errorCode, event2b.notes),
-                tuple(eventId2a, envelopeId2, event2a.type, event2a.errorCode, event2a.notes),
-                tuple(eventId1a, envelopeId1, event1a.type, event1a.errorCode, event1a.notes)
+                new EnvelopeEvent(eventId2b, envelopeId2, event2b.type, event2b.errorCode, event2b.notes, now()),
+                new EnvelopeEvent(eventId2a, envelopeId2, event2a.type, event2a.errorCode, event2a.notes, now()),
+                new EnvelopeEvent(eventId1a, envelopeId1, event1a.type, event1a.errorCode, event1a.notes, now())
             );
     }
 
