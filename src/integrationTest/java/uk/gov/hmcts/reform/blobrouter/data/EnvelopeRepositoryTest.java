@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
-@SuppressWarnings("checkstyle:variabledeclarationusagedistance")
 public class EnvelopeRepositoryTest {
 
     @Autowired private EnvelopeRepository repo;
@@ -330,12 +329,10 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    void should_return_envelopes_for_the_requested_date() throws Exception {
+    void should_return_envelopes_for_the_requested_date() {
         //given
         UUID id1 = addEnvelope("f1", "C1");
-        Thread.sleep(1);
         UUID id2 = addEnvelope("f2", "C2");
-        Thread.sleep(1);
         UUID id3 = addEnvelope("f3", "C2");
 
         // when
@@ -379,12 +376,10 @@ public class EnvelopeRepositoryTest {
     }
 
     @Test
-    void should_return_all_envelopes_when_all_params_are_null() throws Exception {
+    void should_return_all_envelopes_when_all_params_are_null() {
         //given
         UUID id1 = addEnvelope("f1", "C1");
-        Thread.sleep(1);
         UUID id2 = addEnvelope("f2", "C2");
-        Thread.sleep(1);
         UUID id3 = addEnvelope("f3", "C2");
 
         // when
