@@ -304,38 +304,59 @@ class EnvelopeServiceTest {
             UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false
         );
         var event1a = new EnvelopeEvent(1L, envelope1.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
-        var event1b = new EnvelopeEvent(2L, envelope1.id, EventType.DISPATCHED, null, null, now());
+        var event1b = new EnvelopeEvent(2L, envelope1.id, EventType.DISPATCHED, null, null, now().plusMillis(10));
 
         var envelope2 = new Envelope(
-            UUID.randomUUID(), "c1", "file2", now(), now(), now(), Status.REJECTED, true, false
+            UUID.randomUUID(), "c1", "file2", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
         );
         var event2a = new EnvelopeEvent(3L, envelope2.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
 
+        var envelope3 = new Envelope(
+            UUID.randomUUID(), "c1", "file3", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
+        );
+
         LocalDate date = LocalDate.now();
-        given(envelopeRepository.findEnvelopes("", "c1", date)).willReturn(asList(envelope2, envelope1));
-        given(eventRepository.findForEnvelopes(asList(envelope2.id, envelope1.id))).willReturn(
-            asList(event2a, event1b, event1a)
+        given(envelopeRepository.findEnvelopes("", "c1", date)).willReturn(asList(envelope3, envelope2, envelope1));
+        given(eventRepository.findForEnvelopes(asList(envelope3.id, envelope2.id, envelope1.id))).willReturn(
+            asList(event2a, event1b, event1a) // should be ordered by event id
         );
 
         // when
         List<Tuple2<Envelope, List<EnvelopeEvent>>> envelopes = envelopeService.getEnvelopes("", "c1", date);
 
         // then
-        assertThat(envelopes).hasSize(2);
+        assertThat(envelopes).hasSize(3);
 
-        assertThat(envelopes.get(0).getT1()).isEqualToComparingFieldByField(envelope2);
-        assertThat(envelopes.get(0).getT2())
+        assertThat(envelopes.get(0).getT1()).isEqualToComparingFieldByField(envelope3);
+        assertThat(envelopes.get(0).getT2()).isEmpty();
+
+        assertThat(envelopes.get(1).getT1()).isEqualToComparingFieldByField(envelope2);
+        assertThat(envelopes.get(1).getT2())
             .usingFieldByFieldElementComparator()
             .containsOnly(event2a);
 
-        assertThat(envelopes.get(1).getT1()).isEqualToComparingFieldByField(envelope1);
-        assertThat(envelopes.get(1).getT2())
+        assertThat(envelopes.get(2).getT1()).isEqualToComparingFieldByField(envelope1);
+        assertThat(envelopes.get(2).getT2())
             .usingFieldByFieldElementComparator()
-            .containsExactly(event1b, event1a); // should be ordered by event id
+            .containsExactly(event1b, event1a);
     }
 
     @Test
     void should_not_call_envelope_events_repository_when_no_envelopes_exists_for_the_given_filename() {
+        // given
+        given(envelopeRepository.findEnvelopes("f1.zip", null, null)).willReturn(emptyList());
+
+        // when
+        List<Tuple2<Envelope, List<EnvelopeEvent>>> envelopes = envelopeService.getEnvelopes("f1.zip", null, null);
+
+        // then
+        verify(envelopeRepository).findEnvelopes("f1.zip", null, null);
+        assertThat(envelopes).isEmpty();
+        verifyNoInteractions(eventRepository);
+    }
+
+    @Test
+    void should_return_empty_events_list_when_no_events_created_for_an_envelope() {
         // given
         given(envelopeRepository.findEnvelopes("f1.zip", null, null)).willReturn(emptyList());
 

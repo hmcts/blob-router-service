@@ -158,9 +158,17 @@ public class EnvelopeService {
                 .stream()
                 .map(envelope -> Tuples.of(
                     envelope,
-                    eventsByEnvelopeIds.get(envelope.id)
+                    getEnvelopeEvents(eventsByEnvelopeIds, envelope)
                 ))
                 .collect(toList());
         }
+    }
+
+    private List<EnvelopeEvent> getEnvelopeEvents(
+        Map<UUID, List<EnvelopeEvent>> eventsByEnvelopeIds,
+        Envelope envelope
+    ) {
+        List<EnvelopeEvent> envelopeEvents = eventsByEnvelopeIds.get(envelope.id);
+        return envelopeEvents == null ? emptyList() : envelopeEvents;
     }
 }
