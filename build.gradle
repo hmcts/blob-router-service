@@ -199,9 +199,9 @@ dependencies {
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.1.4'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.9.2'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.9.2'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.9.3'
 
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.6.0'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.6.1'
   implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.2.0'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
@@ -255,7 +255,7 @@ dependencies {
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation libraries.junit5
-  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.16.0'
+  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.16.1'
   functionalTestImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
   functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
   functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
