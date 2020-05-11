@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,8 +56,8 @@ public class EnvelopeEventRepositoryTest {
             .hasSize(2)
             .usingElementComparatorIgnoringFields("createdAt")
             .containsExactlyInAnyOrder(
-                new EnvelopeEvent(eventId1, envelopeId, event1.type, event1.errorCode, event1.notes, now()),
-                new EnvelopeEvent(eventId2, envelopeId, event2.type, event2.errorCode, event2.notes, now())
+                envelopeEvent(envelopeId, event1, eventId1),
+                envelopeEvent(envelopeId, event2, eventId2)
             );
 
         assertThat(eventsInDb.get(0).createdAt).isNotNull();
@@ -104,9 +105,9 @@ public class EnvelopeEventRepositoryTest {
             .hasSize(3)
             .usingElementComparatorIgnoringFields("createdAt")
             .containsExactly(
-                new EnvelopeEvent(eventId2b, envelopeId2, event2b.type, event2b.errorCode, event2b.notes, now()),
-                new EnvelopeEvent(eventId2a, envelopeId2, event2a.type, event2a.errorCode, event2a.notes, now()),
-                new EnvelopeEvent(eventId1a, envelopeId1, event1a.type, event1a.errorCode, event1a.notes, now())
+                envelopeEvent(envelopeId2, event2b, eventId2b),
+                envelopeEvent(envelopeId2, event2a, eventId2a),
+                envelopeEvent(envelopeId1, event1a, eventId1a)
             );
     }
 
@@ -121,6 +122,11 @@ public class EnvelopeEventRepositoryTest {
 
         // then
         assertThat(eventsInDb).isEmpty();
+    }
+
+    @NotNull
+    private EnvelopeEvent envelopeEvent(UUID envelopeId, NewEnvelopeEvent event, long eventId) {
+        return new EnvelopeEvent(eventId, envelopeId, event.type, event.errorCode, event.notes, now());
     }
 
 }
