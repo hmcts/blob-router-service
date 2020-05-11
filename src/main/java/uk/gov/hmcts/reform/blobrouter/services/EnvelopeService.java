@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.Instant.now;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
@@ -142,20 +143,24 @@ public class EnvelopeService {
         List<Envelope> envelopes = envelopeRepository
             .findEnvelopes(blobName, containerName, date);
 
-        List<UUID> envelopeIds = envelopes.stream().map(e -> e.id).collect(toList());
+        if (envelopes.isEmpty()) {
+            return emptyList();
+        } else {
+            List<UUID> envelopeIds = envelopes.stream().map(e -> e.id).collect(toList());
 
-        List<EnvelopeEvent> envelopeEvents = eventRepository.findForEnvelopes(envelopeIds);
+            List<EnvelopeEvent> envelopeEvents = eventRepository.findForEnvelopes(envelopeIds);
 
-        Map<UUID, List<EnvelopeEvent>> eventsByEnvelopeIds = envelopeEvents
-            .stream()
-            .collect(groupingBy(envelopeEvent -> envelopeEvent.envelopeId));
+            Map<UUID, List<EnvelopeEvent>> eventsByEnvelopeIds = envelopeEvents
+                .stream()
+                .collect(groupingBy(envelopeEvent -> envelopeEvent.envelopeId));
 
-        return envelopes
-            .stream()
-            .map(envelope -> Tuples.of(
-                envelope,
-                eventsByEnvelopeIds.get(envelope.id)
-            ))
-            .collect(toList());
+            return envelopes
+                .stream()
+                .map(envelope -> Tuples.of(
+                    envelope,
+                    eventsByEnvelopeIds.get(envelope.id)
+                ))
+                .collect(toList());
+        }
     }
 }

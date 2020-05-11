@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 
 import static java.time.Instant.now;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -268,7 +269,7 @@ class EnvelopeServiceTest {
             .willReturn(Optional.empty());
 
         // when
-        var exc = catchThrowable(() -> envelopeService.markAsRejected(notExistingId, null,"error"));
+        var exc = catchThrowable(() -> envelopeService.markAsRejected(notExistingId, null, "error"));
 
         // then
         assertThat(exc)
@@ -331,5 +332,19 @@ class EnvelopeServiceTest {
         assertThat(envelopes.get(1).getT2())
             .usingFieldByFieldElementComparator()
             .containsExactly(event1b, event1a); // should be ordered by event id
+    }
+
+    @Test
+    void should_not_call_envelope_events_repository_when_no_envelopes_exists_for_the_given_filename() {
+        // given
+        given(envelopeRepository.findEnvelopes("f1.zip", null, null)).willReturn(emptyList());
+
+        // when
+        List<Tuple2<Envelope, List<EnvelopeEvent>>> envelopes = envelopeService.getEnvelopes("f1.zip", null, null);
+
+        // then
+        verify(envelopeRepository).findEnvelopes("f1.zip", null, null);
+        assertThat(envelopes).isEmpty();
+        verifyNoInteractions(eventRepository);
     }
 }
