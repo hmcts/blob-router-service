@@ -123,18 +123,6 @@ public class EnvelopeService {
     }
 
     @Transactional(readOnly = true)
-    public List<Tuple2<Envelope, List<EnvelopeEvent>>> getEnvelopeInfo(String blobName, String containerName) {
-        return envelopeRepository
-            .find(blobName, containerName)
-            .stream()
-            .map(envelope -> Tuples.of(
-                envelope,
-                eventRepository.findForEnvelope(envelope.id)
-            ))
-            .collect(toList());
-    }
-
-    @Transactional(readOnly = true)
     public List<Tuple2<Envelope, List<EnvelopeEvent>>> getEnvelopes(
         String blobName,
         String containerName,
