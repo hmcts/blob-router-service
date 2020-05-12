@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
@@ -17,9 +19,9 @@ import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import java.util.UUID;
 
 import static java.time.Instant.now;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.assertj.core.api.Assertions.tuple;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
@@ -52,10 +54,10 @@ public class EnvelopeEventRepositoryTest {
         // then
         assertThat(eventsInDb)
             .hasSize(2)
-            .extracting(e -> tuple(e.id, e.envelopeId, e.type, e.errorCode, e.notes))
+            .usingElementComparatorIgnoringFields("createdAt")
             .containsExactlyInAnyOrder(
-                tuple(eventId1, envelopeId, event1.type, event1.errorCode, event1.notes),
-                tuple(eventId2, envelopeId, event2.type, event2.errorCode, event2.notes)
+                envelopeEvent(envelopeId, event1, eventId1),
+                envelopeEvent(envelopeId, event2, eventId2)
             );
 
         assertThat(eventsInDb.get(0).createdAt).isNotNull();
@@ -80,4 +82,51 @@ public class EnvelopeEventRepositoryTest {
     void should_return_empty_list_when_there_are_no_events_for_given_envelope() {
         assertThat(eventRepo.findForEnvelope(UUID.randomUUID())).isEmpty();
     }
+
+    @Test
+    void should_return_events_for_envelope_ids_order_by_created_at() {
+        // given
+        var envelopeId1 = envelopeRepo.insert(new NewEnvelope("c1", "f1", now(), null, Status.CREATED));
+        var envelopeId2 = envelopeRepo.insert(new NewEnvelope("c2", "f2", now(), null, Status.DISPATCHED));
+
+        var event1a = new NewEnvelopeEvent(envelopeId1, EventType.FILE_PROCESSING_STARTED, null, "note 1");
+        var event2a = new NewEnvelopeEvent(envelopeId2, EventType.FILE_PROCESSING_STARTED, null, "note 3");
+        var event2b = new NewEnvelopeEvent(envelopeId2, EventType.DISPATCHED, null, "note 4");
+
+        // when
+        var eventId1a = eventRepo.insert(event1a);
+        var eventId2a = eventRepo.insert(event2a);
+        var eventId2b = eventRepo.insert(event2b);
+
+        var eventsInDb = eventRepo.findForEnvelopes(asList(envelopeId1, envelopeId2));
+
+        // then
+        assertThat(eventsInDb)
+            .hasSize(3)
+            .usingElementComparatorIgnoringFields("createdAt")
+            .containsExactly(
+                envelopeEvent(envelopeId2, event2b, eventId2b),
+                envelopeEvent(envelopeId2, event2a, eventId2a),
+                envelopeEvent(envelopeId1, event1a, eventId1a)
+            );
+    }
+
+    @Test
+    void should_return_empty_when_no_events_exist_for_envelopes() {
+        // given
+        var envelopeId1 = envelopeRepo.insert(new NewEnvelope("c1", "f1", now(), null, Status.CREATED));
+        var envelopeId2 = envelopeRepo.insert(new NewEnvelope("c2", "f2", now(), null, Status.CREATED));
+
+        // when
+        var eventsInDb = eventRepo.findForEnvelopes(asList(envelopeId1, envelopeId2));
+
+        // then
+        assertThat(eventsInDb).isEmpty();
+    }
+
+    @NotNull
+    private EnvelopeEvent envelopeEvent(UUID envelopeId, NewEnvelopeEvent event, long eventId) {
+        return new EnvelopeEvent(eventId, envelopeId, event.type, event.errorCode, event.notes, now());
+    }
+
 }

@@ -331,15 +331,16 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_envelopes_for_the_requested_date() {
         //given
-        addEnvelope("C1", "f1");
-        addEnvelope("C3", "f2");
-        addEnvelope("C3", "f3");
+        UUID id1 = addEnvelope("f1", "C1");
+        UUID id2 = addEnvelope("f2", "C2");
+        UUID id3 = addEnvelope("f3", "C2");
 
         // when
         List<Envelope> envelopes = repo.findEnvelopes(null, null, LocalDate.now());
 
         // then
         assertThat(envelopes).isNotEmpty().hasSize(3);
+        assertThat(envelopes).extracting(env -> env.id).containsExactly(id3, id2, id1); // ordered by created_at
     }
 
     @Test
@@ -377,15 +378,16 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_all_envelopes_when_all_params_are_null() {
         //given
-        addEnvelope("f1", "C1");
-        addEnvelope("f2", "C2");
-        addEnvelope("f3", "C2");
+        UUID id1 = addEnvelope("f1", "C1");
+        UUID id2 = addEnvelope("f2", "C2");
+        UUID id3 = addEnvelope("f3", "C2");
 
         // when
         List<Envelope> envelopes = repo.findEnvelopes(null, null, null);
 
         // then
         assertThat(envelopes).isNotEmpty().hasSize(3);
+        assertThat(envelopes).extracting(env -> env.id).containsExactly(id3, id2, id1); // ordered by created_at
     }
 
     @Test

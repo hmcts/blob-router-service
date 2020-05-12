@@ -185,7 +185,9 @@ public class EnvelopeRepository {
         }
 
         return jdbcTemplate.query(
-            "SELECT * FROM envelopes" + whereClause.toString(),
+            "SELECT * FROM envelopes"
+                + whereClause.toString()
+                + " ORDER BY created_at DESC",
             parameterSource,
             this.mapper
         );

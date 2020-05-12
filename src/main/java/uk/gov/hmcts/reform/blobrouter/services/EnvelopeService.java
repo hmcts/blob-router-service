@@ -18,10 +18,13 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.Instant.now;
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -132,7 +135,40 @@ public class EnvelopeService {
     }
 
     @Transactional(readOnly = true)
-    public List<Envelope> getEnvelopes(String blobName, String containerName, LocalDate date) {
-        return envelopeRepository.findEnvelopes(blobName, containerName, date);
+    public List<Tuple2<Envelope, List<EnvelopeEvent>>> getEnvelopes(
+        String blobName,
+        String containerName,
+        LocalDate date
+    ) {
+        List<Envelope> envelopes = envelopeRepository
+            .findEnvelopes(blobName, containerName, date);
+
+        if (envelopes.isEmpty()) {
+            return emptyList();
+        } else {
+            List<UUID> envelopeIds = envelopes.stream().map(e -> e.id).collect(toList());
+
+            List<EnvelopeEvent> envelopeEvents = eventRepository.findForEnvelopes(envelopeIds);
+
+            Map<UUID, List<EnvelopeEvent>> eventsByEnvelopeIds = envelopeEvents
+                .stream()
+                .collect(groupingBy(envelopeEvent -> envelopeEvent.envelopeId));
+
+            return envelopes
+                .stream()
+                .map(envelope -> Tuples.of(
+                    envelope,
+                    getEnvelopeEvents(eventsByEnvelopeIds, envelope)
+                ))
+                .collect(toList());
+        }
+    }
+
+    private List<EnvelopeEvent> getEnvelopeEvents(
+        Map<UUID, List<EnvelopeEvent>> eventsByEnvelopeIds,
+        Envelope envelope
+    ) {
+        List<EnvelopeEvent> envelopeEvents = eventsByEnvelopeIds.get(envelope.id);
+        return envelopeEvents == null ? emptyList() : envelopeEvents;
     }
 }

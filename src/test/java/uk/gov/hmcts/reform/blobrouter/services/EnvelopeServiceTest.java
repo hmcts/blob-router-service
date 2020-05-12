@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.util.function.Tuple2;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
@@ -19,12 +20,14 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.time.Instant.now;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -33,7 +36,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeServiceTest {
@@ -267,7 +269,7 @@ class EnvelopeServiceTest {
             .willReturn(Optional.empty());
 
         // when
-        var exc = catchThrowable(() -> envelopeService.markAsRejected(notExistingId, null,"error"));
+        var exc = catchThrowable(() -> envelopeService.markAsRejected(notExistingId, null, "error"));
 
         // then
         assertThat(exc)
@@ -297,12 +299,73 @@ class EnvelopeServiceTest {
 
     @Test
     void should_call_envelope_repository_with_the_filename_container_and_requested_date_values() {
+        // given
+        var envelope1 = new Envelope(
+            UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false
+        );
+        var event1a = new EnvelopeEvent(1L, envelope1.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
+        var event1b = new EnvelopeEvent(2L, envelope1.id, EventType.DISPATCHED, null, null, now().plusMillis(10));
+
+        var envelope2 = new Envelope(
+            UUID.randomUUID(), "c1", "file2", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
+        );
+        var event2a = new EnvelopeEvent(3L, envelope2.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
+
+        var envelope3 = new Envelope(
+            UUID.randomUUID(), "c1", "file3", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
+        );
+
+        LocalDate date = LocalDate.now();
+        given(envelopeRepository.findEnvelopes("", "c1", date)).willReturn(asList(envelope3, envelope2, envelope1));
+        given(eventRepository.findForEnvelopes(asList(envelope3.id, envelope2.id, envelope1.id))).willReturn(
+            asList(event2a, event1b, event1a) // should be ordered by event id
+        );
+
         // when
-        LocalDate date = LocalDate.of(2020, 5, 3);
-        envelopeService.getEnvelopes("file1", "c1", date);
+        List<Tuple2<Envelope, List<EnvelopeEvent>>> envelopes = envelopeService.getEnvelopes("", "c1", date);
 
         // then
-        verify(envelopeRepository).findEnvelopes("file1", "c1", date);
-        verifyNoMoreInteractions(envelopeRepository);
+        assertThat(envelopes).hasSize(3);
+
+        assertThat(envelopes.get(0).getT1()).isEqualToComparingFieldByField(envelope3);
+        assertThat(envelopes.get(0).getT2()).isEmpty();
+
+        assertThat(envelopes.get(1).getT1()).isEqualToComparingFieldByField(envelope2);
+        assertThat(envelopes.get(1).getT2())
+            .usingFieldByFieldElementComparator()
+            .containsOnly(event2a);
+
+        assertThat(envelopes.get(2).getT1()).isEqualToComparingFieldByField(envelope1);
+        assertThat(envelopes.get(2).getT2())
+            .usingFieldByFieldElementComparator()
+            .containsExactly(event1b, event1a);
+    }
+
+    @Test
+    void should_not_call_envelope_events_repository_when_no_envelopes_exists_for_the_given_filename() {
+        // given
+        given(envelopeRepository.findEnvelopes("f1.zip", null, null)).willReturn(emptyList());
+
+        // when
+        List<Tuple2<Envelope, List<EnvelopeEvent>>> envelopes = envelopeService.getEnvelopes("f1.zip", null, null);
+
+        // then
+        verify(envelopeRepository).findEnvelopes("f1.zip", null, null);
+        assertThat(envelopes).isEmpty();
+        verifyNoInteractions(eventRepository);
+    }
+
+    @Test
+    void should_return_empty_events_list_when_no_events_created_for_an_envelope() {
+        // given
+        given(envelopeRepository.findEnvelopes("f1.zip", null, null)).willReturn(emptyList());
+
+        // when
+        List<Tuple2<Envelope, List<EnvelopeEvent>>> envelopes = envelopeService.getEnvelopes("f1.zip", null, null);
+
+        // then
+        verify(envelopeRepository).findEnvelopes("f1.zip", null, null);
+        assertThat(envelopes).isEmpty();
+        verifyNoInteractions(eventRepository);
     }
 }
