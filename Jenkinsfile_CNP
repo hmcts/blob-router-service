@@ -75,7 +75,6 @@ withPipeline(type, product, component) {
 
   enableDbMigration('reform-scan') // vault 'prefix'
   enableAksStagingDeployment()
-  installCharts()
   enableSlackNotifications(channel)
   disableLegacyDeployment()
 
