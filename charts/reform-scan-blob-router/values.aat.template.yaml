@@ -17,9 +17,9 @@ java:
         - reports-email-username
         - reports-email-password
         - reports-recipients
-        - storage-account-name
-        - storage-account-primary-key
-        - storage-account-secondary-key
+        - storage-account-staging-name
+        - storage-account-staging-primary-key
+        - storage-account-staging-secondary-key
         - crime-storage-connection-string
         - blob-router-staging-db-password
         - blob-router-staging-db-user
