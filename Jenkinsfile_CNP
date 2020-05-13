@@ -29,8 +29,8 @@ def combinedSecrets = [
 
      secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
-     secret('storage-account-secondary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
-     secret('storage-account-staging-secondary-key', 'TEST_STORAGE_ACCOUNT_NAME'),
+     secret('storage-account-staging-secondary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
+     secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME'),
    ]
  ]
 
