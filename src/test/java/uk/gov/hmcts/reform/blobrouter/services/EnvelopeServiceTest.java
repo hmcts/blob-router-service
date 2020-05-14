@@ -146,9 +146,10 @@ class EnvelopeServiceTest {
         Stream.of(EventType.values()).forEach(eventType -> {
             // given
             var envelopeId = UUID.randomUUID();
+            var notes = UUID.randomUUID().toString();
 
             // when
-            envelopeService.saveEvent(envelopeId, eventType);
+            envelopeService.saveEvent(envelopeId, eventType, notes);
 
             // then
             var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
@@ -156,9 +157,28 @@ class EnvelopeServiceTest {
 
             assertThat(eventCaptor.getValue().envelopeId).isEqualTo(envelopeId);
             assertThat(eventCaptor.getValue().type).isEqualTo(eventType);
+            assertThat(eventCaptor.getValue().notes).isEqualTo(notes);
 
             reset(eventRepository);
         });
+    }
+
+    @Test
+    void should_record_event_with_null_notes_when_not_argument_is_passed() {
+        // given
+        var envelopeId = UUID.randomUUID();
+        var eventType = EventType.ERROR;
+
+        // when
+        envelopeService.saveEvent(envelopeId, eventType);
+
+        // then
+        var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(eventRepository).insert(eventCaptor.capture());
+
+        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(envelopeId);
+        assertThat(eventCaptor.getValue().type).isEqualTo(eventType);
+        assertThat(eventCaptor.getValue().notes).isEqualTo(null);
     }
 
     @Test

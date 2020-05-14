@@ -118,6 +118,11 @@ public class EnvelopeService {
     }
 
     @Transactional
+    public void saveEvent(UUID envelopeId, EventType eventType, String notes) {
+        eventRepository.insert(new NewEnvelopeEvent(envelopeId, eventType, null, notes));
+    }
+
+    @Transactional
     public void saveEvent(UUID envelopeId, EventType eventType) {
         eventRepository.insert(new NewEnvelopeEvent(envelopeId, eventType, null, null));
     }

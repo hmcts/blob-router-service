@@ -156,6 +156,6 @@ public class BlobProcessor {
             envelopeId,
             exc
         );
-        envelopeService.saveEvent(envelopeId, EventType.ERROR);
+        envelopeService.saveEvent(envelopeId, EventType.ERROR, exc.getMessage());
     }
 }
