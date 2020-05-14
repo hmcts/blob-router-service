@@ -164,7 +164,7 @@ class EnvelopeServiceTest {
     }
 
     @Test
-    void should_record_event_with_null_notes_when_not_argument_is_passed() {
+    void should_record_event_with_null_notes_when_no_argument_is_passed() {
         // given
         var envelopeId = UUID.randomUUID();
         var eventType = EventType.ERROR;
