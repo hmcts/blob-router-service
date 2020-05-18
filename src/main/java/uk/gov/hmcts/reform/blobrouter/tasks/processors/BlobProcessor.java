@@ -31,8 +31,6 @@ public class BlobProcessor {
 
     private static final Logger logger = getLogger(BlobProcessor.class);
 
-    private static final String MESSAGE_FAILED_TO_DOWNLOAD_BLOB = "Failed to download blob";
-
     private final BlobDispatcher dispatcher;
     private final EnvelopeService envelopeService;
     private final BlobVerifier blobVerifier;
@@ -139,12 +137,12 @@ public class BlobProcessor {
             return outputStream.toByteArray();
         } catch (BlobStorageException exc) {
             String errorMessage = exc.getStatusCode() == BAD_GATEWAY.value()
-                ? "Failed to download blob. It looks like antivirus software may be blocking the file."
-                : MESSAGE_FAILED_TO_DOWNLOAD_BLOB;
+                ? ErrorMessages.DOWNLOAD_ERROR_BAD_GATEWAY
+                : ErrorMessages.DOWNLOAD_ERROR_GENERIC;
 
             throw new ZipFileLoadException(errorMessage, exc);
         } catch (Exception exc) {
-            throw new ZipFileLoadException(MESSAGE_FAILED_TO_DOWNLOAD_BLOB, exc);
+            throw new ZipFileLoadException(ErrorMessages.DOWNLOAD_ERROR_GENERIC, exc);
         }
     }
 
@@ -156,6 +154,15 @@ public class BlobProcessor {
             envelopeId,
             exc
         );
-        envelopeService.saveEvent(envelopeId, EventType.ERROR);
+        envelopeService.saveEvent(envelopeId, EventType.ERROR, exc.getMessage());
+    }
+
+    public static class ErrorMessages {
+
+        public static final String DOWNLOAD_ERROR_GENERIC =
+            "Failed to download blob";
+
+        public static final String DOWNLOAD_ERROR_BAD_GATEWAY =
+            "Failed to download blob. It looks like antivirus software may be blocking the file.";
     }
 }

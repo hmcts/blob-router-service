@@ -63,7 +63,7 @@ class BlobProcessorTest {
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
-        willThrow(new RuntimeException("Test exception"))
+        willThrow(new RuntimeException("Exception message"))
             .given(blobDispatcher)
             .dispatch(any(), any(), any(), any());
 
@@ -80,7 +80,7 @@ class BlobProcessorTest {
         verify(envelopeService, never()).markAsDispatched(any());
 
         // and error event has been created
-        verify(envelopeService).saveEvent(id, EventType.ERROR);
+        verify(envelopeService).saveEvent(id, EventType.ERROR, "Exception message");
     }
 
     @Test
@@ -110,7 +110,7 @@ class BlobProcessorTest {
         verify(envelopeService, never()).markAsDispatched(any());
 
         // and error event has been created
-        verify(envelopeService).saveEvent(id, EventType.ERROR);
+        verify(envelopeService).saveEvent(id, EventType.ERROR, BlobProcessor.ErrorMessages.DOWNLOAD_ERROR_BAD_GATEWAY);
     }
 
     @Test
@@ -135,7 +135,7 @@ class BlobProcessorTest {
         verify(envelopeService, never()).markAsDispatched(any());
 
         // and error event has been created
-        verify(envelopeService).saveEvent(id, EventType.ERROR);
+        verify(envelopeService).saveEvent(id, EventType.ERROR, BlobProcessor.ErrorMessages.DOWNLOAD_ERROR_GENERIC);
     }
 
     @Test
