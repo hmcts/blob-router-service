@@ -61,7 +61,7 @@ public class BlobContainerClientProxy {
                     .getBlobClient(blobName)
                     .getBlockBlobClient();
 
-            logger.info("Uploading blob content to Container: {}", destinationContainer);
+            logger.info("Uploading content of blob {} to Container: {}", blobName, destinationContainer);
 
             blockBlobClient
                 .upload(
@@ -69,7 +69,7 @@ public class BlobContainerClientProxy {
                     blobContents.length
             );
 
-            logger.info("Finished uploading blob content to Container: {}", destinationContainer);
+            logger.info("Finished uploading content of blob {} to Container: {}", blobName, destinationContainer);
         } catch (HttpResponseException ex) {
             if (targetStorageAccount == TargetStorageAccount.BULKSCAN
                 && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
