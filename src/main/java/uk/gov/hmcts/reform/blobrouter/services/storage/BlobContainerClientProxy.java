@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.exception.HttpResponseException;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.specialized.BlockBlobClient;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -9,8 +11,12 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
 import java.io.ByteArrayInputStream;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 @Service
 public class BlobContainerClientProxy {
+
+    private static final Logger logger = getLogger(BlobContainerClientProxy.class);
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -50,13 +56,20 @@ public class BlobContainerClientProxy {
         TargetStorageAccount targetStorageAccount
     ) {
         try {
-            get(targetStorageAccount, destinationContainer)
-                .getBlobClient(blobName)
-                .getBlockBlobClient()
+            final BlockBlobClient blockBlobClient =
+                get(targetStorageAccount, destinationContainer)
+                    .getBlobClient(blobName)
+                    .getBlockBlobClient();
+
+            logger.info("Uploading content of blob {} to Container: {}", blobName, destinationContainer);
+
+            blockBlobClient
                 .upload(
                     new ByteArrayInputStream(blobContents),
                     blobContents.length
-                );
+            );
+
+            logger.info("Finished uploading content of blob {} to Container: {}", blobName, destinationContainer);
         } catch (HttpResponseException ex) {
             if (targetStorageAccount == TargetStorageAccount.BULKSCAN
                 && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
