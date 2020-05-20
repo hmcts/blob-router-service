@@ -8,7 +8,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @FeignClient(
     name = "bulk-scan-processor-client",
-    url = "${bulk-scan-processor-url}"
+    url = "${bulk-scan-processor-url:url}"
 )
 public interface BulkScanProcessorClient {
 

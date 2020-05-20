@@ -8,18 +8,16 @@ import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 
-@Profile({"!integration-test"})
-@Configuration
+//@Profile({"!integration-test"})
+//@Configuration
 public class StorageConfiguration {
 
     @Bean
     public StorageSharedKeyCredential getStorageSharedKeyCredential(
-        @Value("${storage.account-name}") String accountName,
-        @Value("${storage.account-key}") String accountKey
+        @Value("${storage.account-name:}") String accountName,
+        @Value("${storage.account-key:}") String accountKey
     ) {
         return new StorageSharedKeyCredential(accountName, accountKey);
     }
@@ -31,9 +29,9 @@ public class StorageConfiguration {
 
     @Bean
     public BlobServiceClient getStorageClient(
-        @Value("${storage.account-name}") String accountName,
-        @Value("${storage.account-key}") String accountKey,
-        @Value("${storage.url}") String storageUrl
+        @Value("${storage.account-name:}") String accountName,
+        @Value("${storage.account-key:}") String accountKey,
+        @Value("${storage.url:}") String storageUrl
     ) {
         String connectionString = String.format(
             "DefaultEndpointsProtocol=https;BlobEndpoint=%s;AccountName=%s;AccountKey=%s",

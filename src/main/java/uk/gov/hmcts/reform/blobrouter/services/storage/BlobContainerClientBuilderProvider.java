@@ -13,7 +13,7 @@ public class BlobContainerClientBuilderProvider {
 
     public BlobContainerClientBuilderProvider(
         HttpClient httpClient,
-        @Value("${storage.bulkscan.url}") String bulkScanStorageUrl
+        @Value("${storage.bulkscan.url:}") String bulkScanStorageUrl
     ) {
         this.httpClient = httpClient;
         this.bulkScanStorageUrl = bulkScanStorageUrl;

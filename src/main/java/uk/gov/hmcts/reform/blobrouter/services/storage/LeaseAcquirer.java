@@ -4,13 +4,12 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
 
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static com.azure.storage.blob.models.BlobErrorCode.LEASE_ALREADY_PRESENT;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Component
+//@Component
 public class LeaseAcquirer {
 
     public static final int LEASE_DURATION_IN_SECONDS = 60;

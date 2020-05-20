@@ -6,7 +6,6 @@ import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobListDetails;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
@@ -14,7 +13,7 @@ import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
 
-@Component
+//@Component
 public class RejectedContainerCleaner {
 
     private static final Logger logger = getLogger(RejectedContainerCleaner.class);

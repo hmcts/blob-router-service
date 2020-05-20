@@ -7,8 +7,6 @@ import com.azure.storage.common.sas.SasProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
@@ -17,8 +15,8 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenExcepti
 
 import java.time.OffsetDateTime;
 
-@EnableConfigurationProperties(ServiceConfiguration.class)
-@Service
+//@EnableConfigurationProperties(ServiceConfiguration.class)
+//@Service
 public class SasTokenGeneratorService {
 
     private static final Logger log = LoggerFactory.getLogger(SasTokenGeneratorService.class);

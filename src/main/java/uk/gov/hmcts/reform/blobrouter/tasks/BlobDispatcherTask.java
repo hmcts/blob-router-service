@@ -33,7 +33,7 @@ public class BlobDispatcherTask {
         this.containers = serviceConfiguration.getEnabledSourceContainers();
     }
 
-    @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
+    @Scheduled(fixedDelayString = "100")
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 

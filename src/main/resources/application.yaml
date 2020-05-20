@@ -16,9 +16,9 @@ spring:
   application:
     name: Blob Router Service
   datasource:
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}${DB_CONN_OPTIONS}
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/db
+    username: ${DB_USER:}
+    password: ${DB_PASSWORD:}
     properties:
       charSet: UTF-8
     hikari:
@@ -29,9 +29,9 @@ spring:
       maxLifetime: 7200000
       connectionTimeout: 30000
   mail:
-    host: ${SMTP_HOST}
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
+    host: ${SMTP_HOST:host}
+    username: ${SMTP_USERNAME:user}
+    password: ${SMTP_PASSWORD:pwd}
     port: 587
     properties:
       mail:
@@ -55,7 +55,7 @@ service:
       sas-validity: 300 #In seconds
       enabled: ${CRIME_ENABLED:false}
       target-storage-account: crime
-      target-container: ${CRIME_DESTINATION_CONTAINER}
+      target-container: ${CRIME_DESTINATION_CONTAINER:crime}
     - source-container: divorce
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
@@ -79,17 +79,17 @@ service:
 
 queue:
   notifications:
-    connection-string: ${NOTIFICATIONS_QUEUE_CONNECTION_STRING}
+    connection-string: ${NOTIFICATIONS_QUEUE_CONNECTION_STRING:notif}
 
 reports:
-  recipients: ${REPORTS_RECIPIENTS}
+  recipients: ${REPORTS_RECIPIENTS:rep}
 
 flyway:
-  skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
+  skip-migrations: ${FLYWAY_SKIP_MIGRATIONS:flw}
 
-storage-blob-processing-delay-in-minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES}
-include-write-permission-in-storage-sas-token: ${INCLUDE_WRITE_PERMISSION_IN_STORAGE_SAS_TOKEN}
-public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY} # public key file in der format
+storage-blob-processing-delay-in-minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES:1}
+include-write-permission-in-storage-sas-token: ${INCLUDE_WRITE_PERMISSION_IN_STORAGE_SAS_TOKEN:false}
+public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY:der} # public key file in der format
 
 bulk-scan-cache:
     refresh-before-expire-in-sec: 30
@@ -99,29 +99,29 @@ scheduling:
   task:
     delete-dispatched-files:
       enabled: true
-      cron: ${DELETE_DISPATCHED_FILES_CRON}
+      cron: ${DELETE_DISPATCHED_FILES_CRON:0 0 6 * * *}
     handle-rejected-files:
       enabled: true
-      cron: ${HANDLE_REJECTED_FILES_CRON}
+      cron: ${HANDLE_REJECTED_FILES_CRON:0 0 6 * * *}
     reject-duplicates:
       enabled: true
-      cron: ${REJECT_DUPLICATES_CRON}
+      cron: ${REJECT_DUPLICATES_CRON:0 0 6 * * *}
     send-notifications:
       enabled: true
-      cron: ${SEND_NOTIFICATIONS_CRON}
+      cron: ${SEND_NOTIFICATIONS_CRON:0 0 6 * * *}
     delete-rejected-files:
       enabled: true
       ttl: PT72H # ISO-8601
       cron: 0 0 6 * * *
     check-new-envelopes:
       time-interval: PT60M # ISO-8601
-      cron: ${CHECK_NEW_ENVELOPES_CRON}
+      cron: ${CHECK_NEW_ENVELOPES_CRON:0 0 6 * * *}
       enabled: true
     scan:
-      delay: ${TASK_SCAN_DELAY} # In milliseconds
+      delay: ${TASK_SCAN_DELAY:100000} # In milliseconds
     send-daily-report:
-      cron: ${SEND_DAILY_REPORT_CRON}
-      enabled: ${SEND_DAILY_REPORT_ENABLED}
+      cron: ${SEND_DAILY_REPORT_CRON:0 0 6 * * *}
+      enabled: ${SEND_DAILY_REPORT_ENABLED:0 0 6 * * *}
 
 proxy:
   enabled: ${PROXY_ENABLED:true}

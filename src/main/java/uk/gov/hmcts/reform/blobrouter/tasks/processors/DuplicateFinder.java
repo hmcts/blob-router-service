@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobServiceClient;
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.time.Instant;
@@ -9,7 +8,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
-@Component
+//@Component
 public class DuplicateFinder {
 
     private final BlobServiceClient storageClient;

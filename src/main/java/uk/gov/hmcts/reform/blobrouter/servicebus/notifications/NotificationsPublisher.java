@@ -6,14 +6,13 @@ import com.microsoft.azure.servicebus.Message;
 import com.microsoft.azure.servicebus.QueueClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
 
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-@Service
+//@Service
 public class NotificationsPublisher {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationsPublisher.class);

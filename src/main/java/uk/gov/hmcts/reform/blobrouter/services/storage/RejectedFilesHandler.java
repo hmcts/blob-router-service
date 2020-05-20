@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import org.slf4j.Logger;
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
@@ -10,7 +9,7 @@ import java.util.List;
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 
-@Component
+//@Component
 public class RejectedFilesHandler {
 
     private static final Logger logger = getLogger(RejectedFilesHandler.class);

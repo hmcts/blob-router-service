@@ -2,10 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.tasks;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.ContainerCleaner;
@@ -15,9 +12,9 @@ import java.util.stream.Stream;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
-@Component
-@ConditionalOnProperty(value = "scheduling.task.delete-dispatched-files.enabled")
-@EnableConfigurationProperties(ServiceConfiguration.class)
+//@Component
+//@ConditionalOnProperty(value = "scheduling.task.delete-dispatched-files.enabled")
+//@EnableConfigurationProperties(ServiceConfiguration.class)
 public class DeleteDispatchedFilesTask {
 
     private static final String TASK_NAME = "delete-dispatched-files";

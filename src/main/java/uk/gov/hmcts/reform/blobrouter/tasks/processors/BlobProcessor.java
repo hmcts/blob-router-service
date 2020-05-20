@@ -3,8 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import org.slf4j.Logger;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
@@ -25,8 +23,8 @@ import java.util.function.Supplier;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
-@Component
-@EnableConfigurationProperties(ServiceConfiguration.class)
+//@Component
+//@EnableConfigurationProperties(ServiceConfiguration.class)
 public class BlobProcessor {
 
     private static final Logger logger = getLogger(BlobProcessor.class);

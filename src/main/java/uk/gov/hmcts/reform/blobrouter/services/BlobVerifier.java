@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidConfigException;
@@ -21,7 +20,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
-@Component
+//@Component
 public class BlobVerifier {
 
     private static final Logger logger = getLogger(BlobVerifier.class);
