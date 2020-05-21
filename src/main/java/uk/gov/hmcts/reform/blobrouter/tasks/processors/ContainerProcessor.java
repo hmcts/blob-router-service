@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
@@ -43,19 +42,7 @@ public class ContainerProcessor {
     public void process(String containerName) {
         logger.info("Processing container {}", containerName);
 
-        try {
-            BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
-            containerClient
-                .listBlobs()
-                .stream()
-                .filter(blobItem -> isReady(blobItem, containerName))
-                .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
-                .forEach(blob -> processBlob(blob));
-
-            logger.info("Finished processing container {}", containerName);
-        } catch (Exception exception) {
-            logger.error("Error occurred while processing {} container", containerName, exception);
-        }
+        throw new RuntimeException("test exception");
     }
 
     private boolean isReady(BlobItem blob, String containerName) {

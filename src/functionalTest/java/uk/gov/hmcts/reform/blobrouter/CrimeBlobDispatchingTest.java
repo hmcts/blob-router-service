@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
@@ -21,6 +22,7 @@ public class CrimeBlobDispatchingTest extends FunctionalTestBase {
     }
 
     @Test
+    @Disabled
     void should_move_extracted_crime_envelope_to_crime_storage() throws Exception {
         // upload crime file with unique name
         String fileName = randomFileName();

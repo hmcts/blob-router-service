@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -21,6 +22,7 @@ public class BulkScanBlobDispatchingTest extends FunctionalTestBase {
     }
 
     @Test
+    @Disabled
     void should_move_blob_to_bulkscan_storage() throws Exception {
         // upload bulkscan file with unique name
         String fileName = randomFileName();

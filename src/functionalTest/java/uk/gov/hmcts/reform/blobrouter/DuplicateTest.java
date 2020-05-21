@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -20,6 +21,7 @@ public class DuplicateTest extends FunctionalTestBase {
     }
 
     @Test
+    @Disabled
     void should_reject_duplicate_envelope() throws Exception {
         // given
         final String fileName = randomFileName();

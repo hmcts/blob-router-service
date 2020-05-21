@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobServiceClient;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,7 @@ public class BlobRejectTest extends FunctionalTestBase {
     }
 
     @Test
+    @Disabled
     void should_reject_crime_envelope_with_invalid_signature() throws Exception {
         // upload crime file with unique name
         String fileName = "reject_crime" + randomFileName();
@@ -56,6 +58,7 @@ public class BlobRejectTest extends FunctionalTestBase {
     }
 
     @Test
+    @Disabled
     void should_reject_bulkscan_envelope_without_signature() throws Exception {
         // upload crime file with unique name
         String fileName = "reject_bulkscan" + randomFileName();

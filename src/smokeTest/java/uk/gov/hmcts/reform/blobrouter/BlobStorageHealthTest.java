@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter;
 
 import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
@@ -12,6 +13,7 @@ public class BlobStorageHealthTest {
     private static final String TEST_URL = ConfigFactory.load().getString("test-url");
 
     @Test
+    @Disabled
     public void should_get_the_sas_token_for_service() {
         RestAssured
             .given()
