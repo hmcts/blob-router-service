@@ -1,9 +1,11 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobListDetails;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -73,7 +75,11 @@ public class RejectedContainerCleaner {
         );
 
         try {
+            // every time a duplicate is moved to rejected container
+            // a snapshot is created and original blob is replaced,
+            // therefore snapshots are always older than the 'base' blob and it is safe to delete them
             blobClient.delete();
+            blobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
             envelopeService
                 .findLastEnvelope(blobName, containerName)
                 .ifPresentOrElse(
