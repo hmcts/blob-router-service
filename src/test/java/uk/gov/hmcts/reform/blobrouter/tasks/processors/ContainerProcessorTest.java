@@ -24,6 +24,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.time.Instant.now;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doAnswer;
@@ -33,7 +34,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
-@Disabled
 class ContainerProcessorTest {
 
     @Mock BlobServiceClient storageClient;
@@ -60,6 +60,21 @@ class ContainerProcessorTest {
     }
 
     @Test
+    void process_should_throw_exception() {
+        // given
+        var envelope = envelope(Status.CREATED);
+//        storageHasBlob(envelope.fileName, envelope.container);
+//        leaseCanBeAcquired();
+//        dbHas(envelope);
+
+        // when
+        var ex = catchThrowable(() -> containerProcessor.process(envelope.container));
+
+        // then
+    }
+
+    @Test
+    @Disabled
     void should_continue_processing_blob_for_which_envelope_in_created_status_exists() {
         // given
         var envelope = envelope(Status.CREATED);
@@ -76,6 +91,7 @@ class ContainerProcessorTest {
     }
 
     @Test
+    @Disabled
     void should_skip_blob_if_corresponding_envelope_is_not_in_created_status() {
         // given
         var envelope = envelope(Status.DISPATCHED);
@@ -91,6 +107,7 @@ class ContainerProcessorTest {
     }
 
     @Test
+    @Disabled
     void should_skip_blob_if_lease_cannot_be_acquired() {
         // given
         var envelope = envelope(Status.CREATED);
@@ -105,6 +122,7 @@ class ContainerProcessorTest {
     }
 
     @Test
+    @Disabled
     void should_process_blob_if_envelope_does_not_exist_yet() {
         // given
         storageHasBlob("x.zip", "container");
