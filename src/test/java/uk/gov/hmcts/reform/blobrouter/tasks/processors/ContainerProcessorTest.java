@@ -24,7 +24,8 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.time.Instant.now;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doAnswer;
@@ -63,14 +64,15 @@ class ContainerProcessorTest {
     void process_should_throw_exception() {
         // given
         var envelope = envelope(Status.CREATED);
-//        storageHasBlob(envelope.fileName, envelope.container);
-//        leaseCanBeAcquired();
-//        dbHas(envelope);
 
         // when
-        var ex = catchThrowable(() -> containerProcessor.process(envelope.container));
+        RuntimeException ex = catchThrowableOfType(
+            () -> containerProcessor.process(envelope.container),
+            RuntimeException.class
+        );
 
         // then
+        assertThat(ex.getMessage()).isEqualTo("test exception");
     }
 
     @Test
