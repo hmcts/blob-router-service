@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 import com.azure.storage.blob.BlobServiceClient;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
@@ -36,12 +37,12 @@ public class ContainerProcessor {
 
     public void process(String containerName) {
         logger.info("Processing container {}", containerName);
-        logger.info(storageClient.toString());
-        logger.info(blobProcessor.toString());
-        logger.info(blobReadinessChecker.toString());
-        logger.info(leaseAcquirer.toString());
-        logger.info(envelopeService.toString());
+        logger.info("storageClient {}", storageClient.toString());
+        logger.info("blobProcessor {}", blobProcessor.toString());
+        logger.info("blobReadinessChecker {}", blobReadinessChecker.toString());
+        logger.info("leaseAcquirer {}", leaseAcquirer.toString());
+        logger.info("envelopeService {}", envelopeService.toString());
 
-        throw new RuntimeException("test exception");
+        throw new InvalidZipArchiveException("test exception");
     }
 }

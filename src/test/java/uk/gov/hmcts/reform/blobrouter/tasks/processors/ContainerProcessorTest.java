@@ -14,6 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
@@ -66,9 +67,9 @@ class ContainerProcessorTest {
         var envelope = envelope(Status.CREATED);
 
         // when
-        RuntimeException ex = catchThrowableOfType(
+        InvalidZipArchiveException ex = catchThrowableOfType(
             () -> containerProcessor.process(envelope.container),
-            RuntimeException.class
+            InvalidZipArchiveException.class
         );
 
         // then
