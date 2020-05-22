@@ -11,7 +11,7 @@ class ListContainersTest {
 
     @DisplayName("Storage should already have at least one container")
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_have_at_least_one_container() {
         assertThat(STORAGE_CLIENT.listBlobContainers().toStream()).isNotEmpty();
     }

@@ -44,7 +44,7 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_accept_request_with_valid_certificate_and_subscription_key() throws Exception {
         Response response =
             callSasTokenEndpoint(validClientKeyStore, validSubscriptionKey)
@@ -55,7 +55,7 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_reject_request_with_invalid_subscription_key() throws Exception {
         Response response = callSasTokenEndpoint(
             validClientKeyStore,
@@ -68,7 +68,7 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_reject_request_lacking_subscription_key() throws Exception {
         Response response = callSasTokenEndpoint(
             validClientKeyStore,
@@ -81,7 +81,7 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_reject_request_with_unrecognised_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
             getUnrecognisedClientKeyStore(),
@@ -94,7 +94,7 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_reject_request_lacking_client_certificate() throws Exception {
         Response response =
             callSasTokenEndpoint(
@@ -108,7 +108,7 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_not_expose_http_version() {
         Response response = RestAssured
             .given()
@@ -123,7 +123,7 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_reject_request_with_expired_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
             getExpiredClientKeyStore(),
@@ -136,7 +136,7 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_reject_request_with_not_yet_valid_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
             getNotYetValidClientKeyStore(),

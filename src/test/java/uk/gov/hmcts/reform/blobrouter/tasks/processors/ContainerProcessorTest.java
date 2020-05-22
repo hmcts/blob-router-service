@@ -76,7 +76,7 @@ class ContainerProcessorTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_continue_processing_blob_for_which_envelope_in_created_status_exists() {
         // given
         var envelope = envelope(Status.CREATED);
@@ -93,7 +93,7 @@ class ContainerProcessorTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_skip_blob_if_corresponding_envelope_is_not_in_created_status() {
         // given
         var envelope = envelope(Status.DISPATCHED);
@@ -109,7 +109,7 @@ class ContainerProcessorTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_skip_blob_if_lease_cannot_be_acquired() {
         // given
         var envelope = envelope(Status.CREATED);
@@ -124,7 +124,7 @@ class ContainerProcessorTest {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_process_blob_if_envelope_does_not_exist_yet() {
         // given
         storageHasBlob("x.zip", "container");

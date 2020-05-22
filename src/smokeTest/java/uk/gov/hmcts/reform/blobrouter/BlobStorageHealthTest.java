@@ -13,7 +13,7 @@ public class BlobStorageHealthTest {
     private static final String TEST_URL = ConfigFactory.load().getString("test-url");
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     public void should_get_the_sas_token_for_service() {
         RestAssured
             .given()

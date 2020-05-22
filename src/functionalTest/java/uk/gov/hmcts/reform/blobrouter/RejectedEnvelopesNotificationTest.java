@@ -27,7 +27,7 @@ public class RejectedEnvelopesNotificationTest extends FunctionalTestBase {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_send_notification_for_rejected_envelope() throws Exception {
         // upload file with unique name and without signature
         String fileName = "reject_bulkscan" + randomFileName();

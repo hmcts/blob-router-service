@@ -21,7 +21,7 @@ public class DuplicateTest extends FunctionalTestBase {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_reject_duplicate_envelope() throws Exception {
         // given
         final String fileName = randomFileName();

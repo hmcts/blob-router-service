@@ -26,7 +26,7 @@ public class BlobRejectTest extends FunctionalTestBase {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_reject_crime_envelope_with_invalid_signature() throws Exception {
         // upload crime file with unique name
         String fileName = "reject_crime" + randomFileName();
@@ -58,7 +58,7 @@ public class BlobRejectTest extends FunctionalTestBase {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_reject_bulkscan_envelope_without_signature() throws Exception {
         // upload crime file with unique name
         String fileName = "reject_bulkscan" + randomFileName();

@@ -22,7 +22,7 @@ public class BulkScanBlobDispatchingTest extends FunctionalTestBase {
     }
 
     @Test
-    @Disabled
+    @Disabled("temporarily")
     void should_move_blob_to_bulkscan_storage() throws Exception {
         // upload bulkscan file with unique name
         String fileName = randomFileName();
