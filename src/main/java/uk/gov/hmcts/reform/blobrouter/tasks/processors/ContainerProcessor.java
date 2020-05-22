@@ -37,11 +37,11 @@ public class ContainerProcessor {
 
     public void process(String containerName) {
         logger.info("Processing container {}", containerName);
-        logger.info("storageClient {}", storageClient.toString());
-        logger.info("blobProcessor {}", blobProcessor.toString());
-        logger.info("blobReadinessChecker {}", blobReadinessChecker.toString());
-        logger.info("leaseAcquirer {}", leaseAcquirer.toString());
-        logger.info("envelopeService {}", envelopeService.toString());
+        logger.info("storageClient {}", storageClient);
+        logger.info("blobProcessor {}", blobProcessor);
+        logger.info("blobReadinessChecker {}", blobReadinessChecker);
+        logger.info("leaseAcquirer {}", leaseAcquirer);
+        logger.info("envelopeService {}", envelopeService);
 
         throw new InvalidZipArchiveException("test exception");
     }
