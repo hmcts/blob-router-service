@@ -78,7 +78,6 @@ public class RejectedContainerCleaner {
             // every time a duplicate is moved to rejected container
             // a snapshot is created and original blob is replaced,
             // therefore snapshots are always older than the 'base' blob and it is safe to delete them
-            blobClient.delete();
             blobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
             envelopeService
                 .findLastEnvelope(blobName, containerName)
