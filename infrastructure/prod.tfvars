@@ -1,5 +1,5 @@
-api_test_valid_certificate_thumbprint         = "A0499896028DDE9F426445FCA5E28C1E35367C1F"
-api_test_expired_certificate_thumbprint       = "8EA6A7D4E798BEC884E173E57ECE4C557B08768D"
-api_test_not_yet_valid_certificate_thumbprint = "0CE177CE60038B2308D8312ED9DF3622060A715D"
+api_test_valid_certificate_thumbprint         = "31297CA49AF262D7C49E8C0CEE5E8ED64CD6395B"
+api_test_expired_certificate_thumbprint       = "B7DD7960FF1E56BAFB2224CE5AFE734ABDDF36B7"
+api_test_not_yet_valid_certificate_thumbprint = "0D6F31CB8F3446C98BC50A19F50546B22CA9A854"
 
 allowed_client_certificate_thumbprints = ["E4E5673792DA616E14BEEF63F75DD96590124734"]
