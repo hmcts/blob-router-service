@@ -90,6 +90,7 @@ withPipeline(type, product, component) {
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://reformscanaat.blob.core.windows.net'
   env.API_GATEWAY_URL = "https://core-api-mgmt-aat.azure-api.net/reform-scan"
+  env.TEST_USE_PROXY_FOR_SOURCE_STORAGE = "false"
 
   before('smoketest:preview') {
     withAksClient('nonprod') {
@@ -107,7 +108,6 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_NAME = previewAccountName(kubectl, storageSecret, namespace)
       env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
       env.TEST_STORAGE_ACCOUNT_KEY = previewAccountKey(kubectl, storageSecret, namespace)
-      env.TEST_USE_PROXY_FOR_SOURCE_STORAGE = "false"
     }
   }
 }
