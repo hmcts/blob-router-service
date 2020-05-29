@@ -11,7 +11,7 @@ public class TestConfiguration {
     public final String sourceStorageAccountKey;
     public final String sourceStorageAccountUrl;
     public final String crimeSourceContainer;
-    public final Boolean useProxyForSourceStorage;
+    public final boolean useProxyForSourceStorage;
 
     public TestConfiguration() {
         Config config = ConfigFactory.load();

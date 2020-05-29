@@ -36,7 +36,7 @@ public abstract class FunctionalTestBase {
 
         BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder();
 
-        if (Boolean.TRUE.equals(config.useProxyForSourceStorage)) {
+        if (config.useProxyForSourceStorage) {
             blobServiceClientBuilder = blobServiceClientBuilder.httpClient(
                 new NettyAsyncHttpClientBuilder()
                     .proxy(
@@ -50,6 +50,8 @@ public abstract class FunctionalTestBase {
                     )
                     .build()
             );
+
+            System.out.println("PROXY set for blobRouterStorageClient");
         }
 
         this.blobRouterStorageClient = blobServiceClientBuilder
