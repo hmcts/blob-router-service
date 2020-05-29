@@ -34,8 +34,10 @@ public abstract class FunctionalTestBase {
             config.sourceStorageAccountKey
         );
 
-        this.blobRouterStorageClient = new BlobServiceClientBuilder()
-            .httpClient(
+        BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder();
+
+        if (Boolean.TRUE.equals(config.useProxyForSourceStorage)) {
+            blobServiceClientBuilder = blobServiceClientBuilder.httpClient(
                 new NettyAsyncHttpClientBuilder()
                     .proxy(
                         new ProxyOptions(
@@ -47,7 +49,10 @@ public abstract class FunctionalTestBase {
                         )
                     )
                     .build()
-            )
+            );
+        }
+
+        this.blobRouterStorageClient = blobServiceClientBuilder
             .credential(blobRouterStorageCredential)
             .endpoint(config.sourceStorageAccountUrl)
             .buildClient();
