@@ -1,8 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -55,14 +57,20 @@ public class ContainerCleaner {
 
         leaseAcquirer.ifAcquiredOrElse(
             blobClient,
-            () -> tryToDeleteBlob(envelope, blobClient),
+            leaseId -> tryToDeleteBlob(envelope, blobClient, leaseId),
             () -> {} // no need to report error here
         );
     }
 
-    private void tryToDeleteBlob(Envelope envelope, BlobClient blobClient) {
+    private void tryToDeleteBlob(Envelope envelope, BlobClient blobClient, String leaseId) {
         try {
-            blobClient.delete();
+            blobClient.deleteWithResponse(
+                null,
+                new BlobRequestConditions().setLeaseId(leaseId),
+                null,
+                Context.NONE
+            );
+
             envelopeService.markEnvelopeAsDeleted(envelope);
             logger.info(
                 "Deleted dispatched blob {} from container {}",

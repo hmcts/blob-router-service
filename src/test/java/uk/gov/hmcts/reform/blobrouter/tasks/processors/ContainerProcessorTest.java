@@ -20,6 +20,7 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static java.time.Instant.now;
@@ -134,10 +135,11 @@ class ContainerProcessorTest {
             .willReturn(Optional.of(envelope));
     }
 
+    @SuppressWarnings("unchecked")
     private void leaseCanBeAcquired() {
         doAnswer(invocation -> {
-            var okAction = (Runnable) invocation.getArgument(1);
-            okAction.run();
+            var okAction = (Consumer<String>) invocation.getArgument(1);
+            okAction.accept(UUID.randomUUID().toString());
             return null;
         }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
     }

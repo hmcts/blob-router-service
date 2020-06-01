@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
+import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -78,18 +79,18 @@ public class ContainerProcessor {
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
-                        leaseAndThen(blob, () -> blobProcessor.continueProcessing(envelope.id, blob));
+                        leaseAndThen(blob, leaseId -> blobProcessor.continueProcessing(envelope.id, blob));
                     } else {
                         logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
                     }
                 },
                 () -> {
-                    leaseAndThen(blob, () -> blobProcessor.process(blob));
+                    leaseAndThen(blob, leaseId -> blobProcessor.process(blob));
                 }
             );
     }
 
-    private void leaseAndThen(BlobClient blob, Runnable action) {
+    private void leaseAndThen(BlobClient blob, Consumer<String> action) {
         leaseAcquirer.ifAcquiredOrElse(
             blob,
             action,

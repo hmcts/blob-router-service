@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.core.test.http.MockHttpResponse;
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
-import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,12 +18,16 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -42,18 +46,14 @@ class ContainerCleanerTest {
     @Mock BlobContainerClient containerClient;
     @Mock BlobClient blobClient1;
     @Mock BlobClient blobClient2;
-    @Mock BlobLeaseClient leaseClient;
+    @Mock LeaseAcquirer leaseAcquirer;
 
     private static final Envelope ENVELOPE_1 = createEnvelope(UUID.randomUUID(), DISPATCHED, "file1.zip");
     private static final Envelope ENVELOPE_2 = createEnvelope(UUID.randomUUID(), DISPATCHED, "file2.zip");
 
     @BeforeEach
     void setUp() {
-        containerCleaner = new ContainerCleaner(
-            storageClient,
-            envelopeService,
-            new LeaseAcquirer(blobClient -> leaseClient)
-        );
+        containerCleaner = new ContainerCleaner(storageClient, envelopeService, leaseAcquirer);
 
         given(storageClient.getBlobContainerClient(CONTAINER_NAME)).willReturn(containerClient);
     }
@@ -85,6 +85,7 @@ class ContainerCleanerTest {
     @Test
     void should_find_blobs_delete_and_update_in_db() {
         // given
+        leaseCanBeAcquired();
         given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME))
             .willReturn(asList(
                 ENVELOPE_1,
@@ -102,8 +103,8 @@ class ContainerCleanerTest {
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).getContainerName();
         verify(blobClient2).getContainerName();
-        verify(blobClient1).delete();
-        verify(blobClient2).delete();
+        verify(blobClient1).deleteWithResponse(eq(null), any(), eq(null), eq(Context.NONE));
+        verify(blobClient2).deleteWithResponse(eq(null), any(), eq(null), eq(Context.NONE));
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_2);
         verifyNoMoreInteractions(envelopeService);
@@ -112,13 +113,14 @@ class ContainerCleanerTest {
     @Test
     void should_handle_non_existing_file() {
         // given
+        leaseCanBeAcquired();
         given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME))
             .willReturn(singletonList(
                 ENVELOPE_1
             ));
         given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
         doThrow(new BlobStorageException("msg", new MockHttpResponse(null, 404), null))
-            .when(blobClient1).delete();
+            .when(blobClient1).deleteWithResponse(eq(null), any(), eq(null), eq(Context.NONE));
 
         // when
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
@@ -127,7 +129,7 @@ class ContainerCleanerTest {
         verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).getContainerName();
-        verify(blobClient1).delete();
+        verify(blobClient1).deleteWithResponse(eq(null), any(), eq(null), eq(Context.NONE));
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
         verifyNoMoreInteractions(envelopeService);
     }
@@ -135,13 +137,14 @@ class ContainerCleanerTest {
     @Test
     void should_handle_server_error() {
         // given
+        leaseCanBeAcquired();
         given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME))
             .willReturn(singletonList(
                 ENVELOPE_1
             ));
         given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
         doThrow(new BlobStorageException("msg", new MockHttpResponse(null, 500), null))
-            .when(blobClient1).delete();
+            .when(blobClient1).deleteWithResponse(eq(null), any(), eq(null), eq(Context.NONE));
 
         // when
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
@@ -150,8 +153,17 @@ class ContainerCleanerTest {
         verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).getContainerName();
-        verify(blobClient1).delete();
+        verify(blobClient1).deleteWithResponse(eq(null), any(), eq(null), eq(Context.NONE));
         verifyNoMoreInteractions(envelopeService);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void leaseCanBeAcquired() {
+        doAnswer(invocation -> {
+            var okAction = (Consumer<String>) invocation.getArgument(1);
+            okAction.accept(UUID.randomUUID().toString());
+            return null;
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
     }
 
     private static Envelope createEnvelope(UUID uuid, Status status, String fileName) {
