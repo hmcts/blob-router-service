@@ -58,7 +58,15 @@ public class ContainerCleaner {
         leaseAcquirer.ifAcquiredOrElse(
             blobClient,
             leaseId -> tryToDeleteBlob(envelope, blobClient, leaseId),
-            () -> {} // no need to report error here
+            () -> {
+                // this is just a check of a hypothesis
+                envelopeService.markEnvelopeAsDeleted(envelope);
+                logger.info(
+                    "Blob already deleted. Marking as one. File name: {}, container: {}",
+                    envelope.fileName,
+                    containerClient.getBlobContainerName()
+                );
+            } // no need to report error here
         );
     }
 
