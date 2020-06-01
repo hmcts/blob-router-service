@@ -243,7 +243,7 @@ dependencies {
     exclude group: 'junit', module: 'junit'
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
-  testImplementation group: 'com.azure', name: 'azure-core-test', version: '1.1.0', {
+  testImplementation group: 'com.azure', name: 'azure-core-test', version: '1.2.1', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-standalone'
   }
 
