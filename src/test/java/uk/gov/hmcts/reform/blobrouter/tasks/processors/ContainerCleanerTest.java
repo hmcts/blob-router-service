@@ -5,6 +5,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -23,7 +25,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -41,13 +42,18 @@ class ContainerCleanerTest {
     @Mock BlobContainerClient containerClient;
     @Mock BlobClient blobClient1;
     @Mock BlobClient blobClient2;
+    @Mock BlobLeaseClient leaseClient;
 
     private static final Envelope ENVELOPE_1 = createEnvelope(UUID.randomUUID(), DISPATCHED, "file1.zip");
     private static final Envelope ENVELOPE_2 = createEnvelope(UUID.randomUUID(), DISPATCHED, "file2.zip");
 
     @BeforeEach
     void setUp() {
-        containerCleaner = new ContainerCleaner(storageClient, envelopeService);
+        containerCleaner = new ContainerCleaner(
+            storageClient,
+            envelopeService,
+            new LeaseAcquirer(blobClient -> leaseClient)
+        );
 
         given(storageClient.getBlobContainerClient(CONTAINER_NAME)).willReturn(containerClient);
     }
@@ -93,8 +99,9 @@ class ContainerCleanerTest {
         // then
         verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
         verify(containerClient).getBlobClient(ENVELOPE_2.fileName);
-        verify(containerClient, times(2)).getBlobContainerName();
         verifyNoMoreInteractions(containerClient);
+        verify(blobClient1).getContainerName();
+        verify(blobClient2).getContainerName();
         verify(blobClient1).delete();
         verify(blobClient2).delete();
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
@@ -118,8 +125,8 @@ class ContainerCleanerTest {
 
         // then
         verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
-        verify(containerClient).getBlobContainerName();
         verifyNoMoreInteractions(containerClient);
+        verify(blobClient1).getContainerName();
         verify(blobClient1).delete();
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
         verifyNoMoreInteractions(envelopeService);
@@ -141,8 +148,8 @@ class ContainerCleanerTest {
 
         // then
         verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
-        verify(containerClient).getBlobContainerName();
         verifyNoMoreInteractions(containerClient);
+        verify(blobClient1).getContainerName();
         verify(blobClient1).delete();
         verifyNoMoreInteractions(envelopeService);
     }
