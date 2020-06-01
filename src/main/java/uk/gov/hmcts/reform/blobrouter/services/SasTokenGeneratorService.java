@@ -6,7 +6,6 @@ import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.common.sas.SasProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
@@ -25,16 +24,13 @@ public class SasTokenGeneratorService {
 
     private final StorageSharedKeyCredential storageSharedKeyCredential;
     private final ServiceConfiguration serviceConfiguration;
-    private final boolean includeWritePermissionInSasToken;
 
     public SasTokenGeneratorService(
         StorageSharedKeyCredential storageSharedKeyCredential,
-        ServiceConfiguration serviceConfiguration,
-        @Value("${include-write-permission-in-storage-sas-token}") boolean includeWritePermissionInSasToken
+        ServiceConfiguration serviceConfiguration
     ) {
         this.storageSharedKeyCredential = storageSharedKeyCredential;
         this.serviceConfiguration = serviceConfiguration;
-        this.includeWritePermissionInSasToken = includeWritePermissionInSasToken;
     }
 
     public String generateSasToken(String serviceName) {
@@ -53,8 +49,7 @@ public class SasTokenGeneratorService {
 
         var permissions = new BlobContainerSasPermission()
             .setListPermission(true)
-            .setCreatePermission(!includeWritePermissionInSasToken)
-            .setWritePermission(includeWritePermissionInSasToken);
+            .setCreatePermission(true);
 
         return new BlobServiceSasSignatureValues()
             .setContainerName(serviceName)
