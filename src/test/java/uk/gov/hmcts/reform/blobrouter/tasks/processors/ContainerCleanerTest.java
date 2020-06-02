@@ -10,7 +10,6 @@ import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -138,30 +137,6 @@ class ContainerCleanerTest {
         // and
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_2);
-        verifyNoMoreInteractions(envelopeService);
-    }
-
-    @Disabled("will be removed in next commit as 404 has been replaced with lease id condition")
-    @Test
-    void should_handle_non_existing_file() {
-        // given
-        given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME))
-            .willReturn(singletonList(
-                ENVELOPE_1
-            ));
-        given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
-        doThrow(new BlobStorageException("msg", new MockHttpResponse(null, 404), null))
-            .when(blobClient1).delete();
-
-        // when
-        assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
-
-        // then
-        verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
-        verifyNoMoreInteractions(containerClient);
-        verify(blobClient1).getContainerName();
-        verify(blobClient1).delete();
-        verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
         verifyNoMoreInteractions(envelopeService);
     }
 
