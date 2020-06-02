@@ -46,6 +46,9 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
     private EnvelopeRepository envelopeRepository;
 
     @Autowired
+    private LeaseAcquirer leaseAcquirer;
+
+    @Autowired
     private DbHelper dbHelper;
 
     BlobContainerClient containerClient;
@@ -55,7 +58,7 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
         dbHelper.deleteAll();
         containerClient = createContainer(CONTAINER_NAME);
 
-        containerCleaner = new ContainerCleaner(storageClient, envelopeService);
+        containerCleaner = new ContainerCleaner(storageClient, envelopeService, leaseAcquirer);
     }
 
     @AfterEach
