@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -26,12 +27,17 @@ class LeaseAcquirerTest {
     @Mock BlobLeaseClient leaseClient;
     @Mock BlobStorageException blobStorageException;
 
+    private LeaseAcquirer leaseAcquirer;
+
+    @BeforeEach
+    void setUp() {
+        leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
+    }
+
     @Test
     void should_run_provided_action_when_lease_was_acquired() {
         // given
         var onSuccess = mock(Runnable.class);
-
-        var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess);
@@ -49,8 +55,6 @@ class LeaseAcquirerTest {
 
         doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
 
-        var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
-
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess);
 
@@ -66,8 +70,6 @@ class LeaseAcquirerTest {
         var onSuccess = mock(Runnable.class);
 
         doThrow(blobStorageException).when(leaseClient).releaseLease();
-
-        var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
 
         // when
         var exc = catchThrowable(() -> leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess));
@@ -86,7 +88,6 @@ class LeaseAcquirerTest {
         var onBlobNotFound = mock(Runnable.class);
         doThrow(blobStorageException).when(leaseClient).acquireLease(LEASE_DURATION_IN_SECONDS);
         when(blobStorageException.getErrorCode()).thenReturn(BLOB_NOT_FOUND);
-        var leaseAcquirer = new LeaseAcquirer(blobClient1 -> leaseClient);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onBlobNotFound);
