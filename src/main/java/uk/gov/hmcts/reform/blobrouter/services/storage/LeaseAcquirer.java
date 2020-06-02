@@ -22,7 +22,7 @@ public class LeaseAcquirer {
         this.leaseClientProvider = leaseClientProvider;
     }
 
-    public void ifAcquiredOrElse(BlobClient blobClient, Runnable onSuccess, Runnable onFailure) {
+    public void ifAcquiredOrElse(BlobClient blobClient, Runnable onSuccess) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
             leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
@@ -41,7 +41,13 @@ public class LeaseAcquirer {
                 );
             }
 
-            onFailure.run();
+            if (exc.getErrorCode() != BLOB_NOT_FOUND) {
+                logger.info(
+                    "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
+                    blobClient.getBlobName(),
+                    blobClient.getContainerName()
+                );
+            }
         }
     }
 

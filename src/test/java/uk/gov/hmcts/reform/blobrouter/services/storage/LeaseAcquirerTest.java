@@ -27,16 +27,14 @@ class LeaseAcquirerTest {
     void should_run_provided_action_when_lease_was_acquired() {
         // given
         var onSuccess = mock(Runnable.class);
-        var onFailure = mock(Runnable.class);
 
         var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
 
         // when
-        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure);
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess);
 
         // then
         verify(onSuccess).run();
-        verify(onFailure, never()).run();
 
         verify(leaseClient).releaseLease();
     }
@@ -45,18 +43,16 @@ class LeaseAcquirerTest {
     void should_run_provided_action_when_lease_was_not_acquired() {
         // given
         var onSuccess = mock(Runnable.class);
-        var onFailure = mock(Runnable.class);
 
         doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
 
         var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
 
         // when
-        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure);
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess);
 
         // then
         verify(onSuccess, never()).run();
-        verify(onFailure).run();
 
         verify(leaseClient, never()).releaseLease();
     }
@@ -65,19 +61,17 @@ class LeaseAcquirerTest {
     void should_handle_error_when_releasing_lease() {
         // given
         var onSuccess = mock(Runnable.class);
-        var onFailure = mock(Runnable.class);
 
         doThrow(blobStorageException).when(leaseClient).releaseLease();
 
         var leaseAcquirer = new LeaseAcquirer(blobClient -> leaseClient);
 
         // when
-        var exc = catchThrowable(() -> leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure));
+        var exc = catchThrowable(() -> leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess));
 
         // then
         assertThat(exc).isNull();
         verify(onSuccess).run();
-        verify(onFailure, never()).run();
 
         verify(leaseClient).releaseLease();
     }

@@ -78,26 +78,15 @@ public class ContainerProcessor {
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
-                        leaseAndThen(blob, () -> blobProcessor.continueProcessing(envelope.id, blob));
+                        leaseAcquirer.ifAcquiredOrElse(
+                            blob,
+                            () -> blobProcessor.continueProcessing(envelope.id, blob)
+                        );
                     } else {
                         logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
                     }
                 },
-                () -> {
-                    leaseAndThen(blob, () -> blobProcessor.process(blob));
-                }
+                () -> leaseAcquirer.ifAcquiredOrElse(blob, () -> blobProcessor.process(blob))
             );
-    }
-
-    private void leaseAndThen(BlobClient blob, Runnable action) {
-        leaseAcquirer.ifAcquiredOrElse(
-            blob,
-            action,
-            () -> logger.info(
-                "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
-                blob.getBlobName(),
-                blob.getContainerName()
-            )
-        );
     }
 }
