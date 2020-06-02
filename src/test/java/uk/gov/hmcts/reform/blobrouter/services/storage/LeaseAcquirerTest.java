@@ -9,10 +9,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.function.Consumer;
+
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -81,10 +84,11 @@ class LeaseAcquirerTest {
         verify(leaseClient).releaseLease();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     void should_run_custom_function_when_blob_not_found() {
         // given
-        var onSuccess = mock(Runnable.class);
+        var onSuccess = mock(Consumer.class);
         var onBlobNotFound = mock(Runnable.class);
         doThrow(blobStorageException).when(leaseClient).acquireLease(LEASE_DURATION_IN_SECONDS);
         when(blobStorageException.getErrorCode()).thenReturn(BLOB_NOT_FOUND);
@@ -93,7 +97,7 @@ class LeaseAcquirerTest {
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onBlobNotFound);
 
         // then
-        verify(onSuccess, never()).run();
+        verify(onSuccess, never()).accept(anyString());
         verify(onBlobNotFound).run();
         verify(leaseClient, never()).releaseLease();
     }

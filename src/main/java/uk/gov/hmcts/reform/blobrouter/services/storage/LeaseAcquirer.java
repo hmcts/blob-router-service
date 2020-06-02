@@ -6,6 +6,8 @@ import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import java.util.function.Consumer;
+
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static com.azure.storage.blob.models.BlobErrorCode.LEASE_ALREADY_PRESENT;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -22,12 +24,12 @@ public class LeaseAcquirer {
         this.leaseClientProvider = leaseClientProvider;
     }
 
-    public void ifAcquiredOrElse(BlobClient blobClient, Runnable onSuccess, Runnable onBlobNotFound) {
+    public void ifAcquiredOrElse(BlobClient blobClient, Consumer<String> onSuccess, Runnable onBlobNotFound) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
-            leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
+            var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
 
-            onSuccess.run();
+            onSuccess.accept(leaseId);
 
             release(leaseClient, blobClient);
 
@@ -54,7 +56,7 @@ public class LeaseAcquirer {
     }
 
     public void ifAcquiredOrElse(BlobClient blobClient, Runnable onSuccess) {
-        ifAcquiredOrElse(blobClient, onSuccess, () -> {});
+        ifAcquiredOrElse(blobClient, leaseId -> onSuccess.run(), () -> {});
     }
 
     private void release(BlobLeaseClient leaseClient, BlobClient blobClient) {
