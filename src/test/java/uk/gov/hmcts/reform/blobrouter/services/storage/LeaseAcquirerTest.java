@@ -43,7 +43,7 @@ class LeaseAcquirerTest {
         var onSuccess = mock(Runnable.class);
 
         // when
-        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess);
+        leaseAcquirer.ifAcquired(blobClient, onSuccess);
 
         // then
         verify(onSuccess).run();
@@ -59,7 +59,7 @@ class LeaseAcquirerTest {
         doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
 
         // when
-        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess);
+        leaseAcquirer.ifAcquired(blobClient, onSuccess);
 
         // then
         verify(onSuccess, never()).run();
@@ -75,7 +75,7 @@ class LeaseAcquirerTest {
         doThrow(blobStorageException).when(leaseClient).releaseLease();
 
         // when
-        var exc = catchThrowable(() -> leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess));
+        var exc = catchThrowable(() -> leaseAcquirer.ifAcquired(blobClient, onSuccess));
 
         // then
         assertThat(exc).isNull();

@@ -55,7 +55,7 @@ public class LeaseAcquirer {
         }
     }
 
-    public void ifAcquiredOrElse(BlobClient blobClient, Runnable onSuccess) {
+    public void ifAcquired(BlobClient blobClient, Runnable onSuccess) {
         ifAcquiredOrElse(blobClient, leaseId -> onSuccess.run(), () -> {});
     }
 

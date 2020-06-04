@@ -78,15 +78,12 @@ public class ContainerProcessor {
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
-                        leaseAcquirer.ifAcquiredOrElse(
-                            blob,
-                            () -> blobProcessor.continueProcessing(envelope.id, blob)
-                        );
+                        leaseAcquirer.ifAcquired(blob, () -> blobProcessor.continueProcessing(envelope.id, blob));
                     } else {
                         logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
                     }
                 },
-                () -> leaseAcquirer.ifAcquiredOrElse(blob, () -> blobProcessor.process(blob))
+                () -> leaseAcquirer.ifAcquired(blob, () -> blobProcessor.process(blob))
             );
     }
 }
