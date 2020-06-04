@@ -50,8 +50,6 @@ public abstract class FunctionalTestBase {
                     )
                     .build()
             );
-
-            System.out.println("PROXY set for blobRouterStorageClient");
         }
 
         this.blobRouterStorageClient = blobServiceClientBuilder
