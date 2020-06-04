@@ -24,6 +24,12 @@ public class LeaseAcquirer {
         this.leaseClientProvider = leaseClientProvider;
     }
 
+    /**
+     * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
+     * @param blobClient Represents blob
+     * @param onSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
+     * @param onBlobNotFound Extra step to execute in case blob was not found during leasing
+     */
     public void ifAcquiredOrElse(BlobClient blobClient, Consumer<String> onSuccess, Runnable onBlobNotFound) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
