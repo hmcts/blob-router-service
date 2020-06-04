@@ -31,10 +31,6 @@ public class BlobMover {
         BlobClient sourceBlob = getBlobClient(containerName, blobName);
         BlobClient targetBlob = getBlobClient(containerName + REJECTED_CONTAINER_SUFFIX, blobName);
 
-        if (targetBlob.exists()) {
-            targetBlob.createSnapshot();
-        }
-
         String loggingContext = String.format(
             "File name: %s. Source Container: %s. Target Container: %s",
             blobName,
@@ -45,25 +41,25 @@ public class BlobMover {
         if (!sourceBlob.exists()) {
             logger.error("File already deleted. " + loggingContext);
         } else {
-            copy(targetBlob, sourceBlob, loggingContext);
+            String sasToken = sourceBlob
+                .generateSas(
+                    new BlobServiceSasSignatureValues(
+                        OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
+                        new BlobContainerSasPermission().setReadPermission(true)
+                    )
+                );
+
+            if (targetBlob.exists()) {
+                targetBlob.createSnapshot();
+            }
+
+            targetBlob
+                .getBlockBlobClient()
+                .copyFromUrl(sourceBlob.getBlockBlobClient().getBlobUrl() + "?" + sasToken);
+
             sourceBlob.delete();
             logger.info("File successfully moved to rejected container. " + loggingContext);
         }
-    }
-
-    private void copy(BlobClient targetBlob, BlobClient sourceBlob, String loggingContext) {
-        String sasToken = sourceBlob
-            .generateSas(
-                new BlobServiceSasSignatureValues(
-                    OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
-                    new BlobContainerSasPermission().setReadPermission(true)
-                )
-            );
-        targetBlob
-            .getBlockBlobClient()
-            .copyFromUrl(sourceBlob.getBlockBlobClient().getBlobUrl() + "?" + sasToken);
-
-        logger.info("File successfully uploaded to rejected container. " + loggingContext);
     }
 
     private BlobClient getBlobClient(String containerName, String blobName) {

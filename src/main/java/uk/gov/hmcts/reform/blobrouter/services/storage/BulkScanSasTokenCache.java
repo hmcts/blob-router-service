@@ -45,18 +45,31 @@ public class BulkScanSasTokenCache {
     }
 
     public String getSasToken(String containerName) {
-        logger.info("Get sas token for Container: {}", containerName);
-        return tokenCache.get(containerName, c -> this.createSasToken(c));
+        logger.info("Getting sas token for Container: {}", containerName);
+
+        final String sasToken = tokenCache.get(containerName, this::createSasToken);
+
+        logger.info("Finished getting sas token for Container: {}", containerName);
+
+        return sasToken;
     }
 
     public void removeFromCache(String containerName) {
-        logger.info("Invalidate cache for Container: {}", containerName);
+        logger.info("Invalidating cache for Container: {}", containerName);
+
         tokenCache.invalidate(containerName);
+
+        logger.info("Finished invalidating cache for Container: {}", containerName);
     }
 
     private String createSasToken(String containerName) {
-        logger.info("Make sas token call for Container: {}", containerName);
-        return bulkScanSasTokenClient.getSasToken(containerName).sasToken;
+        logger.info("Making sas token call for Container: {}", containerName);
+
+        final String sasToken = bulkScanSasTokenClient.getSasToken(containerName).sasToken;
+
+        logger.info("Finished making sas token call for Container: {}", containerName);
+
+        return sasToken;
     }
 
     private class BulkScanSasTokenCacheExpiry implements Expiry<String, String> {
