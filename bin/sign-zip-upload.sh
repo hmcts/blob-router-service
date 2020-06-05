@@ -61,7 +61,7 @@ echo "Verifying private key for zipping is present..."
 PEM_EXISTS="false"
 
 if [[ ! -f "private.pem" ]]; then
-  az keyvault secret show --vault-name "reform-scan-$ENVI" --name storage-account-primary-key | jq -r .value | fold -s -w64 > private.pem
+  az keyvault secret show --vault-name "reform-scan-$ENVI" --name test-signing-key-der | jq -r .value | fold -s -w64 > private.pem
   exec 3<> private.pem && awk -v TEXT="-----BEGIN RSA PRIVATE KEY-----" 'BEGIN {print TEXT}{print}' private.pem >&3
   echo "-----END RSA PRIVATE KEY-----" >> private.pem
   PEM_EXISTS="true"
