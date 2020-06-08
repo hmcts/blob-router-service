@@ -4,7 +4,27 @@ java:
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
     DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
     SEND_NOTIFICATIONS_CRON: "0/10 * * * * *"
+    FLYWAY_SKIP_MIGRATIONS: false
+    STORAGE_URL: https://reformscanstg.aat.platform.hmcts.net
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
   devApplicationInsightsInstrumentKey: "fb929548-3309-4933-bd6e-f7932b4e0309"
+  keyVaults:
+    reform-scan:
+      resourceGroup: reform-scan
+      secrets:
+        - app-insights-instrumentation-key
+        - reports-email-username
+        - reports-email-password
+        - reports-recipients
+        - storage-account-staging-name
+        - storage-account-staging-primary-key
+        - storage-account-staging-secondary-key
+        - crime-storage-connection-string
+        - blob-router-staging-db-password
+        - blob-router-staging-db-user
+        - blob-router-staging-db-host
+        - blob-router-staging-db-port
+        - blob-router-staging-db-name
+        - notifications-staging-queue-send-connection-string
