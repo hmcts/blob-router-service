@@ -139,7 +139,7 @@ class ContainerProcessorTest {
             var okAction = (Runnable) invocation.getArgument(1);
             okAction.run();
             return null;
-        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
+        }).when(leaseAcquirer).ifAcquired(any(), any());
     }
 
     private void leaseCannotBeAcquired() {
@@ -147,7 +147,7 @@ class ContainerProcessorTest {
             var failureAction = (Runnable) invocation.getArgument(2);
             failureAction.run();
             return null;
-        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
+        }).when(leaseAcquirer).ifAcquired(any(), any());
     }
 
     private Envelope envelope(Status status) {

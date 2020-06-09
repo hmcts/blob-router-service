@@ -6,6 +6,8 @@ import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import java.util.function.Consumer;
+
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static com.azure.storage.blob.models.BlobErrorCode.LEASE_ALREADY_PRESENT;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -22,12 +24,18 @@ public class LeaseAcquirer {
         this.leaseClientProvider = leaseClientProvider;
     }
 
-    public void ifAcquiredOrElse(BlobClient blobClient, Runnable onSuccess, Runnable onFailure) {
+    /**
+     * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
+     * @param blobClient Represents blob
+     * @param onSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
+     * @param onBlobNotFound Extra step to execute in case blob was not found during leasing
+     */
+    public void ifAcquiredOrElse(BlobClient blobClient, Consumer<String> onSuccess, Runnable onBlobNotFound) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
-            leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
+            var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
 
-            onSuccess.run();
+            onSuccess.accept(leaseId);
 
             release(leaseClient, blobClient);
 
@@ -41,8 +49,20 @@ public class LeaseAcquirer {
                 );
             }
 
-            onFailure.run();
+            if (exc.getErrorCode() == BLOB_NOT_FOUND) {
+                onBlobNotFound.run();
+            } else {
+                logger.info(
+                    "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
+                    blobClient.getBlobName(),
+                    blobClient.getContainerName()
+                );
+            }
         }
+    }
+
+    public void ifAcquired(BlobClient blobClient, Runnable onSuccess) {
+        ifAcquiredOrElse(blobClient, leaseId -> onSuccess.run(), () -> {});
     }
 
     private void release(BlobLeaseClient leaseClient, BlobClient blobClient) {
