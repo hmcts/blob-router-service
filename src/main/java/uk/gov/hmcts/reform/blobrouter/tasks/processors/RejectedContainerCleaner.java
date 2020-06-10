@@ -5,6 +5,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobListDetails;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
@@ -27,16 +29,19 @@ public class RejectedContainerCleaner {
     private final BlobServiceClient storageClient;
     private final RejectedBlobChecker blobChecker;
     private final EnvelopeService envelopeService;
+    private final LeaseAcquirer leaseAcquirer;
 
     // region constructor
     public RejectedContainerCleaner(
         BlobServiceClient storageClient,
         RejectedBlobChecker blobChecker,
-        EnvelopeService envelopeService
+        EnvelopeService envelopeService,
+        LeaseAcquirer leaseAcquirer
     ) {
         this.storageClient = storageClient;
         this.blobChecker = blobChecker;
         this.envelopeService = envelopeService;
+        this.leaseAcquirer = leaseAcquirer;
     }
     // endregion
 
@@ -58,12 +63,16 @@ public class RejectedContainerCleaner {
             .stream()
             .filter(this.blobChecker::shouldBeDeleted)
             .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
-            .forEach(this::delete);
+            .forEach(blobClient -> leaseAcquirer.ifAcquiredOrElse(
+                blobClient,
+                leaseId -> delete(blobClient, leaseId),
+                () -> {} // nothing to do if blob not found in rejected container
+            ));
 
         logger.info("Finished removing rejected files. Container: {}", containerName);
     }
 
-    private void delete(BlobClient blobClient) {
+    private void delete(BlobClient blobClient, String leaseId) {
         String containerName = blobClient.getContainerName();
         String blobName = blobClient.getBlobName();
 
@@ -78,7 +87,13 @@ public class RejectedContainerCleaner {
             // every time a duplicate is moved to rejected container
             // a snapshot is created and original blob is replaced,
             // therefore snapshots are always older than the 'base' blob and it is safe to delete them
-            blobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
+            blobClient.deleteWithResponse(
+                DeleteSnapshotsOptionType.INCLUDE,
+                new BlobRequestConditions().setLeaseId(leaseId),
+                null,
+                Context.NONE
+            );
+
             envelopeService
                 .findLastEnvelope(blobName, containerName)
                 .ifPresentOrElse(

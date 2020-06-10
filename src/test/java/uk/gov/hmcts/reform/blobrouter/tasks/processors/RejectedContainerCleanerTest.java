@@ -6,21 +6,26 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
+import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
+import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -37,6 +42,7 @@ class RejectedContainerCleanerTest {
     @Mock BlobServiceClient storageClient;
     @Mock RejectedBlobChecker blobChecker;
     @Mock EnvelopeService envelopeService;
+    @Mock BlobLeaseClient leaseClient;
 
     @Mock PagedIterable<BlobContainerItem> containers;
     @Mock BlobContainerItem container1Item;
@@ -58,7 +64,12 @@ class RejectedContainerCleanerTest {
 
     @BeforeEach
     void setUp() {
-        this.cleaner = new RejectedContainerCleaner(storageClient, blobChecker, envelopeService);
+        this.cleaner = new RejectedContainerCleaner(
+            storageClient,
+            blobChecker,
+            envelopeService,
+            new LeaseAcquirer(blobClient -> leaseClient)
+        );
     }
 
     @Test
@@ -107,6 +118,9 @@ class RejectedContainerCleanerTest {
         given(blobClient2.getContainerName()).willReturn(REJECTED_CONTAINER);
         given(blobClient2.getBlobName()).willReturn(REJECTED_BLOB);
 
+        var leaseId = UUID.randomUUID().toString();
+        given(leaseClient.acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS)).willReturn(leaseId);
+
         var envelopeId = UUID.randomUUID();
         given(envelopeService.findLastEnvelope(REJECTED_BLOB, REJECTED_CONTAINER))
             .willReturn(Optional.of(new Envelope(envelopeId, null, null, null, null, null, null, true, false)));
@@ -118,8 +132,12 @@ class RejectedContainerCleanerTest {
         verify(blobChecker).shouldBeDeleted(blobItem1);
         verify(blobChecker).shouldBeDeleted(blobItem2);
 
+        var conditionCapturer = ArgumentCaptor.forClass(BlobRequestConditions.class);
+
         verify(blobClient1, never()).deleteWithResponse(any(), any(), any(), any());
-        verify(blobClient2, times(1)).deleteWithResponse(eq(DeleteSnapshotsOptionType.INCLUDE), any(), any(), any());
+        verify(blobClient2, times(1))
+            .deleteWithResponse(eq(DeleteSnapshotsOptionType.INCLUDE), conditionCapturer.capture(), any(), any());
+        assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(leaseId);
 
         // and
         verify(envelopeService).saveEvent(envelopeId, EventType.DELETED_FROM_REJECTED);

@@ -19,6 +19,7 @@ import static org.mockito.BDDMockito.given;
 class RejectedContainerCleanerTest extends BlobStorageBaseTest {
 
     @Autowired EnvelopeService envelopeService;
+    @Autowired LeaseAcquirer leaseAcquirer;
 
     @Mock RejectedBlobChecker blobChecker;
 
@@ -35,7 +36,7 @@ class RejectedContainerCleanerTest extends BlobStorageBaseTest {
         given(blobChecker.shouldBeDeleted(any())).willReturn(true); // always allow deleting blobs
 
         // when
-        new RejectedContainerCleaner(storageClient, blobChecker, envelopeService).cleanUp();
+        new RejectedContainerCleaner(storageClient, blobChecker, envelopeService, leaseAcquirer).cleanUp();
 
         // then
         assertThat(normalContainer.listBlobs())
