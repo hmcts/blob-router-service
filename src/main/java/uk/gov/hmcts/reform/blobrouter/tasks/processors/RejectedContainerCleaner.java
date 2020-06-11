@@ -66,7 +66,7 @@ public class RejectedContainerCleaner {
             .forEach(blobClient -> leaseAcquirer.ifAcquiredOrElse(
                 blobClient,
                 leaseId -> delete(blobClient, leaseId),
-                () -> {} // nothing to do if blob not found in rejected container
+                errorCode -> {} // nothing to do if blob not found in rejected container
             ));
 
         logger.info("Finished removing rejected files. Container: {}", containerName);

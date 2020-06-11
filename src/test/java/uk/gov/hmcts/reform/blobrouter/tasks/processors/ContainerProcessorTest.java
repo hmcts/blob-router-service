@@ -4,6 +4,7 @@ import com.azure.core.http.rest.PagedIterable;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobItemProperties;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +21,7 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static java.time.Instant.now;
@@ -134,20 +136,22 @@ class ContainerProcessorTest {
             .willReturn(Optional.of(envelope));
     }
 
+    @SuppressWarnings("unchecked")
     private void leaseCanBeAcquired() {
         doAnswer(invocation -> {
-            var okAction = (Runnable) invocation.getArgument(1);
-            okAction.run();
+            var okAction = (Consumer) invocation.getArgument(1);
+            okAction.accept(UUID.randomUUID().toString());
             return null;
-        }).when(leaseAcquirer).ifAcquired(any(), any());
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
     }
 
+    @SuppressWarnings("unchecked")
     private void leaseCannotBeAcquired() {
         doAnswer(invocation -> {
-            var failureAction = (Runnable) invocation.getArgument(2);
-            failureAction.run();
+            var failureAction = (Consumer) invocation.getArgument(2);
+            failureAction.accept(BlobErrorCode.INVALID_INPUT);
             return null;
-        }).when(leaseAcquirer).ifAcquired(any(), any());
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
     }
 
     private Envelope envelope(Status status) {
