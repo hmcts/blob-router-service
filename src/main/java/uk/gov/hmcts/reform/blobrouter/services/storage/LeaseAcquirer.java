@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.slf4j.Logger;
@@ -28,9 +29,13 @@ public class LeaseAcquirer {
      * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
      * @param blobClient Represents blob
      * @param onSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
-     * @param onBlobNotFound Extra step to execute in case blob was not found during leasing
+     * @param onFailure Extra step to execute in case an error occurred
      */
-    public void ifAcquiredOrElse(BlobClient blobClient, Consumer<String> onSuccess, Runnable onBlobNotFound) {
+    public void ifAcquiredOrElse(
+        BlobClient blobClient,
+        Consumer<String> onSuccess,
+        Consumer<BlobErrorCode> onFailure
+    ) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
             var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
@@ -49,20 +54,8 @@ public class LeaseAcquirer {
                 );
             }
 
-            if (exc.getErrorCode() == BLOB_NOT_FOUND) {
-                onBlobNotFound.run();
-            } else {
-                logger.info(
-                    "Cannot acquire a lease for blob - skipping. File name: {}, container: {}",
-                    blobClient.getBlobName(),
-                    blobClient.getContainerName()
-                );
-            }
+            onFailure.accept(exc.getErrorCode());
         }
-    }
-
-    public void ifAcquired(BlobClient blobClient, Runnable onSuccess) {
-        ifAcquiredOrElse(blobClient, leaseId -> onSuccess.run(), () -> {});
     }
 
     private void release(BlobLeaseClient leaseClient, BlobClient blobClient) {
