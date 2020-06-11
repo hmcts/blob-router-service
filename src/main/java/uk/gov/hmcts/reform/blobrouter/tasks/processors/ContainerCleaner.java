@@ -56,12 +56,14 @@ public class ContainerCleaner {
         leaseAcquirer.ifAcquiredOrElse(
             blobClient,
             leaseId -> tryToDeleteBlob(envelope, blobClient, leaseId),
-            () -> {
+            errorCode -> {
                 envelopeService.markEnvelopeAsDeleted(envelope);
                 logger.info(
-                    "Marked blob as deleted. File name: {}, container: {}",
+                    // once cleared up - i'll create amendment as at this stage we should not care about error code
+                    "Marked blob as deleted. File name: {}, container: {}, original error code: {}",
                     envelope.fileName,
-                    blobClient.getContainerName()
+                    blobClient.getContainerName(),
+                    errorCode
                 );
             }
         );
