@@ -198,10 +198,13 @@ dependencies {
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.6.1'
   implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.3.0'
 
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-json'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
 
   // region: feign clients
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.3.RELEASE'
