@@ -13,11 +13,14 @@ import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
 import uk.gov.hmcts.reform.blobrouter.model.out.SearchResult;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
+import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @RestController
 @RequestMapping(path = "/envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -50,16 +53,24 @@ public class EnvelopeController {
             dbEnvelope.id,
             dbEnvelope.container,
             dbEnvelope.fileName,
-            dbEnvelope.createdAt,
-            dbEnvelope.fileCreatedAt,
-            dbEnvelope.dispatchedAt,
+            toLocalTimeZone(dbEnvelope.createdAt),
+            toLocalTimeZone(dbEnvelope.fileCreatedAt),
+            toLocalTimeZone(dbEnvelope.dispatchedAt),
             dbEnvelope.status,
             dbEnvelope.isDeleted,
             dbEnvelope.pendingNotification,
             dbEventRecords
                 .stream()
-                .map(e -> new EnvelopeEventResponse(e.id, e.createdAt, e.type.name(), e.notes))
+                .map(
+                    e -> new EnvelopeEventResponse(
+                        e.id, toLocalTimeZone(e.createdAt), e.type.name(), e.notes
+                    )
+                )
                 .collect(toList())
         );
+    }
+
+    private LocalDateTime toLocalTimeZone(Instant instant) {
+        return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
     }
 }

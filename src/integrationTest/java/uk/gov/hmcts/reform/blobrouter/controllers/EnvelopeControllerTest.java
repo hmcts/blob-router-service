@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
+import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.toLocalTimeZone;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -65,10 +66,21 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data", hasSize(1)))
             .andExpect(jsonPath("$.data[0].id").value(envelopeInDb.id.toString()))
+            .andExpect(jsonPath("$.data[0].created_at").value(toLocalTimeZone(envelopeInDb.createdAt).toString()))
+            .andExpect(jsonPath("$.data[0].file_created_at").value(
+                toLocalTimeZone(envelopeInDb.fileCreatedAt).toString())
+            )
+            .andExpect(jsonPath("$.data[0].dispatched_at").value(
+                toLocalTimeZone(envelopeInDb.dispatchedAt).toString())
+            )
             .andExpect(jsonPath("$.data[0].pending_notification").value(envelopeInDb.pendingNotification))
             .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
                 EventType.FILE_PROCESSING_STARTED.name(),
                 EventType.DISPATCHED.name()
+            )))
+            .andExpect(jsonPath("$.data[0].events[*].created_at").value(contains(
+                toLocalTimeZone(eventRecordInDb1.createdAt).toString(),
+                toLocalTimeZone(eventRecordInDb2.createdAt).toString()
             )));
     }
 
