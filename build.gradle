@@ -209,10 +209,6 @@ dependencies {
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '10.8'
   // end region
 
-  // following includes web, actuator and validator.
-  // until library is updated, can safely remove extra definition on our own ^
-  implementation group: 'uk.gov.hmcts.reform', name: 'health-spring-boot-starter', version: '0.0.5'
-
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.10' // can be removed once openapi is used
 //  implementation group: 'org.springdoc', name: 'springdoc-openapi-webmvc-core', version: '1.2.26'
