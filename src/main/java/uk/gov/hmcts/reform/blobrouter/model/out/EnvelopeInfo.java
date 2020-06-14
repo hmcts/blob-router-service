@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.model.out;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,13 +19,13 @@ public class EnvelopeInfo {
     public final String fileName;
 
     @JsonProperty("created_at")
-    public final LocalDateTime createdAt;
+    public final Instant createdAt;
 
     @JsonProperty("file_created_at")
-    public final LocalDateTime fileCreatedAt;
+    public final Instant fileCreatedAt;
 
     @JsonProperty("dispatched_at")
-    public final LocalDateTime dispatchedAt;
+    public final Instant dispatchedAt;
 
     @JsonProperty("status")
     public final Status status;
@@ -43,9 +43,9 @@ public class EnvelopeInfo {
         UUID id,
         String container,
         String fileName,
-        LocalDateTime createdAt,
-        LocalDateTime fileCreatedAt,
-        LocalDateTime dispatchedAt,
+        Instant createdAt,
+        Instant fileCreatedAt,
+        Instant dispatchedAt,
         Status status,
         boolean isDeleted,
         boolean pendingNotification,

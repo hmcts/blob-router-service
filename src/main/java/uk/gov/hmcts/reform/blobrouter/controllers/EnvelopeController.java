@@ -15,7 +15,6 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -70,7 +69,10 @@ public class EnvelopeController {
         );
     }
 
-    private LocalDateTime toLocalTimeZone(Instant instant) {
-        return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
+    private Instant toLocalTimeZone(Instant instant) {
+        if (instant != null) {
+            return instant.atZone(EUROPE_LONDON_ZONE_ID).toInstant();
+        }
+        return null;
     }
 }

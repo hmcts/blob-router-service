@@ -17,7 +17,10 @@ public final class DateTimeUtils {
         return LocalDateTime.parse(string, formatter).atZone(EUROPE_LONDON_ZONE_ID).toInstant();
     }
 
-    public static LocalDateTime toLocalTimeZone(Instant instant) {
-        return LocalDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
+    public static Instant toLocalTimeZone(Instant instant) {
+        if (instant != null) {
+            return instant.atZone(EUROPE_LONDON_ZONE_ID).toInstant();
+        }
+        return null;
     }
 }
