@@ -25,6 +25,12 @@ public class LeaseAcquirer {
         this.leaseClientProvider = leaseClientProvider;
     }
 
+    /**
+     * Main wrapper for blobs to be leased by {@link BlobLeaseClient} and perform deletion task.
+     * @param blobClient Represents blob
+     * @param onSuccess Runnable task to perform when lease is acquired
+     * @param onFailure Extra step to execute in case an error occurred
+     */
     public void processAndRelease(BlobClient blobClient, Runnable onSuccess, Consumer<BlobErrorCode> onFailure) {
         var leaseClient = ifAcquiredOrElse(blobClient, leaseId -> onSuccess.run(), onFailure);
 
@@ -34,7 +40,7 @@ public class LeaseAcquirer {
     }
 
     /**
-     * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
+     * Main wrapper for blobs to be leased by {@link BlobLeaseClient} and perform non-delete task.
      * @param blobClient Represents blob
      * @param onSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
      * @param onFailure Extra step to execute in case an error occurred
