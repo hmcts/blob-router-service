@@ -88,9 +88,9 @@ public class ContainerProcessor {
     }
 
     private void leaseAndThen(BlobClient blobClient, Runnable action) {
-        leaseAcquirer.ifAcquiredOrElse(
+        leaseAcquirer.processAndRelease(
             blobClient,
-            leaseId -> action.run(),
+            action,
             errorCode -> logger.info(
                 "Cannot acquire a lease for blob - skipping. File name: {}, container: {}, error code: {}",
                 blobClient.getBlobName(),

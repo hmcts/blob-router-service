@@ -139,10 +139,10 @@ class ContainerProcessorTest {
     @SuppressWarnings("unchecked")
     private void leaseCanBeAcquired() {
         doAnswer(invocation -> {
-            var okAction = (Consumer) invocation.getArgument(1);
-            okAction.accept(UUID.randomUUID().toString());
+            var okAction = (Runnable) invocation.getArgument(1);
+            okAction.run();
             return null;
-        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
+        }).when(leaseAcquirer).processAndRelease(any(), any(), any());
     }
 
     @SuppressWarnings("unchecked")
@@ -151,7 +151,7 @@ class ContainerProcessorTest {
             var failureAction = (Consumer) invocation.getArgument(2);
             failureAction.accept(BlobErrorCode.INVALID_INPUT);
             return null;
-        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
+        }).when(leaseAcquirer).processAndRelease(any(), any(), any());
     }
 
     private Envelope envelope(Status status) {

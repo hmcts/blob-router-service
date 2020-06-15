@@ -25,13 +25,21 @@ public class LeaseAcquirer {
         this.leaseClientProvider = leaseClientProvider;
     }
 
+    public void processAndRelease(BlobClient blobClient, Runnable onSuccess, Consumer<BlobErrorCode> onFailure) {
+        var leaseClient = ifAcquiredOrElse(blobClient, leaseId -> onSuccess.run(), onFailure);
+
+        if (leaseClient != null) {
+            release(leaseClient, blobClient);
+        }
+    }
+
     /**
      * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
      * @param blobClient Represents blob
      * @param onSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
      * @param onFailure Extra step to execute in case an error occurred
      */
-    public void ifAcquiredOrElse(
+    public BlobLeaseClient ifAcquiredOrElse(
         BlobClient blobClient,
         Consumer<String> onSuccess,
         Consumer<BlobErrorCode> onFailure
@@ -42,8 +50,7 @@ public class LeaseAcquirer {
 
             onSuccess.accept(leaseId);
 
-            release(leaseClient, blobClient);
-
+            return leaseClient;
         } catch (BlobStorageException exc) {
             if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
                 logger.error(
@@ -55,6 +62,8 @@ public class LeaseAcquirer {
             }
 
             onFailure.accept(exc.getErrorCode());
+
+            return null;
         }
     }
 

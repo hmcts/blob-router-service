@@ -12,8 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.function.Consumer;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -49,7 +47,6 @@ class LeaseAcquirerTest {
         // then
         verify(onSuccess).accept(null);
         verify(onFailure, never()).accept(any(BlobErrorCode.class));
-        verify(leaseClient).releaseLease();
     }
 
     @Test
@@ -66,24 +63,26 @@ class LeaseAcquirerTest {
         // then
         verify(onSuccess, never()).accept(anyString());
         verify(onFailure).accept(null);
+    }
+
+    @Test
+    void should_not_call_release_when_failed_to_process_blob() {
+        // given
+        doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
+
+        // when
+        leaseAcquirer.processAndRelease(blobClient, mock(Runnable.class), mock(Consumer.class));
+
+        // then
         verify(leaseClient, never()).releaseLease();
     }
 
     @Test
-    void should_handle_error_when_releasing_lease() {
-        // given
-        var onSuccess = mock(Consumer.class);
-        var onFailure = mock(Consumer.class);
-
-        doThrow(blobStorageException).when(leaseClient).releaseLease();
-
+    void should_call_release_when_successfully_processed_blob() {
         // when
-        var exc = catchThrowable(() -> leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure));
+        leaseAcquirer.processAndRelease(blobClient, mock(Runnable.class), mock(Consumer.class));
 
         // then
-        assertThat(exc).isNull();
-        verify(onSuccess).accept(null);
-        verify(onFailure, never()).accept(any(BlobErrorCode.class));
         verify(leaseClient).releaseLease();
     }
 }
