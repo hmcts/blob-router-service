@@ -30,11 +30,13 @@ public class LeaseAcquirer {
      * @param blobClient Represents blob
      * @param onSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
      * @param onFailure Extra step to execute in case an error occurred
+     * @param releaseLease Flag weather to release the lease or not
      */
     public void ifAcquiredOrElse(
         BlobClient blobClient,
         Consumer<String> onSuccess,
-        Consumer<BlobErrorCode> onFailure
+        Consumer<BlobErrorCode> onFailure,
+        boolean releaseLease
     ) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
@@ -42,8 +44,9 @@ public class LeaseAcquirer {
 
             onSuccess.accept(leaseId);
 
-            release(leaseClient, blobClient);
-
+            if (releaseLease) {
+                release(leaseClient, blobClient);
+            }
         } catch (BlobStorageException exc) {
             if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
                 logger.error(

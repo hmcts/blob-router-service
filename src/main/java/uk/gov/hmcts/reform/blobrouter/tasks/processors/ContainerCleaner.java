@@ -65,7 +65,8 @@ public class ContainerCleaner {
                     blobClient.getContainerName(),
                     errorCode
                 );
-            }
+            },
+            false
         );
     }
 
