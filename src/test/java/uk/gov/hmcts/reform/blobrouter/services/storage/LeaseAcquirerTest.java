@@ -42,7 +42,7 @@ class LeaseAcquirerTest {
         var onFailure = mock(Consumer.class);
 
         // when
-        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure);
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
 
         // then
         verify(onSuccess).accept(null);
@@ -58,7 +58,7 @@ class LeaseAcquirerTest {
         doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
 
         // when
-        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure);
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
 
         // then
         verify(onSuccess, never()).accept(anyString());
@@ -71,7 +71,7 @@ class LeaseAcquirerTest {
         doThrow(blobStorageException).when(leaseClient).acquireLease(anyInt());
 
         // when
-        leaseAcquirer.processAndRelease(blobClient, mock(Runnable.class), mock(Consumer.class));
+        leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true);
 
         // then
         verify(leaseClient, never()).releaseLease();
@@ -80,7 +80,7 @@ class LeaseAcquirerTest {
     @Test
     void should_call_release_when_successfully_processed_blob() {
         // when
-        leaseAcquirer.processAndRelease(blobClient, mock(Runnable.class), mock(Consumer.class));
+        leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true);
 
         // then
         verify(leaseClient).releaseLease();

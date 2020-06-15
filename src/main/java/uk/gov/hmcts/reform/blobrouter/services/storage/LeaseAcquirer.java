@@ -26,29 +26,17 @@ public class LeaseAcquirer {
     }
 
     /**
-     * Main wrapper for blobs to be leased by {@link BlobLeaseClient} and perform non-delete task.
-     * @param blobClient Represents blob
-     * @param onSuccess Runnable task to perform when lease is acquired
-     * @param onFailure Extra step to execute in case an error occurred
-     */
-    public void processAndRelease(BlobClient blobClient, Runnable onSuccess, Consumer<BlobErrorCode> onFailure) {
-        var leaseClient = ifAcquiredOrElse(blobClient, leaseId -> onSuccess.run(), onFailure);
-
-        if (leaseClient != null) {
-            release(leaseClient, blobClient);
-        }
-    }
-
-    /**
-     * Main wrapper for blobs to be leased by {@link BlobLeaseClient} and perform deletion task.
+     * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
      * @param blobClient Represents blob
      * @param onSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
      * @param onFailure Extra step to execute in case an error occurred
+     * @param releaseLease Flag weather to release the lease or not
      */
-    public BlobLeaseClient ifAcquiredOrElse(
+    public void ifAcquiredOrElse(
         BlobClient blobClient,
         Consumer<String> onSuccess,
-        Consumer<BlobErrorCode> onFailure
+        Consumer<BlobErrorCode> onFailure,
+        boolean releaseLease
     ) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
@@ -56,7 +44,9 @@ public class LeaseAcquirer {
 
             onSuccess.accept(leaseId);
 
-            return leaseClient;
+            if (releaseLease) {
+                release(leaseClient, blobClient);
+            }
         } catch (BlobStorageException exc) {
             if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
                 logger.error(
@@ -68,8 +58,6 @@ public class LeaseAcquirer {
             }
 
             onFailure.accept(exc.getErrorCode());
-
-            return null;
         }
     }
 
