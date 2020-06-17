@@ -188,7 +188,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     public void should_return_400_for_missing_file_name_and_date() throws Exception {
         given(envelopeService.getEnvelopes(null, null, null))
             .willThrow(
-                new InvalidRequestParametersException("file_name or date must be not null")
+                new InvalidRequestParametersException("'file_name' or 'date' must not be null or empty")
             );
 
         mockMvc.perform(

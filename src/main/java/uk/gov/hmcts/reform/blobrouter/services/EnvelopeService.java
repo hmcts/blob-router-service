@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.util.function.Tuple2;
@@ -134,8 +135,8 @@ public class EnvelopeService {
         String containerName,
         LocalDate date
     ) {
-        if (blobName == null && date == null) {
-            throw new InvalidRequestParametersException("file_name or date must be not null");
+        if (StringUtils.isEmpty(blobName) && date == null) {
+            throw new InvalidRequestParametersException("'file_name' or 'date' must not be null or empty");
         }
 
         List<Envelope> envelopes = envelopeRepository

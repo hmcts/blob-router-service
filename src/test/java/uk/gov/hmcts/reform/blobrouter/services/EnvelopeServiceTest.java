@@ -362,7 +362,7 @@ class EnvelopeServiceTest {
         // then
         assertThatThrownBy(() -> envelopeService.getEnvelopes(null, null, null))
             .isInstanceOf(InvalidRequestParametersException.class)
-            .hasMessageContaining("file_name or date must be not null");
+            .hasMessageContaining("'file_name' or 'date' must not be null or empty");
     }
 
     @Test
@@ -372,6 +372,6 @@ class EnvelopeServiceTest {
         // then
         assertThatThrownBy(() -> envelopeService.getEnvelopes(null, "c1", null))
             .isInstanceOf(InvalidRequestParametersException.class)
-            .hasMessageContaining("file_name or date must be not null");
+            .hasMessageContaining("'file_name' or 'date' must not be null or empty");
     }
 }
