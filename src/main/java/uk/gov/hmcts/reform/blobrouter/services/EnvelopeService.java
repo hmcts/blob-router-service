@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -133,6 +134,10 @@ public class EnvelopeService {
         String containerName,
         LocalDate date
     ) {
+        if (blobName == null && date == null) {
+            throw new InvalidRequestParametersException("file_name or date must be not null");
+        }
+
         List<Envelope> envelopes = envelopeRepository
             .findEnvelopes(blobName, containerName, date);
 

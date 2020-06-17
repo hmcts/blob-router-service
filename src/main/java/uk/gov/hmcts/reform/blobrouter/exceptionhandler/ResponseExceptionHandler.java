@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
@@ -43,6 +44,12 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ResponseEntity<?> handleEnvelopeNotFoundException(EnvelopeNotFoundException exception) {
         return notFound().build();
+    }
+
+    @ExceptionHandler(InvalidRequestParametersException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ErrorResponse handleInvalidRequestParametersException(InvalidRequestParametersException exception) {
+        return new ErrorResponse(exception.getMessage(), exception.getClass());
     }
 
     @ExceptionHandler(Exception.class)
