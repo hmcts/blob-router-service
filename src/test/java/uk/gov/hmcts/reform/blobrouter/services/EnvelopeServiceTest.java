@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,6 +30,7 @@ import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -351,5 +353,25 @@ class EnvelopeServiceTest {
         verify(envelopeRepository).findEnvelopes("f1.zip", null, null);
         assertThat(envelopes).isEmpty();
         verifyNoInteractions(eventRepository);
+    }
+
+    @Test
+    void should_throw_if_no_file_name_container_and_date_provided() {
+        // given
+        // when
+        // then
+        assertThatThrownBy(() -> envelopeService.getEnvelopes(null, null, null))
+            .isInstanceOf(InvalidRequestParametersException.class)
+            .hasMessageContaining("'file_name' or 'date' must not be null or empty");
+    }
+
+    @Test
+    void should_throw_if_no_file_name_and_date_provided() {
+        // given
+        // when
+        // then
+        assertThatThrownBy(() -> envelopeService.getEnvelopes(null, "c1", null))
+            .isInstanceOf(InvalidRequestParametersException.class)
+            .hasMessageContaining("'file_name' or 'date' must not be null or empty");
     }
 }

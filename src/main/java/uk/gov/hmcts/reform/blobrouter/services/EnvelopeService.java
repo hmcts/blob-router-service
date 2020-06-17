@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.util.function.Tuple2;
@@ -14,6 +15,7 @@ import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -133,6 +135,10 @@ public class EnvelopeService {
         String containerName,
         LocalDate date
     ) {
+        if (StringUtils.isEmpty(blobName) && date == null) {
+            throw new InvalidRequestParametersException("'file_name' or 'date' must not be null or empty");
+        }
+
         List<Envelope> envelopes = envelopeRepository
             .findEnvelopes(blobName, containerName, date);
 

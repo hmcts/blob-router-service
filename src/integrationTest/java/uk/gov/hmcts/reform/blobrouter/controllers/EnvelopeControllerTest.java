@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -184,38 +185,17 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     }
 
     @Test
-    void should_return_all_envelopes_when_no_request_params_provided() throws Exception {
-        Envelope envelope1InDb = envelope("file1.zip", "container1", instant("2020-05-10 12:10:00"));
-        var envelope1Event1InDb = envelopeEvent(envelope1InDb.id, 1, EventType.FILE_PROCESSING_STARTED);
-        var envelope1Event2InDb = envelopeEvent(envelope1InDb.id, 2, EventType.DISPATCHED);
-
-        Envelope envelope2InDb = envelope("file2.zip", "container2", instant("2020-05-11 10:10:00"));
-
+    public void should_return_400_for_missing_file_name_and_date() throws Exception {
         given(envelopeService.getEnvelopes(null, null, null))
-            .willReturn(asList(
-                Tuples.of(
-                    envelope1InDb,
-                    asList(
-                        envelope1Event1InDb,
-                        envelope1Event2InDb
-                    )
-                ),
-                Tuples.of(envelope2InDb, emptyList())
-            ));
+            .willThrow(
+                new InvalidRequestParametersException("'file_name' or 'date' must not be null or empty")
+            );
 
-        mockMvc.perform(get("/envelopes")) // no query params
+        mockMvc.perform(
+            get("/envelopes")
+        )
             .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data", hasSize(2)))
-            .andExpect(jsonPath("$.data[0].id").value(envelope1InDb.id.toString()))
-            .andExpect(jsonPath("$.data[0].container").value(envelope1InDb.container))
-            .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
-                EventType.FILE_PROCESSING_STARTED.name(),
-                EventType.DISPATCHED.name()
-            )))
-            .andExpect(jsonPath("$.data[1].id").value(envelope2InDb.id.toString()))
-            .andExpect(jsonPath("$.data[1].container").value(envelope2InDb.container))
-            .andExpect(jsonPath("$.data[1].events", empty()));
+            .andExpect(status().isBadRequest());
     }
 
     @Test
