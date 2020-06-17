@@ -96,7 +96,8 @@ public class ContainerProcessor {
                 blobClient.getBlobName(),
                 blobClient.getContainerName(),
                 errorCode
-            )
+            ),
+            true
         );
     }
 }

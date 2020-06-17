@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 
 import static java.time.Instant.now;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -142,7 +143,7 @@ class ContainerProcessorTest {
             var okAction = (Consumer) invocation.getArgument(1);
             okAction.accept(UUID.randomUUID().toString());
             return null;
-        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
     }
 
     @SuppressWarnings("unchecked")
@@ -151,7 +152,7 @@ class ContainerProcessorTest {
             var failureAction = (Consumer) invocation.getArgument(2);
             failureAction.accept(BlobErrorCode.INVALID_INPUT);
             return null;
-        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any());
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
     }
 
     private Envelope envelope(Status status) {
