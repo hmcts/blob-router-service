@@ -71,7 +71,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.data", hasSize(1)))
             .andExpect(jsonPath("$.data[0].id").value(envelopeInDb.id.toString()))
-            .andExpect(jsonPath("$.data[0].created_at").value("2020-05-20 10:15:10"))
+            .andExpect(jsonPath("$.data[0].created_at").value("2020-05-20T10:15:10"))
             .andExpect(jsonPath("$.data[0].file_created_at").value(
                 toLocalTimeZone(envelopeInDb.fileCreatedAt))
             )

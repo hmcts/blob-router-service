@@ -73,7 +73,7 @@ public class EnvelopeController {
 
     private String toLocalTimeZone(Instant instant) {
         if (instant != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
             return formatter.format(ZonedDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID));
         }
         return null;

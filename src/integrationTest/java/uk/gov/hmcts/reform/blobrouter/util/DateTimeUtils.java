@@ -20,7 +20,8 @@ public final class DateTimeUtils {
 
     public static String toLocalTimeZone(Instant instant) {
         if (instant != null) {
-            return formatter.format(ZonedDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID));
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            return dateTimeFormatter.format(ZonedDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID));
         }
         return null;
     }
