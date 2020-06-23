@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
-import com.azure.core.test.http.MockHttpResponse;
+import com.azure.core.http.HttpResponse;
 import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -45,6 +45,7 @@ class ContainerCleanerTest {
     private ContainerCleaner containerCleaner;
 
     @Mock EnvelopeService envelopeService;
+    @Mock HttpResponse httpResponse;
     @Mock BlobServiceClient storageClient;
     @Mock BlobContainerClient containerClient;
     @Mock BlobClient blobClient1;
@@ -150,7 +151,7 @@ class ContainerCleanerTest {
         given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
         given(leaseClient.acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS))
             .willReturn(UUID.randomUUID().toString());
-        doThrow(new BlobStorageException("msg", new MockHttpResponse(null, 500), null))
+        doThrow(new BlobStorageException("msg", httpResponse, null))
             .when(blobClient1).deleteWithResponse(any(), any(), eq(null), eq(Context.NONE));
 
         // when
