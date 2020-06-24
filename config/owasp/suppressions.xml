@@ -7,7 +7,7 @@
   </suppress>
   <suppress until="2020-06-30">
     <notes><![CDATA[
-   file name: spring-security-crypto-5.2.2.RELEASE.jar. No fix available
+   file name: spring-security-crypto-5.3.2.RELEASE.jar. No fix available
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
     <cve>CVE-2018-1258</cve>
@@ -26,7 +26,7 @@
     <notes><![CDATA[
       This is only used for TESTING purposes.
     ]]></notes>
-    <packageUrl regex="true">^pkg:javascript/handlebars\.js@4\.0\.4.*$</packageUrl>
+    <packageUrl regex="true">^pkg:javascript/handlebars@4\.0\.4.*$</packageUrl>
     <vulnerabilityName>A prototype pollution vulnerability in handlebars is exploitable if an attacker can control the template</vulnerabilityName>
     <vulnerabilityName>Disallow calling helperMissing and blockHelperMissing directly</vulnerabilityName>
     <vulnerabilityName>Prototype pollution</vulnerabilityName>
@@ -46,13 +46,11 @@
     <cve>CVE-2019-10797</cve>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[Used only in tests .file name: handlebars-4.0.7.jar: handlebars-v4.0.4.js]]></notes>
-    <packageUrl regex="true">^pkg:javascript/handlebars@.*$</packageUrl>
-    <vulnerabilityName>A prototype pollution vulnerability in handlebars is exploitable if an attacker can control the template</vulnerabilityName>
-    <vulnerabilityName>Disallow calling helperMissing and blockHelperMissing directly</vulnerabilityName>
-    <vulnerabilityName>Prototype pollution</vulnerabilityName>
+  <suppress until="2020-10-31">
+    <notes><![CDATA[
+      This is only used for TESTING purposes.
+    ]]></notes>
+    <packageUrl regex="true">^pkg:javascript/jquery@3\.4\.1.*$</packageUrl>
+    <vulnerabilityName>Regex in its jQuery.htmlPrefilter  sometimes may introduce XSS</vulnerabilityName>
   </suppress>
-
-
 </suppressions>

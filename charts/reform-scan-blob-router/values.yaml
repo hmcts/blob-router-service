@@ -2,6 +2,7 @@ java:
   applicationPort: 8584
   ingressHost: reform-scan-blob-router-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
   aadIdentityName: reform-scan
+  readinessPath: '/health/readiness'
   keyVaults:
     reform-scan:
       resourceGroup: reform-scan
