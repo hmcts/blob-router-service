@@ -26,7 +26,10 @@ public class StorageConfiguration {
     // not used as needs test context so it can actually be build
     @Bean()
     public BlobServiceClient getStorageClient(StorageSharedKeyCredential credentials) {
-        return new BlobServiceClientBuilder().credential(credentials).buildClient();
+        return new BlobServiceClientBuilder()
+            .endpoint("http://localhost")
+            .credential(credentials)
+            .buildClient();
     }
 
     @Bean("crime-storage-client")
