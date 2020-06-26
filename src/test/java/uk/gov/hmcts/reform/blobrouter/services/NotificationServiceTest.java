@@ -57,7 +57,7 @@ class NotificationServiceTest {
 
         // then
         verify(rejectedEnvelopeRepository).getRejectedEnvelopes();
-        verify(notificationsPublisher, times(2)).publish(any(NotificationMsg.class));
+        verify(notificationsPublisher, times(2)).publish(any(NotificationMsg.class), any());
         verify(envelopeService).markPendingNotificationAsSent(envelopeId1);
         verify(envelopeService).markPendingNotificationAsSent(envelopeId2);
     }

@@ -51,7 +51,7 @@ class NotificationsPublisherTest {
         );
 
         // when
-        notifier.publish(notificationMsg);
+        notifier.publish(notificationMsg, "messageId");
 
         // then
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
@@ -73,6 +73,7 @@ class NotificationsPublisherTest {
             notificationMsg.service
         );
         JSONAssert.assertEquals(expectedMessageBodyJson, messageBodyJson, JSONCompareMode.LENIENT);
+        assertThat(message.getMessageId()).isEqualTo("messageId");
     }
 
     @Test
@@ -89,15 +90,14 @@ class NotificationsPublisherTest {
 
         // when
         Throwable exc = catchThrowable(
-            () -> notifier.publish(notificationMsg)
+            () -> notifier.publish(notificationMsg, "id1")
         );
 
         // then
         assertThat(exc)
             .isInstanceOf(NotificationsPublishingException.class)
             .hasMessage(
-                "An error occurred when trying to publish notification for "
-                    + "File name: A.zip, Container: C1"
+                "An error occurred when trying to publish notification for File name: A.zip, Container: C1, Id: id1"
             ).hasCause(exceptionToThrow);
     }
 

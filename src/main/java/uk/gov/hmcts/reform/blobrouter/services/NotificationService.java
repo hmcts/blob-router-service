@@ -40,7 +40,7 @@ public class NotificationService {
                 log.info(
                     "Send message to notifications queue. File name: {} Container: {}", env.fileName, env.container
                 );
-                notificationsPublisher.publish(mapToNotificationMessage(env));
+                notificationsPublisher.publish(mapToNotificationMessage(env), env.envelopeId.toString());
                 envelopeService.markPendingNotificationAsSent(env.envelopeId);
             }
         );
