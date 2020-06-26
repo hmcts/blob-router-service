@@ -50,6 +50,9 @@ class NotificationServiceTest {
     @Captor
     private ArgumentCaptor<NotificationMsg> notificationMsgCaptor;
 
+    @Captor
+    private ArgumentCaptor<String> messageIdCaptor;
+
     @Mock
     NotificationsPublisher notificationsPublisher;
 
@@ -87,7 +90,7 @@ class NotificationServiceTest {
         notificationService.sendNotifications();
 
         // then
-        verify(notificationsPublisher, times(2)).publish(any());
+        verify(notificationsPublisher, times(2)).publish(any(), any());
 
         Optional<Envelope> envelope1 = envelopeService.findEnvelope(envelopeId1);
         assertThat(envelope1).hasValueSatisfying(env -> assertThat(env.pendingNotification).isFalse());
@@ -123,12 +126,14 @@ class NotificationServiceTest {
         notificationService.sendNotifications(); //1st time
         notificationService.sendNotifications(); //2nd time
 
-        verify(notificationsPublisher).publish(notificationMsgCaptor.capture());
-        verify(notificationsPublisher, times(1)).publish(any()); // message published only once
+        verify(notificationsPublisher).publish(notificationMsgCaptor.capture(), messageIdCaptor.capture());
+        verify(notificationsPublisher, times(1)).publish(any(), any()); // message published only once
 
         NotificationMsg msgCaptorValue = notificationMsgCaptor.getValue();
+        String messageId = messageIdCaptor.getValue();
         assertThat(msgCaptorValue.zipFileName).isEqualTo("blob3.zip");
         assertThat(msgCaptorValue.container).isEqualTo("bulkscan");
+        assertThat(messageId).isEqualTo(envelopeId3.toString());
 
         Optional<Envelope> envelope3 = envelopeService.findEnvelope(envelopeId3);
         assertThat(envelope3).hasValueSatisfying(env -> assertThat(env.pendingNotification).isFalse());
