@@ -97,7 +97,8 @@ class NotificationsPublisherTest {
         assertThat(exc)
             .isInstanceOf(NotificationsPublishingException.class)
             .hasMessage(
-                "An error occurred when trying to publish notification for File name: A.zip, Container: C1, Id: id1"
+                "An error occurred when trying to publish notification for "
+                    + "File name: A.zip, Container: C1, Message Id: id1"
             ).hasCause(exceptionToThrow);
     }
 
