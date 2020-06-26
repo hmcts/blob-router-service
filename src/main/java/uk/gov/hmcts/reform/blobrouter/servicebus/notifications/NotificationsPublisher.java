@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
 
-import java.util.UUID;
-
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Service
@@ -29,12 +27,12 @@ public class NotificationsPublisher {
         this.objectMapper = objectMapper;
     }
 
-    public void publish(NotificationMsg notificationMsg) {
+    public void publish(NotificationMsg notificationMsg, String messageId) {
         try {
             String messageBody = objectMapper.writeValueAsString(notificationMsg);
 
             IMessage message = new Message(
-                UUID.randomUUID().toString(),
+                messageId,
                 messageBody,
                 APPLICATION_JSON_VALUE
             );
@@ -50,9 +48,10 @@ public class NotificationsPublisher {
         } catch (Exception ex) {
             throw new NotificationsPublishingException(
                 String.format(
-                    "An error occurred when trying to publish notification for File name: %s, Container: %s",
+                    "An error occurred when trying to publish notification for File name: %s, Container: %s, Id: %s",
                     notificationMsg.zipFileName,
-                    notificationMsg.container
+                    notificationMsg.container,
+                    messageId
                 ),
                 ex
             );
