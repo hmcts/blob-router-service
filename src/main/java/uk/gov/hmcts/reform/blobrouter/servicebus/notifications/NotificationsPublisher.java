@@ -48,7 +48,8 @@ public class NotificationsPublisher {
         } catch (Exception ex) {
             throw new NotificationsPublishingException(
                 String.format(
-                    "An error occurred when trying to publish notification for File name: %s, Container: %s, Id: %s",
+                    "An error occurred when trying to publish notification for "
+                        + "File name: %s, Container: %s, Message Id: %s",
                     notificationMsg.zipFileName,
                     notificationMsg.container,
                     messageId
