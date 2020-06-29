@@ -20,6 +20,5 @@ class CheckNewEnvelopesTaskTest {
 
         // then
         verify(envelopesFinder, times(1)).checkNewCftEnvelopesCreated();
-        verify(envelopesFinder, times(1)).checkNewCrimeEnvelopesCreated();
     }
 }
