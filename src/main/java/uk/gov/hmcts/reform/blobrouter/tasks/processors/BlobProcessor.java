@@ -140,7 +140,9 @@ public class BlobProcessor {
                 ? ErrorMessages.DOWNLOAD_ERROR_BAD_GATEWAY
                 : ErrorMessages.DOWNLOAD_ERROR_GENERIC;
 
-            throw new ZipFileLoadException(errorMessage, exc);
+            String ctx = "File: " + blobClient.getBlobName() + ", Container:" + blobClient.getContainerName();
+
+            throw new ZipFileLoadException(errorMessage + ctx, exc);
         } catch (Exception exc) {
             throw new ZipFileLoadException(ErrorMessages.DOWNLOAD_ERROR_GENERIC, exc);
         }
@@ -160,7 +162,7 @@ public class BlobProcessor {
     public static class ErrorMessages {
 
         public static final String DOWNLOAD_ERROR_GENERIC =
-            "Failed to download blob";
+            "Failed to download blob.";
 
         public static final String DOWNLOAD_ERROR_BAD_GATEWAY =
             "Failed to download blob. It looks like antivirus software may be blocking the file.";
