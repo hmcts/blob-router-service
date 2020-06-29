@@ -84,6 +84,42 @@ class BlobProcessorTest {
     }
 
     @Test
+    void should_not_update_envelope_status_when_upload_failed_and_message_with_html_should_be_escaped() {
+        // given
+        var id = UUID.randomUUID();
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        blobExists("envelope1.zip", SOURCE_CONTAINER);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
+
+        willThrow(new RuntimeException(
+            "<html><head><title>Oh no!</title></head><body><h2>You failed</h2></body</html>"
+        ))
+            .given(blobDispatcher)
+            .dispatch(any(), any(), any(), any());
+
+        // when
+        newBlobProcessor().process(blobClient);
+
+        // then
+        verifyNewEnvelopeHasBeenCreated();
+
+        // dispatcher has been called
+        verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
+
+        // but the envelope has not been marked as dispatched
+        verify(envelopeService, never()).markAsDispatched(any());
+
+        // and error event has been created
+        verify(envelopeService).saveEvent(
+            id,
+            EventType.ERROR,
+            "&lt;html&gt;&lt;head&gt;&lt;title&gt;Oh no!&lt;/title&gt;&lt;/head&gt;"
+                + "&lt;body&gt;&lt;h2&gt;You failed&lt;/h2&gt;&lt;/body&lt;/html&gt;"
+        );
+    }
+
+    @Test
     void should_not_update_envelope_status_when_blob_is_blocked_for_download() {
         // given
         var id = UUID.randomUUID();
