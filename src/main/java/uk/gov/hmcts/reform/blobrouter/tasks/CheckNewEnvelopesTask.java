@@ -29,7 +29,9 @@ public class CheckNewEnvelopesTask {
         logger.info("Started {} job", TASK_NAME);
 
         newEnvelopesFinder.checkNewCftEnvelopesCreated();
-        newEnvelopesFinder.checkNewCrimeEnvelopesCreated();
+
+        // TODO: enable once 'crime' envelopes are enabled.
+        // newEnvelopesFinder.checkNewCrimeEnvelopesCreated();
 
         logger.info("Finished {} job", TASK_NAME);
     }
