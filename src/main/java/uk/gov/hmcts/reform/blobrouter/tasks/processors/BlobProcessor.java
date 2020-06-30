@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
@@ -154,7 +155,7 @@ public class BlobProcessor {
             envelopeId,
             exc
         );
-        envelopeService.saveEvent(envelopeId, EventType.ERROR, exc.getMessage());
+        envelopeService.saveEvent(envelopeId, EventType.ERROR, escapeHtml4(exc.getMessage()));
     }
 
     public static class ErrorMessages {
