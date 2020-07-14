@@ -8,7 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
-import uk.gov.hmcts.reform.blobrouter.services.storage.BlobLister;
+import uk.gov.hmcts.reform.blobrouter.services.storage.StaleBlobFinder;
 
 import java.util.Arrays;
 
@@ -31,14 +31,14 @@ public class StaleBlobControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private BlobLister blobLister;
+    private StaleBlobFinder staleBlobFinder;
 
     @Test
     void should_return_list_of_stale_blobs_when_there_is_with_request_param() throws Exception {
 
         String createdAt = toLocalTimeZone(now());
 
-        given(blobLister.listBlobs(1))
+        given(staleBlobFinder.listBlobs(1))
             .willReturn(Arrays.asList(
                 new BlobInfo("container1", "file_name_1", createdAt),
                 new BlobInfo("container2", "file_name_2", createdAt))
@@ -58,7 +58,7 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.[1].file_name").value("file_name_2"))
             .andExpect(jsonPath("$.[1].created_at").value(createdAt));
 
-        verify(blobLister).listBlobs(1);
+        verify(staleBlobFinder).listBlobs(1);
 
     }
 
@@ -67,7 +67,7 @@ public class StaleBlobControllerTest {
 
         String createdAt = toLocalTimeZone(now());
 
-        given(blobLister.listBlobs(2))
+        given(staleBlobFinder.listBlobs(2))
             .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
         mockMvc
             .perform(get("/stale-blobs"))
@@ -78,7 +78,7 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.[0].file_name").value("file_name_1"))
             .andExpect(jsonPath("$.[0].created_at").value(createdAt));
 
-        verify(blobLister).listBlobs(2);
+        verify(staleBlobFinder).listBlobs(2);
 
     }
 
@@ -88,7 +88,7 @@ public class StaleBlobControllerTest {
             .perform(get("/stale-blobs").queryParam("stale_time", "1x"))
             .andDo(print())
             .andExpect(status().isBadRequest());
-        verifyNoMoreInteractions(blobLister);
+        verifyNoMoreInteractions(staleBlobFinder);
     }
 
 }

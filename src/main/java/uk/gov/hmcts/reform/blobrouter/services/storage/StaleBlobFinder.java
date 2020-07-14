@@ -17,12 +17,12 @@ import static uk.gov.hmcts.reform.blobrouter.util.TimeUtils.toLocalTimeZone;
 
 @Component
 @EnableConfigurationProperties(ServiceConfiguration.class)
-public class BlobLister {
+public class StaleBlobFinder {
 
     private final BlobServiceClient storageClient;
     private final ServiceConfiguration serviceConfiguration;
 
-    public BlobLister(BlobServiceClient storageClient, ServiceConfiguration serviceConfiguration) {
+    public StaleBlobFinder(BlobServiceClient storageClient, ServiceConfiguration serviceConfiguration) {
         this.storageClient = storageClient;
         this.serviceConfiguration = serviceConfiguration;
     }

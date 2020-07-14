@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
-import uk.gov.hmcts.reform.blobrouter.services.storage.BlobLister;
+import uk.gov.hmcts.reform.blobrouter.services.storage.StaleBlobFinder;
 
 import java.util.List;
 
@@ -14,12 +14,12 @@ import java.util.List;
 @RequestMapping(path = "/stale-blobs", produces = MediaType.APPLICATION_JSON_VALUE)
 public class StaleBlobController {
 
-    private final BlobLister blobLister;
+    private final StaleBlobFinder staleBlobFinder;
 
     private static final String DEFAULT_STALE_TIME_HOURS = "2";
 
-    public StaleBlobController(BlobLister blobLister) {
-        this.blobLister = blobLister;
+    public StaleBlobController(StaleBlobFinder staleBlobFinder) {
+        this.staleBlobFinder = staleBlobFinder;
     }
 
     @GetMapping
@@ -27,6 +27,6 @@ public class StaleBlobController {
         @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_HOURS)
             int staleTime
     ) {
-        return blobLister.listBlobs(staleTime);
+        return staleBlobFinder.listBlobs(staleTime);
     }
 }

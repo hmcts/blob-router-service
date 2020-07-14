@@ -26,7 +26,7 @@ import static org.mockito.Mockito.mock;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeUtils.toLocalTimeZone;
 
 @ExtendWith(MockitoExtension.class)
-class BlobListerTest {
+class StaleBlobFinderTest {
 
     @Mock
     private BlobServiceClient storageClient;
@@ -35,7 +35,7 @@ class BlobListerTest {
     private ServiceConfiguration serviceConfiguration;
 
     @InjectMocks
-    private BlobLister blobLister;
+    private StaleBlobFinder staleBlobFinder;
 
     private OffsetDateTime expectedCreationTime = now().minus(3, ChronoUnit.HOURS);
 
@@ -69,7 +69,7 @@ class BlobListerTest {
 
         mockStorageList(sscsBlobClient, Stream.empty());
 
-        List<BlobInfo> blobInfos = blobLister.listBlobs(2);
+        List<BlobInfo> blobInfos = staleBlobFinder.listBlobs(2);
 
         assertThat(blobInfos.size()).isEqualTo(1);
         assertThat(blobInfos.get(0).container).isEqualTo("bulkscan");
