@@ -40,7 +40,7 @@ class StaleBlobFinderTest {
     private OffsetDateTime expectedCreationTime = now().minus(3, ChronoUnit.HOURS);
 
     @Test
-    void listBlobs() {
+    void should_find_stale_blobs() {
         given(serviceConfiguration.getSourceContainers())
             .willReturn(Arrays.asList("bulkscan", "cmc", "sscs"));
 
