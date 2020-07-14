@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
+import java.util.Collection;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
@@ -30,7 +31,7 @@ public class BlobLister {
             .getSourceContainers()
             .stream()
             .map(c -> listBlobsByContainer(c, filter))
-            .flatMap(list -> list.stream())
+            .flatMap(Collection::stream)
             .collect(Collectors.toList());
     }
 
