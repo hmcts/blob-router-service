@@ -9,10 +9,10 @@ import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeUtils.toLocalTimeZone;
 
 @Component
@@ -31,12 +31,11 @@ public class BlobLister {
         return serviceConfiguration
             .getSourceContainers()
             .stream()
-            .map(c -> listBlobsByContainer(c, staleTime))
-            .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .flatMap(c -> listBlobsByContainer(c, staleTime))
+            .collect(toList());
     }
 
-    private List<BlobInfo> listBlobsByContainer(String containerName, int staleTime) {
+    private Stream<BlobInfo> listBlobsByContainer(String containerName, int staleTime) {
         return storageClient.getBlobContainerClient(containerName)
             .listBlobs()
             .stream()
@@ -46,8 +45,7 @@ public class BlobLister {
                     blob.getName(),
                     toLocalTimeZone(blob.getProperties().getCreationTime().toInstant())
                 )
-            )
-            .collect(Collectors.toList());
+            );
     }
 
     private boolean timeFilter(BlobItem blobItem, int staleTime) {
