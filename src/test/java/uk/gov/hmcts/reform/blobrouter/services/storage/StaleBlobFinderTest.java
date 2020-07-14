@@ -44,9 +44,9 @@ class StaleBlobFinderTest {
         given(serviceConfiguration.getSourceContainers())
             .willReturn(Arrays.asList("bulkscan", "cmc", "sscs"));
 
-        BlobContainerClient bulkscanBlobClient = mock(BlobContainerClient.class);
-        BlobContainerClient cmcBlobClient = mock(BlobContainerClient.class);
-        BlobContainerClient sscsBlobClient = mock(BlobContainerClient.class);
+        var bulkscanBlobClient = mock(BlobContainerClient.class);
+        var cmcBlobClient = mock(BlobContainerClient.class);
+        var sscsBlobClient = mock(BlobContainerClient.class);
         given(storageClient.getBlobContainerClient("bulkscan")).willReturn(bulkscanBlobClient);
         given(storageClient.getBlobContainerClient("cmc")).willReturn(cmcBlobClient);
         given(storageClient.getBlobContainerClient("sscs")).willReturn(sscsBlobClient);
@@ -62,8 +62,8 @@ class StaleBlobFinderTest {
         mockStorageList(
             cmcBlobClient,
             Stream.of(
-                blob("cmc_scan_file_stale_1", false),
-                blob("cmc_scan_file_stale_2", false)
+                blob("cmc_scan_file_new_1", false),
+                blob("cmc_scan_file_new_2", false)
             )
         );
 
