@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
@@ -10,12 +11,12 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.reform.blobrouter.util.TimeUtils.toLocalTimeZone;
 
 @Component
+@EnableConfigurationProperties(ServiceConfiguration.class)
 public class BlobLister {
 
     private final BlobServiceClient storageClient;
@@ -26,33 +27,38 @@ public class BlobLister {
         this.serviceConfiguration = serviceConfiguration;
     }
 
-    public List<BlobInfo> listBlobs(Predicate<BlobItem> filter) {
+    public List<BlobInfo> listBlobs(int staleTime) {
         return serviceConfiguration
             .getSourceContainers()
             .stream()
-            .map(c -> listBlobsByContainer(c, filter))
+            .map(c -> listBlobsByContainer(c, staleTime))
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
     }
 
-    private List<BlobInfo> listBlobsByContainer(String containerName, Predicate<BlobItem> filter) {
+    private List<BlobInfo> listBlobsByContainer(String containerName, int staleTime) {
         return storageClient.getBlobContainerClient(containerName)
             .listBlobs()
             .stream()
-            .filter(filter)
-            .map(blob -> new BlobInfo(containerName, blob.getName(),
-                toLocalTimeZone(blob.getProperties().getCreationTime().toInstant())))
+            .filter(b -> timeFilter(b, staleTime))
+            .map(blob -> new BlobInfo(
+                    containerName,
+                    blob.getName(),
+                    toLocalTimeZone(blob.getProperties().getCreationTime().toInstant())
+                )
+            )
             .collect(Collectors.toList());
     }
 
-    public Predicate<BlobItem> timeFilter(int staleTime) {
-        return blobItem ->
-            Instant
-                .now()
-                .isAfter(
-                    blobItem.getProperties().getCreationTime().toInstant()
-                        .plus(staleTime, ChronoUnit.HOURS)
-                );
+    private boolean timeFilter(BlobItem blobItem, int staleTime) {
+        return
+            Instant.now().isAfter(
+                blobItem
+                    .getProperties()
+                    .getCreationTime()
+                    .toInstant()
+                    .plus(staleTime, ChronoUnit.HOURS)
+            );
     }
 
 }

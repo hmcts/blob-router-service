@@ -69,7 +69,7 @@ class BlobListerTest {
 
         mockStorageList(sscsBlobClient, Stream.empty());
 
-        List<BlobInfo> blobInfos = blobLister.listBlobs(blobLister.timeFilter(2));
+        List<BlobInfo> blobInfos = blobLister.listBlobs(2);
 
         assertThat(blobInfos.size()).isEqualTo(1);
         assertThat(blobInfos.get(0).container).isEqualTo("bulkscan");

@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.blobrouter.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,7 +38,7 @@ public class StaleBlobControllerTest {
 
         String createdAt = toLocalTimeZone(now());
 
-        given(blobLister.listBlobs(Mockito.any()))
+        given(blobLister.listBlobs(1))
             .willReturn(Arrays.asList(
                 new BlobInfo("container1", "file_name_1", createdAt),
                 new BlobInfo("container2", "file_name_2", createdAt))
@@ -59,7 +58,7 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.[1].file_name").value("file_name_2"))
             .andExpect(jsonPath("$.[1].created_at").value(createdAt));
 
-        verify(blobLister).timeFilter(1);
+        verify(blobLister).listBlobs(1);
 
     }
 
@@ -68,7 +67,7 @@ public class StaleBlobControllerTest {
 
         String createdAt = toLocalTimeZone(now());
 
-        given(blobLister.listBlobs(Mockito.any()))
+        given(blobLister.listBlobs(2))
             .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
         mockMvc
             .perform(get("/stale-blobs"))
@@ -79,7 +78,7 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.[0].file_name").value("file_name_1"))
             .andExpect(jsonPath("$.[0].created_at").value(createdAt));
 
-        verify(blobLister).timeFilter(2);
+        verify(blobLister).listBlobs(2);
 
     }
 

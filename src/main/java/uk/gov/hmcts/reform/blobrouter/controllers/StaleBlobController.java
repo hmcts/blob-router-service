@@ -16,7 +16,7 @@ public class StaleBlobController {
 
     private final BlobLister blobLister;
 
-    private static final String DEFAULT_STALE_TIME = "2";
+    private static final String DEFAULT_STALE_TIME_HOURS = "2";
 
     public StaleBlobController(BlobLister blobLister) {
         this.blobLister = blobLister;
@@ -24,9 +24,9 @@ public class StaleBlobController {
 
     @GetMapping
     public List<BlobInfo> findBlobs(
-        @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME)
-            Integer staleTime
+        @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_HOURS)
+            int staleTime
     ) {
-        return blobLister.listBlobs(blobLister.timeFilter(staleTime));
+        return blobLister.listBlobs(staleTime);
     }
 }
