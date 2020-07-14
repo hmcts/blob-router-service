@@ -14,6 +14,8 @@ public final class TimeUtils {
     }
 
     public static String toLocalTimeZone(Instant instant) {
-        return dateTimeFormatter.format(ZonedDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID));
+        return instant == null
+            ? ""
+            : dateTimeFormatter.format(ZonedDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID));
     }
 }
