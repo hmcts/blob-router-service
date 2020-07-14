@@ -50,13 +50,13 @@ public class StaleBlobControllerTest {
             )
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$.[0].container").value("container1"))
-            .andExpect(jsonPath("$.[0].file_name").value("file_name_1"))
-            .andExpect(jsonPath("$.[0].created_at").value(createdAt))
-            .andExpect(jsonPath("$.[1].container").value("container2"))
-            .andExpect(jsonPath("$.[1].file_name").value("file_name_2"))
-            .andExpect(jsonPath("$.[1].created_at").value(createdAt));
+            .andExpect(jsonPath("$.data", hasSize(2)))
+            .andExpect(jsonPath("$.data.[0].container").value("container1"))
+            .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
+            .andExpect(jsonPath("$.data.[0].created_at").value(createdAt))
+            .andExpect(jsonPath("$.data.[1].container").value("container2"))
+            .andExpect(jsonPath("$.data.[1].file_name").value("file_name_2"))
+            .andExpect(jsonPath("$.data.[1].created_at").value(createdAt));
 
         verify(staleBlobFinder).findStaleBlobs(1);
 
@@ -73,10 +73,10 @@ public class StaleBlobControllerTest {
             .perform(get("/stale-blobs"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$.[0].container").value("container1"))
-            .andExpect(jsonPath("$.[0].file_name").value("file_name_1"))
-            .andExpect(jsonPath("$.[0].created_at").value(createdAt));
+            .andExpect(jsonPath("$.data", hasSize(1)))
+            .andExpect(jsonPath("$.data.[0].container").value("container1"))
+            .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
+            .andExpect(jsonPath("$.data.[0].created_at").value(createdAt));
 
         verify(staleBlobFinder).findStaleBlobs(2);
 
