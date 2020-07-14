@@ -50,6 +50,7 @@ public class StaleBlobControllerTest {
             )
             .andDo(print())
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(2))
             .andExpect(jsonPath("$.data", hasSize(2)))
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
@@ -73,10 +74,26 @@ public class StaleBlobControllerTest {
             .perform(get("/stale-blobs"))
             .andDo(print())
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(1))
             .andExpect(jsonPath("$.data", hasSize(1)))
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
             .andExpect(jsonPath("$.data.[0].created_at").value(createdAt));
+
+        verify(staleBlobFinder).findStaleBlobs(2);
+
+    }
+
+    @Test
+    void should_return_empty_data_when_there_is_no_stale_blob() throws Exception {
+
+        given(staleBlobFinder.findStaleBlobs(2)).willReturn(null);
+        mockMvc
+            .perform(get("/stale-blobs"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(0))
+            .andExpect(jsonPath("$.data").isEmpty());
 
         verify(staleBlobFinder).findStaleBlobs(2);
 
