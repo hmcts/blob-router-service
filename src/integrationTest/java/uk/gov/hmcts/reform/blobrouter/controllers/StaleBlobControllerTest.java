@@ -38,7 +38,7 @@ public class StaleBlobControllerTest {
 
         String createdAt = toLocalTimeZone(now());
 
-        given(staleBlobFinder.listBlobs(1))
+        given(staleBlobFinder.findStaleBlobs(1))
             .willReturn(Arrays.asList(
                 new BlobInfo("container1", "file_name_1", createdAt),
                 new BlobInfo("container2", "file_name_2", createdAt))
@@ -58,7 +58,7 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.[1].file_name").value("file_name_2"))
             .andExpect(jsonPath("$.[1].created_at").value(createdAt));
 
-        verify(staleBlobFinder).listBlobs(1);
+        verify(staleBlobFinder).findStaleBlobs(1);
 
     }
 
@@ -67,7 +67,7 @@ public class StaleBlobControllerTest {
 
         String createdAt = toLocalTimeZone(now());
 
-        given(staleBlobFinder.listBlobs(2))
+        given(staleBlobFinder.findStaleBlobs(2))
             .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
         mockMvc
             .perform(get("/stale-blobs"))
@@ -78,7 +78,7 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.[0].file_name").value("file_name_1"))
             .andExpect(jsonPath("$.[0].created_at").value(createdAt));
 
-        verify(staleBlobFinder).listBlobs(2);
+        verify(staleBlobFinder).findStaleBlobs(2);
 
     }
 

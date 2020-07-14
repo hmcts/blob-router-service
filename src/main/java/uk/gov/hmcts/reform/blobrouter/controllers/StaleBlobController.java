@@ -23,10 +23,10 @@ public class StaleBlobController {
     }
 
     @GetMapping
-    public List<BlobInfo> findBlobs(
+    public List<BlobInfo> findStaleBlobs(
         @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_HOURS)
             int staleTime
     ) {
-        return staleBlobFinder.listBlobs(staleTime);
+        return staleBlobFinder.findStaleBlobs(staleTime);
     }
 }

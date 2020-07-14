@@ -27,19 +27,19 @@ public class StaleBlobFinder {
         this.serviceConfiguration = serviceConfiguration;
     }
 
-    public List<BlobInfo> listBlobs(int staleTime) {
+    public List<BlobInfo> findStaleBlobs(int staleTime) {
         return serviceConfiguration
             .getSourceContainers()
             .stream()
-            .flatMap(c -> listBlobsByContainer(c, staleTime))
+            .flatMap(c -> findStaleBlobsByContainer(c, staleTime))
             .collect(toList());
     }
 
-    private Stream<BlobInfo> listBlobsByContainer(String containerName, int staleTime) {
+    private Stream<BlobInfo> findStaleBlobsByContainer(String containerName, int staleTime) {
         return storageClient.getBlobContainerClient(containerName)
             .listBlobs()
             .stream()
-            .filter(b -> timeFilter(b, staleTime))
+            .filter(b -> isStale(b, staleTime))
             .map(blob -> new BlobInfo(
                     containerName,
                     blob.getName(),
@@ -48,7 +48,7 @@ public class StaleBlobFinder {
             );
     }
 
-    private boolean timeFilter(BlobItem blobItem, int staleTime) {
+    private boolean isStale(BlobItem blobItem, int staleTime) {
         return
             Instant.now().isAfter(
                 blobItem
