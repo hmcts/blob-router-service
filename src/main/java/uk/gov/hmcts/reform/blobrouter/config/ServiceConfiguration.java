@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 
 import static java.util.stream.Collectors.toList;
 
@@ -16,6 +17,17 @@ public class ServiceConfiguration {
 
     public Map<String, StorageConfigItem> getStorageConfig() {
         return storageConfig;
+    }
+
+    private  List<String> sourceContainers;
+
+    @PostConstruct
+    void init() {
+        sourceContainers = this.storageConfig
+            .values()
+            .stream()
+            .map(StorageConfigItem::getSourceContainer)
+            .collect(toList());
     }
 
     public void setStorageConfig(List<StorageConfigItem> storageConfigItems) {
@@ -31,5 +43,9 @@ public class ServiceConfiguration {
             .filter(StorageConfigItem::isEnabled)
             .map(StorageConfigItem::getSourceContainer)
             .collect(toList());
+    }
+
+    public List<String> getSourceContainers() {
+        return sourceContainers;
     }
 }
