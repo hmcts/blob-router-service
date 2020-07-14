@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
 import uk.gov.hmcts.reform.blobrouter.services.storage.StaleBlobFinder;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static java.time.Instant.now;
 import static org.hamcrest.Matchers.hasSize;
@@ -87,7 +88,7 @@ public class StaleBlobControllerTest {
     @Test
     void should_return_empty_data_when_there_is_no_stale_blob() throws Exception {
 
-        given(staleBlobFinder.findStaleBlobs(2)).willReturn(null);
+        given(staleBlobFinder.findStaleBlobs(2)).willReturn(Collections.emptyList());
         mockMvc
             .perform(get("/stale-blobs"))
             .andDo(print())
