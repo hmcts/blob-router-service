@@ -13,15 +13,12 @@ import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
 import uk.gov.hmcts.reform.blobrouter.model.out.SearchResult;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
-import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
+import static uk.gov.hmcts.reform.blobrouter.util.TimeUtils.toLocalTimeZone;
 
 @RestController
 @RequestMapping(path = "/envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -71,11 +68,4 @@ public class EnvelopeController {
         );
     }
 
-    private String toLocalTimeZone(Instant instant) {
-        if (instant != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-            return formatter.format(ZonedDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID));
-        }
-        return null;
-    }
 }
