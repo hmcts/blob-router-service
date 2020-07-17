@@ -75,35 +75,43 @@ public class ContainerProcessor {
         }
     }
 
-    private void processBlob(BlobClient blob) {
-        envelopeService
-            .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
+    private void processBlob(BlobClient blobClient) {
+        getLastEnvelope(blobClient)
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
                         leaseAndThen(
-                            blob,
-                            this::isEnvelopeInCreatedStatus,
-                            () -> blobProcessor.continueProcessing(envelope.id, blob)
+                            blobClient,
+                            this::isEnvelopeInStatusCreated,
+                            () -> blobProcessor.continueProcessing(envelope.id, blobClient)
                         );
                     } else {
-                        logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
+                        logEnvelopeSkipping(envelope);
                     }
                 },
-                () -> leaseAndThen(blob, () -> blobProcessor.process(blob))
+                () -> leaseAndThen(blobClient, blob -> true, () -> blobProcessor.process(blobClient))
             );
     }
 
-    private boolean isEnvelopeInCreatedStatus(BlobClient blob) {
-        Optional<Envelope> envelopeOpt = envelopeService
-            .findLastEnvelope(blob.getBlobName(), blob.getContainerName());
-        return envelopeOpt
-            .filter(envelope -> envelope.status == Status.CREATED)
-            .isPresent();
+    private boolean isEnvelopeInStatusCreated(BlobClient blob) {
+        Optional<Envelope> envelopeOpt = getLastEnvelope(blob);
+        if (envelopeOpt.isPresent()) {
+            if (envelopeOpt.get().status == Status.CREATED) {
+                return true;
+            } else {
+                logEnvelopeSkipping(envelopeOpt.get());
+            }
+        }
+        return false;
     }
 
-    private void leaseAndThen(BlobClient blobClient, Runnable action) {
-        leaseAndThen(blobClient, blob -> true, action);
+    private Optional<Envelope> getLastEnvelope(BlobClient blobClient) {
+        return envelopeService
+            .findLastEnvelope(blobClient.getBlobName(), blobClient.getContainerName());
+    }
+
+    private void logEnvelopeSkipping(Envelope envelope) {
+        logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
     }
 
     private void leaseAndThen(BlobClient blobClient, Predicate<BlobClient> condition, Runnable action) {
