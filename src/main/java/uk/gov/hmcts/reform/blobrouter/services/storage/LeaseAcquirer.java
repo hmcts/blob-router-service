@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static com.azure.storage.blob.models.BlobErrorCode.LEASE_ALREADY_PRESENT;
@@ -38,11 +39,29 @@ public class LeaseAcquirer {
         Consumer<BlobErrorCode> onFailure,
         boolean releaseLease
     ) {
+        ifAcquiredOrElse(
+            blobClient,
+            blob -> true,
+            onSuccess,
+            onFailure,
+            releaseLease
+        );
+    }
+
+    public void ifAcquiredOrElse(
+        BlobClient blobClient,
+        Predicate<BlobClient> condition,
+        Consumer<String> onSuccess,
+        Consumer<BlobErrorCode> onFailure,
+        boolean releaseLease
+    ) {
         try {
             var leaseClient = leaseClientProvider.get(blobClient);
             var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
 
-            onSuccess.accept(leaseId);
+            if (condition.test(blobClient)) {
+                onSuccess.accept(leaseId);
+            }
 
             if (releaseLease) {
                 release(leaseClient, blobClient);

@@ -140,10 +140,10 @@ class ContainerProcessorTest {
     @SuppressWarnings("unchecked")
     private void leaseCanBeAcquired() {
         doAnswer(invocation -> {
-            var okAction = (Consumer) invocation.getArgument(1);
+            var okAction = (Consumer) invocation.getArgument(2);
             okAction.accept(UUID.randomUUID().toString());
             return null;
-        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
+        }).when(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), any(), anyBoolean());
     }
 
     @SuppressWarnings("unchecked")

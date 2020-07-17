@@ -6,12 +6,14 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -87,9 +89,18 @@ public class ContainerProcessor {
             );
     }
 
+    private boolean isEnvelopeInCreatedStatus(BlobClient blob) {
+        Optional<Envelope> envelopeOpt = envelopeService
+            .findLastEnvelope(blob.getBlobName(), blob.getContainerName());
+        return envelopeOpt
+            .filter(envelope -> envelope.status == Status.CREATED)
+            .isPresent();
+    }
+
     private void leaseAndThen(BlobClient blobClient, Runnable action) {
         leaseAcquirer.ifAcquiredOrElse(
             blobClient,
+            this::isEnvelopeInCreatedStatus,
             leaseId -> action.run(),
             errorCode -> logger.info(
                 "Cannot acquire a lease for blob - skipping. File name: {}, container: {}, error code: {}",
