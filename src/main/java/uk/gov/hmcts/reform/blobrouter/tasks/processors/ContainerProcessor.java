@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -80,7 +81,11 @@ public class ContainerProcessor {
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
-                        leaseAndThen(blob, () -> blobProcessor.continueProcessing(envelope.id, blob));
+                        leaseAndThen(
+                            blob,
+                            this::isEnvelopeInCreatedStatus,
+                            () -> blobProcessor.continueProcessing(envelope.id, blob)
+                        );
                     } else {
                         logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
                     }
@@ -98,9 +103,13 @@ public class ContainerProcessor {
     }
 
     private void leaseAndThen(BlobClient blobClient, Runnable action) {
+        leaseAndThen(blobClient, blob -> true, action);
+    }
+
+    private void leaseAndThen(BlobClient blobClient, Predicate<BlobClient> condition, Runnable action) {
         leaseAcquirer.ifAcquiredOrElse(
             blobClient,
-            this::isEnvelopeInCreatedStatus,
+            condition,
             leaseId -> action.run(),
             errorCode -> logger.info(
                 "Cannot acquire a lease for blob - skipping. File name: {}, container: {}, error code: {}",
