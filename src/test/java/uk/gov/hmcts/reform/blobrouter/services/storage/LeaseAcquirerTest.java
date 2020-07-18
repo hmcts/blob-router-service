@@ -11,10 +11,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -46,6 +48,38 @@ class LeaseAcquirerTest {
 
         // then
         verify(onSuccess).accept(null);
+        verify(onFailure, never()).accept(any(BlobErrorCode.class));
+    }
+
+    @Test
+    void should_run_provided_action_when_lease_was_acquired_and_condition_matched() {
+        // given
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
+        var blobCondition = mock(Predicate.class);
+        given(blobCondition.test(any())).willReturn(true);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, blobCondition, onSuccess, onFailure, false);
+
+        // then
+        verify(onSuccess).accept(null);
+        verify(onFailure, never()).accept(any(BlobErrorCode.class));
+    }
+
+    @Test
+    void should_not_run_provided_action_when_lease_was_acquired_but_condition_mismatched() {
+        // given
+        var onSuccess = mock(Consumer.class);
+        var onFailure = mock(Consumer.class);
+        var blobCondition = mock(Predicate.class);
+        given(blobCondition.test(any())).willReturn(false);
+
+        // when
+        leaseAcquirer.ifAcquiredOrElse(blobClient, blobCondition, onSuccess, onFailure, false);
+
+        // then
+        verify(onSuccess, never()).accept(any());
         verify(onFailure, never()).accept(any(BlobErrorCode.class));
     }
 

@@ -50,7 +50,7 @@ public class LeaseAcquirer {
 
     public void ifAcquiredOrElse(
         BlobClient blobClient,
-        Predicate<BlobClient> condition,
+        Predicate<BlobClient> blobCondition,
         Consumer<String> onSuccess,
         Consumer<BlobErrorCode> onFailure,
         boolean releaseLease
@@ -59,7 +59,7 @@ public class LeaseAcquirer {
             var leaseClient = leaseClientProvider.get(blobClient);
             var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
 
-            if (condition.test(blobClient)) {
+            if (blobCondition.test(blobClient)) {
                 onSuccess.accept(leaseId);
             }
 

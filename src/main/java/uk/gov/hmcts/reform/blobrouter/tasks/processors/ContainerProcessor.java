@@ -53,7 +53,7 @@ public class ContainerProcessor {
                 .stream()
                 .filter(blobItem -> isReady(blobItem, containerName))
                 .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
-                .forEach(blob -> processBlob(blob));
+                .forEach(this::processBlob);
 
             logger.info("Finished processing container {}", containerName);
         } catch (Exception exception) {
@@ -114,10 +114,10 @@ public class ContainerProcessor {
         logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
     }
 
-    private void leaseAndThen(BlobClient blobClient, Predicate<BlobClient> condition, Runnable action) {
+    private void leaseAndThen(BlobClient blobClient, Predicate<BlobClient> blobCondition, Runnable action) {
         leaseAcquirer.ifAcquiredOrElse(
             blobClient,
-            condition,
+            blobCondition,
             leaseId -> action.run(),
             errorCode -> logger.info(
                 "Cannot acquire a lease for blob - skipping. File name: {}, container: {}, error code: {}",
