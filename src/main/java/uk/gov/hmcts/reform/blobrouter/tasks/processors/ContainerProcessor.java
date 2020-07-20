@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -79,31 +80,33 @@ public class ContainerProcessor {
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
-                        leaseAndThen(blob, () -> {
-                            getLastEnvelope(blob)
-                                .ifPresentOrElse(
-                                    envelopePotentiallyProcessed -> {
-                                        continueProcessingIfPossible(blob, envelopePotentiallyProcessed);
-                                    },
-                                    () -> logger.error(
-                                        "Envelope no longer exists in system for blob {}, container {}",
-                                        blob.getBlobName(), blob.getContainerName()
-                                    )
-                                );
-                        });
+                        leaseAndThen(blob, () ->
+                            processEnvelopeIfPresent(
+                                blob,
+                                (blobClient) -> logger.error(
+                                    "Envelope no longer exists in system for blob {}, container {}",
+                                    blobClient.getBlobName(), blobClient.getContainerName()
+                                )
+                            )
+                        );
                     } else {
                         logEnvelopeAlreadyProcessed(envelope);
                     }
                 },
-                () -> leaseAndThen(blob, () -> {
-                    getLastEnvelope(blob)
-                        .ifPresentOrElse(
-                            envelopeAlreadyExisting -> {
-                                continueProcessingIfPossible(blob, envelopeAlreadyExisting);
-                            },
-                            () -> blobProcessor.process(blob)
-                        );
-                })
+                () -> leaseAndThen(blob, () ->
+                    processEnvelopeIfPresent(
+                        blob,
+                        blobProcessor::process
+                    )
+                )
+            );
+    }
+
+    private void processEnvelopeIfPresent(BlobClient blob, Consumer<BlobClient> envelopeProcessor) {
+        getLastEnvelope(blob)
+            .ifPresentOrElse(
+                envelopePotentiallyProcessed -> continueProcessingIfPossible(blob, envelopePotentiallyProcessed),
+                () -> envelopeProcessor.accept(blob)
             );
     }
 
