@@ -84,9 +84,9 @@ public class ContainerProcessor {
                                 .ifPresentOrElse(
                                     envelope1 -> {
                                         if (envelope1.status == Status.CREATED) {
-                                            blobProcessor.continueProcessing(envelope.id, blob);
+                                            blobProcessor.continueProcessing(envelope1.id, blob);
                                         } else {
-                                            logProcessedEnvelope(envelope);
+                                            logEnvelopeAlreadyProcessed(envelope1);
                                         }
                                     },
                                     () -> logger.error(
@@ -96,14 +96,26 @@ public class ContainerProcessor {
                                 );
                         });
                     } else {
-                        logProcessedEnvelope(envelope);
+                        logEnvelopeAlreadyProcessed(envelope);
                     }
                 },
-                () -> leaseAndThen(blob, () -> blobProcessor.process(blob))
+                () -> leaseAndThen(blob, () -> {
+                    getLastEnvelope(blob)
+                        .ifPresentOrElse(
+                            envelope -> {
+                                if (envelope.status == Status.CREATED) {
+                                    blobProcessor.continueProcessing(envelope.id, blob);
+                                } else {
+                                    logEnvelopeAlreadyProcessed(envelope);
+                                }
+                            },
+                            () -> blobProcessor.process(blob)
+                        );
+                })
             );
     }
 
-    private void logProcessedEnvelope(Envelope envelope) {
+    private void logEnvelopeAlreadyProcessed(Envelope envelope) {
         logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
     }
 
