@@ -80,24 +80,31 @@ public class ContainerProcessor {
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
                         leaseAndThen(blob, () -> {
-                            Optional<Envelope> envelopeOpt = getLastEnvelope(blob);
-                            if (envelopeOpt.isPresent()) {
-                                if (envelopeOpt.get().status == Status.CREATED) {
-                                    blobProcessor.continueProcessing(envelope.id, blob);
-                                } else {
-                                    logger.info(
-                                        "Envelope status changed in system, skipping. {} ",
-                                        envelope.getBasicInfo()
-                                    );
-                                }
-                            }
+                            getLastEnvelope(blob)
+                                .ifPresentOrElse(
+                                    envelope1 -> {
+                                        if (envelope1.status == Status.CREATED) {
+                                            blobProcessor.continueProcessing(envelope.id, blob);
+                                        } else {
+                                            logProcessedEnvelope(envelope);
+                                        }
+                                    },
+                                    () -> logger.error(
+                                        "Envelope no longer exists in system for blob {}, container {}",
+                                        blob.getBlobName(), blob.getContainerName()
+                                    )
+                                );
                         });
                     } else {
-                        logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
+                        logProcessedEnvelope(envelope);
                     }
                 },
                 () -> leaseAndThen(blob, () -> blobProcessor.process(blob))
             );
+    }
+
+    private void logProcessedEnvelope(Envelope envelope) {
+        logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
     }
 
     private Optional<Envelope> getLastEnvelope(BlobClient blob) {
