@@ -82,7 +82,7 @@ public class ContainerProcessor {
                     if (envelope.status == Status.CREATED) {
                         leaseAndThen(
                             blobClient,
-                            this::isEnvelopeInStatusCreated,
+                            this::isEnvelopeInCreatedStatus,
                             () -> blobProcessor.continueProcessing(envelope.id, blobClient)
                         );
                     } else {
@@ -93,7 +93,7 @@ public class ContainerProcessor {
             );
     }
 
-    private boolean isEnvelopeInStatusCreated(BlobClient blob) {
+    private boolean isEnvelopeInCreatedStatus(BlobClient blob) {
         Optional<Envelope> envelopeOpt = getLastEnvelope(blob);
         if (envelopeOpt.isPresent()) {
             if (envelopeOpt.get().status == Status.CREATED) {
