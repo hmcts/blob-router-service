@@ -93,8 +93,8 @@ public class ContainerProcessor {
             );
     }
 
-    private boolean isEnvelopeInCreatedStatus(BlobClient blob) {
-        Optional<Envelope> envelopeOpt = getLastEnvelope(blob);
+    private boolean isEnvelopeInCreatedStatus(BlobClient blobClient) {
+        Optional<Envelope> envelopeOpt = getLastEnvelope(blobClient);
         if (envelopeOpt.isPresent()) {
             if (envelopeOpt.get().status == Status.CREATED) {
                 return true;
