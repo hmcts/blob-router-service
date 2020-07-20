@@ -92,6 +92,36 @@ class ContainerProcessorTest {
     }
 
     @Test
+    void should_skip_blob_if_status_has_been_changed() {
+        // given
+        var envelope = envelope(Status.CREATED);
+        storageHasBlob(envelope.fileName, envelope.container);
+        envelopeStatusChangedInDb(envelope, Status.DISPATCHED);
+
+        // when
+        containerProcessor.process(envelope.container);
+
+        // then
+        verify(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
+        verifyNoInteractions(blobProcessor);
+    }
+
+    @Test
+    void should_skip_blob_if_envelope_has_been_deleted() {
+        // given
+        var envelope = envelope(Status.CREATED);
+        storageHasBlob(envelope.fileName, envelope.container);
+        envelopeDeletedFromDb(envelope);
+
+        // when
+        containerProcessor.process(envelope.container);
+
+        // then
+        verify(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
+        verifyNoInteractions(blobProcessor);
+    }
+
+    @Test
     void should_skip_blob_if_lease_cannot_be_acquired() {
         // given
         var envelope = envelope(Status.CREATED);
@@ -137,6 +167,17 @@ class ContainerProcessorTest {
             .willReturn(Optional.of(envelope));
     }
 
+    private void envelopeStatusChangedInDb(Envelope envelope, Status status) {
+        Envelope envelopeInNewStatus = envelope(envelope.id, status);
+        given(envelopeService.findLastEnvelope(envelope.fileName, envelope.container))
+            .willReturn(Optional.of(envelope)).willReturn(Optional.of(envelopeInNewStatus));
+    }
+
+    private void envelopeDeletedFromDb(Envelope envelope) {
+        given(envelopeService.findLastEnvelope(envelope.fileName, envelope.container))
+            .willReturn(Optional.of(envelope)).willReturn(Optional.empty());
+    }
+
     @SuppressWarnings("unchecked")
     private void leaseCanBeAcquired() {
         doAnswer(invocation -> {
@@ -156,8 +197,12 @@ class ContainerProcessorTest {
     }
 
     private Envelope envelope(Status status) {
+        return envelope(UUID.randomUUID(), status);
+    }
+
+    private Envelope envelope(UUID id, Status status) {
         return new Envelope(
-            UUID.randomUUID(),
+            id,
             "some_container",
             "hello.zip",
             now(),

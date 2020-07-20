@@ -6,12 +6,14 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -73,18 +75,34 @@ public class ContainerProcessor {
     }
 
     private void processBlob(BlobClient blob) {
-        envelopeService
-            .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
+        getLastEnvelope(blob)
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
-                        leaseAndThen(blob, () -> blobProcessor.continueProcessing(envelope.id, blob));
+                        leaseAndThen(blob, () -> {
+                            Optional<Envelope> envelopeOpt = getLastEnvelope(blob);
+                            if (envelopeOpt.isPresent()) {
+                                if (envelopeOpt.get().status == Status.CREATED) {
+                                    blobProcessor.continueProcessing(envelope.id, blob);
+                                } else {
+                                    logger.info(
+                                        "Envelope status changed in system, skipping. {} ",
+                                        envelope.getBasicInfo()
+                                    );
+                                }
+                            }
+                        });
                     } else {
                         logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
                     }
                 },
                 () -> leaseAndThen(blob, () -> blobProcessor.process(blob))
             );
+    }
+
+    private Optional<Envelope> getLastEnvelope(BlobClient blob) {
+        return envelopeService
+            .findLastEnvelope(blob.getBlobName(), blob.getContainerName());
     }
 
     private void leaseAndThen(BlobClient blobClient, Runnable action) {
