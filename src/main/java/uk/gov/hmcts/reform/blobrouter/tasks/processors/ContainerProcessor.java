@@ -82,12 +82,8 @@ public class ContainerProcessor {
                         leaseAndThen(blob, () -> {
                             getLastEnvelope(blob)
                                 .ifPresentOrElse(
-                                    envelope1 -> {
-                                        if (envelope1.status == Status.CREATED) {
-                                            blobProcessor.continueProcessing(envelope1.id, blob);
-                                        } else {
-                                            logEnvelopeAlreadyProcessed(envelope1);
-                                        }
+                                    envelopePotentiallyProcessed -> {
+                                        continueProcessingIfPossible(blob, envelopePotentiallyProcessed);
                                     },
                                     () -> logger.error(
                                         "Envelope no longer exists in system for blob {}, container {}",
@@ -102,17 +98,21 @@ public class ContainerProcessor {
                 () -> leaseAndThen(blob, () -> {
                     getLastEnvelope(blob)
                         .ifPresentOrElse(
-                            envelope -> {
-                                if (envelope.status == Status.CREATED) {
-                                    blobProcessor.continueProcessing(envelope.id, blob);
-                                } else {
-                                    logEnvelopeAlreadyProcessed(envelope);
-                                }
+                            envelopeAlreadyExisting -> {
+                                continueProcessingIfPossible(blob, envelopeAlreadyExisting);
                             },
                             () -> blobProcessor.process(blob)
                         );
                 })
             );
+    }
+
+    private void continueProcessingIfPossible(BlobClient blob, Envelope envelope) {
+        if (envelope.status == Status.CREATED) {
+            blobProcessor.continueProcessing(envelope.id, blob);
+        } else {
+            logEnvelopeAlreadyProcessed(envelope);
+        }
     }
 
     private void logEnvelopeAlreadyProcessed(Envelope envelope) {
