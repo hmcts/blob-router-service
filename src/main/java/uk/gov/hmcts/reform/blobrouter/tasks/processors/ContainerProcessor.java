@@ -81,9 +81,9 @@ public class ContainerProcessor {
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
                         leaseAndThen(blob, () ->
-                            processEnvelopeIfPresent(
+                            handlePotentiallyChangedEnvelope(
                                 blob,
-                                (blobClient) -> logger.error(
+                                blobClient -> logger.error(
                                     "Envelope no longer exists in system for blob {}, container {}",
                                     blobClient.getBlobName(), blobClient.getContainerName()
                                 )
@@ -94,7 +94,7 @@ public class ContainerProcessor {
                     }
                 },
                 () -> leaseAndThen(blob, () ->
-                    processEnvelopeIfPresent(
+                    handlePotentiallyChangedEnvelope(
                         blob,
                         blobProcessor::process
                     )
@@ -102,11 +102,11 @@ public class ContainerProcessor {
             );
     }
 
-    private void processEnvelopeIfPresent(BlobClient blob, Consumer<BlobClient> envelopeProcessor) {
+    private void handlePotentiallyChangedEnvelope(BlobClient blob, Consumer<BlobClient> notPresentEnvelopeHandler) {
         getLastEnvelope(blob)
             .ifPresentOrElse(
                 envelopePotentiallyProcessed -> continueProcessingIfPossible(blob, envelopePotentiallyProcessed),
-                () -> envelopeProcessor.accept(blob)
+                () -> notPresentEnvelopeHandler.accept(blob)
             );
     }
 
