@@ -87,7 +87,7 @@ public class ContainerProcessor {
                             )
                         );
                     } else {
-                        logEnvelopeProcessed(envelope);
+                        logEnvelopeAlreadyProcessed(envelope);
                     }
                 },
                 () -> leaseAndThen(blobClient, () ->
@@ -105,7 +105,7 @@ public class ContainerProcessor {
     ) {
         getLastEnvelope(blobClient)
             .ifPresentOrElse(
-                envelopePotentiallyProcessed -> continueProcessingIfPossible(blobClient, envelopePotentiallyProcessed),
+                envelope -> continueProcessingIfPossible(blobClient, envelope),
                 () -> nonExistingEnvelopeHandler.accept(blobClient)
             );
     }
@@ -114,7 +114,7 @@ public class ContainerProcessor {
         if (envelope.status == Status.CREATED) {
             blobProcessor.continueProcessing(envelope.id, blobClient);
         } else {
-            logEnvelopeProcessed(envelope);
+            logEnvelopeAlreadyProcessed(envelope);
         }
     }
 
@@ -125,8 +125,8 @@ public class ContainerProcessor {
         );
     }
 
-    private void logEnvelopeProcessed(Envelope envelope) {
-        logger.info("Envelope processed in system, skipping. {} ", envelope.getBasicInfo());
+    private void logEnvelopeAlreadyProcessed(Envelope envelope) {
+        logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
     }
 
     private Optional<Envelope> getLastEnvelope(BlobClient blobClient) {
