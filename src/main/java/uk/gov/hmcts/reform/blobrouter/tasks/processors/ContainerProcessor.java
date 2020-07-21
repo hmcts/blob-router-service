@@ -81,12 +81,9 @@ public class ContainerProcessor {
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
                         leaseAndThen(blob, () ->
-                            handlePotentiallyChangedEnvelope(
+                            handlePotentiallyNonExistingEnvelope(
                                 blob,
-                                blobClient -> logger.error(
-                                    "Envelope no longer exists in system for blob {}, container {}",
-                                    blobClient.getBlobName(), blobClient.getContainerName()
-                                )
+                                this::logEnvelopeAlreadyDeleted
                             )
                         );
                     } else {
@@ -94,7 +91,7 @@ public class ContainerProcessor {
                     }
                 },
                 () -> leaseAndThen(blob, () ->
-                    handlePotentiallyChangedEnvelope(
+                    handlePotentiallyNonExistingEnvelope(
                         blob,
                         blobProcessor::process
                     )
@@ -102,11 +99,14 @@ public class ContainerProcessor {
             );
     }
 
-    private void handlePotentiallyChangedEnvelope(BlobClient blob, Consumer<BlobClient> notPresentEnvelopeHandler) {
+    private void handlePotentiallyNonExistingEnvelope(
+        BlobClient blob,
+        Consumer<BlobClient> nonExistingEnvelopeHandler
+    ) {
         getLastEnvelope(blob)
             .ifPresentOrElse(
                 envelopePotentiallyProcessed -> continueProcessingIfPossible(blob, envelopePotentiallyProcessed),
-                () -> notPresentEnvelopeHandler.accept(blob)
+                () -> nonExistingEnvelopeHandler.accept(blob)
             );
     }
 
@@ -118,6 +118,13 @@ public class ContainerProcessor {
         }
     }
 
+    private void logEnvelopeAlreadyDeleted(BlobClient blob) {
+        logger.error(
+            "Envelope already deleted in system for blob {}, container {}",
+            blob.getBlobName(), blob.getContainerName()
+        );
+    }
+
     private void logEnvelopeAlreadyProcessed(Envelope envelope) {
         logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
     }
@@ -127,14 +134,14 @@ public class ContainerProcessor {
             .findLastEnvelope(blob.getBlobName(), blob.getContainerName());
     }
 
-    private void leaseAndThen(BlobClient blobClient, Runnable action) {
+    private void leaseAndThen(BlobClient blob, Runnable action) {
         leaseAcquirer.ifAcquiredOrElse(
-            blobClient,
+            blob,
             leaseId -> action.run(),
             errorCode -> logger.info(
                 "Cannot acquire a lease for blob - skipping. File name: {}, container: {}, error code: {}",
-                blobClient.getBlobName(),
-                blobClient.getContainerName(),
+                blob.getBlobName(),
+                blob.getContainerName(),
                 errorCode
             ),
             true

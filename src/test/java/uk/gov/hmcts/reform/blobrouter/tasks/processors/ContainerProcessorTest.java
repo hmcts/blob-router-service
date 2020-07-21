@@ -96,6 +96,7 @@ class ContainerProcessorTest {
         // given
         var envelope = envelope(Status.CREATED);
         storageHasBlob(envelope.fileName, envelope.container);
+        leaseCanBeAcquired();
         envelopeStatusChangedInDb(envelope, Status.DISPATCHED);
 
         // when
@@ -111,6 +112,7 @@ class ContainerProcessorTest {
         // given
         var envelope = envelope(Status.CREATED);
         storageHasBlob(envelope.fileName, envelope.container);
+        leaseCanBeAcquired();
         envelopeDeletedFromDb(envelope);
 
         // when
