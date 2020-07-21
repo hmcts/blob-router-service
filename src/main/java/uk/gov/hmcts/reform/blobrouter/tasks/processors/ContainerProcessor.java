@@ -61,87 +61,87 @@ public class ContainerProcessor {
         }
     }
 
-    private boolean isReady(BlobItem blob, String containerName) {
-        Instant blobCreationDate = blob.getProperties().getLastModified().toInstant();
+    private boolean isReady(BlobItem blobClient, String containerName) {
+        Instant blobCreationDate = blobClient.getProperties().getLastModified().toInstant();
         if (blobReadinessChecker.isReady(blobCreationDate)) {
             return true;
         } else {
             logger.info(
                 "Blob not ready to be processed yet, skipping. File name: {}. Container: {}",
-                blob.getName(),
+                blobClient.getName(),
                 containerName
             );
             return false;
         }
     }
 
-    private void processBlob(BlobClient blob) {
-        getLastEnvelope(blob)
+    private void processBlob(BlobClient blobClient) {
+        getLastEnvelope(blobClient)
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
-                        leaseAndThen(blob, () ->
-                            continueProcessingEnvelopeIfItStillExists(
-                                blob,
-                                this::logEnvelopeAlreadyDeleted
+                        leaseAndThen(blobClient, () ->
+                            continueProcessingEnvelopeIfEligible(
+                                blobClient,
+                                this::logEnvelopeDeleted
                             )
                         );
                     } else {
-                        logEnvelopeAlreadyProcessed(envelope);
+                        logEnvelopeProcessed(envelope);
                     }
                 },
-                () -> leaseAndThen(blob, () ->
-                    continueProcessingEnvelopeIfItStillExists(
-                        blob,
+                () -> leaseAndThen(blobClient, () ->
+                    continueProcessingEnvelopeIfEligible(
+                        blobClient,
                         blobProcessor::process
                     )
                 )
             );
     }
 
-    private void continueProcessingEnvelopeIfItStillExists(
-        BlobClient blob,
+    private void continueProcessingEnvelopeIfEligible(
+        BlobClient blobClient,
         Consumer<BlobClient> nonExistingEnvelopeHandler
     ) {
-        getLastEnvelope(blob)
+        getLastEnvelope(blobClient)
             .ifPresentOrElse(
-                envelopePotentiallyProcessed -> continueProcessingIfPossible(blob, envelopePotentiallyProcessed),
-                () -> nonExistingEnvelopeHandler.accept(blob)
+                envelopePotentiallyProcessed -> continueProcessingIfPossible(blobClient, envelopePotentiallyProcessed),
+                () -> nonExistingEnvelopeHandler.accept(blobClient)
             );
     }
 
-    private void continueProcessingIfPossible(BlobClient blob, Envelope envelope) {
+    private void continueProcessingIfPossible(BlobClient blobClient, Envelope envelope) {
         if (envelope.status == Status.CREATED) {
-            blobProcessor.continueProcessing(envelope.id, blob);
+            blobProcessor.continueProcessing(envelope.id, blobClient);
         } else {
-            logEnvelopeAlreadyProcessed(envelope);
+            logEnvelopeProcessed(envelope);
         }
     }
 
-    private void logEnvelopeAlreadyDeleted(BlobClient blob) {
+    private void logEnvelopeDeleted(BlobClient blobClient) {
         logger.error(
-            "Envelope already deleted in system for blob {}, container {}",
-            blob.getBlobName(), blob.getContainerName()
+            "Envelope deleted in system for blob {}, container {}",
+            blobClient.getBlobName(), blobClient.getContainerName()
         );
     }
 
-    private void logEnvelopeAlreadyProcessed(Envelope envelope) {
-        logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
+    private void logEnvelopeProcessed(Envelope envelope) {
+        logger.info("Envelope processed in system, skipping. {} ", envelope.getBasicInfo());
     }
 
-    private Optional<Envelope> getLastEnvelope(BlobClient blob) {
+    private Optional<Envelope> getLastEnvelope(BlobClient blobClient) {
         return envelopeService
-            .findLastEnvelope(blob.getBlobName(), blob.getContainerName());
+            .findLastEnvelope(blobClient.getBlobName(), blobClient.getContainerName());
     }
 
-    private void leaseAndThen(BlobClient blob, Runnable action) {
+    private void leaseAndThen(BlobClient blobClient, Runnable action) {
         leaseAcquirer.ifAcquiredOrElse(
-            blob,
+            blobClient,
             leaseId -> action.run(),
             errorCode -> logger.info(
                 "Cannot acquire a lease for blob - skipping. File name: {}, container: {}, error code: {}",
-                blob.getBlobName(),
-                blob.getContainerName(),
+                blobClient.getBlobName(),
+                blobClient.getContainerName(),
                 errorCode
             ),
             true
