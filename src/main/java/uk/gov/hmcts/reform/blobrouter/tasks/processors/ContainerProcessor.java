@@ -81,7 +81,7 @@ public class ContainerProcessor {
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
                         leaseAndThen(blob, () ->
-                            handlePotentiallyNonExistingEnvelope(
+                            continueProcessingEnvelopeIfItStillExists(
                                 blob,
                                 this::logEnvelopeAlreadyDeleted
                             )
@@ -91,7 +91,7 @@ public class ContainerProcessor {
                     }
                 },
                 () -> leaseAndThen(blob, () ->
-                    handlePotentiallyNonExistingEnvelope(
+                    continueProcessingEnvelopeIfItStillExists(
                         blob,
                         blobProcessor::process
                     )
@@ -99,7 +99,7 @@ public class ContainerProcessor {
             );
     }
 
-    private void handlePotentiallyNonExistingEnvelope(
+    private void continueProcessingEnvelopeIfItStillExists(
         BlobClient blob,
         Consumer<BlobClient> nonExistingEnvelopeHandler
     ) {
