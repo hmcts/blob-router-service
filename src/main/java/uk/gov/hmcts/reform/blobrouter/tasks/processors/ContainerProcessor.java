@@ -6,12 +6,15 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.time.Instant;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -58,33 +61,77 @@ public class ContainerProcessor {
         }
     }
 
-    private boolean isReady(BlobItem blob, String containerName) {
-        Instant blobCreationDate = blob.getProperties().getLastModified().toInstant();
+    private boolean isReady(BlobItem blobClient, String containerName) {
+        Instant blobCreationDate = blobClient.getProperties().getLastModified().toInstant();
         if (blobReadinessChecker.isReady(blobCreationDate)) {
             return true;
         } else {
             logger.info(
                 "Blob not ready to be processed yet, skipping. File name: {}. Container: {}",
-                blob.getName(),
+                blobClient.getName(),
                 containerName
             );
             return false;
         }
     }
 
-    private void processBlob(BlobClient blob) {
-        envelopeService
-            .findLastEnvelope(blob.getBlobName(), blob.getContainerName())
+    private void processBlob(BlobClient blobClient) {
+        getLastEnvelope(blobClient)
             .ifPresentOrElse(
                 envelope -> {
                     if (envelope.status == Status.CREATED) {
-                        leaseAndThen(blob, () -> blobProcessor.continueProcessing(envelope.id, blob));
+                        leaseAndThen(blobClient, () ->
+                            continueProcessingEnvelopeIfEligible(
+                                blobClient,
+                                this::logEnvelopeDeleted
+                            )
+                        );
                     } else {
-                        logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
+                        logEnvelopeAlreadyProcessed(envelope);
                     }
                 },
-                () -> leaseAndThen(blob, () -> blobProcessor.process(blob))
+                () -> leaseAndThen(blobClient, () ->
+                    continueProcessingEnvelopeIfEligible(
+                        blobClient,
+                        blobProcessor::process
+                    )
+                )
             );
+    }
+
+    private void continueProcessingEnvelopeIfEligible(
+        BlobClient blobClient,
+        Consumer<BlobClient> nonExistingEnvelopeHandler
+    ) {
+        getLastEnvelope(blobClient)
+            .ifPresentOrElse(
+                envelope -> continueProcessingIfPossible(blobClient, envelope),
+                () -> nonExistingEnvelopeHandler.accept(blobClient)
+            );
+    }
+
+    private void continueProcessingIfPossible(BlobClient blobClient, Envelope envelope) {
+        if (envelope.status == Status.CREATED) {
+            blobProcessor.continueProcessing(envelope.id, blobClient);
+        } else {
+            logEnvelopeAlreadyProcessed(envelope);
+        }
+    }
+
+    private void logEnvelopeDeleted(BlobClient blobClient) {
+        logger.error(
+            "Envelope deleted in system for blob {}, container {}",
+            blobClient.getBlobName(), blobClient.getContainerName()
+        );
+    }
+
+    private void logEnvelopeAlreadyProcessed(Envelope envelope) {
+        logger.info("Envelope already processed in system, skipping. {} ", envelope.getBasicInfo());
+    }
+
+    private Optional<Envelope> getLastEnvelope(BlobClient blobClient) {
+        return envelopeService
+            .findLastEnvelope(blobClient.getBlobName(), blobClient.getContainerName());
     }
 
     private void leaseAndThen(BlobClient blobClient, Runnable action) {
