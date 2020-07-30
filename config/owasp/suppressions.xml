@@ -38,12 +38,6 @@
     <cpe>cpe:/a:postgresql:postgresql</cpe>
   </suppress>
 
-  <suppress until="2020-04-01">
-    <notes><![CDATA[Fix available 6.3.1. Not jumping as it is spring boot actuator transitive dependency]]></notes>
-    <cpe regex="true">^a:netty:netty:4\.1\.15.*</cpe>
-    <cve>CVE-2019-10797</cve>
-  </suppress>
-
   <suppress until="2020-10-31">
     <notes><![CDATA[
       This is only used for TESTING purposes.
