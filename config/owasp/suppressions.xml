@@ -44,5 +44,7 @@
     ]]></notes>
     <packageUrl regex="true">^pkg:javascript/jquery@3\.4\.1.*$</packageUrl>
     <vulnerabilityName>Regex in its jQuery.htmlPrefilter  sometimes may introduce XSS</vulnerabilityName>
+    <cve>CVE-2020-11022</cve>
+    <cve>CVE-2020-11023</cve>
   </suppress>
 </suppressions>
