@@ -5,7 +5,7 @@
     <cpe regex="true">cpe:\/a:apache:groovy:(2\.5\.10)</cpe>
     <cpe regex="true">cpe:\/a:apache:sling:(0\.1\.0)</cpe>
   </suppress>
-  <suppress until="2020-07-30">
+  <suppress until="2020-10-07">
     <notes><![CDATA[ No fix available ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
     <cve>CVE-2018-1258</cve>
@@ -38,17 +38,13 @@
     <cpe>cpe:/a:postgresql:postgresql</cpe>
   </suppress>
 
-  <suppress until="2020-04-01">
-    <notes><![CDATA[Fix available 6.3.1. Not jumping as it is spring boot actuator transitive dependency]]></notes>
-    <cpe regex="true">^a:netty:netty:4\.1\.15.*</cpe>
-    <cve>CVE-2019-10797</cve>
-  </suppress>
-
   <suppress until="2020-10-31">
     <notes><![CDATA[
       This is only used for TESTING purposes.
     ]]></notes>
     <packageUrl regex="true">^pkg:javascript/jquery@3\.4\.1.*$</packageUrl>
     <vulnerabilityName>Regex in its jQuery.htmlPrefilter  sometimes may introduce XSS</vulnerabilityName>
+    <cve>CVE-2020-11022</cve>
+    <cve>CVE-2020-11023</cve>
   </suppress>
 </suppressions>
