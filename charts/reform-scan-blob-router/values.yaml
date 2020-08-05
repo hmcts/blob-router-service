@@ -21,6 +21,7 @@ java:
         - blob-router-POSTGRES-PORT
         - blob-router-POSTGRES-DATABASE
         - notifications-queue-send-connection-string
+        - notifications-queue-send-shared-access-key
 
   environment:
     DB_CONN_OPTIONS: ?sslmode=require
@@ -39,6 +40,9 @@ java:
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
     STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
+
+    NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "SendSharedAccessKey"
+    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
 
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
 
