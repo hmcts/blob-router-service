@@ -19,7 +19,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -67,15 +66,13 @@ class SendDailyReportTaskTest {
 
         sendDailyReportTask = getSendDailyReportTask(from, recipients);
 
-        given(reportService.getDailyReport(any(LocalDate.class))).willReturn(report);
+        given(reportService.getDailyReport(getYesterday())).willReturn(report);
         given(reportCsvWriter.writeEnvelopesSummaryToCsv(report)).willReturn(reportFile);
 
         // when
         sendDailyReportTask.sendReport();
 
         // then
-        verify(reportService).getDailyReport(any(LocalDate.class));
-        verify(reportCsvWriter).writeEnvelopesSummaryToCsv(report);
         verify(emailSender).sendMessageWithAttachments(
             subjectCaptor.capture(),
             bodyCaptor.capture(),
@@ -109,15 +106,13 @@ class SendDailyReportTaskTest {
 
         sendDailyReportTask = getSendDailyReportTask(from, recipients);
 
-        given(reportService.getDailyReport(any(LocalDate.class))).willReturn(report);
+        given(reportService.getDailyReport(getYesterday())).willReturn(report);
         given(reportCsvWriter.writeEnvelopesSummaryToCsv(report)).willThrow(new IOException());
 
         // when
         sendDailyReportTask.sendReport();
 
         // then
-        verify(reportService).getDailyReport(any(LocalDate.class));
-        verify(reportCsvWriter).writeEnvelopesSummaryToCsv(report);
         verifyNoInteractions(emailSender);
     }
 
@@ -127,6 +122,10 @@ class SendDailyReportTaskTest {
             RuntimeException.class,
             () -> getSendDailyReportTask("From", new String[]{})
         );
+    }
+
+    private LocalDate getYesterday() {
+        return LocalDate.now().minusDays(1);
     }
 
     private SendDailyReportTask getSendDailyReportTask(String from, String[] recipients) {
