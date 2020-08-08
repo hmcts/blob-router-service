@@ -61,7 +61,7 @@ public class SendDailyReportTask {
     public void sendReport() {
         logger.info("Started {} job", TASK_NAME);
 
-        final LocalDate reportDate = LocalDate.now();
+        final LocalDate reportDate = getPreviousDay();
 
         final List<EnvelopeSummaryItem> report = reportService.getDailyReport(reportDate);
 
@@ -84,6 +84,10 @@ public class SendDailyReportTask {
         }
 
         logger.info("Finished {} job", TASK_NAME);
+    }
+
+    private LocalDate getPreviousDay() {
+        return LocalDate.now().minusDays(1);
     }
 
     private String getReportAttachmentName(LocalDate reportDate) {
