@@ -32,19 +32,21 @@ public class SupplierStatementRepository {
         this.clock = clockProvider.getClock();
     }
 
-    public void save(NewEnvelopeSupplierStatement statement) throws SQLException {
+    public UUID save(NewEnvelopeSupplierStatement statement) throws SQLException {
+        UUID id = UUID.randomUUID();
         jdbcTemplate.update(
             "INSERT INTO envelope_supplier_statements"
                 + "(id, date, content, content_type_version, created_at) "
                 + "VALUES "
                 + "(:id, :date, :content, :contentTypeVersion, :createdAt)",
             new MapSqlParameterSource()
-                .addValue("id", statement.id)
+                .addValue("id", id)
                 .addValue("date", statement.date)
                 .addValue("content", toJson(statement.content))
                 .addValue("contentTypeVersion", statement.contentTypeVersion)
                 .addValue("createdAt", LocalDateTime.now(clock))
         );
+        return id;
     }
 
     public Optional<EnvelopeSupplierStatement> findById(UUID id) {

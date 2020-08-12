@@ -32,7 +32,6 @@ public class SupplierStatementRepositoryTest {
         // given
         var statement =
             new NewEnvelopeSupplierStatement(
-                UUID.randomUUID(),
                 LocalDate.now(),
                 "{ \"a\": 100 }",
                 "v1.0.0"
@@ -41,15 +40,15 @@ public class SupplierStatementRepositoryTest {
         var start = LocalDateTime.now(clockProvider.getClock());
 
         // when
-        repo.save(statement);
-        var statementInDb = repo.findById(statement.id);
+        UUID id = repo.save(statement);
+        var statementInDb = repo.findById(id);
 
         var finish = LocalDateTime.now(clockProvider.getClock());
 
         // then
         assertThat(statementInDb).isNotEmpty();
         assertThat(statementInDb).hasValueSatisfying(s -> {
-            assertThat(s.id).isEqualTo(statement.id);
+            assertThat(s.id).isEqualTo(id);
             assertThat(s.date).isEqualTo(statement.date);
             assertThat(s.content).isEqualTo(statement.content);
             assertThat(s.contentTypeVersion).isEqualTo(statement.contentTypeVersion);
@@ -64,7 +63,6 @@ public class SupplierStatementRepositoryTest {
         // given
         var statement =
             new NewEnvelopeSupplierStatement(
-                UUID.randomUUID(),
                 LocalDate.now(),
                 "&ASD^AS^DAS^",
                 "v1.0.0"
@@ -88,22 +86,5 @@ public class SupplierStatementRepositoryTest {
 
         // then
         assertThat(statement).isEmpty();
-    }
-
-    @Test
-    void should_thrown_exception_if_statement_with_given_id_already_exists() throws Exception {
-        // given
-        UUID id = UUID.randomUUID();
-        var statement1 = new NewEnvelopeSupplierStatement(id, LocalDate.now(), "{}", "x");
-        var statement2 = new NewEnvelopeSupplierStatement(id, LocalDate.now(), "{}", "y");
-
-        repo.save(statement1);
-
-        // when
-        var exc = catchThrowable(() -> repo.save(statement2));
-
-        // then
-        assertThat(exc).isInstanceOf(DataIntegrityViolationException.class);
-        assertThat(exc).hasMessageContaining("duplicate key value violates unique constraint");
     }
 }
