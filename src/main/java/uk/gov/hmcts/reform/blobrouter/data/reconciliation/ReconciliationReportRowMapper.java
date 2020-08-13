@@ -27,8 +27,6 @@ public class ReconciliationReportRowMapper implements RowMapper<ReconciliationRe
     }
 
     private LocalDateTime toDateTime(Timestamp timestamp) {
-        return timestamp == null
-            ? null
-            : timestamp.toLocalDateTime();
+        return timestamp == null ? null : timestamp.toLocalDateTime();
     }
 }

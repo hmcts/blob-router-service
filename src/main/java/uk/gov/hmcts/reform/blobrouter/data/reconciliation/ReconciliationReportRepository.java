@@ -8,12 +8,12 @@ import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.model.NewReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.model.ReconciliationReport;
 
-import javax.validation.ClockProvider;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
+import javax.validation.ClockProvider;
 
 @Repository
 public class ReconciliationReportRepository {
