@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
-import uk.gov.hmcts.reform.blobrouter.data.reconciliation.SupplierStatementRepository;
-import uk.gov.hmcts.reform.blobrouter.data.reconciliation.model.EnvelopeSupplierStatement;
-import uk.gov.hmcts.reform.blobrouter.data.reconciliation.model.NewEnvelopeSupplierStatement;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

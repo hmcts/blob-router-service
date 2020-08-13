@@ -1,12 +1,11 @@
-package uk.gov.hmcts.reform.blobrouter.data.reconciliation;
+package uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements;
 
-import org.postgresql.util.PGobject;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import uk.gov.hmcts.reform.blobrouter.data.reconciliation.model.EnvelopeSupplierStatement;
-import uk.gov.hmcts.reform.blobrouter.data.reconciliation.model.NewEnvelopeSupplierStatement;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
 
 import java.sql.SQLException;
 import java.time.Clock;
@@ -14,6 +13,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import javax.validation.ClockProvider;
+
+import static uk.gov.hmcts.reform.blobrouter.data.Utils.toJson;
 
 @Repository
 public class SupplierStatementRepository {
@@ -61,12 +62,4 @@ public class SupplierStatementRepository {
             return Optional.empty();
         }
     }
-
-    private PGobject toJson(String string) throws SQLException {
-        var json = new PGobject();
-        json.setType("json");
-        json.setValue(string);
-        return json;
-    }
-
 }
