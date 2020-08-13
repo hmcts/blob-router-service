@@ -9,7 +9,7 @@ public final class Utils {
         // utils class
     }
 
-    /***
+    /**
      * Converts json string to postgres object.
      */
     public static PGobject toJson(String jsonString) throws SQLException {
