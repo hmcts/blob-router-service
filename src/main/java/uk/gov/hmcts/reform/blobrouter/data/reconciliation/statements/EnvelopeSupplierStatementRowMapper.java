@@ -1,8 +1,8 @@
-package uk.gov.hmcts.reform.blobrouter.data.reconciliation;
+package uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.data.reconciliation.model.EnvelopeSupplierStatement;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

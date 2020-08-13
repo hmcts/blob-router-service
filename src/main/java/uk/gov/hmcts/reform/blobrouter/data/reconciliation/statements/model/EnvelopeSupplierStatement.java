@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.data.reconciliation.model;
+package uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
