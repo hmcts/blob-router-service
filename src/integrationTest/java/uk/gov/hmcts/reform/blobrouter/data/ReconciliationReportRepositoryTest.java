@@ -60,6 +60,7 @@ public class ReconciliationReportRepositoryTest {
             assertThat(r.contentTypeVersion).isEqualTo(report.contentTypeVersion);
             assertThat(r.createdAt).isAfter(start);
             assertThat(r.createdAt).isBefore(finish);
+            assertThat(r.sentAt).isNull();
         });
     }
 
