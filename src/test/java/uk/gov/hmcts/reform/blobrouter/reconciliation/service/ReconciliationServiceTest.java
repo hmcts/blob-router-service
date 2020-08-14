@@ -43,7 +43,7 @@ class ReconciliationServiceTest {
     }
 
     @Test
-    void should_save_the_supplier_statement() throws Exception {
+    void should_save_when_the_supplier_statement_is_valid() throws Exception {
         // given
         var supplierStatement = new SupplierStatement(singletonList(
             new Envelope("a.zip", null, "bulkscan", "BULKSCAN", singletonList("1234"), singletonList("123"))
@@ -71,7 +71,7 @@ class ReconciliationServiceTest {
     }
 
     @Test
-    void should_throw_exception_when_saving_invalid_statement() throws Exception {
+    void should_throw_exception_when_supplier_statement_is_invalid() throws Exception {
         // given
         given(repository.save(any())).willThrow(SQLException.class);
 
@@ -87,7 +87,7 @@ class ReconciliationServiceTest {
     }
 
     @Test
-    void should_throw_exception_when_statement_json_processing_fails() throws Exception {
+    void should_throw_exception_when_supplier_statement_json_processing_fails() throws Exception {
         // given
         given(objectMapper.writeValueAsString(any())).willThrow(JsonProcessingException.class);
 

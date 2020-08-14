@@ -31,7 +31,7 @@ public class ReconciliationService {
             NewEnvelopeSupplierStatement statement = new NewEnvelopeSupplierStatement(
                 date,
                 supplierStatement,
-                "v1.0" //TODO: should save different versions
+                "1.0" //TODO: should save different versions
             );
             return repository.save(statement);
         } catch (JsonProcessingException | SQLException e) {
