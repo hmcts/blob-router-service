@@ -1,0 +1,20 @@
+{
+  "report": {
+    "envelopes": [
+      {
+        "zip_file_name": "1010404021234_14-08-2020-03-06-18.zip",
+        "rescan_for": null,
+        "container": "bulkscan",
+        "jurisdiction": "BULKSCAN",
+        "scannable_item_dcns": [
+          "1015404021234",
+          "1015404021235"
+        ],
+        "payment_dcns": [
+          "123123",
+          "123124"
+        ]
+      }
+    ]
+  }
+}
