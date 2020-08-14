@@ -67,7 +67,7 @@ class ReconciliationServiceTest {
         var statement = newStatementCaptor.getValue();
         assertThat(statement.date).isEqualTo(LocalDate.now());
         assertThat(statement.content).isEqualTo(content);
-        assertThat(statement.contentTypeVersion).isEqualTo("v1.0");
+        assertThat(statement.contentTypeVersion).isEqualTo("1.0");
     }
 
     @Test
@@ -101,6 +101,5 @@ class ReconciliationServiceTest {
             .isInstanceOf(InvalidSupplierStatementException.class)
             .hasMessageContaining("Failed to process Supplier statement");
     }
-
 
 }
