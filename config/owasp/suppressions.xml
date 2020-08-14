@@ -2,7 +2,6 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
   <suppress>
     <notes><![CDATA[ Hard dependency from azure-storage library ]]></notes>
-    <cpe regex="true">cpe:\/a:apache:groovy:(2\.5\.10)</cpe>
     <cpe regex="true">cpe:\/a:apache:sling:(0\.1\.0)</cpe>
   </suppress>
   <suppress until="2020-10-07">
@@ -30,20 +29,11 @@
     <vulnerabilityName>Prototype pollution</vulnerabilityName>
   </suppress>
 
-  <suppress>
-    <notes><![CDATA[
-      Use only in tests.
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/org\.testcontainers/postgresql@.*$</packageUrl>
-    <cpe>cpe:/a:postgresql:postgresql</cpe>
-  </suppress>
-
   <suppress until="2020-10-31">
     <notes><![CDATA[
       This is only used for TESTING purposes.
     ]]></notes>
     <packageUrl regex="true">^pkg:javascript/jquery@3\.4\.1.*$</packageUrl>
-    <vulnerabilityName>Regex in its jQuery.htmlPrefilter  sometimes may introduce XSS</vulnerabilityName>
     <cve>CVE-2020-11022</cve>
     <cve>CVE-2020-11023</cve>
   </suppress>

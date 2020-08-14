@@ -203,7 +203,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.14.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.14.0'
 
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.7.0'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.8.0'
   implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.4.0'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
@@ -215,13 +215,13 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
 
   // region: feign clients
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.3.RELEASE'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.4.RELEASE'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '10.8'
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '10.8'
   // end region
 
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.8.1'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '2.8.5'
 
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
@@ -243,7 +243,7 @@ dependencies {
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.4.RELEASE', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.26.3'
+  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.1'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.14.3', {
     exclude group: 'junit', module: 'junit'
   }
@@ -261,7 +261,7 @@ dependencies {
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation libraries.junit5
-  smokeTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.16.0'
+  smokeTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.16.1'
   smokeTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
