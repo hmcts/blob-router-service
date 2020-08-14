@@ -6,7 +6,7 @@ public class ReconciliationRequest {
 
     public final Report report;
 
-    public ReconciliationRequest(@JsonProperty(value = "report") Report report) {
+    public ReconciliationRequest(@JsonProperty(value = "report", required = true) Report report) {
         this.report = report;
     }
 }
