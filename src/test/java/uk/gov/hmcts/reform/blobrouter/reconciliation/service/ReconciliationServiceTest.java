@@ -56,7 +56,7 @@ class ReconciliationServiceTest {
         given(repository.save(any())).willReturn(uuidFromDb);
 
         // when
-        var uuid = service.saveSupplierStatement(supplierStatement);
+        var uuid = service.saveSupplierStatement(LocalDate.now(), supplierStatement);
 
         // then
         assertThat(uuid).isEqualTo(uuidFromDb);
@@ -76,8 +76,9 @@ class ReconciliationServiceTest {
         given(repository.save(any())).willThrow(SQLException.class);
 
         // when
-
-        var exc = catchThrowable(() -> service.saveSupplierStatement(new SupplierStatement(emptyList())));
+        var exc = catchThrowable(
+            () -> service.saveSupplierStatement(LocalDate.now(), new SupplierStatement(emptyList()))
+        );
 
         // then
         assertThat(exc)
@@ -91,7 +92,9 @@ class ReconciliationServiceTest {
         given(objectMapper.writeValueAsString(any())).willThrow(JsonProcessingException.class);
 
         // when
-        var exc = catchThrowable(() -> service.saveSupplierStatement(new SupplierStatement(emptyList())));
+        var exc = catchThrowable(
+            () -> service.saveSupplierStatement(LocalDate.now(), new SupplierStatement(emptyList()))
+        );
 
         // then
         assertThat(exc)

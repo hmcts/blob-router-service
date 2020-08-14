@@ -25,11 +25,11 @@ public class ReconciliationService {
     }
 
     @Transactional
-    public UUID saveSupplierStatement(SupplierStatement inputSupplierStatement) {
+    public UUID saveSupplierStatement(LocalDate date, SupplierStatement inputSupplierStatement) {
         try {
             String supplierStatement = objectMapper.writeValueAsString(inputSupplierStatement);
             NewEnvelopeSupplierStatement statement = new NewEnvelopeSupplierStatement(
-                LocalDate.now(),
+                date,
                 supplierStatement,
                 "v1.0" //TODO: should save different versions
             );
