@@ -44,6 +44,7 @@ java:
 
     SMTP_HOST: "false"
     SEND_DAILY_REPORT_ENABLED: "false"
+    RECONCILIATION_ENABLED: "true"
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   enabled: false
