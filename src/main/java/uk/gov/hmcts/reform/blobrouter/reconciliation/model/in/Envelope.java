@@ -15,11 +15,11 @@ public class Envelope {
 
     public Envelope(
         @JsonProperty(value = "zip_file_name", required = true) String zipFileName,
-        @JsonProperty(value = "rescan_for") String rescanFor,
+        @JsonProperty("rescan_for") String rescanFor,
         @JsonProperty(value = "container", required = true) String container,
         @JsonProperty(value = "jurisdiction", required = true) String jurisdiction,
-        @JsonProperty(value = "scannable_item_dcns", required = true) List<String> scannableItemDcns,
-        @JsonProperty(value = "payment_dcns", required = true) List<String> paymentDcns
+        @JsonProperty("scannable_item_dcns") List<String> scannableItemDcns,
+        @JsonProperty("payment_dcns") List<String> paymentDcns
     ) {
         this.zipFileName = zipFileName;
         this.rescanFor = rescanFor;
