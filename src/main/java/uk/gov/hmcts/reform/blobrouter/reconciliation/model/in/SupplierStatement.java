@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class Report {
+public class SupplierStatement {
     public final List<Envelope> envelopes;
 
-    public Report(@JsonProperty("envelopes") List<Envelope> envelopes) {
+    public SupplierStatement(@JsonProperty("envelopes") List<Envelope> envelopes) {
         this.envelopes = envelopes;
     }
 }

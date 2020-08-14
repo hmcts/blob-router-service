@@ -4,9 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ReconciliationRequest {
 
-    public final Report report;
+    public final SupplierStatement supplierStatement;
 
-    public ReconciliationRequest(@JsonProperty(value = "report", required = true) Report report) {
-        this.report = report;
+    public ReconciliationRequest(
+        @JsonProperty(value = "report", required = true) SupplierStatement supplierStatement
+    ) {
+        this.supplierStatement = supplierStatement;
     }
 }
