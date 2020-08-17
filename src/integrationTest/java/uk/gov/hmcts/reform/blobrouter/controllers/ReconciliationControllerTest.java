@@ -40,7 +40,6 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("id").exists())
             .andExpect(MockMvcResultMatchers.jsonPath("id").isNotEmpty());
     }
 

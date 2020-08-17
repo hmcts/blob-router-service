@@ -35,7 +35,7 @@ public class ReconciliationControllerDisabledTest extends ControllerTestBase {
         // when
         mockMvc
             .perform(
-                post("/reform-scan/reconciliation-report/10082020")
+                post("/reform-scan/reconciliation-report/2020-08-10")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
             )
