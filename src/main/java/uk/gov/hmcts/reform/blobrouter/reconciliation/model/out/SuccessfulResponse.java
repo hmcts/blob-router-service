@@ -5,10 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 public class SuccessfulResponse {
 
-    @ApiModelProperty(
-        name = "ID",
-        notes = "ID under which Bulk Scanning has registered the report"
-    )
+    @ApiModelProperty("ID under which Bulk Scanning has registered the report")
     @JsonProperty("id")
     public final String id;
 
