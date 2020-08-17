@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.ReconciliationRequest;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulReconciliationResponse;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatementReport;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
 
 import java.time.LocalDate;
@@ -36,16 +36,16 @@ public class ReconciliationController {
     @ApiOperation("Saves supplier statements report for given date")
     @ApiResponses({
         @ApiResponse(
-            code = 200, response = SuccessfulReconciliationResponse.class, message = "The report has been accepted"
+            code = 200, response = SuccessfulResponse.class, message = "The report has been accepted"
         ),
         @ApiResponse(code = 400, message = "Request failed due to malformed syntax in either body or path parameter"),
         @ApiResponse(code = 401, message = "Invalid SSL certificate/Invalid subscription key") //TODO: authentication
     })
-    public SuccessfulReconciliationResponse uploadSupplierReport(
+    public SuccessfulResponse uploadSupplierReport(
         @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-        @Valid @RequestBody ReconciliationRequest report
+        @Valid @RequestBody SupplierStatementReport report
     ) {
         UUID uuid = service.saveSupplierStatement(date, report.supplierStatement);
-        return new SuccessfulReconciliationResponse(uuid.toString());
+        return new SuccessfulResponse(uuid.toString());
     }
 }
