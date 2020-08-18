@@ -21,6 +21,7 @@ java:
         - blob-router-POSTGRES-PORT
         - blob-router-POSTGRES-DATABASE
         - notifications-queue-send-connection-string
+        - reconciliation-api-key
 
   environment:
     DB_CONN_OPTIONS: ?sslmode=require
