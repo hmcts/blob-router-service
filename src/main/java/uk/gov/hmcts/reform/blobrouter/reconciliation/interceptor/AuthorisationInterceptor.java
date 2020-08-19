@@ -23,11 +23,13 @@ public class AuthorisationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String authorizationKey = request.getHeader(AUTHORIZATION);
+
         if (StringUtils.isEmpty(authorizationKey)) {
             throw new InvalidApiKeyException("API Key is missing");
         } else if (!authorizationKey.equals(apiKey)) {
             throw new InvalidApiKeyException("Invalid API Key");
         }
+
         return true;
     }
 }
