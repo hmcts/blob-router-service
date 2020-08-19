@@ -26,7 +26,9 @@ public class AuthorisationInterceptor implements HandlerInterceptor {
 
         if (StringUtils.isEmpty(authorizationKey)) {
             throw new InvalidApiKeyException("API Key is missing");
-        } else if (!authorizationKey.equals(apiKey)) {
+        } else if (!authorizationKey.startsWith("Bearer ")
+            || !StringUtils.substringAfter(authorizationKey, "Bearer ").equals(apiKey)
+        ) {
             throw new InvalidApiKeyException("Invalid API Key");
         }
 

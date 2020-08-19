@@ -38,7 +38,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         mockMvc
             .perform(
                 post("/reform-scan/reconciliation-report/2020-08-10")
-                    .header(HttpHeaders.AUTHORIZATION, "valid-api-key")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
             )
@@ -71,6 +71,30 @@ public class ReconciliationControllerTest extends ControllerTestBase {
     }
 
     @Test
+    void should_return_unauthorized_when_authorisation_header_is_missing_bearer_prefix() throws Exception {
+        // given
+        String requestBody = Resources.toString(
+            getResource("reconciliation/valid-supplier-statement-report.json"),
+            UTF_8
+        );
+
+        // when
+        MvcResult result = mockMvc
+            .perform(
+                post("/reform-scan/reconciliation-report/2020-08-10")
+                    .header(HttpHeaders.AUTHORIZATION, "valid-api-key")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .content(requestBody)
+            )
+            .andDo(print())
+            .andExpect(status().isUnauthorized())
+            .andReturn();
+
+        assertThat(result.getResolvedException()).isExactlyInstanceOf(InvalidApiKeyException.class);
+        assertThat(result.getResolvedException().getMessage()).isEqualTo("Invalid API Key");
+    }
+
+    @Test
     void should_return_unauthorized_when_authorisation_header_is_invalid() throws Exception {
         // given
         String requestBody = Resources.toString(
@@ -82,7 +106,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         MvcResult result = mockMvc
             .perform(
                 post("/reform-scan/reconciliation-report/2020-08-10")
-                    .header(HttpHeaders.AUTHORIZATION, "invalid-api-key")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
             )
@@ -106,7 +130,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         mockMvc
             .perform(
                 post("/reform-scan/reconciliation-report/2020-08-10")
-                    .header(HttpHeaders.AUTHORIZATION, "valid-api-key")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
             )
@@ -126,7 +150,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         mockMvc
             .perform(
                 post("/reform-scan/reconciliation-report/10082020")
-                    .header(HttpHeaders.AUTHORIZATION, "valid-api-key")
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
             )

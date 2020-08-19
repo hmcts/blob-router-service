@@ -31,7 +31,7 @@ class AuthorisationInterceptorTest {
     @Test
     void should_not_return_exception_when_the_authorisation_header_is_valid() {
         // given
-        given(request.getHeader(AUTHORIZATION)).willReturn(VALID_API_KEY);
+        given(request.getHeader(AUTHORIZATION)).willReturn("Bearer " + VALID_API_KEY);
 
         // when
         var exception = catchThrowable(
@@ -58,7 +58,7 @@ class AuthorisationInterceptorTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"", " ", "invalid-key"})
+    @ValueSource(strings = {"", " ", "test-valid-key", "Bearer invalid-key"})
     void should_return_exception_when_the_authorisation_header_is_invalid(String authHeaderValue) {
         // given
         given(request.getHeader(AUTHORIZATION)).willReturn(authHeaderValue);
