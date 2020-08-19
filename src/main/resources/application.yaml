@@ -133,3 +133,4 @@ proxy:
 
 reconciliation:
   enabled: ${RECONCILIATION_ENABLED}
+  api-key: ${RECONCILIATION_API_KEY}

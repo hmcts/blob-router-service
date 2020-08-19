@@ -29,3 +29,4 @@ java:
         - blob-router-staging-db-port
         - blob-router-staging-db-name
         - notifications-staging-queue-send-connection-string
+        - reconciliation-api-key

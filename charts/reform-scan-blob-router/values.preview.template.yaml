@@ -25,6 +25,7 @@ java:
         - reports-email-username
         - reports-email-password
         - reports-recipients
+        - reconciliation-api-key
   environment:
     DB_HOST: "{{ .Release.Name }}-postgresql"
     DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"

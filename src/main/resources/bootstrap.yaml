@@ -29,3 +29,4 @@ spring:
         blob-router-staging-db-name: DB_NAME
         notifications-queue-send-connection-string: NOTIFICATIONS_QUEUE_CONNECTION_STRING
         notifications-staging-queue-send-connection-string: NOTIFICATIONS_QUEUE_CONNECTION_STRING
+        reconciliation-api-key: RECONCILIATION_API_KEY
