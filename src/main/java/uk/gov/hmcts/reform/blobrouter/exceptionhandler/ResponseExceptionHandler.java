@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidApiKeyException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSupplierStatementException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
@@ -56,6 +57,13 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidSupplierStatementException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorResponse handleInvalidSupplierStatementException(InvalidSupplierStatementException exception) {
+        return new ErrorResponse(exception.getMessage(), exception.getClass());
+    }
+
+    @ExceptionHandler(InvalidApiKeyException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    protected ErrorResponse handleInvalidApiKeyException(InvalidApiKeyException exception) {
+        log.error(exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage(), exception.getClass());
     }
 

@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatementReport;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
@@ -17,6 +18,8 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationServi
 import java.time.LocalDate;
 import java.util.UUID;
 import javax.validation.Valid;
+
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @ConditionalOnProperty("reconciliation.enabled")
 @RestController
@@ -39,9 +42,10 @@ public class ReconciliationController {
             code = 200, response = SuccessfulResponse.class, message = "The report has been accepted"
         ),
         @ApiResponse(code = 400, message = "Request failed due to malformed syntax in either body or path parameter"),
-        @ApiResponse(code = 401, message = "Invalid SSL certificate/Invalid subscription key") //TODO: authentication
+        @ApiResponse(code = 401, message = "Invalid API Key")
     })
     public SuccessfulResponse uploadSupplierReport(
+        @RequestHeader(AUTHORIZATION) final String authHeader,
         @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
         @Valid @RequestBody SupplierStatementReport report
     ) {

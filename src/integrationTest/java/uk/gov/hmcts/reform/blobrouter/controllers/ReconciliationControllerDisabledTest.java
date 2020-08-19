@@ -36,6 +36,7 @@ public class ReconciliationControllerDisabledTest extends ControllerTestBase {
         mockMvc
             .perform(
                 post("/reform-scan/reconciliation-report/2020-08-10")
+                    .header(HttpHeaders.AUTHORIZATION, "valid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
             )
