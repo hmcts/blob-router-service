@@ -67,10 +67,7 @@ public class ReconciliationController {
 
         if (StringUtils.isEmpty(authorizationKey)) {
             throw new InvalidApiKeyException("API Key is missing");
-        } else if (
-            !authorizationKey.startsWith("Bearer ")
-                || !StringUtils.substringAfter(authorizationKey, "Bearer ").equals(apiKey)
-        ) {
+        } else if (!authorizationKey.equals("Bearer " + apiKey)) {
             throw new InvalidApiKeyException("Invalid API Key");
         }
 
