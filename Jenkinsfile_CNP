@@ -31,7 +31,6 @@ def combinedSecrets = [
 
      secret('storage-account-staging-secondary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
      secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME'),
-     secret('reconciliation-api-key', 'TEST_RECONCILIATION_API_KEY'),
    ]
  ]
 
@@ -109,6 +108,9 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_NAME = previewAccountName(kubectl, storageSecret, namespace)
       env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
       env.TEST_STORAGE_ACCOUNT_KEY = previewAccountKey(kubectl, storageSecret, namespace)
+
+      // Get reconciliation api key
+      env.TEST_RECONCILIATION_API_KEY = previewAccountKey(kubectl, "reconciliation-api-key", namespace)
     }
   }
 }
