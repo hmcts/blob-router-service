@@ -6,7 +6,6 @@ java:
     SEND_NOTIFICATIONS_CRON: "0/10 * * * * *"
     FLYWAY_SKIP_MIGRATIONS: false
     STORAGE_URL: https://reformscanstg.aat.platform.hmcts.net
-    RECONCILIATION_ENABLED: "true"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}

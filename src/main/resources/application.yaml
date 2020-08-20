@@ -132,5 +132,4 @@ proxy:
   port: 8080
 
 reconciliation:
-  enabled: ${RECONCILIATION_ENABLED}
   api-key: ${RECONCILIATION_API_KEY}
