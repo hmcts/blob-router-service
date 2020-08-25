@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.Reconciliation
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
-import uk.gov.hmcts.reform.blobrouter.data.reports.ReconciliationReportContent;
+import uk.gov.hmcts.reform.blobrouter.data.reports.ReconciliationContent;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
 
 import java.sql.SQLException;
@@ -44,7 +44,7 @@ class ReportRepositoryTest {
     @Test
     void should_not_find_anything_when_db_is_empty() {
         // when
-        Optional<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report).isEmpty();
@@ -56,8 +56,7 @@ class ReportRepositoryTest {
         saveNewReportsAndGetLastId("{}");
 
         // when
-        Optional<ReconciliationReportContent> report = reportRepository
-            .getReconciliationReport(now().minusDays(1), ACCOUNT);
+        Optional<ReconciliationContent> report = reportRepository.getReconciliationReport(now().minusDays(1), ACCOUNT);
 
         // then
         assertThat(report).isEmpty();
@@ -70,14 +69,14 @@ class ReportRepositoryTest {
         var id = saveNewReportsAndGetLastId(expectedReportContent);
 
         // when
-        Optional<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report)
             .isNotEmpty()
             .get()
             .usingRecursiveComparison()
-            .isEqualTo(new ReconciliationReportContent(id, expectedReportContent, VERSION));
+            .isEqualTo(new ReconciliationContent(id, expectedReportContent, VERSION));
     }
 
     @Test
@@ -87,14 +86,14 @@ class ReportRepositoryTest {
         var id = saveNewReportsAndGetLastId("{}", expectedReportContent);
 
         // when
-        Optional<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report)
             .isNotEmpty()
             .get()
             .usingRecursiveComparison()
-            .isEqualTo(new ReconciliationReportContent(id, expectedReportContent, VERSION));
+            .isEqualTo(new ReconciliationContent(id, expectedReportContent, VERSION));
     }
 
     // Only last ID/report matters

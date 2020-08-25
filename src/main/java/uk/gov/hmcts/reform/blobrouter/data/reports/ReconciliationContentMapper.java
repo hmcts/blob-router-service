@@ -8,11 +8,11 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 @Component
-public class ReconciliationReportContentMapper implements RowMapper<ReconciliationReportContent> {
+public class ReconciliationContentMapper implements RowMapper<ReconciliationContent> {
 
     @Override
-    public ReconciliationReportContent mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new ReconciliationReportContent(
+    public ReconciliationContent mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new ReconciliationContent(
             UUID.fromString(rs.getString("id")),
             rs.getString("content"),
             rs.getString("content_type_version")

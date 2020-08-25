@@ -18,12 +18,12 @@ public class ReportRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeSummaryMapper mapper;
-    private final ReconciliationReportContentMapper reconciliationMapper;
+    private final ReconciliationContentMapper reconciliationMapper;
 
     public ReportRepository(
         NamedParameterJdbcTemplate jdbcTemplate,
         EnvelopeSummaryMapper mapper,
-        ReconciliationReportContentMapper reconciliationMapper
+        ReconciliationContentMapper reconciliationMapper
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
@@ -45,9 +45,9 @@ public class ReportRepository {
         );
     }
 
-    public Optional<ReconciliationReportContent> getReconciliationReport(LocalDate forDate, String account) {
+    public Optional<ReconciliationContent> getReconciliationReport(LocalDate forDate, String account) {
         try {
-            ReconciliationReportContent report = jdbcTemplate.queryForObject(
+            ReconciliationContent report = jdbcTemplate.queryForObject(
                 "SELECT id, content, content_type_version "
                     + "FROM envelope_reconciliation_reports "
                     + "WHERE account = :account"
