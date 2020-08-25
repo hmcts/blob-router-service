@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data.reports;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -8,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ReportRepository {
@@ -43,24 +45,24 @@ public class ReportRepository {
         );
     }
 
-    /**
-     * Return as a list so appropriate message can be returned to viewer.
-     * @param forDate For which date report should be retrieved
-     * @param account Report account
-     * @return empty list or single element
-     */
-    public List<ReconciliationReportContent> getReconciliationReport(LocalDate forDate, String account) {
-        return jdbcTemplate.query(
-            "SELECT id, content, content_type_version "
-                + "FROM envelope_reconciliation_reports "
-                + "WHERE account = :account"
-                + "  AND DATE(created_at) = :date "
-                + "ORDER BY created_at DESC "
-                + "LIMIT 1",
-            new MapSqlParameterSource()
-                .addValue("date", forDate)
-                .addValue("account", account),
-            reconciliationMapper
-        );
+    public Optional<ReconciliationReportContent> getReconciliationReport(LocalDate forDate, String account) {
+        try {
+            ReconciliationReportContent report = jdbcTemplate.queryForObject(
+                "SELECT id, content, content_type_version "
+                    + "FROM envelope_reconciliation_reports "
+                    + "WHERE account = :account"
+                    + "  AND DATE(created_at) = :date "
+                    + "ORDER BY created_at DESC "
+                    + "LIMIT 1",
+                new MapSqlParameterSource()
+                    .addValue("date", forDate)
+                    .addValue("account", account),
+                reconciliationMapper
+            );
+
+            return Optional.ofNullable(report);
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
     }
 }

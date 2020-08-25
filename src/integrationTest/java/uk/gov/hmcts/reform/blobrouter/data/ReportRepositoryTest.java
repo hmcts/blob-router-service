@@ -11,7 +11,7 @@ import uk.gov.hmcts.reform.blobrouter.data.reports.ReconciliationReportContent;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.time.LocalDate.now;
@@ -35,7 +35,7 @@ class ReportRepositoryTest {
     @Test
     void should_not_find_anything_when_db_is_empty() {
         // when
-        List<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report).isEmpty();
@@ -47,7 +47,7 @@ class ReportRepositoryTest {
         saveNewReports(new NewReconciliationReport(UUID.randomUUID(), ACCOUNT, "{}", "v1"));
 
         // when
-        List<ReconciliationReportContent> report = reportRepository
+        Optional<ReconciliationReportContent> report = reportRepository
             .getReconciliationReport(now().minusDays(1), ACCOUNT);
 
         // then
@@ -62,12 +62,12 @@ class ReportRepositoryTest {
         saveNewReports(expectedReport);
 
         // when
-        List<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report)
-            .hasSize(1)
-            .first()
+            .isNotEmpty()
+            .get()
             .usingRecursiveComparison()
             .isEqualTo(new ReconciliationReportContent(id, expectedReport.content, expectedReport.contentTypeVersion));
     }
@@ -81,12 +81,12 @@ class ReportRepositoryTest {
         saveNewReports(skippedReport, expectedReport);
 
         // when
-        List<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report)
-            .hasSize(1)
-            .first()
+            .isNotEmpty()
+            .get()
             .usingRecursiveComparison()
             .isEqualTo(new ReconciliationReportContent(id, expectedReport.content, expectedReport.contentTypeVersion));
     }
