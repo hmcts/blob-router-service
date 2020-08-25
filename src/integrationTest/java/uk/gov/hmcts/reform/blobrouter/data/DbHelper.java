@@ -18,6 +18,7 @@ public class DbHelper {
     public void deleteAll() {
         jdbcTemplate.update("DELETE FROM envelope_events", new MapSqlParameterSource());
         jdbcTemplate.update("DELETE FROM envelopes", new MapSqlParameterSource());
+        jdbcTemplate.update("DELETE FROM envelope_supplier_statements", new MapSqlParameterSource());
         jdbcTemplate.update("DELETE FROM envelope_reconciliation_reports", new MapSqlParameterSource());
     }
 }

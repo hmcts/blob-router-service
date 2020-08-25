@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReconciliationReportContent;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
 
@@ -22,8 +24,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ReportRepositoryTest {
 
     private static final String ACCOUNT = "account";
+    private static final String VERSION = "v1";
+    private static final NewEnvelopeSupplierStatement NEW_STATEMENT = new NewEnvelopeSupplierStatement(
+        now(),
+        "{\"content\":\"some_content\"}",
+        "supplier version"
+    );
 
     @Autowired private ReconciliationReportRepository reconciliationRepository;
+    @Autowired private SupplierStatementRepository supplierStatementRepository;
     @Autowired private ReportRepository reportRepository;
     @Autowired private DbHelper dbHelper;
 
@@ -44,7 +53,7 @@ class ReportRepositoryTest {
     @Test
     void should_not_find_anything_when_conditions_do_not_match() {
         // given
-        saveNewReports(new NewReconciliationReport(UUID.randomUUID(), ACCOUNT, "{}", "v1"));
+        saveNewReportsAndGetLastId("{}");
 
         // when
         Optional<ReconciliationReportContent> report = reportRepository
@@ -57,9 +66,8 @@ class ReportRepositoryTest {
     @Test
     void should_find_a_report_when_conditions_are_met() {
         // given
-        var id = UUID.randomUUID();
-        var expectedReport = new NewReconciliationReport(id, ACCOUNT, "{}", "v1");
-        saveNewReports(expectedReport);
+        var expectedReportContent = "{}";
+        var id = saveNewReportsAndGetLastId(expectedReportContent);
 
         // when
         Optional<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
@@ -69,16 +77,14 @@ class ReportRepositoryTest {
             .isNotEmpty()
             .get()
             .usingRecursiveComparison()
-            .isEqualTo(new ReconciliationReportContent(id, expectedReport.content, expectedReport.contentTypeVersion));
+            .isEqualTo(new ReconciliationReportContent(id, expectedReportContent, VERSION));
     }
 
     @Test
     void should_find_only_latest_report_when_conditions_are_met() {
         // given
-        var id = UUID.randomUUID();
-        var skippedReport = new NewReconciliationReport(UUID.randomUUID(), ACCOUNT, "{}", "v1");
-        var expectedReport = new NewReconciliationReport(id, ACCOUNT, "[]", "v1");
-        saveNewReports(skippedReport, expectedReport);
+        var expectedReportContent = "[]";
+        var id = saveNewReportsAndGetLastId("{}", expectedReportContent);
 
         // when
         Optional<ReconciliationReportContent> report = reportRepository.getReconciliationReport(now(), ACCOUNT);
@@ -88,16 +94,23 @@ class ReportRepositoryTest {
             .isNotEmpty()
             .get()
             .usingRecursiveComparison()
-            .isEqualTo(new ReconciliationReportContent(id, expectedReport.content, expectedReport.contentTypeVersion));
+            .isEqualTo(new ReconciliationReportContent(id, expectedReportContent, VERSION));
     }
 
-    private void saveNewReports(NewReconciliationReport... reports) {
+    // Only last ID/report matters
+    private UUID saveNewReportsAndGetLastId(String... reportContents) {
+        UUID lastId = null;
+
         try {
-            for (NewReconciliationReport report : reports) {
-                reconciliationRepository.save(report);
+            for (String contents : reportContents) {
+                var statementId = supplierStatementRepository.save(NEW_STATEMENT);
+                var report = new NewReconciliationReport(statementId, ACCOUNT, contents, VERSION);
+                lastId = reconciliationRepository.save(report);
             }
         } catch (SQLException exception) {
             throw new RuntimeException("Could not save reports for testing", exception);
         }
+
+        return lastId;
     }
 }
