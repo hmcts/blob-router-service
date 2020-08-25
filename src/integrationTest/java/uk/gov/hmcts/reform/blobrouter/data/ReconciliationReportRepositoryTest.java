@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +41,12 @@ public class ReconciliationReportRepositoryTest {
     @Autowired ReconciliationReportRepository reportRepo;
     @Autowired ObjectMapper objectMapper;
     @Autowired ClockProvider clockProvider;
+    @Autowired DbHelper dbHelper;
+
+    @AfterEach
+    void tearDown() {
+        dbHelper.deleteAll();
+    }
 
     @Test
     void should_save_and_find_report() throws Exception {
