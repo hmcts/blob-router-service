@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.data.reports;
+package uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model;
 
 import java.util.UUID;
 
