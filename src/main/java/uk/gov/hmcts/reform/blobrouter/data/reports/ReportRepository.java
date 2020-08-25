@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.data.reports;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationContentMapper;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -16,16 +15,13 @@ public class ReportRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeSummaryMapper mapper;
-    private final ReconciliationContentMapper reconciliationMapper;
 
     public ReportRepository(
         NamedParameterJdbcTemplate jdbcTemplate,
-        EnvelopeSummaryMapper mapper,
-        ReconciliationContentMapper reconciliationMapper
+        EnvelopeSummaryMapper mapper
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
-        this.reconciliationMapper = reconciliationMapper;
     }
 
     public List<EnvelopeSummary> getEnvelopeSummary(Instant from, Instant to) {
