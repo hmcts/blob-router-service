@@ -132,7 +132,7 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_not_find_anything_when_db_is_empty() {
         // when
-        Optional<ReconciliationContent> report = reportRepo.getReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationContent> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report).isEmpty();
@@ -144,7 +144,7 @@ public class ReconciliationReportRepositoryTest {
         saveNewReportsAndGetLastId("{}");
 
         // when
-        Optional<ReconciliationContent> report = reportRepo.getReconciliationReport(now().minusDays(1), ACCOUNT);
+        Optional<ReconciliationContent> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
 
         // then
         assertThat(report).isEmpty();
@@ -157,7 +157,7 @@ public class ReconciliationReportRepositoryTest {
         var id = saveNewReportsAndGetLastId(expectedReportContent);
 
         // when
-        Optional<ReconciliationContent> report = reportRepo.getReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationContent> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report)
@@ -174,7 +174,7 @@ public class ReconciliationReportRepositoryTest {
         var id = saveNewReportsAndGetLastId("{}", expectedReportContent);
 
         // when
-        Optional<ReconciliationContent> report = reportRepo.getReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationContent> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report)

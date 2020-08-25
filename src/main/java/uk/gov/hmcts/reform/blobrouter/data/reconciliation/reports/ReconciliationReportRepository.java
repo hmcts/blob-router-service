@@ -69,7 +69,7 @@ public class ReconciliationReportRepository {
         }
     }
 
-    public Optional<ReconciliationContent> getReconciliationReport(LocalDate forDate, String account) {
+    public Optional<ReconciliationContent> getLatestReconciliationReport(LocalDate forDate, String account) {
         try {
             ReconciliationContent report = jdbcTemplate.queryForObject(
                 "SELECT id, content, content_type_version "
