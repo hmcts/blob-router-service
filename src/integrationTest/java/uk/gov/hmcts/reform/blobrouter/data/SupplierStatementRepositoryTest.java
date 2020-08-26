@@ -109,7 +109,7 @@ public class SupplierStatementRepositoryTest {
     }
 
     @Test
-    void should_return_latest_statement_if_more_than_one_statement_exist_for_today()
+    void should_return_latest_statement_if_more_than_one_statement_exist_for_given_day()
         throws SQLException {
         // given
         LocalDate statementDate = LocalDate.now();
