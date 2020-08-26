@@ -14,20 +14,20 @@ import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Disabled
 public class ReconciliationApiTest {
 
-    private static final String RECONCILIATION_ENDPOINT_PATH = "/reform-scan/reconciliation-report/{date}";
+    private static final String RECONCILIATION_ENDPOINT_PATH = "/reconciliation-report/{date}";
 
     private static Config config;
     private static String apiGatewayUrl;
     private static String validApiKey;
 
-    private static String statementsReport = "{\"report\": {\"envelopes\": []}}";
+    private static String invalidStatementsReport = "{\"test\": {}}";
 
     @BeforeAll
     static void loadConfig() {
@@ -38,10 +38,10 @@ public class ReconciliationApiTest {
 
     @Test
     void should_accept_request_with_valid_api_key() {
+        // sends request with valid api Key and invalid body
         Response response = callReconciliationEndpoint(validApiKey).thenReturn();
 
-        assertThat(response.getStatusCode()).isEqualTo(OK.value());
-        assertThat(response.body().jsonPath().getString("id")).isNotEmpty();
+        assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST.value());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class ReconciliationApiTest {
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .header(HttpHeaders.AUTHORIZATION, validApiKey)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
-            .body(statementsReport)
+            .body(invalidStatementsReport)
             .when()
             .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
             .thenReturn();
@@ -84,7 +84,7 @@ public class ReconciliationApiTest {
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .header(HttpHeaders.AUTHORIZATION, apiKey)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
-            .body(statementsReport)
+            .body(invalidStatementsReport)
             .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString());
     }
 
