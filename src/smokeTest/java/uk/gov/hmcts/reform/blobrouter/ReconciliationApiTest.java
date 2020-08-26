@@ -5,6 +5,7 @@ import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+@Disabled
 public class ReconciliationApiTest {
 
     private static final String RECONCILIATION_ENDPOINT_PATH = "/reform-scan/reconciliation-report/{date}";
