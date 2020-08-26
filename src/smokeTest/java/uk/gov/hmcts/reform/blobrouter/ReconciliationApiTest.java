@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.time.LocalDate;
 
@@ -66,6 +67,7 @@ public class ReconciliationApiTest {
             .baseUri(apiGatewayUrl.replace("https://", "http://"))
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .header(HttpHeaders.AUTHORIZATION, validApiKey)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
             .body(statementsReport)
             .when()
             .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
@@ -81,6 +83,7 @@ public class ReconciliationApiTest {
             .baseUri(apiGatewayUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .header(HttpHeaders.AUTHORIZATION, apiKey)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
             .body(statementsReport)
             .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString());
     }

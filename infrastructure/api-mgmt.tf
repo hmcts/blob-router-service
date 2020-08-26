@@ -55,7 +55,7 @@ module "api_mgmt_reconciliation" {
   revision      = "1"
   product_id    = "${module.api_mgmt_product.product_id}"
   display_name  = "Blob Router Reconciliation API"
-  path          = "reform-scan/reconciliation-report"
+  path          = "reconciliation"
   protocols = [
     "https"
   ]
