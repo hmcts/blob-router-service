@@ -18,17 +18,25 @@ public abstract class BlobStorageBaseTest {
 
     private static DockerComposeContainer dockerComposeContainer;
     protected static BlobServiceClient storageClient;
+    private static String dockerHost;
+    private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
+        + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
+        + "BlobEndpoint=http://%s:%d/devstoreaccount1;";
 
     private Set<String> createdContainers = new HashSet<>();
 
     @BeforeAll
     protected static void startBlobStorage() {
-        dockerComposeContainer =
-            new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
-                .withExposedService("azure-storage", 10000);
-        dockerComposeContainer.start();
+        dockerComposeContainer = new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
+            .withExposedService("azure-storage", 10000)
+            .withLocalCompose(true);
 
-        storageClient = new BlobServiceClientBuilder().connectionString("UseDevelopmentStorage=true").buildClient();
+        dockerComposeContainer.start();
+        dockerHost = dockerComposeContainer.getServiceHost("azure-storage", 10000);
+
+        storageClient = new BlobServiceClientBuilder()
+            .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
+            .buildClient();
     }
 
     @AfterAll
