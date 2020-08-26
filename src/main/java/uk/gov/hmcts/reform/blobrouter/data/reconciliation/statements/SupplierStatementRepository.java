@@ -68,8 +68,8 @@ public class SupplierStatementRepository {
         try {
             EnvelopeSupplierStatement statement = jdbcTemplate.queryForObject(
                 "SELECT * FROM envelope_supplier_statements WHERE DATE(created_at) = :date "
-                    + "order by created_at desc "
-                    + "limit 1",
+                    + "ORDER BY created_at DESC "
+                    + "LIMIT 1",
                 new MapSqlParameterSource("date", date),
                 this.rowMapper
             );
