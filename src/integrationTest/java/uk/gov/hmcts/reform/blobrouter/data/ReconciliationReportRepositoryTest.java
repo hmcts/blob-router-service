@@ -147,7 +147,7 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_not_find_anything_when_conditions_do_not_match() {
         // given
-        saveNewReportsAndGetLastId("{}");
+        saveNewReportAndGetId("{}");
 
         // when
         Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
@@ -160,7 +160,7 @@ public class ReconciliationReportRepositoryTest {
     void should_find_a_report_when_conditions_are_met() {
         // given
         var expectedReportContent = "{}";
-        var id = saveNewReportsAndGetLastId(expectedReportContent);
+        var id = saveNewReportAndGetId(expectedReportContent);
 
         // when
         Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
@@ -179,8 +179,9 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_find_only_latest_report_when_conditions_are_met() {
         // given
+        saveNewReportAndGetId("{}");
         var expectedReportContent = "[]";
-        var id = saveNewReportsAndGetLastId("{}", expectedReportContent);
+        var id = saveNewReportAndGetId(expectedReportContent);
 
         // when
         Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
@@ -196,20 +197,14 @@ public class ReconciliationReportRepositoryTest {
             });
     }
 
-    // Only last ID/report matters
-    private UUID saveNewReportsAndGetLastId(String... reportContents) {
-        UUID lastId = null;
-
+    private UUID saveNewReportAndGetId(String reportContents) {
         try {
-            for (String contents : reportContents) {
-                var statementId = statementRepo.save(NEW_STATEMENT);
-                var report = new NewReconciliationReport(statementId, ACCOUNT, contents, VERSION);
-                lastId = reportRepo.save(report);
-            }
+            var statementId = statementRepo.save(NEW_STATEMENT);
+            var report = new NewReconciliationReport(statementId, ACCOUNT, reportContents, VERSION);
+
+            return reportRepo.save(report);
         } catch (SQLException exception) {
             throw new RuntimeException("Could not save reports for testing", exception);
         }
-
-        return lastId;
     }
 }
