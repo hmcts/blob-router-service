@@ -27,7 +27,8 @@ public abstract class BlobStorageBaseTest {
 
     @BeforeAll
     protected static void startBlobStorage() {
-        dockerComposeContainer = new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
+        dockerComposeContainer =
+            new DockerComposeContainer(new File("src/integrationTest/resources/docker-compose.yml"))
             .withExposedService("azure-storage", 10000)
             .withLocalCompose(true);
 
