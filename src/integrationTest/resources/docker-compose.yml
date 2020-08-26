@@ -6,3 +6,4 @@ services:
         - 10000:10000
     environment:
         - executable=blob
+
