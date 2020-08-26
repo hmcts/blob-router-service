@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
-import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationContent;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
 
 import java.sql.SQLException;
@@ -23,18 +22,15 @@ public class ReconciliationReportRepository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final ReconciliationReportRowMapper rowMapper;
-    private final ReconciliationContentMapper contentMapper;
     private final Clock clock;
 
     public ReconciliationReportRepository(
         NamedParameterJdbcTemplate jdbcTemplate,
         ReconciliationReportRowMapper rowMapper,
-        ReconciliationContentMapper contentMapper,
         ClockProvider clockProvider
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.rowMapper = rowMapper;
-        this.contentMapper = contentMapper;
         this.clock = clockProvider.getClock();
     }
 
@@ -69,10 +65,10 @@ public class ReconciliationReportRepository {
         }
     }
 
-    public Optional<ReconciliationContent> getLatestReconciliationReport(LocalDate forDate, String account) {
+    public Optional<ReconciliationReport> getLatestReconciliationReport(LocalDate forDate, String account) {
         try {
-            ReconciliationContent report = jdbcTemplate.queryForObject(
-                "SELECT id, content, content_type_version "
+            ReconciliationReport report = jdbcTemplate.queryForObject(
+                "SELECT * "
                     + "FROM envelope_reconciliation_reports "
                     + "WHERE account = :account"
                     + "  AND DATE(created_at) = :date "
@@ -81,7 +77,7 @@ public class ReconciliationReportRepository {
                 new MapSqlParameterSource()
                     .addValue("date", forDate)
                     .addValue("account", account),
-                contentMapper
+                rowMapper
             );
 
             return Optional.ofNullable(report);

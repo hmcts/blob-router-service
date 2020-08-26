@@ -9,7 +9,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
-import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationContent;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
@@ -139,7 +138,7 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_not_find_anything_when_db_is_empty() {
         // when
-        Optional<ReconciliationContent> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report).isEmpty();
@@ -151,7 +150,7 @@ public class ReconciliationReportRepositoryTest {
         saveNewReportsAndGetLastId("{}");
 
         // when
-        Optional<ReconciliationContent> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
 
         // then
         assertThat(report).isEmpty();
@@ -164,14 +163,17 @@ public class ReconciliationReportRepositoryTest {
         var id = saveNewReportsAndGetLastId(expectedReportContent);
 
         // when
-        Optional<ReconciliationContent> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report)
             .isNotEmpty()
             .get()
-            .usingRecursiveComparison()
-            .isEqualTo(new ReconciliationContent(id, expectedReportContent, VERSION));
+            .satisfies(actualReport -> {
+                assertThat(actualReport.id).isEqualTo(id);
+                assertThat(actualReport.content).isEqualTo(expectedReportContent);
+                assertThat(actualReport.contentTypeVersion).isEqualTo(VERSION);
+            });
     }
 
     @Test
@@ -181,14 +183,17 @@ public class ReconciliationReportRepositoryTest {
         var id = saveNewReportsAndGetLastId("{}", expectedReportContent);
 
         // when
-        Optional<ReconciliationContent> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report)
             .isNotEmpty()
             .get()
-            .usingRecursiveComparison()
-            .isEqualTo(new ReconciliationContent(id, expectedReportContent, VERSION));
+            .satisfies(actualReport -> {
+                assertThat(actualReport.id).isEqualTo(id);
+                assertThat(actualReport.content).isEqualTo(expectedReportContent);
+                assertThat(actualReport.contentTypeVersion).isEqualTo(VERSION);
+            });
     }
 
     // Only last ID/report matters
