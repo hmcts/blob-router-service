@@ -59,6 +59,7 @@ public class BlobContainerClientProxy {
         String destinationContainer,
         TargetStorageAccount targetStorageAccount
     ) {
+        long uploadStartTime = 0;
         try {
             final BlockBlobClient blockBlobClient =
                 get(targetStorageAccount, destinationContainer)
@@ -66,7 +67,7 @@ public class BlobContainerClientProxy {
                     .getBlockBlobClient();
 
             logger.info("Uploading content of blob {} to Container: {}", blobName, destinationContainer);
-
+            uploadStartTime = System.currentTimeMillis();
             blockBlobClient
                 .uploadWithResponse(
                     new ByteArrayInputStream(blobContents),
@@ -82,7 +83,12 @@ public class BlobContainerClientProxy {
 
             logger.info("Finished uploading content of blob {} to Container: {}", blobName, destinationContainer);
         } catch (HttpResponseException ex) {
-            logger.info("Uploading failed for blob {} to Container: {}", blobName, destinationContainer);
+            logger.info("Uploading failed for blob {} to Container: {}, upload duration in Ms: {}, error code: {}",
+                blobName,
+                destinationContainer,
+                (System.currentTimeMillis() - uploadStartTime),
+                ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
+            );
             if (targetStorageAccount == TargetStorageAccount.BULKSCAN
                 && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
                 bulkScanSasTokenCache.removeFromCache(destinationContainer);
