@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEn
 
 import java.sql.SQLException;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,6 +56,21 @@ public class SupplierStatementRepository {
             EnvelopeSupplierStatement statement = jdbcTemplate.queryForObject(
                 "SELECT * FROM envelope_supplier_statements WHERE id = :id",
                 new MapSqlParameterSource("id", id),
+                this.rowMapper
+            );
+            return Optional.of(statement);
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<EnvelopeSupplierStatement> findLatestCreated(LocalDate date) {
+        try {
+            EnvelopeSupplierStatement statement = jdbcTemplate.queryForObject(
+                "SELECT * FROM envelope_supplier_statements WHERE DATE(created_at) = :date "
+                    + "order by created_at desc "
+                    + "limit 1",
+                new MapSqlParameterSource("date", date),
                 this.rowMapper
             );
             return Optional.of(statement);
