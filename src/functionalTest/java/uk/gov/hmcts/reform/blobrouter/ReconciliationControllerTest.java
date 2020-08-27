@@ -53,7 +53,7 @@ public class ReconciliationControllerTest {
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Functional test")
             .header(HttpHeaders.AUTHORIZATION, authKey)
             .body(report)
-            .post("/reform-scan/reconciliation-report/{date}", LocalDate.now().toString())
+            .post("/reconciliation-report/{date}", LocalDate.now().toString())
             .then()
             .statusCode(expectedStatus);
     }

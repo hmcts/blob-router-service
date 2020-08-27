@@ -23,6 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 public class ReconciliationControllerTest extends ControllerTestBase {
 
+    public static final String RECONCILIATION_URL = "/reconciliation-report/2020-08-10";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -37,7 +39,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         // when
         mockMvc
             .perform(
-                post("/reform-scan/reconciliation-report/2020-08-10")
+                post(RECONCILIATION_URL)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer valid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
@@ -58,7 +60,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         // when
         MvcResult result = mockMvc
             .perform(
-                post("/reform-scan/reconciliation-report/2020-08-10")
+                post(RECONCILIATION_URL)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
             )
@@ -81,7 +83,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         // when
         MvcResult result = mockMvc
             .perform(
-                post("/reform-scan/reconciliation-report/2020-08-10")
+                post(RECONCILIATION_URL)
                     .header(HttpHeaders.AUTHORIZATION, "valid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
@@ -105,7 +107,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         // when
         MvcResult result = mockMvc
             .perform(
-                post("/reform-scan/reconciliation-report/2020-08-10")
+                post(RECONCILIATION_URL)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
@@ -129,7 +131,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         // when
         mockMvc
             .perform(
-                post("/reform-scan/reconciliation-report/2020-08-10")
+                post(RECONCILIATION_URL)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer valid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
@@ -149,7 +151,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         // when
         mockMvc
             .perform(
-                post("/reform-scan/reconciliation-report/10082020")
+                post("/reconciliation-report/10082020")
                     .header(HttpHeaders.AUTHORIZATION, "Bearer valid-api-key")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .content(requestBody)
