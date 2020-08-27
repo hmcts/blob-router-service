@@ -117,7 +117,6 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
     void should_reject_request_with_expired_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
             getExpiredClientKeyStore(),
