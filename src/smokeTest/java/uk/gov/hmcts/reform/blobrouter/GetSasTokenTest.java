@@ -9,7 +9,6 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -117,7 +116,6 @@ public class GetSasTokenTest {
     }
 
     @Test
-    @Disabled
     void should_reject_request_with_expired_client_certificate() throws Exception {
         Response response = callSasTokenEndpoint(
             getExpiredClientKeyStore(),
