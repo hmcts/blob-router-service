@@ -27,8 +27,6 @@ public class ReconciliationApiTest {
     private static String apiGatewayUrl;
     private static String validApiKey;
 
-    private static String invalidStatementsReport = "{\"test\": {}}";
-
     @BeforeAll
     static void loadConfig() {
         config = ConfigFactory.load();
@@ -39,14 +37,16 @@ public class ReconciliationApiTest {
     @Test
     void should_accept_request_with_valid_api_key() {
         // sends request with valid api Key and invalid body
-        Response response = callReconciliationEndpoint(validApiKey).thenReturn();
+        String invalidStatementsReport = "{\"test\": {}}";
+        Response response = callReconciliationEndpoint(validApiKey, invalidStatementsReport).thenReturn();
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST.value());
     }
 
     @Test
     void should_reject_request_with_invalid_api_key() {
-        Response response = callReconciliationEndpoint("invalid-api-key123").thenReturn();
+        String validStatementsReport = "{\"report\": {\"envelopes\": []}}";
+        Response response = callReconciliationEndpoint("invalid-api-key123", validStatementsReport).thenReturn();
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("Invalid API Key");
@@ -54,7 +54,8 @@ public class ReconciliationApiTest {
 
     @Test
     void should_reject_request_without_api_key() {
-        Response response = callReconciliationEndpoint("invalid-api-key123").thenReturn();
+        String validStatementsReport = "{\"report\": {\"envelopes\": []}}";
+        Response response = callReconciliationEndpoint("invalid-api-key123", validStatementsReport).thenReturn();
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("API Key is missing");
@@ -62,6 +63,7 @@ public class ReconciliationApiTest {
 
     @Test
     void should_not_expose_http_version() {
+        String invalidStatementsReport = "{\"test\": {}}";
         Response response = RestAssured
             .given()
             .baseUri(apiGatewayUrl.replace("https://", "http://"))
@@ -77,14 +79,14 @@ public class ReconciliationApiTest {
         assertThat(response.body().asString()).contains("Resource not found");
     }
 
-    private Response callReconciliationEndpoint(String apiKey) {
+    private Response callReconciliationEndpoint(String apiKey, String statementsReport) {
         return RestAssured
             .given()
             .baseUri(apiGatewayUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .header(HttpHeaders.AUTHORIZATION, apiKey)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
-            .body(invalidStatementsReport)
+            .body(statementsReport)
             .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString());
     }
 
