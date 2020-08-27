@@ -39,7 +39,7 @@ public class ReconciliationController {
     }
 
     @PostMapping(
-        path = "/reform-scan/reconciliation-report/{date}",
+        path = "/reconciliation-report/{date}",
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
     )
