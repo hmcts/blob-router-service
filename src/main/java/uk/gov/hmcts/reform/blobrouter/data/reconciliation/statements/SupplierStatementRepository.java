@@ -64,7 +64,7 @@ public class SupplierStatementRepository {
         }
     }
 
-    public Optional<EnvelopeSupplierStatement> findLatestCreated(LocalDate date) {
+    public Optional<EnvelopeSupplierStatement> findLatest(LocalDate date) {
         try {
             EnvelopeSupplierStatement statement = jdbcTemplate.queryForObject(
                 "SELECT * FROM envelope_supplier_statements WHERE DATE(created_at) = :date "

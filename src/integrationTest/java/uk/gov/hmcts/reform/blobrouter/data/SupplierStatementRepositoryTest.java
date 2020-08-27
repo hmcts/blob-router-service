@@ -102,7 +102,7 @@ public class SupplierStatementRepositoryTest {
     void should_return_empty_optional_if_statement_does_not_exist_for_given_day() {
 
         // when
-        Optional<EnvelopeSupplierStatement> statement = repo.findLatestCreated(LocalDate.now());
+        Optional<EnvelopeSupplierStatement> statement = repo.findLatest(LocalDate.now());
 
         // then
         assertThat(statement).isEmpty();
@@ -124,12 +124,12 @@ public class SupplierStatementRepositoryTest {
         UUID id = repo.save(newEnvelopeSupplierStatement);
         assertThat(id).isNotNull();
 
-        var latestAfterThisTime = LocalDateTime.now(clockProvider.getClock());
+        var latestAfterThisTime = LocalDateTime.now();
         // when
         UUID idLatest = repo.save(newEnvelopeSupplierStatement);
 
         // when
-        Optional<EnvelopeSupplierStatement> statementOptional = repo.findLatestCreated(LocalDate.now());
+        Optional<EnvelopeSupplierStatement> statementOptional = repo.findLatest(LocalDate.now());
 
         // then
         assertThat(statementOptional).isNotEmpty();
