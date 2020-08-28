@@ -1,15 +1,19 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -26,6 +30,14 @@ public class SupplierStatementRepositoryTest {
     @Autowired SupplierStatementRepository repo;
     @Autowired ObjectMapper objectMapper;
     @Autowired ClockProvider clockProvider;
+
+    @Autowired private NamedParameterJdbcTemplate jdbcTemplate;
+
+    @BeforeEach
+    void setUp() {
+        jdbcTemplate
+            .update("DELETE FROM envelope_supplier_statements", new MapSqlParameterSource());
+    }
 
     @Test
     void should_save_and_find_statement() throws Exception {
@@ -59,7 +71,7 @@ public class SupplierStatementRepositoryTest {
     }
 
     @Test
-    void should_throw_exception_if_invalid_json_is_passed() throws Exception {
+    void should_throw_exception_if_invalid_json_is_passed() {
         // given
         var statement =
             new NewEnvelopeSupplierStatement(
@@ -86,5 +98,46 @@ public class SupplierStatementRepositoryTest {
 
         // then
         assertThat(statement).isEmpty();
+    }
+
+    @Test
+    void should_return_empty_optional_if_statement_does_not_exist_for_given_day() {
+
+        // when
+        Optional<EnvelopeSupplierStatement> statement = repo.findLatest(LocalDate.now());
+
+        // then
+        assertThat(statement).isEmpty();
+    }
+
+    @Test
+    void should_return_latest_statement_if_more_than_one_statement_exist_for_given_day()
+        throws SQLException {
+        // given
+        LocalDate statementDate = LocalDate.now();
+        var newEnvelopeSupplierStatement =
+            new NewEnvelopeSupplierStatement(
+                statementDate,
+                "{ \"b\": \"300\" }",
+                "v1.0.0"
+            );
+
+        // when
+        UUID id = repo.save(newEnvelopeSupplierStatement);
+        assertThat(id).isNotNull();
+
+        var latestAfterThisTime = LocalDateTime.now();
+        // when
+        UUID idLatest = repo.save(newEnvelopeSupplierStatement);
+
+        // when
+        Optional<EnvelopeSupplierStatement> statementOptional = repo.findLatest(LocalDate.now());
+
+        // then
+        assertThat(statementOptional).isNotEmpty();
+        var statement = statementOptional.get();
+        assertThat(statement.createdAt).isAfter(latestAfterThisTime);
+        assertThat(statement.id).isEqualTo(idLatest);
+        assertThat(statement.date).isEqualTo(statementDate);
     }
 }
