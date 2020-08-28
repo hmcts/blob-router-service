@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.badRequest;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
@@ -82,6 +83,8 @@ public class BulkScanProcessorClientTest {
         // given
         stubFor(post("/reports/reconciliation")
             .withRequestBody(equalToJson(requestBody))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withHeader("Accept", equalTo("application/json"))
             .willReturn(okJson(responseBody))
         );
 
@@ -130,6 +133,8 @@ public class BulkScanProcessorClientTest {
         // given
         stubFor(post("/reports/reconciliation")
             .withRequestBody(equalToJson(requestBody))
+            .withHeader("Content-Type", equalTo("application/json"))
+            .withHeader("Accept", equalTo("application/json"))
             .willReturn(okJson(responseBody))
         );
 
