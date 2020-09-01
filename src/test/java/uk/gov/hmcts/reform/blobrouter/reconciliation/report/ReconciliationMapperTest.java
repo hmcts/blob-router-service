@@ -47,7 +47,7 @@ class ReconciliationMapperTest {
         );
 
         LocalDate reportDate = LocalDate.now();
-        EnvelopeSupplierStatement envelopeSupplierStatement = new EnvelopeSupplierStatement(
+        var envelopeSupplierStatement = new EnvelopeSupplierStatement(
             UUID.randomUUID(),
             reportDate,
             content,
@@ -79,7 +79,7 @@ class ReconciliationMapperTest {
         );
 
         LocalDate reportDate = LocalDate.now();
-        EnvelopeSupplierStatement envelopeSupplierStatement = new EnvelopeSupplierStatement(
+        var envelopeSupplierStatement = new EnvelopeSupplierStatement(
             UUID.randomUUID(),
             reportDate,
             content,
