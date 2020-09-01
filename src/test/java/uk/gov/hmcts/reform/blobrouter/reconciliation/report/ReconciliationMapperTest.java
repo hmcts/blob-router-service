@@ -39,7 +39,7 @@ class ReconciliationMapperTest {
 
     @Test
     void should_filter_by_target_container() throws IOException {
-
+        // given
         setupStorageConfig();
         String content = Resources.toString(
             getResource("reconciliation/valid-supplier-statement.json"),
@@ -55,12 +55,14 @@ class ReconciliationMapperTest {
             LocalDateTime.now()
         );
 
+        // when
         ReconciliationStatement reconciliationStatement =
             reconciliationMapper.convertToReconciliationStatement(
                 envelopeSupplierStatement,
                 "crime"
             );
 
+        // then
         assertThat(reconciliationStatement.envelopes.size()).isEqualTo(1);
         ReportedZipFile crimeFile = reconciliationStatement.envelopes.get(0);
         assertThat(crimeFile.container).isEqualTo("crime");
@@ -69,6 +71,7 @@ class ReconciliationMapperTest {
 
     @Test
     void should_map_content_to_ReconciliationStatement() throws IOException {
+        // given
         setupStorageConfig();
         String content = Resources.toString(
             getResource("reconciliation/valid-supplier-statement.json"),
@@ -84,12 +87,14 @@ class ReconciliationMapperTest {
             LocalDateTime.now()
         );
 
+        // when
         ReconciliationStatement reconciliationStatement =
             reconciliationMapper.convertToReconciliationStatement(
                 envelopeSupplierStatement,
                 "bulkscan"
             );
 
+        // then
         assertThat(reconciliationStatement.date).isEqualTo(reportDate);
         assertThat(reconciliationStatement.envelopes.size()).isEqualTo(3);
         ReportedZipFile probateFile = reconciliationStatement.envelopes.get(0);
