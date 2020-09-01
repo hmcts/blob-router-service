@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
+import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
@@ -28,7 +29,7 @@ public class ReconciliationMapper {
 
     public ReconciliationStatement convertToReconciliationStatement(
         EnvelopeSupplierStatement envelopeSupplierStatement,
-        String targetStorage
+        TargetStorageAccount targetStorage
     ) throws JsonProcessingException {
 
         SupplierStatement supplierStatement =
@@ -55,10 +56,10 @@ public class ReconciliationMapper {
         );
     }
 
-    private boolean filterByContainer(Envelope envelope, String targetContainer) {
+    private boolean filterByContainer(Envelope envelope, TargetStorageAccount targetStorageAccount) {
         return storageConfig
             .get(envelope.container)
-            .getTargetContainer()
-            .equals(targetContainer);
+            .getTargetStorageAccount()
+            .equals(targetStorageAccount);
     }
 }

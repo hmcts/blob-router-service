@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
+import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 
 import java.io.IOException;
@@ -20,6 +21,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 
 @SuppressWarnings("unchecked")
 class ReconciliationMapperTest {
@@ -59,7 +63,7 @@ class ReconciliationMapperTest {
         ReconciliationStatement reconciliationStatement =
             reconciliationMapper.convertToReconciliationStatement(
                 envelopeSupplierStatement,
-                "crime"
+                CRIME
             );
 
         // then
@@ -91,7 +95,7 @@ class ReconciliationMapperTest {
         ReconciliationStatement reconciliationStatement =
             reconciliationMapper.convertToReconciliationStatement(
                 envelopeSupplierStatement,
-                "bulkscan"
+                BULKSCAN
             );
 
         // then
@@ -126,9 +130,9 @@ class ReconciliationMapperTest {
 
     }
 
-    private StorageConfigItem createStorageConfigItem(String targetContainer) {
+    private StorageConfigItem createStorageConfigItem(TargetStorageAccount targetStorageAccount) {
         StorageConfigItem storageConfigItem = new StorageConfigItem();
-        storageConfigItem.setTargetContainer(targetContainer);
+        storageConfigItem.setTargetStorageAccount(targetStorageAccount);
         return storageConfigItem;
     }
 
@@ -149,11 +153,11 @@ class ReconciliationMapperTest {
     }
 
     private void setupStorageConfig() {
-        given(storageConfig.get("sscs")).willReturn(createStorageConfigItem("bulkscan"));
-        given(storageConfig.get("probate")).willReturn(createStorageConfigItem("bulkscan"));
-        given(storageConfig.get("crime")).willReturn(createStorageConfigItem("crime"));
-        given(storageConfig.get("pcq")).willReturn(createStorageConfigItem("pcq"));
-        given(storageConfig.get("cmc")).willReturn(createStorageConfigItem("bulkscan"));
+        given(storageConfig.get("sscs")).willReturn(createStorageConfigItem(BULKSCAN));
+        given(storageConfig.get("probate")).willReturn(createStorageConfigItem(BULKSCAN));
+        given(storageConfig.get("crime")).willReturn(createStorageConfigItem(CRIME));
+        given(storageConfig.get("pcq")).willReturn(createStorageConfigItem(PCQ));
+        given(storageConfig.get("cmc")).willReturn(createStorageConfigItem(BULKSCAN));
     }
 
 }
