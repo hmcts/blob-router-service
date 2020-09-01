@@ -15,7 +15,7 @@ import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 @Service
-@EnableConfigurationProperties
+@EnableConfigurationProperties(ServiceConfiguration.class)
 public class ReconciliationMapper {
 
     private final ObjectMapper objectMapper;
