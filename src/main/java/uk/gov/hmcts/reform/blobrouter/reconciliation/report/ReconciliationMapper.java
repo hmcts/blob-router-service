@@ -28,7 +28,7 @@ public class ReconciliationMapper {
 
     public ReconciliationStatement convertToReconciliationStatement(
         EnvelopeSupplierStatement envelopeSupplierStatement,
-        String targetContainer
+        String targetStorage
     ) throws JsonProcessingException {
 
         SupplierStatement supplierStatement =
@@ -39,7 +39,7 @@ public class ReconciliationMapper {
             supplierStatement
                 .envelopes
                 .stream()
-                .filter(e -> filterByContainer(e, targetContainer))
+                .filter(e -> filterByContainer(e, targetStorage))
                 .map(this::mapToReportedZipFile)
                 .collect(toList())
         );
