@@ -7,6 +7,8 @@ public class TestConfiguration {
 
     public final String blobRouterUrl;
 
+    public final String reconciliationApiKey;
+
     public final String sourceStorageAccountName;
     public final String sourceStorageAccountKey;
     public final String sourceStorageAccountUrl;
@@ -17,6 +19,7 @@ public class TestConfiguration {
         Config config = ConfigFactory.load();
 
         this.blobRouterUrl = config.getString("blob-router-url");
+        this.reconciliationApiKey = config.getString("reconciliation-api-key");
         this.sourceStorageAccountName = config.getString("source-storage-account-name");
         this.sourceStorageAccountKey = config.getString("source-storage-account-key");
         this.sourceStorageAccountUrl = config.getString("source-storage-account-url");

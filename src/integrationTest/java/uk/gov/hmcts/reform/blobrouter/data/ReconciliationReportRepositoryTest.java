@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,12 +13,14 @@ import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.Reconcil
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import javax.validation.ClockProvider;
 
+import static java.time.LocalDate.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
@@ -25,10 +28,24 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @SpringBootTest
 public class ReconciliationReportRepositoryTest {
 
+    private static final String ACCOUNT = "account";
+    private static final String VERSION = "v1";
+    private static final NewEnvelopeSupplierStatement NEW_STATEMENT = new NewEnvelopeSupplierStatement(
+        now(),
+        "{\"content\":\"some_content\"}",
+        "supplier version"
+    );
+
     @Autowired SupplierStatementRepository statementRepo;
     @Autowired ReconciliationReportRepository reportRepo;
     @Autowired ObjectMapper objectMapper;
     @Autowired ClockProvider clockProvider;
+    @Autowired DbHelper dbHelper;
+
+    @AfterEach
+    void tearDown() {
+        dbHelper.deleteAll();
+    }
 
     @Test
     void should_save_and_find_report() throws Exception {
@@ -116,5 +133,78 @@ public class ReconciliationReportRepositoryTest {
 
         // then
         assertThat(report).isEmpty();
+    }
+
+    @Test
+    void should_not_find_anything_when_db_is_empty() {
+        // when
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
+
+        // then
+        assertThat(report).isEmpty();
+    }
+
+    @Test
+    void should_not_find_anything_when_conditions_do_not_match() {
+        // given
+        saveNewReportAndGetId("{}");
+
+        // when
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
+
+        // then
+        assertThat(report).isEmpty();
+    }
+
+    @Test
+    void should_find_a_report_when_conditions_are_met() {
+        // given
+        var expectedReportContent = "{}";
+        var id = saveNewReportAndGetId(expectedReportContent);
+
+        // when
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
+
+        // then
+        assertThat(report)
+            .isNotEmpty()
+            .get()
+            .satisfies(actualReport -> {
+                assertThat(actualReport.id).isEqualTo(id);
+                assertThat(actualReport.content).isEqualTo(expectedReportContent);
+                assertThat(actualReport.contentTypeVersion).isEqualTo(VERSION);
+            });
+    }
+
+    @Test
+    void should_find_only_latest_report_when_conditions_are_met() {
+        // given
+        saveNewReportAndGetId("{}");
+        var expectedReportContent = "[]";
+        var id = saveNewReportAndGetId(expectedReportContent);
+
+        // when
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
+
+        // then
+        assertThat(report)
+            .isNotEmpty()
+            .get()
+            .satisfies(actualReport -> {
+                assertThat(actualReport.id).isEqualTo(id);
+                assertThat(actualReport.content).isEqualTo(expectedReportContent);
+                assertThat(actualReport.contentTypeVersion).isEqualTo(VERSION);
+            });
+    }
+
+    private UUID saveNewReportAndGetId(String reportContents) {
+        try {
+            var statementId = statementRepo.save(NEW_STATEMENT);
+            var report = new NewReconciliationReport(statementId, ACCOUNT, reportContents, VERSION);
+
+            return reportRepo.save(report);
+        } catch (SQLException exception) {
+            throw new RuntimeException("Could not save reports for testing", exception);
+        }
     }
 }

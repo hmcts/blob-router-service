@@ -13,12 +13,15 @@ import uk.gov.hmcts.reform.blobrouter.Application;
 @EnableSwagger2
 public class SwaggerConfiguration {
 
+    public static final String BASE_PACKAGE = Application.class.getPackage().getName();
+
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
             .useDefaultResponseMessages(false)
             .select()
-            .apis(RequestHandlerSelectors.basePackage(Application.class.getPackage().getName() + ".controllers"))
+            .apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE + ".controllers")
+                      .or(RequestHandlerSelectors.basePackage(BASE_PACKAGE + ".reconciliation.controller")))
             .paths(PathSelectors.any())
             .build();
     }

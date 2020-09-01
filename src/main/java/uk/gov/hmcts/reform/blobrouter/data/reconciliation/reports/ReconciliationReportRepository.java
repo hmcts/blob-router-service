@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.Reconcil
 
 import java.sql.SQLException;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,6 +60,27 @@ public class ReconciliationReportRepository {
                 this.rowMapper
             );
             return Optional.of(report);
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<ReconciliationReport> getLatestReconciliationReport(LocalDate forDate, String account) {
+        try {
+            ReconciliationReport report = jdbcTemplate.queryForObject(
+                "SELECT * "
+                    + "FROM envelope_reconciliation_reports "
+                    + "WHERE account = :account"
+                    + "  AND DATE(created_at) = :date "
+                    + "ORDER BY created_at DESC "
+                    + "LIMIT 1",
+                new MapSqlParameterSource()
+                    .addValue("date", forDate)
+                    .addValue("account", account),
+                rowMapper
+            );
+
+            return Optional.ofNullable(report);
         } catch (EmptyResultDataAccessException ex) {
             return Optional.empty();
         }
