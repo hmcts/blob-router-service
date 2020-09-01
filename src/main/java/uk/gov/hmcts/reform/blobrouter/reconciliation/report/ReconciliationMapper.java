@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.reconciliation.report;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
@@ -14,19 +15,20 @@ import java.util.Map;
 import static java.util.stream.Collectors.toList;
 
 @Service
-public class ReconciliationStatementMapper {
+@EnableConfigurationProperties
+public class ReconciliationMapper {
 
     private final ObjectMapper objectMapper;
     private final Map<String, StorageConfigItem> storageConfig; // container-specific configuration, by container name
 
-    public ReconciliationStatementMapper(ObjectMapper objectMapper, ServiceConfiguration serviceConfiguration) {
+    public ReconciliationMapper(ObjectMapper objectMapper, ServiceConfiguration serviceConfiguration) {
         this.objectMapper = objectMapper;
         storageConfig =  serviceConfiguration.getStorageConfig();
     }
 
-    @SuppressWarnings("unchecked")
     public ReconciliationStatement convertToReconciliationStatement(
-        EnvelopeSupplierStatement envelopeSupplierStatement, String targetContainer
+        EnvelopeSupplierStatement envelopeSupplierStatement,
+        String targetContainer
     ) throws JsonProcessingException {
 
         SupplierStatement supplierStatement =
@@ -38,7 +40,8 @@ public class ReconciliationStatementMapper {
                 .envelopes
                 .stream()
                 .filter(e -> filterByContainer(e, targetContainer))
-                .map(this::mapToReportedZipFile).collect(toList())
+                .map(this::mapToReportedZipFile)
+                .collect(toList())
         );
     }
 
@@ -53,7 +56,9 @@ public class ReconciliationStatementMapper {
     }
 
     private boolean filterByContainer(Envelope envelope, String targetContainer) {
-        String envelopeTargetContainer = storageConfig.get(envelope.container).getTargetContainer();
-        return envelopeTargetContainer.equals(targetContainer);
+        return storageConfig
+            .get(envelope.container)
+            .getTargetContainer()
+            .equals(targetContainer);
     }
 }

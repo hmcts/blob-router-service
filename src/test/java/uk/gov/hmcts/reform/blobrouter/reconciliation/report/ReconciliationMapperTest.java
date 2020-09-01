@@ -22,9 +22,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("unchecked")
-class ReconciliationStatementMapperTest {
+class ReconciliationMapperTest {
 
-    private ReconciliationStatementMapper reconciliationStatementMapper;
+    private ReconciliationMapper reconciliationMapper;
     private ServiceConfiguration serviceConfiguration = mock(ServiceConfiguration.class);
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -33,8 +33,8 @@ class ReconciliationStatementMapperTest {
     @BeforeEach
     void setUp() {
         given(serviceConfiguration.getStorageConfig()).willReturn(storageConfig);
-        reconciliationStatementMapper =
-            new ReconciliationStatementMapper(objectMapper, serviceConfiguration);
+        reconciliationMapper =
+            new ReconciliationMapper(objectMapper, serviceConfiguration);
     }
 
     @Test
@@ -56,7 +56,7 @@ class ReconciliationStatementMapperTest {
         );
 
         ReconciliationStatement reconciliationStatement =
-            reconciliationStatementMapper.convertToReconciliationStatement(
+            reconciliationMapper.convertToReconciliationStatement(
                 envelopeSupplierStatement,
                 "crime"
             );
@@ -85,7 +85,7 @@ class ReconciliationStatementMapperTest {
         );
 
         ReconciliationStatement reconciliationStatement =
-            reconciliationStatementMapper.convertToReconciliationStatement(
+            reconciliationMapper.convertToReconciliationStatement(
                 envelopeSupplierStatement,
                 "bulkscan"
             );
