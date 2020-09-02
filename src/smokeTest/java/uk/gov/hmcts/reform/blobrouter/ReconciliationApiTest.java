@@ -45,7 +45,7 @@ public class ReconciliationApiTest {
 
     @Test
     void should_reject_request_with_invalid_api_key() {
-        String validStatementsReport = "{\"report\": {\"envelopes\": []}}";
+        String validStatementsReport = "{\"envelopes\": []}";
         Response response = callReconciliationEndpoint("invalid-api-key123", validStatementsReport).thenReturn();
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
@@ -54,7 +54,7 @@ public class ReconciliationApiTest {
 
     @Test
     void should_reject_request_without_api_key() {
-        String validStatementsReport = "{\"report\": {\"envelopes\": []}}";
+        String validStatementsReport = "{\"envelopes\": []}";
         Response response = callReconciliationEndpoint("invalid-api-key123", validStatementsReport).thenReturn();
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
