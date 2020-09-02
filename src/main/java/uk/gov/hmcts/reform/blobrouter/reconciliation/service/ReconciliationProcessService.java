@@ -53,7 +53,7 @@ public class ReconciliationProcessService {
                 processByTargetStorage(supplierStatement, targetStorage);
             }
         } else {
-            logger.info("No Supplier Statement for date: ", date);
+            logger.info("No Supplier Statement for date: {}", date);
         }
     }
 
