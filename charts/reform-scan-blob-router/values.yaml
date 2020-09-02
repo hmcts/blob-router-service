@@ -21,7 +21,7 @@ java:
         - blob-router-POSTGRES-PORT
         - blob-router-POSTGRES-DATABASE
         - notifications-queue-send-connection-string
-        - notifications-queue-send-shared-access-key
+        - notification-queue-send-shared-access-key
         - reconciliation-api-key
 
   environment:
