@@ -58,7 +58,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         );
 
         // when
-        MvcResult result = mockMvc
+        mockMvc
             .perform(
                 post(RECONCILIATION_URL)
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -66,10 +66,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isUnauthorized())
-            .andReturn();
-
-        assertThat(result.getResolvedException()).isExactlyInstanceOf(InvalidApiKeyException.class);
-        assertThat(result.getResolvedException().getMessage()).isEqualTo("API Key is missing");
+            .andExpect(MockMvcResultMatchers.content().string("API Key is missing"));
     }
 
     @Test
@@ -81,7 +78,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         );
 
         // when
-        MvcResult result = mockMvc
+        mockMvc
             .perform(
                 post(RECONCILIATION_URL)
                     .header(HttpHeaders.AUTHORIZATION, "valid-api-key")
@@ -90,10 +87,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isUnauthorized())
-            .andReturn();
-
-        assertThat(result.getResolvedException()).isExactlyInstanceOf(InvalidApiKeyException.class);
-        assertThat(result.getResolvedException().getMessage()).isEqualTo("Invalid API Key");
+            .andExpect(MockMvcResultMatchers.content().string("Invalid API Key"));
     }
 
     @Test
@@ -105,7 +99,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
         );
 
         // when
-        MvcResult result = mockMvc
+        mockMvc
             .perform(
                 post(RECONCILIATION_URL)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer invalid-api-key")
@@ -114,10 +108,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isUnauthorized())
-            .andReturn();
-
-        assertThat(result.getResolvedException()).isExactlyInstanceOf(InvalidApiKeyException.class);
-        assertThat(result.getResolvedException().getMessage()).isEqualTo("Invalid API Key");
+            .andExpect(MockMvcResultMatchers.content().string("Invalid API Key"));
     }
 
     @Test
