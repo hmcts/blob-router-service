@@ -7,7 +7,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -35,7 +34,6 @@ public class SasTokenControllerExceptionTest extends ControllerTestBase {
             .perform(get("/token/bulkscan"))
             .andDo(print())
             .andExpect(status().isInternalServerError())
-            .andExpect(jsonPath("$.message").value("Exception occurred while generating SAS Token"))
-            .andExpect(jsonPath("$.cause").value(UnableToGenerateSasTokenException.class.getName()));
+            .andExpect(jsonPath("$.message").value("Exception occurred while generating SAS Token"));
     }
 }

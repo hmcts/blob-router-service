@@ -4,10 +4,7 @@ public class ErrorResponse {
 
     public final String message;
 
-    public final Class<?> cause;
-
-    public ErrorResponse(String message, Class<?> cause) {
+    public ErrorResponse(String message) {
         this.message = message;
-        this.cause = cause;
     }
 }
