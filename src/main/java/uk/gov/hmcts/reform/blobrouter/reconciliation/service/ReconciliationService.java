@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSupplierStatementException;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,6 +39,10 @@ public class ReconciliationService {
         } catch (JsonProcessingException | SQLException e) {
             throw new InvalidSupplierStatementException("Failed to process Supplier statement", e);
         }
+    }
+
+    public Optional<EnvelopeSupplierStatement> getSupplierStatement(LocalDate date) {
+        return repository.findLatest(date);
     }
 
 }
