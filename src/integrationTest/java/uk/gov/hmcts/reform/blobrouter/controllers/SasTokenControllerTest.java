@@ -10,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy;
 
 import java.util.Map;
@@ -54,7 +53,6 @@ public class SasTokenControllerTest extends ControllerTestBase {
             .perform(get("/token/not-configured-service"))
             .andDo(print())
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("No service configuration found for not-configured-service"))
-            .andExpect(jsonPath("$.cause").value(ServiceConfigNotFoundException.class.getName()));
+            .andExpect(jsonPath("$.message").value("No service configuration found for not-configured-service"));
     }
 }

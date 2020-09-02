@@ -1,0 +1,27 @@
+{
+  "date": "2020-08-31",
+  "envelopes": [
+    {
+      "zip_file_name": "file_name_1.zip",
+      "container": "container1",
+      "rescan_for": null,
+      "scannable_item_dcns": [
+        "scan_dcn_1",
+        "scan_dcn_2"
+      ],
+      "payment_dcns": [
+        "payment_dcn_1",
+        "payment_dcn_2"
+      ]
+    },
+    {
+      "zip_file_name": "file_name_2.zip",
+      "container": "container2",
+      "rescan_for": "rescan_for_file_1.zip",
+      "scannable_item_dcns": [
+        "scan_dcn_4"
+      ],
+      "payment_dcns": null
+    }
+  ]
+}

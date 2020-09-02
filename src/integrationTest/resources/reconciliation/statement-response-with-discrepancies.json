@@ -1,0 +1,11 @@
+{
+  "discrepancies": [
+    {
+      "zip_file_name": "file_name_1.zip",
+      "container": "container1",
+      "type": "payment dcns mismatch",
+      "stated": "[payment_dcn_1, payment_dcn_2]",
+      "actual": "[payment_dcn_1]"
+    }
+  ]
+}
