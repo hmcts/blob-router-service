@@ -13,12 +13,19 @@ import org.springframework.context.annotation.Configuration;
 public class QueueClientConfig {
 
     @Bean
-    @ConditionalOnProperty("queue.notifications.connection-string")
+    @ConditionalOnProperty("queue.notifications.access-key")
     public QueueClient notificationsQueueClient(
-        @Value("${queue.notifications.connection-string}") String connectionString
+        @Value("${queue.notifications.access-key}") String accessKey,
+        @Value("${queue.notifications.access-key-name}") String accessKeyName,
+        @Value("${queue.notifications.namespace}") String namespace
     ) throws InterruptedException, ServiceBusException {
         return new QueueClient(
-            new ConnectionStringBuilder(connectionString),
+            new ConnectionStringBuilder(
+                namespace,
+                "notifications",
+                accessKeyName,
+                accessKey
+            ),
             ReceiveMode.PEEKLOCK
         );
     }
