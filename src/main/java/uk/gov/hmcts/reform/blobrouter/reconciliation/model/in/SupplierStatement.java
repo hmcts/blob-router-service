@@ -12,7 +12,7 @@ public class SupplierStatement {
     @NotNull
     public final List<Envelope> envelopes;
 
-    public SupplierStatement(@JsonProperty(value = "envelopes", required = true) List<Envelope> envelopes) {
+    public SupplierStatement(@JsonProperty("envelopes") List<Envelope> envelopes) {
         this.envelopes = envelopes;
     }
 }
