@@ -1,7 +1,11 @@
 {
-  "envelopes": {
-    "zip_file_name": "2010404021234_14-08-2020-03-06-18.zip",
-    "container": "bulkscan",
-    "jurisdiction": "BULKSCAN"
-  }
+  "envelope-list": [
+    {
+      "zip_file_name": "2010404021234_02-06-2020-03-06-18.zip",
+      "container": "bulkscan",
+      "jurisdiction": "BULKSCAN",
+      "scannable_item_dcns": ["1234"],
+      "payment_dcns": ["512345"]
+    }
+  ]
 }

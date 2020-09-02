@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidApiKeyException;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatementReport;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
 
@@ -54,10 +54,10 @@ public class ReconciliationController {
     public SuccessfulResponse uploadSupplierReport(
         @RequestHeader(value = AUTHORIZATION, required = false) String authHeader,
         @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-        @Valid @RequestBody SupplierStatementReport report
+        @Valid @RequestBody SupplierStatement supplierStatement
     ) {
         validateAuthorization(authHeader);
-        UUID uuid = service.saveSupplierStatement(date, report.supplierStatement);
+        UUID uuid = service.saveSupplierStatement(date, supplierStatement);
         return new SuccessfulResponse(uuid.toString());
     }
 
