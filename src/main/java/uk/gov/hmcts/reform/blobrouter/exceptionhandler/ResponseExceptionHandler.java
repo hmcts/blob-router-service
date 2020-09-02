@@ -23,44 +23,44 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(UnableToGenerateSasTokenException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ErrorResponse handleUnableToGenerateSasTokenException(UnableToGenerateSasTokenException exception) {
-        return new ErrorResponse("Exception occurred while generating SAS Token", exception.getClass());
+        return new ErrorResponse("Exception occurred while generating SAS Token");
     }
 
     @ExceptionHandler(ServiceConfigNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorResponse handleServiceConfigNotFoundException(ServiceConfigNotFoundException exception) {
-        return new ErrorResponse(exception.getMessage(), exception.getClass());
+        return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(ServiceDisabledException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorResponse handleServiceDisabledException(ServiceDisabledException exception) {
-        return new ErrorResponse(exception.getMessage(), exception.getClass());
+        return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(InvalidRequestParametersException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorResponse handleInvalidRequestParametersException(InvalidRequestParametersException exception) {
-        return new ErrorResponse(exception.getMessage(), exception.getClass());
+        return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(InvalidSupplierStatementException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorResponse handleInvalidSupplierStatementException(InvalidSupplierStatementException exception) {
-        return new ErrorResponse(exception.getMessage(), exception.getClass());
+        return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(InvalidApiKeyException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     protected ErrorResponse handleInvalidApiKeyException(InvalidApiKeyException exception) {
         log.error(exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage(), exception.getClass());
+        return new ErrorResponse(exception.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ErrorResponse handleInternalException(Exception exception) {
         log.error(exception.getMessage(), exception);
-        return new ErrorResponse(exception.getMessage(), exception.getClass());
+        return new ErrorResponse(exception.getMessage());
     }
 }
