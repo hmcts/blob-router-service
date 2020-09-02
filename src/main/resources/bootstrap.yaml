@@ -28,5 +28,7 @@ spring:
         blob-router-staging-db-port: DB_PORT
         blob-router-staging-db-name: DB_NAME
         notifications-queue-send-connection-string: NOTIFICATIONS_QUEUE_CONNECTION_STRING
+        notifications-queue-send-shared-access-key: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
         notifications-staging-queue-send-connection-string: NOTIFICATIONS_QUEUE_CONNECTION_STRING
+        notifications-staging-queue-send-shared-access-key: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
         reconciliation-api-key: RECONCILIATION_API_KEY

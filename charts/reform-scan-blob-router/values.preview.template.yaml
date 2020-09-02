@@ -18,6 +18,12 @@ java:
     SB_CONN_STRING:
       secretRef: servicebus-secret-namespace-{{ .Release.Name }}
       key: connectionString
+    SB_ACCESS_KEY:
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      key: primaryKey
+    SB_NAMESPACE:
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      key: namespaceName
   keyVaults:
     reform-scan:
       resourceGroup: reform-scan
@@ -51,7 +57,10 @@ java:
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
     CRIME_ENABLED: true
 
+    NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     NOTIFICATIONS_QUEUE_CONNECTION_STRING: "$(SB_CONN_STRING);EntityPath=notifications"
+    NOTIFICATIONS_QUEUE_NAMESPACE: "$(SB_NAMESPACE)"
+    NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
