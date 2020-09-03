@@ -83,7 +83,9 @@ service:
 
 queue:
   notifications:
-    connection-string: ${NOTIFICATIONS_QUEUE_CONNECTION_STRING}
+    access-key: ${NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY}
+    access-key-name: ${NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME}
+    namespace: ${NOTIFICATIONS_QUEUE_NAMESPACE}
 
 reports:
   recipients: ${REPORTS_RECIPIENTS}

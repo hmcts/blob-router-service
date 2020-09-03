@@ -27,6 +27,5 @@ java:
         - blob-router-staging-db-host
         - blob-router-staging-db-port
         - blob-router-staging-db-name
-        - notifications-staging-queue-send-connection-string
         - notification-staging-queue-send-shared-access-key
         - reconciliation-api-key

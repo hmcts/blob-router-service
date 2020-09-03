@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
 public class QueueClientConfig {
 
     @Bean
-    @ConditionalOnProperty(name = "queue.notifications.connection-string", havingValue = "false")
+    @ConditionalOnProperty(name = "queue.notifications.access-key", havingValue = "false")
     public QueueClient notificationsQueueClient() {
         return mock(QueueClient.class);
     }
