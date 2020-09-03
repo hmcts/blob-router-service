@@ -185,9 +185,9 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_find_only_latest_report_when_conditions_are_met() {
         // given
-        var expectedDetailedContent = "{ \"x\": \"123x\"}";
-        saveNewReportAndGetId("{}", expectedDetailedContent);
+        saveNewReportAndGetId("{}", "{ \"x\": 983 }");
         var expectedReportContent = "[]";
+        var expectedDetailedContent = "{ \"x\": \"123x\" }";
         var id = saveNewReportAndGetId(expectedReportContent, expectedDetailedContent);
 
         // when
@@ -200,6 +200,7 @@ public class ReconciliationReportRepositoryTest {
             .satisfies(actualReport -> {
                 assertThat(actualReport.id).isEqualTo(id);
                 assertThat(actualReport.summaryContent).isEqualTo(expectedReportContent);
+                assertThat(actualReport.detailedContent).isEqualTo(expectedDetailedContent);
                 assertThat(actualReport.contentTypeVersion).isEqualTo(VERSION);
             });
     }
