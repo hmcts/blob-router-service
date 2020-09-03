@@ -38,7 +38,8 @@ public class ReconciliationReportRepository {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
             "INSERT INTO envelope_reconciliation_reports "
-                + "(id, envelope_supplier_statement_id, account, summary_content, detailed_content, content_type_version, created_at) "
+                + "(id, envelope_supplier_statement_id, account, "
+                + "summary_content, detailed_content, content_type_version, created_at) "
                 + "VALUES "
                 + "(:id, :statementId, :account, :summaryContent, :detailedContent, :contentTypeVersion, :createdAt)",
             new MapSqlParameterSource()
