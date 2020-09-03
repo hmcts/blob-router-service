@@ -57,6 +57,7 @@ public class ReconciliationReportRepositoryTest {
                 statementId,
                 "account",
                 "{ \"x\": 123 }",
+                "{ \"report\": \"detailed_report\" }",
                 "v1.0"
             );
 
@@ -73,7 +74,8 @@ public class ReconciliationReportRepositoryTest {
             assertThat(r.id).isEqualTo(id);
             assertThat(r.supplierStatementId).isEqualTo(report.supplierStatementId);
             assertThat(r.account).isEqualTo(report.account);
-            assertThat(r.content).isEqualTo(report.content);
+            assertThat(r.summaryContent).isEqualTo(report.summaryContent);
+            assertThat(r.detailedContent).isEqualTo(report.detailedContent);
             assertThat(r.contentTypeVersion).isEqualTo(report.contentTypeVersion);
             assertThat(r.createdAt).isAfter(start);
             assertThat(r.createdAt).isBefore(finish);
@@ -91,6 +93,7 @@ public class ReconciliationReportRepositoryTest {
                 statementId,
                 "account",
                 "*A(DSOSpasodi",
+                "{  \"report\": \"detailed_report\" }",
                 "v1.0"
             );
 
@@ -111,6 +114,7 @@ public class ReconciliationReportRepositoryTest {
             new NewReconciliationReport(
                 notExistingStatementId,
                 "account",
+                "{ \"x\": 123 }",
                 "{ \"x\": 123 }",
                 "v1.0"
             );
@@ -147,7 +151,7 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_not_find_anything_when_conditions_do_not_match() {
         // given
-        saveNewReportAndGetId("{}");
+        saveNewReportAndGetId("{}", "{ \"x\": 123 }");
 
         // when
         Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
@@ -159,8 +163,9 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_find_a_report_when_conditions_are_met() {
         // given
-        var expectedReportContent = "{}";
-        var id = saveNewReportAndGetId(expectedReportContent);
+        var expectedSummaryContent = "{}";
+        var expectedDetailedContent = "{ \"x\": 123 }";
+        var id = saveNewReportAndGetId(expectedSummaryContent, expectedDetailedContent);
 
         // when
         Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
@@ -171,7 +176,8 @@ public class ReconciliationReportRepositoryTest {
             .get()
             .satisfies(actualReport -> {
                 assertThat(actualReport.id).isEqualTo(id);
-                assertThat(actualReport.content).isEqualTo(expectedReportContent);
+                assertThat(actualReport.summaryContent).isEqualTo(expectedSummaryContent);
+                assertThat(actualReport.detailedContent).isEqualTo(expectedDetailedContent);
                 assertThat(actualReport.contentTypeVersion).isEqualTo(VERSION);
             });
     }
@@ -179,9 +185,10 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_find_only_latest_report_when_conditions_are_met() {
         // given
-        saveNewReportAndGetId("{}");
+        var expectedDetailedContent = "{ \"x\": \"123x\"}";
+        saveNewReportAndGetId("{}", expectedDetailedContent);
         var expectedReportContent = "[]";
-        var id = saveNewReportAndGetId(expectedReportContent);
+        var id = saveNewReportAndGetId(expectedReportContent, expectedDetailedContent);
 
         // when
         Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
@@ -192,15 +199,15 @@ public class ReconciliationReportRepositoryTest {
             .get()
             .satisfies(actualReport -> {
                 assertThat(actualReport.id).isEqualTo(id);
-                assertThat(actualReport.content).isEqualTo(expectedReportContent);
+                assertThat(actualReport.summaryContent).isEqualTo(expectedReportContent);
                 assertThat(actualReport.contentTypeVersion).isEqualTo(VERSION);
             });
     }
 
-    private UUID saveNewReportAndGetId(String reportContents) {
+    private UUID saveNewReportAndGetId(String summaryContent, String detailedContent) {
         try {
             var statementId = statementRepo.save(NEW_STATEMENT);
-            var report = new NewReconciliationReport(statementId, ACCOUNT, reportContents, VERSION);
+            var report = new NewReconciliationReport(statementId, ACCOUNT, summaryContent, detailedContent, VERSION);
 
             return reportRepo.save(report);
         } catch (SQLException exception) {

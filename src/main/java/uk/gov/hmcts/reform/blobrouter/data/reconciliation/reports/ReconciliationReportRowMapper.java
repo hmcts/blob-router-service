@@ -19,7 +19,8 @@ public class ReconciliationReportRowMapper implements RowMapper<ReconciliationRe
             UUID.fromString(rs.getString("id")),
             UUID.fromString(rs.getString("envelope_supplier_statement_id")),
             rs.getString("account"),
-            rs.getString("content"),
+            rs.getString("summaryContent"),
+            rs.getString("detailedContent"),
             rs.getString("content_type_version"),
             toDateTime(rs.getTimestamp("sent_at")),
             toDateTime(rs.getTimestamp("created_at"))
