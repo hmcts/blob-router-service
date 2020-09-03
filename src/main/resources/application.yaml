@@ -85,7 +85,6 @@ queue:
   notifications:
     access-key: ${NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY}
     access-key-name: ${NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME}
-    connection-string: ${NOTIFICATIONS_QUEUE_CONNECTION_STRING}
     namespace: ${NOTIFICATIONS_QUEUE_NAMESPACE}
 
 reports:
