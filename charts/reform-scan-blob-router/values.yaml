@@ -20,7 +20,6 @@ java:
         - blob-router-POSTGRES-HOST
         - blob-router-POSTGRES-PORT
         - blob-router-POSTGRES-DATABASE
-        - notifications-queue-send-connection-string
         - notification-queue-send-shared-access-key
         - reconciliation-api-key
 
