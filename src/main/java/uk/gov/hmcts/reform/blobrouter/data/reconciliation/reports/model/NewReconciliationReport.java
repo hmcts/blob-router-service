@@ -6,18 +6,21 @@ public class NewReconciliationReport {
 
     public final UUID supplierStatementId;
     public final String account;
-    public final String content;
+    public final String summaryContent;
+    public final String detailedContent;
     public final String contentTypeVersion;
 
     public NewReconciliationReport(
         UUID supplierStatementId,
         String account,
-        String content,
+        String summaryContent,
+        String detailedContent,
         String contentTypeVersion
     ) {
         this.supplierStatementId = supplierStatementId;
         this.account = account;
-        this.content = content;
+        this.summaryContent = summaryContent;
+        this.detailedContent = detailedContent;
         this.contentTypeVersion = contentTypeVersion;
     }
 }
