@@ -84,7 +84,6 @@ public class SummaryReportService {
 
         for (var targetStorage : TargetStorageAccount.values()) {
             try {
-
                 var processedEnvelopes = processedEnvelopesMap.get(targetStorage);
                 var supplierEnvelopes = supplierEnvelopesMap.get(targetStorage);
                 SummaryReport summaryReport = createSummaryReport(
@@ -112,9 +111,10 @@ public class SummaryReportService {
         }
     }
 
-    private SummaryReport createSummaryReport(List<Envelope> processedEnvelopes,
-        List<uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope> supplierEnvelopes) {
-
+    private SummaryReport createSummaryReport(
+        List<Envelope> processedEnvelopes,
+        List<uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope> supplierEnvelopes
+    ) {
         int actualCount = processedEnvelopes.size();
         int reportedCount = supplierEnvelopes.size();
 
