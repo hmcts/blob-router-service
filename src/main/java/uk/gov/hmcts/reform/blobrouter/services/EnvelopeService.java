@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -161,6 +162,12 @@ public class EnvelopeService {
                 ))
                 .collect(toList());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<Envelope> getEnvelopes(LocalDate date) {
+        var envelopes = envelopeRepository.findEnvelopes(null, null, date);
+        return envelopes.isEmpty() ? emptyList() : ImmutableList.copyOf(envelopes);
     }
 
     private List<EnvelopeEvent> getEnvelopeEvents(
