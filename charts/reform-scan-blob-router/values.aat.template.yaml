@@ -22,8 +22,10 @@ java:
         - storage-account-staging-name
         - storage-account-staging-primary-key
         - storage-account-staging-secondary-key
+        - pcq-storage-account-staging-name
+        - pcq-storage-account-staging-primary-key
+        - pcq-storage-account-staging-secondary-key
         - crime-storage-connection-string
-        - pcq-storage-connection-string
         - blob-router-staging-db-password
         - blob-router-staging-db-user
         - blob-router-staging-db-host

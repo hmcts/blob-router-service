@@ -14,8 +14,10 @@ java:
         - storage-account-name
         - storage-account-primary-key
         - storage-account-secondary-key
+        - pcq-storage-account-name
+        - pcq-storage-account-primary-key
+        - pcq-storage-account-secondary-key
         - crime-storage-connection-string
-        - pcq-storage-connection-string
         - blob-router-POSTGRES-PASS
         - blob-router-POSTGRES-USER
         - blob-router-POSTGRES-HOST
