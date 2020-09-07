@@ -15,6 +15,12 @@ java:
     STORAGE_CRIME_ACCOUNT_KEY:
       secretRef: storage-secret-crime-{{ .Release.Name }}
       key: accessKey
+    STORAGE_PCQ_ACCOUNT_NAME:
+      secretRef: storage-secret-pcq-{{ .Release.Name }}
+      key: storageAccountName
+    STORAGE_PCQ_ACCOUNT_KEY:
+      secretRef: storage-secret-pcq-{{ .Release.Name }}
+      key: accessKey
     SB_ACCESS_KEY:
       secretRef: servicebus-secret-namespace-{{ .Release.Name }}
       key: primaryKey
@@ -49,10 +55,13 @@ java:
 
     STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
     STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
+    STORAGE_PCQ_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_PCQ_ACCOUNT_NAME);AccountKey=$(STORAGE_PCQ_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
 
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
     CRIME_ENABLED: true
+    PCQ_DESTINATION_CONTAINER: pcq
+    PCQ_ENABLED: true
 
     NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     NOTIFICATIONS_QUEUE_NAMESPACE: "$(SB_NAMESPACE)"
@@ -86,6 +95,8 @@ reformblobstorage:
       - divorce
       - probate
       - publiclaw
+      - pcq
+      - pcq-rejected
 
 crimeblobstorage:
   enabled: true
@@ -96,6 +107,16 @@ crimeblobstorage:
   setup:
     containers:
       - bs-sit-scans-received
+
+pcqblobstorage:
+  enabled: true
+  resourceGroup: reform-scan-aks
+  releaseNameOverride: pcq-{{ .Release.Name }}
+  teamName: "BSP"
+  location: ukwest
+  setup:
+    containers:
+      - pcq
 
 servicebus:
   resourceGroup: reform-scan-aks

@@ -15,6 +15,7 @@ java:
         - storage-account-primary-key
         - storage-account-secondary-key
         - crime-storage-connection-string
+        - pcq-storage-connection-string
         - blob-router-POSTGRES-PASS
         - blob-router-POSTGRES-USER
         - blob-router-POSTGRES-HOST
@@ -40,6 +41,7 @@ java:
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
     STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
+    PCQ_DESTINATION_CONTAINER: pcq
 
     NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "SendSharedAccessKey"
     NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
@@ -54,6 +56,8 @@ reformblobstorage:
 cftblobstorage:
   enabled: false
 crimeblobstorage:
+  enabled: false
+pcqblobstorage:
   enabled: false
 
 servicebus:
