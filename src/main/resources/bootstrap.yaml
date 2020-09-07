@@ -14,6 +14,7 @@ spring:
         storage-account-staging-primary-key:  storage.account-key
         storage-account-staging-secondary-key:  storage.account-secondary-key
         crime-storage-connection-string: storage.crime.connection-string
+        pcq-storage-connection-string: storage.pcq.connection-string
         reports-email-username: SMTP_USERNAME
         reports-email-password: SMTP_PASSWORD
         reports-recipients: REPORTS_RECIPIENTS
