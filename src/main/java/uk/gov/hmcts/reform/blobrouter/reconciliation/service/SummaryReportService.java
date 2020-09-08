@@ -68,7 +68,7 @@ public class SummaryReportService {
         var envelopeList = envelopeService.getEnvelopes(date);
 
         if (CollectionUtils.isEmpty(envelopeList)) {
-            logger.info("No envelopes find for {} ", date);
+            logger.info("No envelope found for {}", date);
         }
 
         Map<TargetStorageAccount, List<uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope>>
@@ -105,7 +105,8 @@ public class SummaryReportService {
                     "Error creating summary report. Account: {}, supplier Id: {}, date: {}",
                     targetStorage,
                     envelopeSupplierStatement.id,
-                    date
+                    date,
+                    ex
                 );
             }
         }
@@ -132,7 +133,7 @@ public class SummaryReportService {
             .map(s -> new SummaryReportItem(s.zipFileName, s.container))
             .collect(Collectors.toList());
 
-        return new SummaryReport(actualCount, receivedButNotReported, reportedCount, reportedButNotProcessed);
+        return new SummaryReport(actualCount, reportedCount, receivedButNotReported, reportedButNotProcessed);
     }
 
     private boolean isEqualFile(

@@ -9,24 +9,24 @@ public class SummaryReport {
     @JsonProperty("actual_count")
     private int actualCount;
 
-    @JsonProperty("received_but_not_reported")
-    private List<SummaryReportItem> receivedButNotReported;
-
     @JsonProperty("reported_count")
     private int reportedCount;
+
+    @JsonProperty("received_but_not_reported")
+    private List<SummaryReportItem> receivedButNotReported;
 
     @JsonProperty("reported_but_not_received")
     private List<SummaryReportItem> reportedButNotReceived;
 
     public SummaryReport(
         int actualCount,
-        List<SummaryReportItem> receivedButNotReported,
         int reportedCount,
+        List<SummaryReportItem> receivedButNotReported,
         List<SummaryReportItem> reportedButNotReceived
     ) {
         this.actualCount = actualCount;
-        this.receivedButNotReported = receivedButNotReported;
         this.reportedCount = reportedCount;
+        this.receivedButNotReported = receivedButNotReported;
         this.reportedButNotReceived = reportedButNotReceived;
     }
 }
