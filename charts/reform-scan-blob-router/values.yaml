@@ -14,9 +14,6 @@ java:
         - storage-account-name
         - storage-account-primary-key
         - storage-account-secondary-key
-        - pcq-storage-account-name
-        - pcq-storage-account-primary-key
-        - pcq-storage-account-secondary-key
         - crime-storage-connection-string
         - blob-router-POSTGRES-PASS
         - blob-router-POSTGRES-USER
@@ -49,6 +46,7 @@ java:
     NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
 
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
+    PCQ_BACKEND_API_URL: "http://pcq-backend-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
 
     SMTP_HOST: "false"
     SEND_DAILY_REPORT_ENABLED: "false"

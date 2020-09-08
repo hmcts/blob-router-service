@@ -57,6 +57,8 @@ java:
     STORAGE_PCQ_URL: "https://$(STORAGE_PCQ_ACCOUNT_NAME).blob.core.windows.net"
     STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
 
+    PCQ_BACKEND_API_URL: "http://pcq-backend-aat.service.core-compute-aat.internal"
+
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
     CRIME_ENABLED: true

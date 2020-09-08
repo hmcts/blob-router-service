@@ -13,12 +13,6 @@ spring:
         storage-account-staging-name: storage.account-name
         storage-account-staging-primary-key:  storage.account-key
         storage-account-staging-secondary-key:  storage.account-secondary-key
-        pcq-storage-account-name: storage.pcq.account-name
-        pcq-storage-account-primary-key:  storage.pcq.account-key
-        pcq-storage-account-secondary-key:  storage.pcq.account-secondary-key
-        pcq-storage-account-staging-name: storage.pcq.account-name
-        pcq-storage-account-staging-primary-key:  storage.pcq.account-key
-        pcq-storage-account-staging-secondary-key:  storage.pcq.account-secondary-key
         crime-storage-connection-string: storage.crime.connection-string
         reports-email-username: SMTP_USERNAME
         reports-email-password: SMTP_PASSWORD
