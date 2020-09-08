@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNullElse;
 
 @Component
 public class SummaryReportCreator {
@@ -17,10 +18,10 @@ public class SummaryReportCreator {
         List<Envelope> receivedEnvelopes,
         List<uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope> reportedEnvelopes
     ) {
-        List<Envelope> processedEnvelopes =
-            receivedEnvelopes == null ? emptyList() : receivedEnvelopes;
+        List<Envelope> processedEnvelopes = requireNonNullElse(receivedEnvelopes, emptyList());
+
         List<uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope> supplierEnvelopes
-            = reportedEnvelopes == null ? emptyList() : reportedEnvelopes;
+            = requireNonNullElse(reportedEnvelopes, emptyList());
 
         int actualCount = processedEnvelopes.size();
         int reportedCount = supplierEnvelopes.size();
