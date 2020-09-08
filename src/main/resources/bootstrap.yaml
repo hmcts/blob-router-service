@@ -30,3 +30,4 @@ spring:
         notification-queue-send-shared-access-key: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
         notification-staging-queue-send-shared-access-key: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
         reconciliation-api-key: RECONCILIATION_API_KEY
+        s2s-secret-blob-router: S2S_SECRET

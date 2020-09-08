@@ -1,6 +1,7 @@
 java:
   environment:
     CRIME_ENABLED: "true"
+    PCQ_ENABLED: "true"
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
     DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
     SEND_NOTIFICATIONS_CRON: "0/10 * * * * *"
@@ -29,3 +30,4 @@ java:
         - blob-router-staging-db-name
         - notification-staging-queue-send-shared-access-key
         - reconciliation-api-key
+        - s2s-secret-blob-router

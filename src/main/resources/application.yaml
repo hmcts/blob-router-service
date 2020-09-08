@@ -60,6 +60,11 @@ service:
       enabled: ${CRIME_ENABLED:false}
       target-storage-account: crime
       target-container: ${CRIME_DESTINATION_CONTAINER}
+    - source-container: pcq
+      sas-validity: 300 #In seconds
+      enabled: ${PCQ_ENABLED:false}
+      target-storage-account: pcq
+      target-container: ${PCQ_DESTINATION_CONTAINER}
     - source-container: divorce
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
