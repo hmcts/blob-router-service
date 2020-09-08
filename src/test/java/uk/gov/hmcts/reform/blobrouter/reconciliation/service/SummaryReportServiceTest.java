@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
@@ -155,7 +154,11 @@ class SummaryReportServiceTest {
             createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate")
         );
         given(envelopeService.getEnvelopes(date)).willReturn(envelopeList);
-        given(summaryReportCreator.createSummaryReport(eq(envelopeList), notNull()))
+
+        var summaryReportItemList = Arrays.asList(
+            createSummaryReportItem("1010404021234_14-08-2020-08-31.zip", "probate")
+        );
+        given(summaryReportCreator.createSummaryReport(eq(summaryReportItemList), notNull()))
             .willThrow(new RuntimeException("Can not create summary for Bulkscan"));
 
         given(summaryReportCreator.createSummaryReport(null, null))
@@ -273,5 +276,9 @@ class SummaryReportServiceTest {
         StorageConfigItem storageConfigItem = new StorageConfigItem();
         storageConfigItem.setTargetStorageAccount(targetStorageAccount);
         return storageConfigItem;
+    }
+
+    private static SummaryReportItem createSummaryReportItem(String fileName, String container) {
+        return new SummaryReportItem(container, fileName);
     }
 }

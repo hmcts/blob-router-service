@@ -1,12 +1,13 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 
+import com.google.common.collect.Sets;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReportItem;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNullElse;
@@ -15,40 +16,27 @@ import static java.util.Objects.requireNonNullElse;
 public class SummaryReportCreator {
 
     public SummaryReport createSummaryReport(
-        List<Envelope> receivedEnvelopes,
-        List<uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope> reportedEnvelopes
+        List<SummaryReportItem> receivedEnvelopes,
+        List<SummaryReportItem> reportedEnvelopes
     ) {
-        List<Envelope> processedEnvelopes = requireNonNullElse(receivedEnvelopes, emptyList());
-
-        List<uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope> supplierEnvelopes
-            = requireNonNullElse(reportedEnvelopes, emptyList());
+        List<SummaryReportItem> processedEnvelopes = requireNonNullElse(receivedEnvelopes, emptyList());
+        List<SummaryReportItem> supplierEnvelopes = requireNonNullElse(reportedEnvelopes, emptyList());
 
         int actualCount = processedEnvelopes.size();
         int reportedCount = supplierEnvelopes.size();
 
-        List<SummaryReportItem> receivedButNotReported = processedEnvelopes
-            .stream()
-            .filter(e ->
-                supplierEnvelopes.stream().noneMatch(s -> isEqualFile(e, s)))
-            .map(e -> new SummaryReportItem(e.fileName, e.container))
-            .collect(Collectors.toList());
+        var processedEnvelopeSet = Sets.newHashSet(processedEnvelopes);
+        var supplierEnvelopeSet = Sets.newHashSet(supplierEnvelopes);
 
-        List<SummaryReportItem> reportedButNotProcessed = supplierEnvelopes
-            .stream()
-            .filter(s ->
-                processedEnvelopes.stream().noneMatch(e -> isEqualFile(e, s)))
-            .map(s -> new SummaryReportItem(s.zipFileName, s.container))
-            .collect(Collectors.toList());
+        Set<SummaryReportItem> receivedButNotReported = Sets.difference(processedEnvelopeSet, supplierEnvelopeSet);
+        Set<SummaryReportItem> reportedButNotProcessed = Sets.difference(supplierEnvelopeSet, processedEnvelopeSet);
 
-        return new SummaryReport(actualCount, reportedCount, receivedButNotReported, reportedButNotProcessed);
-    }
-
-    private boolean isEqualFile(
-        Envelope envelope,
-        uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope supplierReportedEnvelope
-    ) {
-        return envelope.fileName.equals(supplierReportedEnvelope.zipFileName)
-            && envelope.container.equals(supplierReportedEnvelope.container);
+        return new SummaryReport(
+            actualCount,
+            reportedCount,
+            new ArrayList<>(receivedButNotReported),
+            new ArrayList<>(reportedButNotProcessed)
+        );
     }
 
 }

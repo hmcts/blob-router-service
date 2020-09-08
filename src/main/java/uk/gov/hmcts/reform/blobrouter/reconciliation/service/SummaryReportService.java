@@ -8,12 +8,12 @@ import org.springframework.util.CollectionUtils;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReportItem;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.time.LocalDate;
@@ -82,16 +82,18 @@ public class SummaryReportService {
             logger.info("No envelope found for {}", date);
         }
 
-        Map<TargetStorageAccount, List<uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope>>
+        Map<TargetStorageAccount, List<SummaryReportItem>>
             supplierEnvelopesMap = supplierStatement
             .envelopes
             .stream()
-            .collect(groupingBy(e -> storageConfig.get(e.container).getTargetStorageAccount()));
+            .map(e -> new SummaryReportItem(e.zipFileName, e.container))
+            .collect(groupingBy(s -> storageConfig.get(s.container).getTargetStorageAccount()));
 
-        Map<TargetStorageAccount, List<Envelope>> processedEnvelopesMap =
+        Map<TargetStorageAccount, List<SummaryReportItem>> processedEnvelopesMap =
             envelopeList
                 .stream()
-                .collect(groupingBy(e -> storageConfig.get(e.container).getTargetStorageAccount()));
+                .map(e -> new SummaryReportItem(e.fileName, e.container))
+                .collect(groupingBy(s -> storageConfig.get(s.container).getTargetStorageAccount()));
 
         for (var targetStorage : TargetStorageAccount.values()) {
             try {
