@@ -42,6 +42,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -95,7 +97,8 @@ class SummaryReportServiceTest {
     }
 
     @Test
-    void should_continue_process_with_next_target_storage_if_one_fails()
+    // target storage 'bulkscan' will get exception continue with other target storage
+    void should_continue_processing_with_next_target_storage_if_one_fails()
         throws Exception {
         // given
         given(storageConfig.get(anyString())).willReturn(createStorageConfigItem(BULKSCAN));
@@ -120,7 +123,10 @@ class SummaryReportServiceTest {
             createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate")
         );
         given(envelopeService.getEnvelopes(date)).willReturn(envelopeList);
-        given(summaryReportCreator.createSummaryReport(any(), any()))
+        given(summaryReportCreator.createSummaryReport(eq(envelopeList), notNull()))
+            .willThrow(new RuntimeException("Can not create summary for Bulkscan"));
+
+        given(summaryReportCreator.createSummaryReport(null, null))
             .willReturn(
                 new SummaryReport(
                     120,
@@ -132,14 +138,15 @@ class SummaryReportServiceTest {
 
 
         given(reconciliationReportRepository.save(any()))
-            .willThrow(new RuntimeException("Can not save"));
+            .willReturn(UUID.randomUUID());
         //when
         summaryReportService.process(date);
 
         // then
         // should try for all target storage accounts
         verify(summaryReportCreator, times(3)).createSummaryReport(any(), any());
-        verify(reconciliationReportRepository, times(3)).save(any());
+        // bulkscan gets exception so can not reach to save
+        verify(reconciliationReportRepository, times(2)).save(any());
 
     }
 

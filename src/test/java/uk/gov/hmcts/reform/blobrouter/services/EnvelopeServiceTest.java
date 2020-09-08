@@ -409,8 +409,9 @@ class EnvelopeServiceTest {
 
         // then
         verify(envelopeRepository).findEnvelopes(null, null, date);
-        assertThat(envelopes).containsAll(list);
-        assertThat(envelopes).isNotSameAs(list);
+        assertThat(envelopes)
+            .containsAll(list)
+            .isNotSameAs(list);
         verifyNoInteractions(eventRepository);
     }
 }
