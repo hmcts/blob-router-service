@@ -15,12 +15,6 @@ java:
     STORAGE_CRIME_ACCOUNT_KEY:
       secretRef: storage-secret-crime-{{ .Release.Name }}
       key: accessKey
-    STORAGE_PCQ_ACCOUNT_NAME:
-      secretRef: storage-secret-pcq-{{ .Release.Name }}
-      key: storageAccountName
-    STORAGE_PCQ_ACCOUNT_KEY:
-      secretRef: storage-secret-pcq-{{ .Release.Name }}
-      key: accessKey
     SB_ACCESS_KEY:
       secretRef: servicebus-secret-namespace-{{ .Release.Name }}
       key: primaryKey
