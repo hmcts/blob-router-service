@@ -14,17 +14,13 @@ import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewRecon
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReportItem;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -38,19 +34,22 @@ public class SummaryReportService {
     private final ObjectMapper objectMapper;
     private final EnvelopeService envelopeService;
     private final Map<String, StorageConfigItem> storageConfig; // container-specific configuration, by container name
+    private SummaryReportCreator summaryReportCreator;
 
     public SummaryReportService(
         SupplierStatementRepository repository,
         ReconciliationReportRepository reconciliationReportRepository,
         ObjectMapper objectMapper,
         EnvelopeService envelopeService,
-        ServiceConfiguration serviceConfiguration
+        ServiceConfiguration serviceConfiguration,
+        SummaryReportCreator summaryReportCreator
     ) {
         this.repository = repository;
         this.reconciliationReportRepository = reconciliationReportRepository;
         this.objectMapper = objectMapper;
         this.envelopeService = envelopeService;
         this.storageConfig =  serviceConfiguration.getStorageConfig();
+        this.summaryReportCreator = summaryReportCreator;
     }
 
     public void process(LocalDate date) throws JsonProcessingException {
@@ -84,11 +83,10 @@ public class SummaryReportService {
 
         for (var targetStorage : TargetStorageAccount.values()) {
             try {
-                var processedEnvelopes = processedEnvelopesMap.get(targetStorage);
-                var supplierEnvelopes = supplierEnvelopesMap.get(targetStorage);
-                SummaryReport summaryReport = createSummaryReport(
-                    processedEnvelopes == null ? emptyList() : processedEnvelopes,
-                    supplierEnvelopes == null ? emptyList() : supplierEnvelopes
+
+                var summaryReport = summaryReportCreator.createSummaryReport(
+                    processedEnvelopesMap.get(targetStorage),
+                    supplierEnvelopesMap.get(targetStorage)
                 );
 
                 String summaryContent = objectMapper.writeValueAsString(summaryReport);
@@ -110,38 +108,6 @@ public class SummaryReportService {
                 );
             }
         }
-    }
-
-    private SummaryReport createSummaryReport(
-        List<Envelope> processedEnvelopes,
-        List<uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope> supplierEnvelopes
-    ) {
-        int actualCount = processedEnvelopes.size();
-        int reportedCount = supplierEnvelopes.size();
-
-        List<SummaryReportItem> receivedButNotReported = processedEnvelopes
-            .stream()
-            .filter(e ->
-                supplierEnvelopes.stream().noneMatch(s -> isEqualFile(e, s)))
-            .map(e -> new SummaryReportItem(e.fileName, e.container))
-            .collect(Collectors.toList());
-
-        List<SummaryReportItem> reportedButNotProcessed = supplierEnvelopes
-            .stream()
-            .filter(s ->
-                processedEnvelopes.stream().noneMatch(e -> isEqualFile(e, s)))
-            .map(s -> new SummaryReportItem(s.zipFileName, s.container))
-            .collect(Collectors.toList());
-
-        return new SummaryReport(actualCount, reportedCount, receivedButNotReported, reportedButNotProcessed);
-    }
-
-    private boolean isEqualFile(
-        Envelope envelope,
-        uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope supplierReportedEnvelope
-    ) {
-        return envelope.fileName.equals(supplierReportedEnvelope.zipFileName)
-            && envelope.container.equals(supplierReportedEnvelope.container);
     }
 
 }

@@ -7,16 +7,16 @@ import java.util.List;
 public class SummaryReport {
 
     @JsonProperty("actual_count")
-    private int actualCount;
+    public final int actualCount;
 
     @JsonProperty("reported_count")
-    private int reportedCount;
+    public final int reportedCount;
 
     @JsonProperty("received_but_not_reported")
-    private List<SummaryReportItem> receivedButNotReported;
+    public final List<SummaryReportItem> receivedButNotReported;
 
     @JsonProperty("reported_but_not_received")
-    private List<SummaryReportItem> reportedButNotReceived;
+    public final List<SummaryReportItem> reportedButNotReceived;
 
     public SummaryReport(
         int actualCount,

@@ -8,8 +8,6 @@ import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -24,6 +22,8 @@ import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.Reconciliation
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReportItem;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.io.IOException;
@@ -51,6 +51,7 @@ import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class SummaryReportServiceTest {
 
     private SummaryReportService summaryReportService;
@@ -61,6 +62,7 @@ class SummaryReportServiceTest {
     @Mock private EnvelopeService envelopeService;
     @Mock private ServiceConfiguration serviceConfiguration;
     @Mock private Map<String, StorageConfigItem> storageConfig;
+    @Mock private SummaryReportCreator summaryReportCreator;
 
     @Captor
     private ArgumentCaptor<NewReconciliationReport> newReconciliationReportCaptor;
@@ -73,7 +75,8 @@ class SummaryReportServiceTest {
             reconciliationReportRepository,
             objectMapper,
             envelopeService,
-            serviceConfiguration
+            serviceConfiguration,
+            summaryReportCreator
         );
     }
 
@@ -117,28 +120,36 @@ class SummaryReportServiceTest {
             createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate")
         );
         given(envelopeService.getEnvelopes(date)).willReturn(envelopeList);
+        given(summaryReportCreator.createSummaryReport(any(), any()))
+            .willReturn(
+                new SummaryReport(
+                    120,
+                    120,
+                    List.of(new SummaryReportItem("12312.31312.312.zip", "sscs")),
+                    List.of(new SummaryReportItem("9810404021234_14-08-2020-03-08-31.zip", "cmc"))
+                )
+            );
+
+
         given(reconciliationReportRepository.save(any()))
             .willThrow(new RuntimeException("Can not save"));
         //when
         summaryReportService.process(date);
 
         // then
+        // should try for all target storage accounts
+        verify(summaryReportCreator, times(3)).createSummaryReport(any(), any());
         verify(reconciliationReportRepository, times(3)).save(any());
 
     }
 
-    @ParameterizedTest
-    @MethodSource("serviceWithClassification")
-    void should_save_reports_if_there_is_supplier_report(
-        String supplierStatementFile,
-        List<Envelope> envelopeList,
-        String summaryReportPostfix
-    ) throws IOException, SQLException, JSONException {
+    @Test
+    void should_save_reports_if_there_is_supplier_report() throws IOException, SQLException, JSONException {
         // given
         setupStorageConfig();
         LocalDate date = LocalDate.now();
         String content = Resources.toString(
-            getResource(supplierStatementFile),
+            getResource("reconciliation/valid-supplier-statement.json"),
             UTF_8
         );
 
@@ -153,7 +164,22 @@ class SummaryReportServiceTest {
 
         given(supplierStatementRepository.findLatest(date)).willReturn(Optional.of(envelopeSupplierStatement));
 
+        List envelopeList = Arrays.asList(
+            createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
+            createEnvelope("9810404021234_14-08-2020-03-08-31.zip", "sscs"),
+            createEnvelope("3108198112345_14-05-2020-10-11-21.zip", "crime"),
+            createEnvelope("7171711717_8-05-2020-09-08-31.zip", "pcq")
+        );
         given(envelopeService.getEnvelopes(date)).willReturn(envelopeList);
+        given(summaryReportCreator.createSummaryReport(any(), any()))
+            .willReturn(
+                new SummaryReport(
+                    120,
+                    120,
+                    List.of(new SummaryReportItem("12312.31312.312.zip", "sscs")),
+                    List.of(new SummaryReportItem("9810404021234_14-08-2020-03-08-31.zip", "cmc"))
+                )
+            );
 
         //when
         summaryReportService.process(date);
@@ -164,74 +190,22 @@ class SummaryReportServiceTest {
         List<NewReconciliationReport> allCapturedValues = newReconciliationReportCaptor.getAllValues();
         TargetStorageAccount[] targetStorageAccounts = TargetStorageAccount.values();
 
+
         for (int i = 0; i < 3; i++) {
             var newReconciliationReport = allCapturedValues.get(i);
+
             assertThat(newReconciliationReport.supplierStatementId).isEqualTo(supplierId);
             assertThat(newReconciliationReport.contentTypeVersion).isEqualTo("1.0");
             assertThat(newReconciliationReport.account).isEqualTo(targetStorageAccounts[i].name());
 
             String summaryContent = Resources.toString(
-                getResource("reconciliation/summary-report/"
-                    + targetStorageAccounts[i].name().toLowerCase() + summaryReportPostfix),
+                getResource("reconciliation/summary-report/summary-report-with-both-discrepancy.json"),
                 UTF_8
             );
 
             assertThat(newReconciliationReport.detailedContent).isNull();
             JSONAssert.assertEquals(newReconciliationReport.summaryContent, summaryContent, true);
         }
-    }
-
-    private static Object[][] serviceWithClassification() {
-        return new Object[][]{
-            new Object[]{
-                "reconciliation/valid-supplier-statement.json",
-                Arrays.asList(
-                    createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
-                    createEnvelope("9810404021234_14-08-2020-03-08-31.zip", "sscs"),
-                    createEnvelope("3108198112345_14-05-2020-10-11-21.zip", "crime"),
-                    createEnvelope("7171711717_8-05-2020-09-08-31.zip", "pcq")
-                ),
-                "-report-with-reported-but-not-received.json"},
-            new Object[]{
-                "reconciliation/valid-supplier-statement.json",
-                Arrays.asList(
-                    createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
-                    createEnvelope("9810404021234_14-08-2020-03-08-31.zip", "sscs"),
-                    createEnvelope("11111222333_14-05-2020-09-08-31.zip", "cmc"),
-                    createEnvelope("10929292923_14-05-2020-09-08-31.zip", "crime"),
-                    createEnvelope("3108198112345_14-05-2020-10-11-21.zip", "crime"),
-                    createEnvelope("7171711717_8-05-2020-09-08-31.zip", "pcq"),
-                    createEnvelope("1231122-05-2020-10-08-31.zip", "pcq")
-                ),
-                "-report-without-discrepancy.json"},
-            new Object[]{
-                "reconciliation/valid-supplier-statement.json",
-                Arrays.asList(
-                    createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
-                    createEnvelope("9810404021234_14-08-2020-03-08-31.zip", "sscs"),
-                    createEnvelope("11111222333_14-05-2020-09-08-31.zip", "cmc"),
-                    createEnvelope("338743811111222333_14-00-09-08-31.zip", "probate"),
-                    createEnvelope("10929292923_14-05-2020-09-08-31.zip", "crime"),
-                    createEnvelope("3108198112345_14-05-2020-10-11-21.zip", "crime"),
-                    createEnvelope("123212331231312313123121312332131.zip", "crime"),
-                    createEnvelope("7171711717_8-05-2020-09-08-31.zip", "pcq"),
-                    createEnvelope("1231122-05-2020-10-08-31.zip", "pcq"),
-                    createEnvelope("1312321231122-10-08-31.zip", "pcq")
-                ),
-                "-report-with-received-but-not-reported.json"},
-            new Object[]{
-                "reconciliation/valid-supplier-statement.json",
-                Arrays.asList(
-                    createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
-                    createEnvelope("9810404021234_14-08-2020-03-08-31.zip", "sscs"),
-                    createEnvelope("1322313_32132132133211321321312313.zip", "sscs"),
-                    createEnvelope("3108198112345_14-05-2020-10-11-21.zip", "crime"),
-                    createEnvelope("3213213123123131231231-12312-31.zip", "crime"),
-                    createEnvelope("7171711717_8-05-2020-09-08-31.zip", "pcq"),
-                    createEnvelope("0932478342284231-2131231213-12312.zip", "pcq")
-                ),
-                "-report-with-both-discrepancy.json"}
-        };
     }
 
     private static Envelope createEnvelope(String fileName, String container) {
