@@ -22,10 +22,14 @@ java:
         - blob-router-POSTGRES-DATABASE
         - notification-queue-send-shared-access-key
         - reconciliation-api-key
+        - s2s-secret-blob-router
 
   environment:
     DB_CONN_OPTIONS: ?sslmode=require
     FLYWAY_SKIP_MIGRATIONS: true
+
+    S2S_NAME: "reform_scan_blob_router"
+    S2S_URL: "http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
 
     DELETE_DISPATCHED_FILES_CRON: "0 0/10 * * * *"
     HANDLE_REJECTED_FILES_CRON: "0/30 * * * * *"

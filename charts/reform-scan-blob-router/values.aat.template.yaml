@@ -33,3 +33,4 @@ java:
         - blob-router-staging-db-name
         - notification-staging-queue-send-shared-access-key
         - reconciliation-api-key
+        - s2s-secret-blob-router
