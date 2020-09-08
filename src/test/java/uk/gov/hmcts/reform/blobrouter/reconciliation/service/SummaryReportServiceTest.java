@@ -45,9 +45,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
@@ -83,7 +85,7 @@ class SummaryReportServiceTest {
     }
 
     @Test
-    void should_continue_if_there_is_no_supplier_report() throws JsonProcessingException {
+    void should_continue_if_there_is_no_supplier_statement() throws JsonProcessingException {
         // given
         LocalDate date = LocalDate.now();
         given(supplierStatementRepository.findLatest(date)).willReturn(Optional.empty());
@@ -92,6 +94,36 @@ class SummaryReportServiceTest {
         summaryReportService.process(date);
 
         // then
+        verify(supplierStatementRepository).findLatest(date);
+        verifyNoMoreInteractions(supplierStatementRepository);
+        verifyNoInteractions(envelopeService);
+        verifyNoInteractions(reconciliationReportRepository);
+    }
+
+    @Test
+    void should_stop_process_if_parsing_supplier_statements_json_fails() throws JsonProcessingException {
+        // given
+        LocalDate date = LocalDate.now();
+        var envelopeSupplierStatement = new EnvelopeSupplierStatement(
+            UUID.randomUUID(),
+            date,
+            "{wrong_data}",
+            "1.0",
+            LocalDateTime.now()
+        );
+        var option = mock(Optional.class);
+        given(supplierStatementRepository.findLatest(date)).willReturn(option);
+        given(option.isPresent()).willReturn(true);
+        given(option.get()).willReturn(envelopeSupplierStatement);
+
+
+        // when
+        summaryReportService.process(date);
+
+        // then
+        verify(option).isPresent();
+        verify(option).get();
+        verifyNoMoreInteractions(option);
         verifyNoInteractions(envelopeService);
         verifyNoInteractions(reconciliationReportRepository);
     }

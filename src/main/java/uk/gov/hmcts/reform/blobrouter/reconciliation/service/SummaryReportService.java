@@ -52,7 +52,7 @@ public class SummaryReportService {
         this.summaryReportCreator = summaryReportCreator;
     }
 
-    public void process(LocalDate date) throws JsonProcessingException {
+    public void process(LocalDate date) {
         Optional<EnvelopeSupplierStatement> optSupplierStatement = repository.findLatest(date);
 
         if (!optSupplierStatement.isPresent()) {
@@ -61,8 +61,20 @@ public class SummaryReportService {
         }
 
         EnvelopeSupplierStatement envelopeSupplierStatement = optSupplierStatement.get();
-        SupplierStatement supplierStatement = objectMapper
-            .readValue(envelopeSupplierStatement.content, SupplierStatement.class);
+
+        SupplierStatement supplierStatement;
+        try {
+            supplierStatement = objectMapper
+                .readValue(envelopeSupplierStatement.content, SupplierStatement.class);
+        } catch (JsonProcessingException jsonEx) {
+            logger.error(
+                "Error while parsing supplier statement. Supplier id:{}, date:{}",
+                envelopeSupplierStatement.id,
+                date,
+                jsonEx
+            );
+            return;
+        }
 
         var envelopeList = envelopeService.getEnvelopes(date);
 
