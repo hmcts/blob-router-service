@@ -176,7 +176,7 @@ class SummaryReportServiceTest {
 
         // then
         // should try for all target storage accounts
-        verify(summaryReportCreator, times(3)).createSummaryReport(any(), any());
+        verify(summaryReportCreator, times(TargetStorageAccount.values().length)).createSummaryReport(any(), any());
         // bulkscan gets exception so can not reach to save
         verify(reconciliationReportRepository, times(2)).save(any());
 
@@ -230,7 +230,7 @@ class SummaryReportServiceTest {
         TargetStorageAccount[] targetStorageAccounts = TargetStorageAccount.values();
 
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < targetStorageAccounts.length; i++) {
             var newReconciliationReport = allCapturedValues.get(i);
 
             assertThat(newReconciliationReport.supplierStatementId).isEqualTo(supplierId);
