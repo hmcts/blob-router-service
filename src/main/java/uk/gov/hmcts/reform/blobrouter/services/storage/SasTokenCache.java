@@ -40,7 +40,7 @@ public class SasTokenCache {
         this.bulkScanSasTokenClient = bulkScanSasTokenClient;
         this.refreshSasBeforeExpiry = refreshSasBeforeExpiry;
         tokenCache = Caffeine.newBuilder()
-            .expireAfter(new BulkScanSasTokenCacheExpiry())
+            .expireAfter(new SasTokenCacheExpiry())
             .build();
     }
 
@@ -72,7 +72,7 @@ public class SasTokenCache {
         return sasToken;
     }
 
-    private class BulkScanSasTokenCacheExpiry implements Expiry<String, String> {
+    private class SasTokenCacheExpiry implements Expiry<String, String> {
 
         public static final String MESSAGE = "Invalid SAS, the SAS expiration time parameter not found.";
 
