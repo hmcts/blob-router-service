@@ -4,10 +4,10 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReportItem;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.difference;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.emptyList;
@@ -35,8 +35,8 @@ public class SummaryReportCreator {
         return new SummaryReport(
             actualCount,
             reportedCount,
-            new ArrayList<>(receivedButNotReported),
-            new ArrayList<>(reportedButNotProcessed)
+            newArrayList(receivedButNotReported),
+            newArrayList(reportedButNotProcessed)
         );
     }
 
