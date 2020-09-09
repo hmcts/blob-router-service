@@ -87,4 +87,15 @@ public class ReconciliationReportRepository {
             return Optional.empty();
         }
     }
+
+    public void updateDetailedContent(UUID id, String newDetailedContent) throws SQLException {
+        jdbcTemplate.update(
+            "UPDATE envelope_reconciliation_reports "
+                + "SET detailed_content = :newDetailedContent "
+                + "WHERE id = :id",
+            new MapSqlParameterSource()
+                .addValue("id", id)
+                .addValue("newDetailedContent", toJson(newDetailedContent))
+        );
+    }
 }
