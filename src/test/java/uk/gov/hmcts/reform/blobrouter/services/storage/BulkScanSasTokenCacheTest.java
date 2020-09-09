@@ -8,7 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
-import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.SasTokenResponse;
+import uk.gov.hmcts.reform.blobrouter.clients.response.SasTokenResponse;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSasTokenException;
 
 import java.time.OffsetDateTime;
