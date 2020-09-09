@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor;
+package uk.gov.hmcts.reform.blobrouter.clients.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
