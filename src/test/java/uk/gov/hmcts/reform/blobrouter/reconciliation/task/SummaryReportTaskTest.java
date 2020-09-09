@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.tasks;
+package uk.gov.hmcts.reform.blobrouter.reconciliation.task;
 
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.SummaryReportService;

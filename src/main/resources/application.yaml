@@ -132,9 +132,6 @@ scheduling:
     send-daily-report:
       cron: ${SEND_DAILY_REPORT_CRON}
       enabled: ${SEND_DAILY_REPORT_ENABLED}
-    create-summary-report:
-      cron: ${CREATE_SUMMARY_REPORT_CRON}
-      enabled: ${CREATE_SUMMARY_REPORT_ENABLED}
 
 proxy:
   enabled: ${PROXY_ENABLED:true}

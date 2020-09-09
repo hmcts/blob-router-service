@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.tasks;
+package uk.gov.hmcts.reform.blobrouter.reconciliation.task;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
@@ -14,10 +14,10 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
 @Component
-@ConditionalOnProperty(value = "scheduling.task.create-summary-report.enabled")
+@ConditionalOnProperty(value = "scheduling.task.create-reconciliation-summary-report.enabled")
 public class SummaryReportTask {
 
-    private static final String TASK_NAME = "create-summary-report";
+    private static final String TASK_NAME = "create-reconciliation-summary-report";
     private static final Logger logger = getLogger(SummaryReportTask.class);
 
     private final SummaryReportService summaryReportService;
@@ -26,7 +26,7 @@ public class SummaryReportTask {
         this.summaryReportService = summaryReportService;
     }
 
-    @Scheduled(cron = "${scheduling.task.create-summary-report.cron}", zone = EUROPE_LONDON)
+    @Scheduled(cron = "${scheduling.task.create-reconciliation-summary-report.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
         logger.info("Started {} job", TASK_NAME);
