@@ -9,14 +9,19 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
+import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSasTokenException;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.TemporalAccessor;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static com.azure.storage.common.implementation.Constants.UrlConstants.SAS_EXPIRY_TIME;
 import static com.azure.storage.common.implementation.StorageImplUtils.parseQueryString;
@@ -24,57 +29,66 @@ import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
-public class BulkScanSasTokenCache {
+public class SasTokenCache {
 
-    private static final Logger logger = getLogger(BulkScanSasTokenCache.class);
-    private final BulkScanProcessorClient bulkScanSasTokenClient;
-    private final long refreshSasBeforeExpiry;
+    private static final Logger logger = getLogger(SasTokenCache.class);
 
-    //key= container name, value = sastoken
-    private static Cache<String, String> tokenCache;
+    // key - storage-account name - value - Map {key= container name, value = sastoken}
+    private Map<TargetStorageAccount, Tuple2<Cache<String, String>, Function<String, String>>> cacheManager;
 
-    public BulkScanSasTokenCache(
+    public SasTokenCache(
         BulkScanProcessorClient bulkScanSasTokenClient,
-        @Value("${bulk-scan-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
+        @Value("${bulk-scan-cache.refresh-before-expire-in-sec}") long bulkscanSasTokenTtl
     ) {
-        this.bulkScanSasTokenClient = bulkScanSasTokenClient;
-        this.refreshSasBeforeExpiry = refreshSasBeforeExpiry;
-        tokenCache = Caffeine.newBuilder()
-            .expireAfter(new BulkScanSasTokenCacheExpiry())
-            .build();
+        cacheManager = new HashMap<>();
+        /* Bulkscan storage containers sas token cache config */
+        addCacheConfig(
+            TargetStorageAccount.BULKSCAN,
+            bulkscanSasTokenTtl,
+            (String container) -> bulkScanSasTokenClient.getSasToken(container).sasToken
+        );
+
+        /* TODO: Add PCQ storage container sas token cache config */
     }
 
-    public String getSasToken(String containerName) {
+    private void addCacheConfig(TargetStorageAccount storageAccount, long ttl, Function<String, String> getSasToken) {
+        cacheManager.put(
+            storageAccount,
+            Tuples.of(
+                Caffeine.newBuilder().expireAfter(new SasTokenCacheExpiry(ttl)).build(),
+                getSasToken
+            )
+        );
+    }
+
+    public String getSasToken(TargetStorageAccount service, String containerName) {
         logger.info("Getting sas token for Container: {}", containerName);
 
-        final String sasToken = tokenCache.get(containerName, this::createSasToken);
+        Tuple2<Cache<String, String>, Function<String, String>> cacheTuple = cacheManager.get(service);
+        final String sasToken = cacheTuple.getT1().get(containerName, cacheTuple.getT2());
 
         logger.info("Finished getting sas token for Container: {}", containerName);
 
         return sasToken;
     }
 
-    public void removeFromCache(String containerName) {
+    public void removeFromCache(TargetStorageAccount service, String containerName) {
         logger.info("Invalidating cache for Container: {}", containerName);
 
-        tokenCache.invalidate(containerName);
+        Tuple2<Cache<String, String>, Function<String, String>> cacheTuple = cacheManager.get(service);
+        cacheTuple.getT1().invalidate(containerName);
 
         logger.info("Finished invalidating cache for Container: {}", containerName);
     }
 
-    private String createSasToken(String containerName) {
-        logger.info("Making sas token call for Container: {}", containerName);
-
-        final String sasToken = bulkScanSasTokenClient.getSasToken(containerName).sasToken;
-
-        logger.info("Finished making sas token call for Container: {}", containerName);
-
-        return sasToken;
-    }
-
-    private class BulkScanSasTokenCacheExpiry implements Expiry<String, String> {
+    private class SasTokenCacheExpiry implements Expiry<String, String> {
 
         public static final String MESSAGE = "Invalid SAS, the SAS expiration time parameter not found.";
+        private long sasTokenCacheTtl;
+
+        public SasTokenCacheExpiry(long sasTokenCacheTtl) {
+            this.sasTokenCacheTtl = sasTokenCacheTtl;
+        }
 
         @Override
         public long expireAfterCreate(
@@ -128,7 +142,7 @@ public class BulkScanSasTokenCache {
             return
                 TimeUnit.NANOSECONDS.convert(
                     expiry.getLong(INSTANT_SECONDS)
-                        - (OffsetDateTime.now(ZoneOffset.UTC).getLong(INSTANT_SECONDS) + refreshSasBeforeExpiry),
+                        - (OffsetDateTime.now(ZoneOffset.UTC).getLong(INSTANT_SECONDS) + sasTokenCacheTtl),
                     TimeUnit.SECONDS
                 );
         }

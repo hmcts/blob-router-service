@@ -14,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.time.Duration;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 
 @Service
 public class BlobContainerClientProxy {
@@ -22,18 +23,18 @@ public class BlobContainerClientProxy {
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
-    private final BulkScanSasTokenCache bulkScanSasTokenCache;
+    private final SasTokenCache sasTokenCache;
 
     private static final Duration UPLOAD_TIMEOUT = Duration.ofSeconds(40);
 
     public BlobContainerClientProxy(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
         BlobContainerClientBuilderProvider blobContainerClientBuilderProvider,
-        BulkScanSasTokenCache bulkScanSasTokenCache
+        SasTokenCache sasTokenCache
     ) {
         this.crimeClient = crimeClient;
         this.blobContainerClientBuilderProvider = blobContainerClientBuilderProvider;
-        this.bulkScanSasTokenCache = bulkScanSasTokenCache;
+        this.sasTokenCache = sasTokenCache;
     }
 
     private BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
@@ -41,7 +42,7 @@ public class BlobContainerClientProxy {
             case BULKSCAN:
                 return blobContainerClientBuilderProvider
                     .getBlobContainerClientBuilder()
-                    .sasToken(bulkScanSasTokenCache.getSasToken(containerName))
+                    .sasToken(sasTokenCache.getSasToken(TargetStorageAccount.BULKSCAN, containerName))
                     .containerName(containerName)
                     .buildClient();
             case CRIME:
@@ -89,9 +90,9 @@ public class BlobContainerClientProxy {
                 (System.currentTimeMillis() - uploadStartTime),
                 ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
             );
-            if (targetStorageAccount == TargetStorageAccount.BULKSCAN
+            if (targetStorageAccount == BULKSCAN
                 && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
-                bulkScanSasTokenCache.removeFromCache(destinationContainer);
+                sasTokenCache.removeFromCache(BULKSCAN, destinationContainer);
             }
             throw ex;
         }

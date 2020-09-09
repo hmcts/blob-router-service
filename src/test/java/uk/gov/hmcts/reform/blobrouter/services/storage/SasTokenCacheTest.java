@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
 import uk.gov.hmcts.reform.blobrouter.clients.response.SasTokenResponse;
+import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSasTokenException;
 
 import java.time.OffsetDateTime;
@@ -21,18 +22,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class BulkScanSasTokenCacheTest {
+class SasTokenCacheTest {
 
     @Mock
     private BulkScanProcessorClient bulkScanProcessorClient;
 
-    private BulkScanSasTokenCache bulkScanContainerClientCache;
+    private SasTokenCache bulkScanContainerClientCache;
 
     private long refreshSasBeforeExpiry = 30;
 
     @BeforeEach
     private void setUp() {
-        this.bulkScanContainerClientCache = new BulkScanSasTokenCache(
+        this.bulkScanContainerClientCache = new SasTokenCache(
             bulkScanProcessorClient,
             refreshSasBeforeExpiry
         );
@@ -47,7 +48,7 @@ class BulkScanSasTokenCacheTest {
         given(bulkScanProcessorClient.getSasToken(containerName)).willReturn(sasTokenResponse);
 
         String sasToken =
-            bulkScanContainerClientCache.getSasToken(containerName);
+            bulkScanContainerClientCache.getSasToken(TargetStorageAccount.BULKSCAN, containerName);
 
         assertThat(sasToken).isEqualTo(token);
         verify(bulkScanProcessorClient).getSasToken(containerName);
@@ -61,7 +62,7 @@ class BulkScanSasTokenCacheTest {
 
         given(bulkScanProcessorClient.getSasToken(containerName)).willReturn(sasTokenResponse);
 
-        assertThatThrownBy(() -> bulkScanContainerClientCache.getSasToken(containerName))
+        assertThatThrownBy(() -> bulkScanContainerClientCache.getSasToken(TargetStorageAccount.BULKSCAN, containerName))
             .isInstanceOf(InvalidSasTokenException.class)
             .hasMessageContaining("Invalid SAS, the SAS expiration time parameter not found.");
     }
@@ -78,12 +79,12 @@ class BulkScanSasTokenCacheTest {
         given(bulkScanProcessorClient.getSasToken(containerName)).willReturn(sasTokenResponse);
 
         String sasToken =
-            bulkScanContainerClientCache.getSasToken(containerName);
+            bulkScanContainerClientCache.getSasToken(TargetStorageAccount.BULKSCAN, containerName);
 
         assertThat(sasToken).isNotNull();
 
         String sasToken2 =
-            bulkScanContainerClientCache.getSasToken(containerName);
+            bulkScanContainerClientCache.getSasToken(TargetStorageAccount.BULKSCAN, containerName);
 
         assertThat(sasToken).isSameAs(sasToken2);
         verify(bulkScanProcessorClient, times(1)).getSasToken(containerName);
@@ -108,10 +109,10 @@ class BulkScanSasTokenCacheTest {
             .willReturn(sasTokenResponse1).willReturn(sasTokenResponse2);
 
         String sasToken1 =
-            bulkScanContainerClientCache.getSasToken(containerName);
+            bulkScanContainerClientCache.getSasToken(TargetStorageAccount.BULKSCAN, containerName);
 
         String sasToken2 =
-            bulkScanContainerClientCache.getSasToken(containerName);
+            bulkScanContainerClientCache.getSasToken(TargetStorageAccount.BULKSCAN, containerName);
         assertThat(sasToken1).isNotNull();
         assertThat(sasToken2).isNotNull();
 
@@ -134,12 +135,12 @@ class BulkScanSasTokenCacheTest {
             .willReturn(new SasTokenResponse(token1), new SasTokenResponse(token2));
 
         String sasToken1 =
-            bulkScanContainerClientCache.getSasToken(containerName);
+            bulkScanContainerClientCache.getSasToken(TargetStorageAccount.BULKSCAN, containerName);
 
-        bulkScanContainerClientCache.removeFromCache(containerName);
+        bulkScanContainerClientCache.removeFromCache(TargetStorageAccount.BULKSCAN, containerName);
 
         String sasToken2 =
-            bulkScanContainerClientCache.getSasToken(containerName);
+            bulkScanContainerClientCache.getSasToken(TargetStorageAccount.BULKSCAN, containerName);
 
         assertThat(sasToken1).isEqualTo(token1);
         assertThat(sasToken2).isEqualTo(token2);

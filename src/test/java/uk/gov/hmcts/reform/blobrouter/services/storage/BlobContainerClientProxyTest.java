@@ -27,12 +27,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
 
 @ExtendWith(MockitoExtension.class)
 public class BlobContainerClientProxyTest {
 
     @Mock BlobContainerClient crimeClient;
-    @Mock BulkScanSasTokenCache bulkScanSasTokenCache;
+    @Mock SasTokenCache sasTokenCache;
     @Mock BlobContainerClientBuilder blobContainerClientBuilder;
     @Mock BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
 
@@ -53,7 +54,7 @@ public class BlobContainerClientProxyTest {
         this.blobContainerClientProxy = new BlobContainerClientProxy(
             crimeClient,
             blobContainerClientBuilderProvider,
-            bulkScanSasTokenCache
+            sasTokenCache
         );
     }
 
@@ -87,13 +88,13 @@ public class BlobContainerClientProxyTest {
 
         assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);
 
-        verify(bulkScanSasTokenCache, never()).getSasToken(containerName);
+        verify(sasTokenCache, never()).getSasToken(BULKSCAN, containerName);
     }
 
     @Test
     void should_upload_to_bulk_scan_storage_when_target_storage_bulk_scan() {
 
-        given(bulkScanSasTokenCache.getSasToken(any())).willReturn("token1");
+        given(sasTokenCache.getSasToken(any(), any())).willReturn("token1");
 
         given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
             .willReturn(blobContainerClientBuilder);
@@ -109,10 +110,10 @@ public class BlobContainerClientProxyTest {
             blobName,
             blobContent,
             containerName,
-            TargetStorageAccount.BULKSCAN
+            BULKSCAN
         );
 
-        verify(bulkScanSasTokenCache).getSasToken(containerName);
+        verify(sasTokenCache).getSasToken(BULKSCAN, containerName);
 
         // then
         ArgumentCaptor<ByteArrayInputStream> data = ArgumentCaptor.forClass(ByteArrayInputStream.class);
@@ -132,7 +133,7 @@ public class BlobContainerClientProxyTest {
 
         assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);
 
-        verify(bulkScanSasTokenCache, never()).removeFromCache(containerName);
+        verify(sasTokenCache, never()).removeFromCache(BULKSCAN, containerName);
 
     }
 
@@ -152,11 +153,11 @@ public class BlobContainerClientProxyTest {
                 blobName,
                 blobContent,
                 containerName,
-                TargetStorageAccount.BULKSCAN
+                BULKSCAN
             )
         ).isInstanceOf(BlobStorageException.class);
 
-        verify(bulkScanSasTokenCache).removeFromCache(containerName);
+        verify(sasTokenCache).removeFromCache(BULKSCAN, containerName);
 
     }
 
@@ -176,7 +177,7 @@ public class BlobContainerClientProxyTest {
             )
         ).isInstanceOf(BlobStorageException.class);
 
-        verify(bulkScanSasTokenCache, never()).removeFromCache(containerName);
+        verify(sasTokenCache, never()).removeFromCache(BULKSCAN, containerName);
 
     }
 }
