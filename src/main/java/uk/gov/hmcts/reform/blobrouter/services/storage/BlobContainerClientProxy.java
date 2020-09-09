@@ -46,6 +46,12 @@ public class BlobContainerClientProxy {
                     .buildClient();
             case CRIME:
                 return crimeClient;
+            case PCQ:
+                return blobContainerClientBuilderProvider
+                    .getBlobContainerClientBuilder()
+                    .sasToken(sasTokenCache.getPcqSasToken(containerName))
+                    .containerName(containerName)
+                    .buildClient();
             default:
                 throw new UnknownStorageAccountException(
                     String.format("Client requested for an unknown storage account: %s", targetStorageAccount)
@@ -83,13 +89,15 @@ public class BlobContainerClientProxy {
 
             logger.info("Finished uploading content of blob {} to Container: {}", blobName, destinationContainer);
         } catch (HttpResponseException ex) {
-            logger.info("Uploading failed for blob {} to Container: {}, upload duration in Ms: {}, error code: {}",
+            logger.info(
+                "Uploading failed for blob {} to Container: {}, upload duration in Ms: {}, error code: {}",
                 blobName,
                 destinationContainer,
                 (System.currentTimeMillis() - uploadStartTime),
                 ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
             );
-            if (targetStorageAccount == TargetStorageAccount.BULKSCAN
+            if ((targetStorageAccount == TargetStorageAccount.BULKSCAN
+                || targetStorageAccount == TargetStorageAccount.PCQ)
                 && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
                 sasTokenCache.removeFromCache(destinationContainer);
             }
