@@ -140,3 +140,9 @@ proxy:
 
 reconciliation:
   api-key: ${RECONCILIATION_API_KEY}
+
+idam:
+  s2s-auth:
+    url: ${S2S_URL:http://localhost:4552}
+    secret: ${S2S_SECRET:AAAAAAAAAAAAAAAA}
+    name: ${S2S_NAME:reform_scan_blob_router}
