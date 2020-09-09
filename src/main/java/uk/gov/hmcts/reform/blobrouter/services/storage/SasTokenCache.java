@@ -35,7 +35,7 @@ public class SasTokenCache {
 
     public SasTokenCache(
         BulkScanProcessorClient bulkScanSasTokenClient,
-        @Value("${bulk-scan-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
+        @Value("${sas-token-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
     ) {
         this.bulkScanSasTokenClient = bulkScanSasTokenClient;
         this.refreshSasBeforeExpiry = refreshSasBeforeExpiry;
