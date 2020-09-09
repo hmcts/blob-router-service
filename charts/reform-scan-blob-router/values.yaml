@@ -39,8 +39,8 @@ java:
     SEND_DAILY_REPORT_CRON: "0 0 6 ? * *"
     SEND_NOTIFICATIONS_CRON: "0 0/10 * * * *"
 
-    CREATE_SUMMARY_REPORT_CRON: "0 0/30 1-11 * * *"
-    CREATE_SUMMARY_REPORT_ENABLED: "true"
+    CREATE_RECONCILIATION_SUMMARY_REPORT_CRON: "0 */30 1-11 * * *"
+    CREATE_RECONCILIATION_SUMMARY_REPORT_ENABLED: "false"
 
     STORAGE_URL: https://reformscan.{{ .Values.global.environment }}.platform.hmcts.net
     STORAGE_BULKSCAN_URL: https://bulkscan.{{ .Values.global.environment }}.platform.hmcts.net
