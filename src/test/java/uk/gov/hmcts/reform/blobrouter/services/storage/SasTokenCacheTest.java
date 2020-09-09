@@ -21,18 +21,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class BulkScanSasTokenCacheTest {
+class SasTokenCacheTest {
 
     @Mock
     private BulkScanProcessorClient bulkScanProcessorClient;
 
-    private BulkScanSasTokenCache bulkScanContainerClientCache;
+    private SasTokenCache bulkScanContainerClientCache;
 
     private long refreshSasBeforeExpiry = 30;
 
     @BeforeEach
     private void setUp() {
-        this.bulkScanContainerClientCache = new BulkScanSasTokenCache(
+        this.bulkScanContainerClientCache = new SasTokenCache(
             bulkScanProcessorClient,
             refreshSasBeforeExpiry
         );
