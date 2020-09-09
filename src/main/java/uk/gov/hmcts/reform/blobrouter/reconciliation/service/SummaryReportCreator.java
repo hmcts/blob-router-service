@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 
-import com.google.common.collect.Sets;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReportItem;
@@ -9,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.collect.Sets.difference;
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNullElse;
 
@@ -25,11 +26,11 @@ public class SummaryReportCreator {
         int actualCount = processedEnvelopes.size();
         int reportedCount = supplierEnvelopes.size();
 
-        var processedEnvelopeSet = Sets.newHashSet(processedEnvelopes);
-        var supplierEnvelopeSet = Sets.newHashSet(supplierEnvelopes);
+        var processedEnvelopeSet = newHashSet(processedEnvelopes);
+        var supplierEnvelopeSet = newHashSet(supplierEnvelopes);
 
-        Set<SummaryReportItem> receivedButNotReported = Sets.difference(processedEnvelopeSet, supplierEnvelopeSet);
-        Set<SummaryReportItem> reportedButNotProcessed = Sets.difference(supplierEnvelopeSet, processedEnvelopeSet);
+        Set<SummaryReportItem> receivedButNotReported = difference(processedEnvelopeSet, supplierEnvelopeSet);
+        Set<SummaryReportItem> reportedButNotProcessed = difference(supplierEnvelopeSet, processedEnvelopeSet);
 
         return new SummaryReport(
             actualCount,
