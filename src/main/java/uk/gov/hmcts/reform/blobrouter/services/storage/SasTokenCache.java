@@ -9,11 +9,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
 import uk.gov.hmcts.reform.blobrouter.clients.pcq.PcqClient;
-import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSasTokenException;
 
 import java.time.OffsetDateTime;
@@ -48,9 +46,6 @@ public class SasTokenCache {
         this.bulkScanSasTokenClient = bulkScanSasTokenClient;
         this.pcqClient = pcqClient;
         this.authTokenGenerator = authTokenGenerator;
-        @Value("${sas-token-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
-    ) {
-        this.bulkScanSasTokenClient = bulkScanSasTokenClient;
         this.refreshSasBeforeExpiry = refreshSasBeforeExpiry;
         tokenCache = Caffeine.newBuilder()
             .expireAfter(new SasTokenCacheExpiry())
@@ -76,7 +71,7 @@ public class SasTokenCache {
 
         return sasToken;
     }
-      
+
     public void removeFromCache(String containerName) {
         logger.info("Invalidating cache for Container: {}", containerName);
 
