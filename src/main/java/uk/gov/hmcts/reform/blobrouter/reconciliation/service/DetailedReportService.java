@@ -50,6 +50,8 @@ public class DetailedReportService {
             "Only BULKSCAN account can be processed."
         );
 
+        // get the latest one and check its detailed content.
+        // if there are older records without detailed report we do not need to process them.
         var optionReconciliationReport =
             reconciliationReportRepository.getLatestReconciliationReport(date, account.name());
 
