@@ -9,7 +9,9 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
+import uk.gov.hmcts.reform.blobrouter.clients.pcq.PcqClient;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSasTokenException;
 
 import java.time.OffsetDateTime;
@@ -29,15 +31,21 @@ public class SasTokenCache {
     private static final Logger logger = getLogger(SasTokenCache.class);
     private final BulkScanProcessorClient bulkScanSasTokenClient;
     private final long refreshSasBeforeExpiry;
+    private final PcqClient pcqClient;
+    private final AuthTokenGenerator authTokenGenerator;
 
     //key= container name, value = sastoken
     private static Cache<String, String> tokenCache;
 
     public SasTokenCache(
         BulkScanProcessorClient bulkScanSasTokenClient,
+        PcqClient pcqClient,
+        AuthTokenGenerator authTokenGenerator,
         @Value("${sas-token-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
     ) {
         this.bulkScanSasTokenClient = bulkScanSasTokenClient;
+        this.pcqClient = pcqClient;
+        this.authTokenGenerator = authTokenGenerator;
         this.refreshSasBeforeExpiry = refreshSasBeforeExpiry;
         tokenCache = Caffeine.newBuilder()
             .expireAfter(new SasTokenCacheExpiry())
@@ -48,6 +56,16 @@ public class SasTokenCache {
         logger.info("Getting sas token for Container: {}", containerName);
 
         final String sasToken = tokenCache.get(containerName, this::createSasToken);
+
+        logger.info("Finished getting sas token for Container: {}", containerName);
+
+        return sasToken;
+    }
+
+    public String getPcqSasToken(String containerName) {
+        logger.info("Getting sas token for Container: {}", containerName);
+
+        final String sasToken = tokenCache.get(containerName, this::createPcqSasToken);
 
         logger.info("Finished getting sas token for Container: {}", containerName);
 
@@ -66,6 +84,16 @@ public class SasTokenCache {
         logger.info("Making sas token call for Container: {}", containerName);
 
         final String sasToken = bulkScanSasTokenClient.getSasToken(containerName).sasToken;
+
+        logger.info("Finished making sas token call for Container: {}", containerName);
+
+        return sasToken;
+    }
+
+    private String createPcqSasToken(String containerName) {
+        logger.info("Making sas token call for Container: {}", containerName);
+
+        final String sasToken = pcqClient.getSasToken(authTokenGenerator.generate()).sasToken;
 
         logger.info("Finished making sas token call for Container: {}", containerName);
 
