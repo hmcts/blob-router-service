@@ -58,7 +58,8 @@ public class DetailedReportService {
 
             if (Objects.nonNull(reconciliationReport.detailedContent)) {
                 logger.info(
-                    "Detailed report already processed. Report id: {}, supplier statement id: {}, created at: {}",
+                    "Reconciliation detailed report already processed."
+                        + "Report id: {}, supplier statement id: {}, created at: {}",
                     reconciliationReport.id,
                     reconciliationReport.supplierStatementId,
                     reconciliationReport.createdAt
@@ -70,26 +71,29 @@ public class DetailedReportService {
                 .getSupplierStatement(date);
 
             if (!optionalEnvelopeSupplierStatement.isPresent()) {
-                logger.error("No supplier statement report for: {} but there is summary report.",
-                    date);
+                logger.error("No supplier statement report for: {} but there is summary report.", date);
                 return;
             }
             var supplierStatement = optionalEnvelopeSupplierStatement.get();
-            processByTargetStorage(supplierStatement, account, reconciliationReport);
+            createDetailedReport(supplierStatement, account, reconciliationReport);
         } else {
-            logger.info("No summary report for account: {}, for {}", account, date);
+            logger.info(
+                "No summary report to create reconciliation detailed report, Account: {}, Date: {}",
+                account,
+                date
+            );
         }
     }
 
-    private void processByTargetStorage(
+    private void createDetailedReport(
         EnvelopeSupplierStatement supplierStatement,
-        TargetStorageAccount targetStorageAccount,
+        TargetStorageAccount account,
         ReconciliationReport reconciliationReport
     ) {
         try {
             ReconciliationStatement reconciliationStatement =
                 reconciliationMapper
-                    .convertToReconciliationStatement(supplierStatement, targetStorageAccount);
+                    .convertToReconciliationStatement(supplierStatement, account);
 
             ReconciliationReportResponse reconciliationReportResponse = bulkScanProcessorClient
                 .postReconciliationReport(reconciliationStatement);
@@ -98,15 +102,17 @@ public class DetailedReportService {
 
             reconciliationReportRepository.updateDetailedContent(reconciliationReport.id, content);
             logger.info(
-                "Detailed reported created, Report Id: {}, Supplier statement Id: {}, "
-                    + "targetStorageAccount: {}, Date:{}",
-                reconciliationReport.id, supplierStatement.id, targetStorageAccount,
-                supplierStatement.date);
+                "Reconciliation detailed reported created. "
+                    + "Report Id: {}, Supplier statement Id: {}, Account: {}, Date:{}",
+                reconciliationReport.id, supplierStatement.id, account,
+                supplierStatement.date
+            );
 
         } catch (Exception ex) {
-            logger.error("Processing Supplier Statement Id {} failed for account: {} ",
+            logger.error(
+                "Reconciliation detailed reported creation failed. Supplier Statement Id {}, Account: {}",
                 supplierStatement.id,
-                targetStorageAccount,
+                account,
                 ex
             );
         }
