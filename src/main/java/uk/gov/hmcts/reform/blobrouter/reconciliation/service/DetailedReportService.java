@@ -55,36 +55,40 @@ public class DetailedReportService {
         var optionReconciliationReport =
             reconciliationReportRepository.getLatestReconciliationReport(date, account.name());
 
-        if (optionReconciliationReport.isPresent()) {
-            var reconciliationReport = optionReconciliationReport.get();
-
-            if (Objects.nonNull(reconciliationReport.detailedContent)) {
-                logger.info(
-                    "Reconciliation detailed report already processed."
-                        + "Supplier Statement Id: {}, Report id: {}, Created at: {}",
-                    reconciliationReport.supplierStatementId,
-                    reconciliationReport.id,
-                    reconciliationReport.createdAt
-                );
-                return;
-            }
-
-            var optionalEnvelopeSupplierStatement = reconciliationService
-                .getSupplierStatement(date);
-
-            if (!optionalEnvelopeSupplierStatement.isPresent()) {
-                logger.error("No supplier statement report for: {} but there is summary report.", date);
-                return;
-            }
-            var supplierStatement = optionalEnvelopeSupplierStatement.get();
-            createDetailedReport(supplierStatement, account, reconciliationReport);
-        } else {
-            logger.info(
+        optionReconciliationReport.ifPresentOrElse(
+            reconciliationReport -> processReconciliationReport(reconciliationReport, date, account),
+            () -> logger.info(
                 "No summary report to create reconciliation detailed report, Account: {}, Date: {}",
                 account,
                 date
+            )
+        );
+    }
+
+    private void processReconciliationReport(
+        ReconciliationReport reconciliationReport,
+        LocalDate date,
+        TargetStorageAccount account
+    ) {
+
+        if (Objects.nonNull(reconciliationReport.detailedContent)) {
+            logger.info(
+                "Reconciliation detailed report already processed."
+                    + "Supplier Statement Id: {}, Report id: {}, Created at: {}",
+                reconciliationReport.supplierStatementId,
+                reconciliationReport.id,
+                reconciliationReport.createdAt
             );
+            return;
         }
+
+        var optionalEnvelopeSupplierStatement = reconciliationService
+            .getSupplierStatement(date);
+
+        optionalEnvelopeSupplierStatement.ifPresentOrElse(
+            supplierStatement -> createDetailedReport(supplierStatement, account, reconciliationReport),
+            () -> logger.error("No supplier statement report for: {} but there is summary report.", date)
+        );
     }
 
     private void createDetailedReport(
