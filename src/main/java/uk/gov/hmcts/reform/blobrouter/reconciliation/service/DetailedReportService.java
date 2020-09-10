@@ -104,13 +104,17 @@ public class DetailedReportService {
             logger.info(
                 "Reconciliation detailed reported created. "
                     + "Report Id: {}, Supplier statement Id: {}, Account: {}, Date:{}",
-                reconciliationReport.id, supplierStatement.id, account,
+                reconciliationReport.id,
+                supplierStatement.id,
+                account,
                 supplierStatement.date
             );
 
         } catch (Exception ex) {
             logger.error(
-                "Reconciliation detailed reported creation failed. Supplier Statement Id {}, Account: {}",
+                "Reconciliation detailed reported creation failed. "
+                    + "Reconciliation report Id: {}, Supplier Statement Id: {}, Account: {}",
+                reconciliationReport.id,
                 supplierStatement.id,
                 account,
                 ex
