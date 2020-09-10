@@ -24,23 +24,23 @@ import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
-public class BulkScanSasTokenCache {
+public class SasTokenCache {
 
-    private static final Logger logger = getLogger(BulkScanSasTokenCache.class);
+    private static final Logger logger = getLogger(SasTokenCache.class);
     private final BulkScanProcessorClient bulkScanSasTokenClient;
     private final long refreshSasBeforeExpiry;
 
     //key= container name, value = sastoken
     private static Cache<String, String> tokenCache;
 
-    public BulkScanSasTokenCache(
+    public SasTokenCache(
         BulkScanProcessorClient bulkScanSasTokenClient,
-        @Value("${bulk-scan-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
+        @Value("${sas-token-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
     ) {
         this.bulkScanSasTokenClient = bulkScanSasTokenClient;
         this.refreshSasBeforeExpiry = refreshSasBeforeExpiry;
         tokenCache = Caffeine.newBuilder()
-            .expireAfter(new BulkScanSasTokenCacheExpiry())
+            .expireAfter(new SasTokenCacheExpiry())
             .build();
     }
 
@@ -72,7 +72,7 @@ public class BulkScanSasTokenCache {
         return sasToken;
     }
 
-    private class BulkScanSasTokenCacheExpiry implements Expiry<String, String> {
+    private class SasTokenCacheExpiry implements Expiry<String, String> {
 
         public static final String MESSAGE = "Invalid SAS, the SAS expiration time parameter not found.";
 
