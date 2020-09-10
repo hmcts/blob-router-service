@@ -29,6 +29,7 @@ java:
         - reports-email-password
         - reports-recipients
         - reconciliation-api-key
+        - s2s-secret-blob-router
   environment:
     DB_HOST: "{{ .Release.Name }}-postgresql"
     DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"
