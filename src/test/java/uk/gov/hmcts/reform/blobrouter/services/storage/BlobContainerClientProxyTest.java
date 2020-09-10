@@ -10,6 +10,8 @@ import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -32,7 +34,7 @@ import static org.mockito.Mockito.verify;
 public class BlobContainerClientProxyTest {
 
     @Mock BlobContainerClient crimeClient;
-    @Mock BulkScanSasTokenCache bulkScanSasTokenCache;
+    @Mock SasTokenCache sasTokenCache;
     @Mock BlobContainerClientBuilder blobContainerClientBuilder;
     @Mock BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
 
@@ -53,7 +55,7 @@ public class BlobContainerClientProxyTest {
         this.blobContainerClientProxy = new BlobContainerClientProxy(
             crimeClient,
             blobContainerClientBuilderProvider,
-            bulkScanSasTokenCache
+            sasTokenCache
         );
     }
 
@@ -87,13 +89,13 @@ public class BlobContainerClientProxyTest {
 
         assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);
 
-        verify(bulkScanSasTokenCache, never()).getSasToken(containerName);
+        verify(sasTokenCache, never()).getSasToken(containerName);
     }
 
     @Test
     void should_upload_to_bulk_scan_storage_when_target_storage_bulk_scan() {
 
-        given(bulkScanSasTokenCache.getSasToken(any())).willReturn("token1");
+        given(sasTokenCache.getSasToken(any())).willReturn("token1");
 
         given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
             .willReturn(blobContainerClientBuilder);
@@ -112,7 +114,7 @@ public class BlobContainerClientProxyTest {
             TargetStorageAccount.BULKSCAN
         );
 
-        verify(bulkScanSasTokenCache).getSasToken(containerName);
+        verify(sasTokenCache).getSasToken(containerName);
 
         // then
         ArgumentCaptor<ByteArrayInputStream> data = ArgumentCaptor.forClass(ByteArrayInputStream.class);
@@ -132,12 +134,16 @@ public class BlobContainerClientProxyTest {
 
         assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);
 
-        verify(bulkScanSasTokenCache, never()).removeFromCache(containerName);
+        verify(sasTokenCache, never()).removeFromCache(containerName);
 
     }
 
-    @Test
-    void should_invalidate_cache_when_target_storage_bulk_scan_and_error_response_40x() {
+    @ParameterizedTest
+    @EnumSource(
+        value = TargetStorageAccount.class,
+        names = {"BULKSCAN", "PCQ"}
+    )
+    void should_invalidate_cache_when_upload_returns_error_response_40x(TargetStorageAccount storageAccount) {
 
         HttpResponse mockHttpResponse = mock(HttpResponse.class);
         given(mockHttpResponse.getStatusCode()).willReturn(401);
@@ -152,11 +158,11 @@ public class BlobContainerClientProxyTest {
                 blobName,
                 blobContent,
                 containerName,
-                TargetStorageAccount.BULKSCAN
+                storageAccount
             )
         ).isInstanceOf(BlobStorageException.class);
 
-        verify(bulkScanSasTokenCache).removeFromCache(containerName);
+        verify(sasTokenCache).removeFromCache(containerName);
 
     }
 
@@ -176,7 +182,52 @@ public class BlobContainerClientProxyTest {
             )
         ).isInstanceOf(BlobStorageException.class);
 
-        verify(bulkScanSasTokenCache, never()).removeFromCache(containerName);
+        verify(sasTokenCache, never()).removeFromCache(containerName);
 
     }
+
+    @Test
+    void should_upload_to_pcq_storage_when_target_storage_is_pcq() {
+        // given
+        given(sasTokenCache.getPcqSasToken(any())).willReturn("token1");
+
+        given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+            .willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.containerName(containerName)).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.sasToken("token1")).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.buildClient()).willReturn(blobContainerClient);
+
+        given(blobContainerClient.getBlobClient(blobName)).willReturn(blobClient);
+        given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
+
+        // when
+        blobContainerClientProxy.upload(
+            blobName,
+            blobContent,
+            containerName,
+            TargetStorageAccount.PCQ
+        );
+
+        verify(sasTokenCache).getPcqSasToken(containerName);
+
+        // then
+        ArgumentCaptor<ByteArrayInputStream> data = ArgumentCaptor.forClass(ByteArrayInputStream.class);
+
+        verify(blockBlobClient)
+            .uploadWithResponse(
+                data.capture(),
+                eq(Long.valueOf(blobContent.length)),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                isNull(),
+                eq(UPLOAD_TIMEOUT),
+                eq(Context.NONE)
+            );
+
+        assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);
+        verify(sasTokenCache, never()).removeFromCache(containerName);
+    }
+
 }

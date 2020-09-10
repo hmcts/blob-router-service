@@ -69,6 +69,34 @@
           "3456789",
           "1234567"
         ]
+      },
+      {
+        "zip_file_name": "1231122-05-2020-10-08-31.zip",
+        "rescan_for": null,
+        "container": "pcq",
+        "jurisdiction": "pcq",
+        "scannable_item_dcns": [
+          "12345678",
+          "87654321"
+        ],
+        "payment_dcns": [
+          "78901234",
+          "12345098"
+        ]
+      },
+      {
+        "zip_file_name": "3108198112345_14-05-2020-10-11-21.zip",
+        "rescan_for": null,
+        "container": "crime",
+        "jurisdiction": "CRIME",
+        "scannable_item_dcns": [
+          "310891810900",
+          "789321230954"
+        ],
+        "payment_dcns": [
+          "908712557",
+          "762471324"
+        ]
       }
     ]
 }

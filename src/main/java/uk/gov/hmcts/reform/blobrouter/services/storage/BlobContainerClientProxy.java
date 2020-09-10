@@ -22,18 +22,18 @@ public class BlobContainerClientProxy {
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
-    private final BulkScanSasTokenCache bulkScanSasTokenCache;
+    private final SasTokenCache sasTokenCache;
 
     private static final Duration UPLOAD_TIMEOUT = Duration.ofSeconds(40);
 
     public BlobContainerClientProxy(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
         BlobContainerClientBuilderProvider blobContainerClientBuilderProvider,
-        BulkScanSasTokenCache bulkScanSasTokenCache
+        SasTokenCache sasTokenCache
     ) {
         this.crimeClient = crimeClient;
         this.blobContainerClientBuilderProvider = blobContainerClientBuilderProvider;
-        this.bulkScanSasTokenCache = bulkScanSasTokenCache;
+        this.sasTokenCache = sasTokenCache;
     }
 
     private BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
@@ -41,11 +41,17 @@ public class BlobContainerClientProxy {
             case BULKSCAN:
                 return blobContainerClientBuilderProvider
                     .getBlobContainerClientBuilder()
-                    .sasToken(bulkScanSasTokenCache.getSasToken(containerName))
+                    .sasToken(sasTokenCache.getSasToken(containerName))
                     .containerName(containerName)
                     .buildClient();
             case CRIME:
                 return crimeClient;
+            case PCQ:
+                return blobContainerClientBuilderProvider
+                    .getBlobContainerClientBuilder()
+                    .sasToken(sasTokenCache.getPcqSasToken(containerName))
+                    .containerName(containerName)
+                    .buildClient();
             default:
                 throw new UnknownStorageAccountException(
                     String.format("Client requested for an unknown storage account: %s", targetStorageAccount)
@@ -83,15 +89,17 @@ public class BlobContainerClientProxy {
 
             logger.info("Finished uploading content of blob {} to Container: {}", blobName, destinationContainer);
         } catch (HttpResponseException ex) {
-            logger.info("Uploading failed for blob {} to Container: {}, upload duration in Ms: {}, error code: {}",
+            logger.info(
+                "Uploading failed for blob {} to Container: {}, upload duration in Ms: {}, error code: {}",
                 blobName,
                 destinationContainer,
                 (System.currentTimeMillis() - uploadStartTime),
                 ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
             );
-            if (targetStorageAccount == TargetStorageAccount.BULKSCAN
+            if ((targetStorageAccount == TargetStorageAccount.BULKSCAN
+                || targetStorageAccount == TargetStorageAccount.PCQ)
                 && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
-                bulkScanSasTokenCache.removeFromCache(destinationContainer);
+                sasTokenCache.removeFromCache(destinationContainer);
             }
             throw ex;
         }

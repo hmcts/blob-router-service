@@ -5,6 +5,7 @@ provider "azurerm" {
 locals {
   reform-scan-vault-name = "reform-scan-${var.env}"
   bulk-scan-vault-name   = "bulk-scan-${var.env}"
+  s2s-vault-name         = "s2s-${var.env}"
 }
 
 module "reform-blob-router-db" {
@@ -48,6 +49,11 @@ data "azurerm_key_vault" "reform_scan_key_vault" {
   resource_group_name = "reform-scan-${var.env}"
 }
 
+data "azurerm_key_vault" "s2s_key_vault" {
+  name                = "${local.s2s-vault-name}"
+  resource_group_name = "rpe-service-auth-provider-${var.env}"
+}
+
 # endregion
 
 # region: storage secrets from bulk scan
@@ -55,6 +61,25 @@ data "azurerm_key_vault" "reform_scan_key_vault" {
 data "azurerm_key_vault_secret" "bulk_scan_storage_connection_string" {
   key_vault_id = "${data.azurerm_key_vault.bulk_scan_key_vault.id}"
   name         = "storage-account-connection-string"
+}
+
+# endregion
+
+# region: blob-router s2s secret from s2s vault
+
+data "azurerm_key_vault_secret" "s2s_secret" {
+  key_vault_id = "${data.azurerm_key_vault.s2s_key_vault.id}"
+  name         = "microservicekey-reform-scan-blob-router"
+}
+
+# endregion
+
+# region: copy s2s secret to reform-scan key vault
+
+resource "azurerm_key_vault_secret" "blob_router_s2s_secret" {
+  name         = "s2s-secret-blob-router"
+  value        = "${data.azurerm_key_vault_secret.s2s_secret.value}"
+  key_vault_id = "${data.azurerm_key_vault.reform_scan_key_vault.id}"
 }
 
 # endregion

@@ -60,6 +60,11 @@ service:
       enabled: ${CRIME_ENABLED:false}
       target-storage-account: crime
       target-container: ${CRIME_DESTINATION_CONTAINER}
+    - source-container: pcq
+      sas-validity: 300 #In seconds
+      enabled: ${PCQ_ENABLED:false}
+      target-storage-account: pcq
+      target-container: ${PCQ_DESTINATION_CONTAINER}
     - source-container: divorce
       sas-validity: 300 #In seconds
       target-storage-account: bulkscan
@@ -96,7 +101,7 @@ flyway:
 storage-blob-processing-delay-in-minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES}
 public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY} # public key file in der format
 
-bulk-scan-cache:
+sas-token-cache:
     refresh-before-expire-in-sec: 30
 
 scheduling:
@@ -127,6 +132,9 @@ scheduling:
     send-daily-report:
       cron: ${SEND_DAILY_REPORT_CRON}
       enabled: ${SEND_DAILY_REPORT_ENABLED}
+    create-reconciliation-summary-report:
+      cron: ${CREATE_RECONCILIATION_SUMMARY_REPORT_CRON}
+      enabled: ${CREATE_RECONCILIATION_SUMMARY_REPORT_ENABLED}
 
 proxy:
   enabled: ${PROXY_ENABLED:true}
@@ -135,3 +143,9 @@ proxy:
 
 reconciliation:
   api-key: ${RECONCILIATION_API_KEY}
+
+idam:
+  s2s-auth:
+    url: ${S2S_URL:http://localhost:4552}
+    secret: ${S2S_SECRET:AAAAAAAAAAAAAAAA}
+    name: ${S2S_NAME:reform_scan_blob_router}

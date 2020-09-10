@@ -374,4 +374,44 @@ class EnvelopeServiceTest {
             .isInstanceOf(InvalidRequestParametersException.class)
             .hasMessageContaining("'file_name' or 'date' must not be null or empty");
     }
+
+    @Test
+    void should_return_emptyList_when_no_envelopes_exists_for_the_given_date() {
+        // given
+        LocalDate date = LocalDate.now();
+        given(envelopeRepository.findEnvelopes(null, null, date)).willReturn(emptyList());
+
+        // when
+        List<Envelope> envelopes = envelopeService.getEnvelopes(date);
+
+        // then
+        verify(envelopeRepository).findEnvelopes(null, null, date);
+        assertThat(envelopes).isEmpty();
+        verifyNoInteractions(eventRepository);
+    }
+
+    @Test
+    void should_return_envelope_list_when_envelopes_exists_for_the_given_date() {
+        // given
+        LocalDate date = LocalDate.now();
+        var envelope1 = new Envelope(
+            UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false
+        );
+
+        var envelope2 = new Envelope(
+            UUID.randomUUID(), "c1", "file2", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
+        );
+        var list = List.of(envelope1, envelope2);
+        given(envelopeRepository.findEnvelopes(null, null, date)).willReturn(list);
+
+        // when
+        List<Envelope> envelopes = envelopeService.getEnvelopes(date);
+
+        // then
+        verify(envelopeRepository).findEnvelopes(null, null, date);
+        assertThat(envelopes)
+            .containsAll(list)
+            .isNotSameAs(list);
+        verifyNoInteractions(eventRepository);
+    }
 }

@@ -67,7 +67,7 @@ class ReconciliationMapperTest {
             );
 
         // then
-        assertThat(reconciliationStatement.envelopes.size()).isEqualTo(1);
+        assertThat(reconciliationStatement.envelopes.size()).isEqualTo(2);
         ReportedZipFile crimeFile = reconciliationStatement.envelopes.get(0);
         assertThat(crimeFile.container).isEqualTo("crime");
 
