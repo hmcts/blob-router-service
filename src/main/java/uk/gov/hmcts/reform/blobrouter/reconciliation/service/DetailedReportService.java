@@ -59,9 +59,9 @@ public class DetailedReportService {
             if (Objects.nonNull(reconciliationReport.detailedContent)) {
                 logger.info(
                     "Reconciliation detailed report already processed."
-                        + "Report id: {}, supplier statement id: {}, created at: {}",
-                    reconciliationReport.id,
+                        + "Supplier Statement Id: {}, Report id: {}, Created at: {}",
                     reconciliationReport.supplierStatementId,
+                    reconciliationReport.id,
                     reconciliationReport.createdAt
                 );
                 return;
@@ -102,10 +102,10 @@ public class DetailedReportService {
 
             reconciliationReportRepository.updateDetailedContent(reconciliationReport.id, content);
             logger.info(
-                "Reconciliation detailed reported created. "
-                    + "Report Id: {}, Supplier statement Id: {}, Account: {}, Date:{}",
-                reconciliationReport.id,
+                "Reconciliation detailed reported updated. "
+                    + "Supplier Statement Id: {}, Report Id: {}, Account: {}, Date: {}",
                 supplierStatement.id,
+                reconciliationReport.id,
                 account,
                 supplierStatement.date
             );
@@ -113,9 +113,9 @@ public class DetailedReportService {
         } catch (Exception ex) {
             logger.error(
                 "Reconciliation detailed reported creation failed. "
-                    + "Reconciliation report Id: {}, Supplier Statement Id: {}, Account: {}",
-                reconciliationReport.id,
+                    + "Supplier Statement Id: {}, Reconciliation report Id: {}, Account: {}",
                 supplierStatement.id,
+                reconciliationReport.id,
                 account,
                 ex
             );
