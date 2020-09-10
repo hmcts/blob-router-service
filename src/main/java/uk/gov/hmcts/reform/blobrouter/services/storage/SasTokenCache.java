@@ -41,7 +41,7 @@ public class SasTokenCache {
         BulkScanProcessorClient bulkScanSasTokenClient,
         PcqClient pcqClient,
         AuthTokenGenerator authTokenGenerator,
-        @Value("${bulk-scan-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
+        @Value("${sas-token-cache.refresh-before-expire-in-sec}") long refreshSasBeforeExpiry
     ) {
         this.bulkScanSasTokenClient = bulkScanSasTokenClient;
         this.pcqClient = pcqClient;
