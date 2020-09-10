@@ -22,7 +22,7 @@ public class PcqBlobDispatchingTest extends FunctionalTestBase {
 
     @Test
     void should_move_extracted_pcq_envelope_to_pcq_storage() throws Exception {
-        // upload crime file with unique name
+        // upload pcq file with unique name
         String fileName = randomFileName();
 
         byte[] wrappingZipContent = createZipArchive(
