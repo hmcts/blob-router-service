@@ -63,6 +63,9 @@ java:
     NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     NOTIFICATIONS_QUEUE_NAMESPACE: "$(SB_NAMESPACE)"
     NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
+
+    S2S_NAME: "reform_scan_blob_router"
+    S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
