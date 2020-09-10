@@ -215,4 +215,62 @@ public class ReconciliationReportRepositoryTest {
             throw new RuntimeException("Could not save reports for testing", exception);
         }
     }
+
+    @Test
+    void should_only_update_detailed_content_when_updateDetailedContent_called() throws SQLException {
+        // given
+        var statementId = statementRepo.save(NEW_STATEMENT);
+
+        var existingReport = new NewReconciliationReport(
+            statementId,
+            ACCOUNT,
+            "{ \"x\": 123 }",
+            "{}",
+            VERSION
+        );
+
+        var reportId = reportRepo.save(existingReport);
+        String expectedContent = "{ \"report\": \"detailed_report\" }";
+
+        reportRepo.updateDetailedContent(reportId, expectedContent);
+
+        // when
+        Optional<ReconciliationReport> reportOption = reportRepo.findById(reportId);
+
+        assertThat(reportOption).isNotEmpty();
+        var updatedReport = reportOption.get();
+
+        // then
+        assertThat(updatedReport.detailedContent).isEqualTo(expectedContent);
+
+        assertThat(existingReport)
+            .usingRecursiveComparison()
+            .ignoringFields("detailedContent")
+            .isEqualTo(updatedReport);
+    }
+
+
+    @Test
+    void should_throw_exception_if_invalid_json_is_passed_to_updateDetailedContent() throws Exception {
+        // given
+        var statementId = statementRepo.save(NEW_STATEMENT);
+
+        var existingReport = new NewReconciliationReport(
+            statementId,
+            ACCOUNT,
+            "{ \"x\": 123 }",
+            "{}",
+            VERSION
+        );
+
+        var reportId = reportRepo.save(existingReport);
+        String invalidContent = "{ \"report\": detailed_report }";
+
+        // when
+        var exc = catchThrowable(() -> reportRepo.updateDetailedContent(reportId, invalidContent));
+
+        // then
+        assertThat(exc).isInstanceOf(DataIntegrityViolationException.class);
+        assertThat(exc.getMessage()).contains("invalid input syntax for type json");
+    }
 }
