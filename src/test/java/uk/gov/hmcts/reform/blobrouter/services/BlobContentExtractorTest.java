@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
@@ -25,8 +27,14 @@ class BlobContentExtractorTest {
         extractor = new BlobContentExtractor();
     }
 
-    @Test
-    void should_return_internal_zip_for_crime() throws Exception {
+    @ParameterizedTest
+    @EnumSource(
+        value = TargetStorageAccount.class,
+        names = {"CRIME", "PCQ"}
+    )
+    void should_return_internal_zip_for_crime_and_pcq_containers(
+        TargetStorageAccount targetStorageAccount
+    ) throws Exception {
         // given
         var content = getBlobContent(
             Map.of(
@@ -36,14 +44,20 @@ class BlobContentExtractorTest {
         );
 
         // when
-        var result = extractor.getContentToUpload(content, TargetStorageAccount.CRIME);
+        var result = extractor.getContentToUpload(content, targetStorageAccount);
 
         // then
         assertThat(result).isEqualTo("internal".getBytes());
     }
 
-    @Test
-    void should_throw_exception_if_internal_zip_for_crime_cannot_be_found() throws Exception {
+    @ParameterizedTest
+    @EnumSource(
+        value = TargetStorageAccount.class,
+        names = {"CRIME", "PCQ"}
+    )
+    void should_throw_exception_if_internal_zip_cannot_be_found_for_crime_and_pcq_containers(
+        TargetStorageAccount targetStorageAccount
+    ) throws Exception {
         // given
         var content = getBlobContent(
             Map.of(
@@ -53,7 +67,7 @@ class BlobContentExtractorTest {
         );
 
         // when
-        var exc = catchThrowable(() -> extractor.getContentToUpload(content, TargetStorageAccount.CRIME));
+        var exc = catchThrowable(() -> extractor.getContentToUpload(content, targetStorageAccount));
 
         // then
         assertThat(exc).isInstanceOf(InvalidZipArchiveException.class);
