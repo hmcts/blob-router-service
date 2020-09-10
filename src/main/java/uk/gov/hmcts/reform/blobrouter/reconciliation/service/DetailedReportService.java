@@ -82,13 +82,12 @@ public class DetailedReportService {
             return;
         }
 
-        var optionalEnvelopeSupplierStatement = reconciliationService
-            .getSupplierStatement(date);
-
-        optionalEnvelopeSupplierStatement.ifPresentOrElse(
-            supplierStatement -> createDetailedReport(supplierStatement, account, reconciliationReport),
-            () -> logger.error("No supplier statement report for: {} but there is summary report.", date)
-        );
+        reconciliationService
+            .getSupplierStatement(date)
+            .ifPresentOrElse(
+                supplierStatement -> createDetailedReport(supplierStatement, account, reconciliationReport),
+                () -> logger.error("No supplier statement report for: {} but there is summary report.", date)
+            );
     }
 
     private void createDetailedReport(
