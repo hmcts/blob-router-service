@@ -81,6 +81,32 @@ public class BlobRejectTest extends FunctionalTestBase {
         );
     }
 
+    @Test
+    void should_reject_pcq_envelope_without_signature() throws Exception {
+        // given
+        String fileName = "reject_pcq" + randomFileName();
+
+        byte[] wrappingZipContent = createZipArchive(asList("test-data/envelope/envelope.zip"));
+
+        // when
+        uploadFile(blobRouterStorageClient, config.pcqSourceContainer, fileName, wrappingZipContent);
+
+        // then
+        await("Wait for the blob to disappear from source container")
+            .atMost(2, TimeUnit.MINUTES)
+            .until(() -> !blobExists(blobRouterStorageClient, config.pcqSourceContainer, fileName));
+
+        // and
+        assertFileInfoIsStored(fileName, config.pcqSourceContainer, REJECTED, true);
+
+        assertBlobIsPresentInStorage(
+            blobRouterStorageClient,
+            "pcq-rejected",
+            fileName,
+            wrappingZipContent
+        );
+    }
+
     protected void assertBlobIsPresentInStorage(
         BlobServiceClient client,
         String containerName,
