@@ -12,13 +12,14 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.ByteStreams.toByteArray;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.ENVELOPE;
 
 @Component
 public class BlobContentExtractor {
 
     public byte[] getContentToUpload(byte[] blobContent, TargetStorageAccount targetAccount) throws IOException {
-        if (targetAccount == CRIME) {
+        if (targetAccount == CRIME || targetAccount == PCQ) {
             try (var zipStream = new ZipInputStream(new ByteArrayInputStream(blobContent))) {
                 ZipEntry entry;
 

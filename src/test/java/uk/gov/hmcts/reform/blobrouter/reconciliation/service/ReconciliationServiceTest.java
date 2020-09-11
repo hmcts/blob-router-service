@@ -9,6 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSupplierStatementException;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.Envelope;
@@ -16,14 +17,17 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -102,4 +106,35 @@ class ReconciliationServiceTest {
             .hasMessageContaining("Failed to process Supplier statement");
     }
 
+    @Test
+    void should_return_supplier_statement_as_it_is_in_repository() {
+        // given
+        LocalDate date = LocalDate.now();
+        var expectedResponse = Optional.of(mock(EnvelopeSupplierStatement.class));
+
+        given(repository.findLatest(date)).willReturn(expectedResponse);
+
+        // when
+        var response = service.getSupplierStatement(date);
+
+        // then
+        assertThat(response).isSameAs(expectedResponse);
+    }
+
+    @Test
+    void should_throw_exception_when_repository_throws() {
+        // given
+        LocalDate date = LocalDate.now();
+
+        given(repository.findLatest(date))
+            .willThrow(new RuntimeException("Repository exception"));
+
+        // when
+        // then
+        assertThrows(
+            RuntimeException.class,
+            () -> service.getSupplierStatement(date)
+        );
+
+    }
 }

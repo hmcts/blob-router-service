@@ -41,9 +41,13 @@ java:
 
     CREATE_RECONCILIATION_SUMMARY_REPORT_CRON: "0 */30 1-11 * * *"
     CREATE_RECONCILIATION_SUMMARY_REPORT_ENABLED: "false"
+    CREATE_RECONCILIATION_DETAILED_REPORT_CRON: "0 */30 2-12 * * *"
+    CREATE_RECONCILIATION_DETAILED_REPORT_ENABLED: "false"
 
     STORAGE_URL: https://reformscan.{{ .Values.global.environment }}.platform.hmcts.net
     STORAGE_BULKSCAN_URL: https://bulkscan.{{ .Values.global.environment }}.platform.hmcts.net
+    STORAGE_PCQ_URL: https://pcqshared{{ .Values.global.environment }}.blob.core.windows.net
+
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
     STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
