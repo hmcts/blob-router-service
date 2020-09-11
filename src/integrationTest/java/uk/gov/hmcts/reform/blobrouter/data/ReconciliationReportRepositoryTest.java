@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEn
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.validation.ClockProvider;
@@ -272,5 +273,49 @@ public class ReconciliationReportRepositoryTest {
         // then
         assertThat(exc).isInstanceOf(DataIntegrityViolationException.class);
         assertThat(exc.getMessage()).contains("invalid input syntax for type json");
+    }
+
+    @Test
+    void should_return_list_of_reports_by_supplier_statement_id_reportCountBySupplierStatementIdWithDistinctAccount()
+        throws SQLException {
+        // given
+        var statementId = statementRepo.save(NEW_STATEMENT);
+        var reportId1 = reportRepo
+            .save(new NewReconciliationReport(statementId, ACCOUNT, "{ \"x\": 123 }", "{}", VERSION));
+
+        var existingReport1 =
+            new ReconciliationReport(
+                reportId1,
+                statementId,
+                ACCOUNT,
+                "{ \"x\": 123 }",
+                "{}",
+                VERSION,
+                null,
+                LocalDateTime.now()
+            );
+
+        var reportId2 = reportRepo
+            .save(new NewReconciliationReport(statementId, "account3", "{}", "{}", VERSION));
+        var existingReport2 =
+            new ReconciliationReport(
+                reportId2,
+                statementId,
+                "account4",
+                "{}",
+                "{}",
+                VERSION,
+                null,
+                LocalDateTime.now()
+            );
+
+        // when
+        var reportList = reportRepo.findByStatementId(statementId);
+
+        // then
+        assertThat(reportList.size()).isEqualTo(2);
+        assertThat(reportList)
+            .usingRecursiveComparison()
+            .ignoringFields("createdAt").isEqualTo(List.of(existingReport1, existingReport2));
     }
 }

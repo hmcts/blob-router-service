@@ -62,6 +62,14 @@ public class SummaryReportService {
 
         EnvelopeSupplierStatement envelopeSupplierStatement = optSupplierStatement.get();
 
+        var existingReports = reconciliationReportRepository
+            .findByStatementId(envelopeSupplierStatement.id);
+
+        if (existingReports.size() == TargetStorageAccount.values().length) {
+            logger.info("Summary Reports already ready for {}, supplier Id: {}", date, envelopeSupplierStatement.id);
+            return;
+        }
+
         SupplierStatement supplierStatement;
         try {
             supplierStatement = objectMapper
@@ -97,21 +105,32 @@ public class SummaryReportService {
 
         for (var targetStorage : TargetStorageAccount.values()) {
             try {
+                boolean reportFound = existingReports
+                    .stream()
+                    .anyMatch(r -> r.account.equals(targetStorage.name()));
 
-                var summaryReport = summaryReportCreator.createSummaryReport(
-                    processedEnvelopesMap.get(targetStorage),
-                    supplierEnvelopesMap.get(targetStorage)
-                );
+                if (reportFound) {
+                    logger.info(
+                        "Summary report exist for account: {}, supplier statement Id {}. Skip Processing.",
+                        targetStorage.name(),
+                        envelopeSupplierStatement.id
+                    );
+                } else {
+                    var summaryReport = summaryReportCreator.createSummaryReport(
+                        processedEnvelopesMap.get(targetStorage),
+                        supplierEnvelopesMap.get(targetStorage)
+                    );
 
-                String summaryContent = objectMapper.writeValueAsString(summaryReport);
-                var report = new NewReconciliationReport(
-                    envelopeSupplierStatement.id,
-                    targetStorage.name(),
-                    summaryContent,
-                    null,
-                    "1.0"
-                );
-                reconciliationReportRepository.save(report);
+                    String summaryContent = objectMapper.writeValueAsString(summaryReport);
+                    var report = new NewReconciliationReport(
+                        envelopeSupplierStatement.id,
+                        targetStorage.name(),
+                        summaryContent,
+                        null,
+                        "1.0"
+                    );
+                    reconciliationReportRepository.save(report);
+                }
             } catch (Exception ex) {
                 logger.error(
                     "Error creating summary report. Account: {}, supplier Id: {}, date: {}",
