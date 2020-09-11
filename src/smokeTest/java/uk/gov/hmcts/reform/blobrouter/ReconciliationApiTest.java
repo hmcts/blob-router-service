@@ -19,17 +19,20 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 public class ReconciliationApiTest {
 
+    private static final String SUBSCRIPTION_KEY_HEADER_NAME = "Ocp-Apim-Subscription-Key";
     private static final String RECONCILIATION_ENDPOINT_PATH = "/reconciliation-report/{date}";
 
     private static Config config;
     private static String apiGatewayUrl;
     private static String validApiKey;
+    private static String validSubscriptionKey;
 
     @BeforeAll
     static void loadConfig() {
         config = ConfigFactory.load();
         apiGatewayUrl = getApiGatewayUrl();
         validApiKey = getValidReconciliationApiKey();
+        validSubscriptionKey = getValidSubscriptionKey();
     }
 
     @Test
@@ -80,6 +83,7 @@ public class ReconciliationApiTest {
             .given()
             .baseUri(apiGatewayUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SUBSCRIPTION_KEY_HEADER_NAME, validSubscriptionKey)
             .header(HttpHeaders.AUTHORIZATION, apiKey)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
             .body(statementsReport)
@@ -96,6 +100,12 @@ public class ReconciliationApiTest {
         String apiKey = config.resolve().getString("test_reconciliation_api_key");
         assertThat(apiKey).as("Reconciliation API Key").isNotEmpty();
         return "Bearer " + apiKey;
+    }
+
+    private static String getValidSubscriptionKey() {
+        String subscriptionKey = config.resolve().getString("test-subscription-key");
+        assertThat(subscriptionKey).as("Subscription key").isNotEmpty();
+        return subscriptionKey;
     }
 
 }
