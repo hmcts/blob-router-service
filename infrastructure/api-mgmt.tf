@@ -36,7 +36,7 @@ module "api_mgmt" {
     "https"
   ]
   service_url = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
-  swagger_url = "https://hmcts.github.io/reform-api-docs/specs/blob-router-service.json"
+  swagger_url = "https://hmcts.github.io/reform-api-docs/specs/blob-router-service.json?v2"
 }
 
 module "api_mgmt_policy" {
@@ -44,5 +44,5 @@ module "api_mgmt_policy" {
   api_mgmt_name          = "core-api-mgmt-${var.env}"
   api_mgmt_rg            = "core-infra-${var.env}"
   api_name               = "${module.api_mgmt.name}"
-  api_policy_xml_content = "${replace(file("api-policy.xml"), "ALLOWED_CERTIFICATE_THUMBPRINTS", local.quoted_thumbprints)}"
+  api_policy_xml_content = "${replace(file("api-policy-v2.xml"), "ALLOWED_CERTIFICATE_THUMBPRINTS", local.quoted_thumbprints)}"
 }

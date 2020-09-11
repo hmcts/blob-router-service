@@ -1,0 +1,50 @@
+<policies>
+  <backend>
+    <base/>
+  </backend>
+  <inbound>
+    <base/>
+    <choose>
+      <!-- The Certificate validation can be enabled for reconciliation path when the supplier starts using it -->
+      <when condition="@(!context.Request.Url.Path.Contains(&quot;reconciliation-report&quot;))">
+        <choose>
+          <when condition="@(context.Request.Certificate == null)" >
+            <return-response>
+              <set-status code="401" />
+              <set-body>Missing client certificate</set-body>
+            </return-response>
+          </when>
+          <when condition="@(context.Request.Certificate.NotAfter &lt; DateTime.Now || context.Request.Certificate.NotBefore &gt; DateTime.Now || !(new string[] {ALLOWED_CERTIFICATE_THUMBPRINTS}.Any(c => c == context.Request.Certificate.Thumbprint)))" >
+            <return-response>
+              <set-status code="401" />
+              <set-body>Invalid client certificate</set-body>
+            </return-response>
+          </when>
+        </choose>
+      </when>
+      <!-- Reconciliation endpoint -->
+      <when condition="@(context.Request.Url.Path.Contains(&quot;reconciliation-report&quot;))">
+        <send-request mode="new" response-variable-name="apiKeySecret" timeout="20" ignore-error="false">
+          <set-url>https://reform-scan-{{environment}}.vault.azure.net/secrets/reconciliation-api-key/?api-version=7.0</set-url>
+          <set-method>GET</set-method>
+          <authentication-managed-identity resource="https://vault.azure.net" />
+        </send-request>
+        <!-- transform keyvault secret response to string -->
+        <set-variable name="apiKeySecretResponse" value="@{
+                var secret = ((IResponse)context.Variables[&quot;apiKeySecret&quot;]).Body.As<JObject>();
+                return secret[&quot;value&quot;].ToString();
+            }" />
+        <!-- Set Apikey with Bearer as Authorization header -->
+        <set-header name="Authorization" exists-action="override">
+          <value>@("Bearer " + (string)context.Variables["apiKeySecretResponse"])</value>
+        </set-header>
+      </when>
+    </choose>
+  </inbound>
+  <outbound>
+    <base/>
+  </outbound>
+  <on-error>
+    <base/>
+  </on-error>
+</policies>
