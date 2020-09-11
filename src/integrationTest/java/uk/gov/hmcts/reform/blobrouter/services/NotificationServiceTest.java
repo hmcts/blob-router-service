@@ -127,7 +127,11 @@ class NotificationServiceTest {
         notificationService.sendNotifications(); //2nd time
 
         verify(notificationsPublisher).publish(notificationMsgCaptor.capture(), messageIdCaptor.capture());
-        verify(notificationsPublisher, times(1)).publish(any(), any()); // message published only once
+        verify(notificationsPublisher, times(2)).publish(any(), any()); // message published only once
+
+        List<NotificationMsg> allValues = notificationMsgCaptor.getAllValues();
+        assertThat(allValues.get(0).zipFileName).isEqualTo("ssss");
+        assertThat(allValues.get(1).zipFileName).isEqualTo("blob3.zip");
 
         NotificationMsg msgCaptorValue = notificationMsgCaptor.getValue();
         String messageId = messageIdCaptor.getValue();
