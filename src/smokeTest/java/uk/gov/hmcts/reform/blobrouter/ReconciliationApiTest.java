@@ -5,7 +5,6 @@ import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,7 +17,6 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-@Disabled
 public class ReconciliationApiTest {
 
     private static final String RECONCILIATION_ENDPOINT_PATH = "/reconciliation-report/{date}";
@@ -36,17 +34,15 @@ public class ReconciliationApiTest {
 
     @Test
     void should_accept_request_with_valid_api_key() {
-        // sends request with valid api Key and invalid body
-        String invalidStatementsReport = "{\"test\": {}}";
-        Response response = callReconciliationEndpoint(validApiKey, invalidStatementsReport).thenReturn();
+        // sends request with valid api Key
+        Response response = callReconciliationEndpoint(validApiKey).thenReturn();
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST.value());
     }
 
     @Test
     void should_reject_request_with_invalid_api_key() {
-        String validStatementsReport = "{\"envelopes\": []}";
-        Response response = callReconciliationEndpoint("invalid-api-key123", validStatementsReport).thenReturn();
+        Response response = callReconciliationEndpoint("invalid-api-key123").thenReturn();
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("Invalid API Key");
@@ -54,8 +50,7 @@ public class ReconciliationApiTest {
 
     @Test
     void should_reject_request_without_api_key() {
-        String validStatementsReport = "{\"envelopes\": []}";
-        Response response = callReconciliationEndpoint("invalid-api-key123", validStatementsReport).thenReturn();
+        Response response = callReconciliationEndpoint("invalid-api-key123").thenReturn();
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("API Key is missing");
@@ -63,14 +58,14 @@ public class ReconciliationApiTest {
 
     @Test
     void should_not_expose_http_version() {
-        String invalidStatementsReport = "{\"test\": {}}";
+        String statementsReport = "{\"test\": {}}";
         Response response = RestAssured
             .given()
             .baseUri(apiGatewayUrl.replace("https://", "http://"))
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .header(HttpHeaders.AUTHORIZATION, validApiKey)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
-            .body(invalidStatementsReport)
+            .body(statementsReport)
             .when()
             .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
             .thenReturn();
@@ -79,7 +74,8 @@ public class ReconciliationApiTest {
         assertThat(response.body().asString()).contains("Resource not found");
     }
 
-    private Response callReconciliationEndpoint(String apiKey, String statementsReport) {
+    private Response callReconciliationEndpoint(String apiKey) {
+        String statementsReport = "{\"test\": {}}";
         return RestAssured
             .given()
             .baseUri(apiGatewayUrl)
