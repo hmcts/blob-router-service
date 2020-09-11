@@ -276,7 +276,7 @@ public class ReconciliationReportRepositoryTest {
     }
 
     @Test
-    void should_return_list_of_reports_by_supplier_statement_id_reportCountBySupplierStatementIdWithDistinctAccount()
+    void should_return_list_of_reports_by_supplier_statement_id_findByStatementId()
         throws SQLException {
         // given
         var statementId = statementRepo.save(NEW_STATEMENT);
@@ -301,7 +301,7 @@ public class ReconciliationReportRepositoryTest {
             new ReconciliationReport(
                 reportId2,
                 statementId,
-                "account4",
+                "account3",
                 "{}",
                 "{}",
                 VERSION,
