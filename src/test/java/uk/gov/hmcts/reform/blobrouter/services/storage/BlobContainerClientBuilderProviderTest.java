@@ -23,4 +23,13 @@ class BlobContainerClientBuilderProviderTest {
 
         assertThat(blobContainerClientBuilder).isNotNull();
     }
+
+    @Test
+    void should_provide_pcq_container_client_builder() {
+
+        BlobContainerClientBuilder blobContainerClientBuilder = blobContainerClientBuilderProvider
+            .getPcqBlobContainerClientBuilder();
+
+        assertThat(blobContainerClientBuilder).isNotNull();
+    }
 }
