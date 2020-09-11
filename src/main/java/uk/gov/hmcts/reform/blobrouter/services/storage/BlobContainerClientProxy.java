@@ -48,7 +48,7 @@ public class BlobContainerClientProxy {
                 return crimeClient;
             case PCQ:
                 return blobContainerClientBuilderProvider
-                    .getBlobContainerClientBuilder()
+                    .getPcqBlobContainerClientBuilder()
                     .sasToken(sasTokenCache.getPcqSasToken(containerName))
                     .containerName(containerName)
                     .buildClient();
