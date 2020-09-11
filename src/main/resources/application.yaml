@@ -135,6 +135,9 @@ scheduling:
     create-reconciliation-summary-report:
       cron: ${CREATE_RECONCILIATION_SUMMARY_REPORT_CRON}
       enabled: ${CREATE_RECONCILIATION_SUMMARY_REPORT_ENABLED}
+    create-reconciliation-detailed-report:
+      cron: ${CREATE_RECONCILIATION_DETAILED_REPORT_CRON}
+      enabled: ${CREATE_RECONCILIATION_DETAILED_REPORT_ENABLED}
 
 proxy:
   enabled: ${PROXY_ENABLED:true}
