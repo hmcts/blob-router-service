@@ -144,15 +144,22 @@ public class BlobContainerClientProxyTest {
         names = {"BULKSCAN", "PCQ"}
     )
     void should_invalidate_cache_when_upload_returns_error_response_40x(TargetStorageAccount storageAccount) {
-
+        // given
         HttpResponse mockHttpResponse = mock(HttpResponse.class);
         given(mockHttpResponse.getStatusCode()).willReturn(401);
 
-        given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
-            .willReturn(blobContainerClientBuilder);
+        if (storageAccount == TargetStorageAccount.PCQ) {
+            given(blobContainerClientBuilderProvider.getPcqBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        } else if (storageAccount == TargetStorageAccount.BULKSCAN) {
+            given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        }
+
         given(blobContainerClientBuilder.sasToken(any())).willThrow(
             new BlobStorageException("Sas invalid 401", mockHttpResponse, null));
 
+        // then
         assertThatThrownBy(
             () -> blobContainerClientProxy.upload(
                 blobName,
@@ -191,7 +198,7 @@ public class BlobContainerClientProxyTest {
         // given
         given(sasTokenCache.getPcqSasToken(any())).willReturn("token1");
 
-        given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+        given(blobContainerClientBuilderProvider.getPcqBlobContainerClientBuilder())
             .willReturn(blobContainerClientBuilder);
         given(blobContainerClientBuilder.containerName(containerName)).willReturn(blobContainerClientBuilder);
         given(blobContainerClientBuilder.sasToken("token1")).willReturn(blobContainerClientBuilder);

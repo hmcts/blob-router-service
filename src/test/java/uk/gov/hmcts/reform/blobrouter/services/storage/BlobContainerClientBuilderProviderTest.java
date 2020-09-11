@@ -9,18 +9,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class BlobContainerClientBuilderProviderTest {
 
-
     @Mock
     private HttpClient httpClient;
 
     private BlobContainerClientBuilderProvider blobContainerClientBuilderProvider
-        = new BlobContainerClientBuilderProvider(httpClient, "http://example.com");
+        = new BlobContainerClientBuilderProvider(httpClient, "http://example.com", "http://testpcq.com");
 
     @Test
     void should_provide_builder() {
 
         BlobContainerClientBuilder blobContainerClientBuilder = blobContainerClientBuilderProvider
             .getBlobContainerClientBuilder();
+
+        assertThat(blobContainerClientBuilder).isNotNull();
+    }
+
+    @Test
+    void should_provide_pcq_container_client_builder() {
+
+        BlobContainerClientBuilder blobContainerClientBuilder = blobContainerClientBuilderProvider
+            .getPcqBlobContainerClientBuilder();
 
         assertThat(blobContainerClientBuilder).isNotNull();
     }
