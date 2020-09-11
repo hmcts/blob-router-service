@@ -31,11 +31,8 @@ public class DetailedReportTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        try {
-            detailedReportService.process(LocalDate.now(), TargetStorageAccount.BULKSCAN);
-        } catch (Exception ex) {
-            logger.error("Error occurred in {} task", TASK_NAME);
-        }
+        detailedReportService.process(LocalDate.now(), TargetStorageAccount.BULKSCAN);
+
         logger.info("Finished {} job", TASK_NAME);
     }
 }

@@ -5,7 +5,6 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.service.DetailedReportServi
 
 import java.time.LocalDate;
 
-import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,22 +26,4 @@ class DetailedReportTaskTest {
         verify(detailedReportService, times(1)).process(LocalDate.now(), BULKSCAN);
     }
 
-    @Test
-    void should_not_throw_exception_when_detailedReportService_throws_exception() {
-        // given
-        var detailedReportService = mock(DetailedReportService.class);
-
-        LocalDate date = LocalDate.now();
-
-        willThrow(new RuntimeException("Process Error")).given(detailedReportService).process(date, BULKSCAN);
-
-        var task = new DetailedReportTask(detailedReportService);
-
-        // when
-        task.run();
-
-        // then
-        verify(detailedReportService, times(1)).process(LocalDate.now(), BULKSCAN);
-
-    }
 }
