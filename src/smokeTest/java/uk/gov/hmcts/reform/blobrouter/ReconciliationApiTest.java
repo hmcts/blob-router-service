@@ -45,7 +45,22 @@ public class ReconciliationApiTest {
         Response response = callReconciliationEndpoint("invalid-subscription-key");
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
-        assertThat(response.body().asString()).contains("Invalid API Key");
+        assertThat(response.body().asString()).contains("Access denied due to invalid subscription key");
+    }
+
+    @Test
+    void should_reject_request_with_missing_subscription_header() {
+        String statementsReport = "{\"test\": {}}";
+        Response response = RestAssured
+            .given()
+            .baseUri(apiGatewayUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
+            .body(statementsReport)
+            .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString());
+
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
+        assertThat(response.body().asString()).contains("Access denied due to missing subscription key");
     }
 
     @Test
