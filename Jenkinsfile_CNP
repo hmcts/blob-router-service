@@ -46,8 +46,7 @@ def combinedSecrets = [
      secret('test-not-yet-valid-key-store', 'TEST_NOT_YET_VALID_KEY_STORE'),
      secret('test-not-yet-valid-key-store-password', 'TEST_NOT_YET_VALID_KEY_STORE_PASSWORD'),
 
-     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
-     secret('reconciliation-api-key', 'TEST_RECONCILIATION_API_KEY')
+     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY')
    ]
  ]
 
