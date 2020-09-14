@@ -116,11 +116,15 @@ class SummaryReportServiceTest {
         given(option.isPresent()).willReturn(true);
         given(option.get()).willReturn(envelopeSupplierStatement);
 
-        var existingReportList = mock(List.class);
+        var existingReportList = List.of(
+            getReconciliationReport(envelopeSupplierStatement.id, BULKSCAN.name()),
+            getReconciliationReport(envelopeSupplierStatement.id, CRIME.name()),
+            getReconciliationReport(envelopeSupplierStatement.id, PCQ.name())
+        );
+
         given(reconciliationReportRepository
             .findByStatementId(envelopeSupplierStatement.id))
             .willReturn(existingReportList);
-        given(existingReportList.size()).willReturn(3);
 
         // when
         summaryReportService.process(date);
@@ -268,7 +272,6 @@ class SummaryReportServiceTest {
         List<NewReconciliationReport> allCapturedValues = newReconciliationReportCaptor.getAllValues();
         TargetStorageAccount[] targetStorageAccounts = TargetStorageAccount.values();
 
-
         for (int i = 0; i < targetStorageAccounts.length; i++) {
             var newReconciliationReport = allCapturedValues.get(i);
 
@@ -287,7 +290,7 @@ class SummaryReportServiceTest {
     }
 
     @Test
-    void should_save_only_missing_reports_skip_others_reports() throws IOException, SQLException, JSONException {
+    void should_save_only_missing_reports_skip_existing_reports() throws IOException, SQLException, JSONException {
         // given
         setupStorageConfig();
         LocalDate date = LocalDate.now();
@@ -307,18 +310,16 @@ class SummaryReportServiceTest {
 
         given(supplierStatementRepository.findLatest(date)).willReturn(Optional.of(envelopeSupplierStatement));
 
-        var reconciliationReport =
-            new ReconciliationReport(
-                UUID.randomUUID(),
-                supplierId,
-                PCQ.name(),
-                "{}",
-                "{}",
-                "1.0",
-                null, LocalDateTime.now()
-            );
+        ReconciliationReport reconciliationReport = getReconciliationReport(supplierId, PCQ.name());
+        ReconciliationReport reconciliationReportForSameAccount2 = getReconciliationReport(supplierId, PCQ.name());
+        ReconciliationReport reconciliationReportForSameAccount3 = getReconciliationReport(supplierId, PCQ.name());
 
-        var existingReportList = List.of(reconciliationReport);
+        var existingReportList = List.of(
+            reconciliationReport,
+            reconciliationReportForSameAccount2,
+            reconciliationReportForSameAccount3
+        );
+
         given(reconciliationReportRepository
             .findByStatementId(envelopeSupplierStatement.id))
             .willReturn(existingReportList);
@@ -365,6 +366,18 @@ class SummaryReportServiceTest {
             assertThat(newReconciliationReport.detailedContent).isNull();
             JSONAssert.assertEquals(newReconciliationReport.summaryContent, summaryContent, true);
         }
+    }
+
+    private ReconciliationReport getReconciliationReport(UUID supplierId, String account) {
+        return new ReconciliationReport(
+            UUID.randomUUID(),
+            supplierId,
+            account,
+            "{}",
+            "{}",
+            "1.0",
+            null, LocalDateTime.now()
+        );
     }
 
     private static Envelope createEnvelope(String fileName, String container) {

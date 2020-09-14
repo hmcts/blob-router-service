@@ -79,14 +79,14 @@ public class SummaryReportService {
 
         if (existingReportsDistinctByAccount.size() != existingReports.size()) {
             logger.error(
-                "Report created more than once for same account. Supplier id {}, Date: {}",
+                "Report created more than once for same account. Supplier statement id {}, Date: {}",
                 envelopeSupplierStatement.id,
                 envelopeSupplierStatement.date
             );
         }
 
         if (existingReportsDistinctByAccount.size() == TargetStorageAccount.values().length) {
-            logger.info("Summary Reports already ready for {}, supplier Id: {}", date, envelopeSupplierStatement.id);
+            logger.info("Summary Reports already ready for {}, supplier statement Id: {}", date, envelopeSupplierStatement.id);
             return;
         }
 
@@ -96,7 +96,7 @@ public class SummaryReportService {
                 .readValue(envelopeSupplierStatement.content, SupplierStatement.class);
         } catch (JsonProcessingException jsonEx) {
             logger.error(
-                "Error while parsing supplier statement. Supplier id:{}, date:{}",
+                "Error while parsing supplier statement. Supplier statement id:{}, date:{}",
                 envelopeSupplierStatement.id,
                 date,
                 jsonEx
