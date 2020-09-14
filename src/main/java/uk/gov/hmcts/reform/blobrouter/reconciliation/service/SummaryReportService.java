@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
@@ -20,6 +21,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -65,7 +71,21 @@ public class SummaryReportService {
         var existingReports = reconciliationReportRepository
             .findByStatementId(envelopeSupplierStatement.id);
 
-        if (existingReports.size() == TargetStorageAccount.values().length) {
+        List<ReconciliationReport> existingReportsDistinctByAccount =
+            existingReports
+                .stream()
+                .filter(distinctByKey(r -> r.account))
+                .collect(Collectors.toList());
+
+        if (existingReportsDistinctByAccount.size() != existingReports.size()) {
+            logger.error(
+                "Report created more than once for same account. Supplier id {}, Date: {}",
+                envelopeSupplierStatement.id,
+                envelopeSupplierStatement.date
+            );
+        }
+
+        if (existingReportsDistinctByAccount.size() == TargetStorageAccount.values().length) {
             logger.info("Summary Reports already ready for {}, supplier Id: {}", date, envelopeSupplierStatement.id);
             return;
         }
@@ -105,7 +125,7 @@ public class SummaryReportService {
 
         for (var targetStorage : TargetStorageAccount.values()) {
             try {
-                boolean reportFound = existingReports
+                boolean reportFound = existingReportsDistinctByAccount
                     .stream()
                     .anyMatch(r -> r.account.equals(targetStorage.name()));
 
@@ -143,4 +163,8 @@ public class SummaryReportService {
         }
     }
 
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
+    }
 }
