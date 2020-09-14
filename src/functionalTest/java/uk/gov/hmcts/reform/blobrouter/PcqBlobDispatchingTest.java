@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
@@ -12,6 +13,7 @@ import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArc
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.uploadFile;
 
+@Disabled
 public class PcqBlobDispatchingTest extends FunctionalTestBase {
 
     @Override
