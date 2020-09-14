@@ -5,7 +5,6 @@ import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,59 +17,62 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-@Disabled
 public class ReconciliationApiTest {
 
+    private static final String SUBSCRIPTION_KEY_HEADER_NAME = "Ocp-Apim-Subscription-Key";
     private static final String RECONCILIATION_ENDPOINT_PATH = "/reconciliation-report/{date}";
 
     private static Config config;
     private static String apiGatewayUrl;
-    private static String validApiKey;
+    private static String validSubscriptionKey;
 
     @BeforeAll
     static void loadConfig() {
         config = ConfigFactory.load();
         apiGatewayUrl = getApiGatewayUrl();
-        validApiKey = getValidReconciliationApiKey();
+        validSubscriptionKey = getValidSubscriptionKey();
     }
 
     @Test
-    void should_accept_request_with_valid_api_key() {
-        // sends request with valid api Key and invalid body
-        String invalidStatementsReport = "{\"test\": {}}";
-        Response response = callReconciliationEndpoint(validApiKey, invalidStatementsReport).thenReturn();
+    void should_accept_request_with_valid_subscription_key() {
+        Response response = callReconciliationEndpoint(validSubscriptionKey);
 
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST.value());
     }
 
     @Test
-    void should_reject_request_with_invalid_api_key() {
-        String validStatementsReport = "{\"envelopes\": []}";
-        Response response = callReconciliationEndpoint("invalid-api-key123", validStatementsReport).thenReturn();
+    void should_reject_request_with_invalid_subscription_key() {
+        Response response = callReconciliationEndpoint("invalid-subscription-key");
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
-        assertThat(response.body().asString()).contains("Invalid API Key");
+        assertThat(response.body().asString()).contains("Access denied due to invalid subscription key");
     }
 
     @Test
-    void should_reject_request_without_api_key() {
-        String validStatementsReport = "{\"envelopes\": []}";
-        Response response = callReconciliationEndpoint("invalid-api-key123", validStatementsReport).thenReturn();
+    void should_reject_request_with_missing_subscription_header() {
+        String statementsReport = "{\"test\": {}}";
+        Response response = RestAssured
+            .given()
+            .baseUri(apiGatewayUrl)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
+            .body(statementsReport)
+            .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString());
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
-        assertThat(response.body().asString()).contains("API Key is missing");
+        assertThat(response.body().asString()).contains("Access denied due to missing subscription key");
     }
 
     @Test
     void should_not_expose_http_version() {
-        String invalidStatementsReport = "{\"test\": {}}";
+        String statementsReport = "{\"test\": {}}";
         Response response = RestAssured
             .given()
             .baseUri(apiGatewayUrl.replace("https://", "http://"))
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(HttpHeaders.AUTHORIZATION, validApiKey)
+            .header(SUBSCRIPTION_KEY_HEADER_NAME, validSubscriptionKey)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
-            .body(invalidStatementsReport)
+            .body(statementsReport)
             .when()
             .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
             .thenReturn();
@@ -79,12 +81,13 @@ public class ReconciliationApiTest {
         assertThat(response.body().asString()).contains("Resource not found");
     }
 
-    private Response callReconciliationEndpoint(String apiKey, String statementsReport) {
+    private Response callReconciliationEndpoint(String subscriptionKey) {
+        String statementsReport = "{\"test\": {}}";
         return RestAssured
             .given()
             .baseUri(apiGatewayUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(HttpHeaders.AUTHORIZATION, apiKey)
+            .header(SUBSCRIPTION_KEY_HEADER_NAME, subscriptionKey)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
             .body(statementsReport)
             .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString());
@@ -96,10 +99,10 @@ public class ReconciliationApiTest {
         return apiUrl;
     }
 
-    private static String getValidReconciliationApiKey() {
-        String apiKey = config.resolve().getString("test_reconciliation_api_key");
-        assertThat(apiKey).as("Reconciliation API Key").isNotEmpty();
-        return "Bearer " + apiKey;
+    private static String getValidSubscriptionKey() {
+        String subscriptionKey = config.resolve().getString("test-subscription-key");
+        assertThat(subscriptionKey).as("Subscription key").isNotEmpty();
+        return subscriptionKey;
     }
 
 }
