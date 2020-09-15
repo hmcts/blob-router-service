@@ -5,6 +5,7 @@ import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 
@@ -61,6 +62,7 @@ public class NewEnvelopesFinder {
     }
 
     public void checkNewEnvelopesCreatedInContainer(String container, String containerGroup) {
+        Assert.hasText(container, "'container' value is required");
         if (isCurrentTimeInBusinessHours(clock)) {
             if (serviceConfig.getEnabledSourceContainers().contains(container)) {
                 checkNewEnvelopesInContainers(singleton(container), containerGroup);
