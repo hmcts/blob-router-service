@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import javax.validation.ClockProvider;
@@ -96,6 +97,15 @@ public class ReconciliationReportRepository {
             new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("newDetailedContent", toJson(newDetailedContent))
+        );
+    }
+
+    public List<ReconciliationReport> findByStatementId(UUID supplierStatementId) {
+        return jdbcTemplate.query(
+            "SELECT * FROM envelope_reconciliation_reports "
+                + "WHERE envelope_supplier_statement_id = :id",
+            new MapSqlParameterSource("id", supplierStatementId),
+            this.rowMapper
         );
     }
 }

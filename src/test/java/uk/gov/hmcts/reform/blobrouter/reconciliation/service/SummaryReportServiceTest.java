@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
@@ -100,6 +101,44 @@ class SummaryReportServiceTest {
     }
 
     @Test
+    void should_stop_process_if_reports_already_ready() throws JsonProcessingException {
+        // given
+        LocalDate date = LocalDate.now();
+        var envelopeSupplierStatement = new EnvelopeSupplierStatement(
+            UUID.randomUUID(),
+            date,
+            "{wrong_data}",
+            "1.0",
+            LocalDateTime.now()
+        );
+        var option = mock(Optional.class);
+        given(supplierStatementRepository.findLatest(date)).willReturn(option);
+        given(option.isPresent()).willReturn(true);
+        given(option.get()).willReturn(envelopeSupplierStatement);
+
+        var existingReportList = List.of(
+            getReconciliationReport(envelopeSupplierStatement.id, BULKSCAN.name()),
+            getReconciliationReport(envelopeSupplierStatement.id, CRIME.name()),
+            getReconciliationReport(envelopeSupplierStatement.id, PCQ.name())
+        );
+
+        given(reconciliationReportRepository
+            .findByStatementId(envelopeSupplierStatement.id))
+            .willReturn(existingReportList);
+
+        // when
+        summaryReportService.process(date);
+
+        // then
+        verify(option).isPresent();
+        verify(option).get();
+        verifyNoMoreInteractions(option);
+        verifyNoInteractions(envelopeService);
+        verify(reconciliationReportRepository).findByStatementId(envelopeSupplierStatement.id);
+        verifyNoMoreInteractions(reconciliationReportRepository);
+    }
+
+    @Test
     void should_stop_process_if_parsing_supplier_statements_json_fails() throws JsonProcessingException {
         // given
         LocalDate date = LocalDate.now();
@@ -115,7 +154,6 @@ class SummaryReportServiceTest {
         given(option.isPresent()).willReturn(true);
         given(option.get()).willReturn(envelopeSupplierStatement);
 
-
         // when
         summaryReportService.process(date);
 
@@ -124,7 +162,8 @@ class SummaryReportServiceTest {
         verify(option).get();
         verifyNoMoreInteractions(option);
         verifyNoInteractions(envelopeService);
-        verifyNoInteractions(reconciliationReportRepository);
+        verify(reconciliationReportRepository).findByStatementId(envelopeSupplierStatement.id);
+        verifyNoMoreInteractions(reconciliationReportRepository);
     }
 
     @Test
@@ -150,6 +189,7 @@ class SummaryReportServiceTest {
 
         given(supplierStatementRepository.findLatest(date))
             .willReturn(Optional.of(envelopeSupplierStatement));
+
         var envelopeList = Arrays.asList(
             createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate")
         );
@@ -232,7 +272,6 @@ class SummaryReportServiceTest {
         List<NewReconciliationReport> allCapturedValues = newReconciliationReportCaptor.getAllValues();
         TargetStorageAccount[] targetStorageAccounts = TargetStorageAccount.values();
 
-
         for (int i = 0; i < targetStorageAccounts.length; i++) {
             var newReconciliationReport = allCapturedValues.get(i);
 
@@ -248,6 +287,97 @@ class SummaryReportServiceTest {
             assertThat(newReconciliationReport.detailedContent).isNull();
             JSONAssert.assertEquals(newReconciliationReport.summaryContent, summaryContent, true);
         }
+    }
+
+    @Test
+    void should_save_only_missing_reports_skip_existing_reports() throws IOException, SQLException, JSONException {
+        // given
+        setupStorageConfig();
+        LocalDate date = LocalDate.now();
+        String content = Resources.toString(
+            getResource("reconciliation/valid-supplier-statement.json"),
+            UTF_8
+        );
+
+        UUID supplierId = UUID.randomUUID();
+        var envelopeSupplierStatement = new EnvelopeSupplierStatement(
+            supplierId,
+            date,
+            content,
+            "1.0",
+            LocalDateTime.now()
+        );
+
+        given(supplierStatementRepository.findLatest(date)).willReturn(Optional.of(envelopeSupplierStatement));
+
+        ReconciliationReport reconciliationReport = getReconciliationReport(supplierId, PCQ.name());
+        ReconciliationReport reconciliationReportForSameAccount2 = getReconciliationReport(supplierId, PCQ.name());
+        ReconciliationReport reconciliationReportForSameAccount3 = getReconciliationReport(supplierId, PCQ.name());
+
+        var existingReportList = List.of(
+            reconciliationReport,
+            reconciliationReportForSameAccount2,
+            reconciliationReportForSameAccount3
+        );
+
+        given(reconciliationReportRepository
+            .findByStatementId(envelopeSupplierStatement.id))
+            .willReturn(existingReportList);
+
+        List envelopeList = Arrays.asList(
+            createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
+            createEnvelope("9810404021234_14-08-2020-03-08-31.zip", "sscs"),
+            createEnvelope("3108198112345_14-05-2020-10-11-21.zip", "crime"),
+            createEnvelope("7171711717_8-05-2020-09-08-31.zip", "pcq")
+        );
+        given(envelopeService.getEnvelopes(date)).willReturn(envelopeList);
+        given(summaryReportCreator.createSummaryReport(any(), any()))
+            .willReturn(
+                new SummaryReport(
+                    120,
+                    120,
+                    List.of(new SummaryReportItem("12312.31312.312.zip", "sscs")),
+                    List.of(new SummaryReportItem("9810404021234_14-08-2020-03-08-31.zip", "cmc"))
+                )
+            );
+
+        //when
+        summaryReportService.process(date);
+
+        //then
+        verify(reconciliationReportRepository, times(2))
+            .save(newReconciliationReportCaptor.capture());
+        List<NewReconciliationReport> allCapturedValues = newReconciliationReportCaptor.getAllValues();
+        TargetStorageAccount[] targetStorageAccounts = TargetStorageAccount.values();
+
+        // skip report creation if there is already report
+        for (int i = 0; i < 2; i++) {
+            var newReconciliationReport = allCapturedValues.get(i);
+
+            assertThat(newReconciliationReport.supplierStatementId).isEqualTo(supplierId);
+            assertThat(newReconciliationReport.contentTypeVersion).isEqualTo("1.0");
+            assertThat(newReconciliationReport.account).isEqualTo(targetStorageAccounts[i].name());
+
+            String summaryContent = Resources.toString(
+                getResource("reconciliation/summary-report/summary-report-with-both-discrepancy.json"),
+                UTF_8
+            );
+
+            assertThat(newReconciliationReport.detailedContent).isNull();
+            JSONAssert.assertEquals(newReconciliationReport.summaryContent, summaryContent, true);
+        }
+    }
+
+    private ReconciliationReport getReconciliationReport(UUID supplierId, String account) {
+        return new ReconciliationReport(
+            UUID.randomUUID(),
+            supplierId,
+            account,
+            "{}",
+            "{}",
+            "1.0",
+            null, LocalDateTime.now()
+        );
     }
 
     private static Envelope createEnvelope(String fileName, String container) {
