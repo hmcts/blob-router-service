@@ -86,7 +86,11 @@ public class SummaryReportService {
         }
 
         if (existingReportsDistinctByAccount.size() == TargetStorageAccount.values().length) {
-            logger.info("Summary Reports already ready for {}, supplier statement Id: {}", date, envelopeSupplierStatement.id);
+            logger.info(
+                "Summary Reports already ready for {}, supplier statement Id: {}",
+                date,
+                envelopeSupplierStatement.id
+            );
             return;
         }
 
