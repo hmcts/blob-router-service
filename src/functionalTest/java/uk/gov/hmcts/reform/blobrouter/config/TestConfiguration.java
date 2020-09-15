@@ -13,6 +13,7 @@ public class TestConfiguration {
     public final String sourceStorageAccountKey;
     public final String sourceStorageAccountUrl;
     public final String crimeSourceContainer;
+    public final String pcqSourceContainer;
     public final boolean useProxyForSourceStorage;
 
     public TestConfiguration() {
@@ -24,6 +25,7 @@ public class TestConfiguration {
         this.sourceStorageAccountKey = config.getString("source-storage-account-key");
         this.sourceStorageAccountUrl = config.getString("source-storage-account-url");
         this.crimeSourceContainer = config.getString("crime-source-container");
+        this.pcqSourceContainer = config.getString("pcq-source-container");
         this.useProxyForSourceStorage = config.getBoolean("use-proxy-for-source-storage");
     }
 }
