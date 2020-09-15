@@ -20,7 +20,7 @@ public class ReconciliationCsvWriter {
     private static final String REPORTED_NOT_RECEIVED_PROBLEM = "Reported but not Received";
     private static final String[] SUMMARY_RECONCILIATION_CSV_HEADERS = {"Problem", "Zip File Name", "Container"};
     private static final String[] DETAILED_RECONCILIATION_CSV_HEADERS =
-        {"Zip File Name", "Container", "Type", "Actual", "Stated"};
+        {"Zip File Name", "Container", "Type", "Stated", "Actual"};
 
     public File writeSummaryReconciliationToCsv(SummaryReport data) throws IOException {
 
@@ -58,8 +58,8 @@ public class ReconciliationCsvWriter {
                     item.zipFileName,
                     item.container,
                     item.type,
-                    item.actual,
-                    item.stated
+                    item.stated,
+                    item.actual
                 );
             }
         }

@@ -30,8 +30,8 @@ class ReconciliationCsvWriterTest {
         "Zip File Name",
         "Container",
         "Type",
-        "Actual",
-        "Stated"
+        "Stated",
+        "Actual"
     );
 
     private static final String RECEIVED_NOT_REPORTED_PROBLEM = "Received but not Reported";
@@ -160,15 +160,15 @@ class ReconciliationCsvWriterTest {
                     "zip_file_1_1",
                     "crime",
                     "Payment dcn mismatch",
-                    "122321,5353",
-                    "99999"
+                    "99999",
+                    "122321,5353"
                 ),
                 tuple(
                     "zip_file_2_2",
                     "bulkscan",
                     "Dcn mismatch",
-                    "abc",
-                    "abc,weqweq"
+                    "abc,weqweq",
+                    "abc"
                 )
             );
     }
