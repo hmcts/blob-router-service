@@ -4,6 +4,8 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.report.DiscrepancyItem;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.report.ReconciliationReportResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReportItem;
 
@@ -22,6 +24,14 @@ class ReconciliationCsvWriterTest {
         "Problem",
         "Zip File Name",
         "Container"
+    );
+
+    private static final Tuple DETAILED_REPORT_HEADERS = tuple(
+        "Zip File Name",
+        "Container",
+        "Type",
+        "Actual",
+        "Stated"
     );
 
     private static final String RECEIVED_NOT_REPORTED_PROBLEM = "Received but not Reported";
@@ -110,5 +120,82 @@ class ReconciliationCsvWriterTest {
     private Tuple getTupleFromCsvRecord(CSVRecord data) {
         return tuple(
             data.get(0), data.get(1), data.get(2));
+    }
+
+    @Test
+    void should_return_detailed_report_csv_file_with_headers_and_csv_records() throws IOException {
+
+        // given
+        ReconciliationReportResponse data = new ReconciliationReportResponse(
+            List.of(
+                new DiscrepancyItem(
+                    "zip_file_1_1",
+                    "crime",
+                    "Payment dcn mismatch",
+                    "99999",
+                    "122321,5353"
+                ),
+                new DiscrepancyItem(
+                    "zip_file_2_2",
+                    "bulkscan",
+                    "Dcn mismatch",
+                    "abc,weqweq",
+                    "abc"
+                )
+            )
+        );
+        // when
+        File summaryToCsv = reconciliationCsvWriter.writeDetailedReconciliationToCsv(data);
+
+        //then
+        List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
+
+        assertThat(csvRecordList)
+            .isNotEmpty()
+            .hasSize(3)
+            .extracting(this::getTupleFromDetailedCsvRecord)
+            .containsExactly(
+                DETAILED_REPORT_HEADERS,
+                tuple(
+                    "zip_file_1_1",
+                    "crime",
+                    "Payment dcn mismatch",
+                    "122321,5353",
+                    "99999"
+                ),
+                tuple(
+                    "zip_file_2_2",
+                    "bulkscan",
+                    "Dcn mismatch",
+                    "abc",
+                    "abc,weqweq"
+                )
+            );
+    }
+
+    @Test
+    void should_return_detailed_report_csv_file_with_only_headers_when_no_discrepancy()
+        throws IOException {
+        //when
+        ReconciliationReportResponse data = new ReconciliationReportResponse(
+            Collections.emptyList());
+
+        File summaryToCsv = reconciliationCsvWriter.writeDetailedReconciliationToCsv(data);
+
+        //then
+        List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
+
+        assertThat(csvRecordList)
+            .isNotEmpty()
+            .hasSize(1)
+            .extracting(this::getTupleFromDetailedCsvRecord)
+            .containsExactly(
+                DETAILED_REPORT_HEADERS
+            );
+    }
+
+    private Tuple getTupleFromDetailedCsvRecord(CSVRecord data) {
+        return tuple(
+            data.get(0), data.get(1), data.get(2), data.get(3), data.get(4));
     }
 }

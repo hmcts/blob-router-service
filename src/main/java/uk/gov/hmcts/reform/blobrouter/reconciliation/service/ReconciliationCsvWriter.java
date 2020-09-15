@@ -3,6 +3,8 @@ package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.report.DiscrepancyItem;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.report.ReconciliationReportResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReportItem;
 
@@ -17,6 +19,8 @@ public class ReconciliationCsvWriter {
     private static final String RECEIVED_NOT_REPORTED_PROBLEM = "Received but not Reported";
     private static final String REPORTED_NOT_RECEIVED_PROBLEM = "Reported but not Received";
     private static final String[] SUMMARY_RECONCILIATION_CSV_HEADERS = {"Problem", "Zip File Name", "Container"};
+    private static final String[] DETAILED_RECONCILIATION_CSV_HEADERS =
+        {"Zip File Name", "Container", "Type", "Actual", "Stated"};
 
     public File writeSummaryReconciliationToCsv(SummaryReport data) throws IOException {
 
@@ -42,4 +46,23 @@ public class ReconciliationCsvWriter {
         }
     }
 
+    public File writeDetailedReconciliationToCsv(ReconciliationReportResponse data)
+        throws IOException {
+        File csvFile = File.createTempFile("Reconciliation-detailed-", ".csv");
+        CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(DETAILED_RECONCILIATION_CSV_HEADERS);
+        FileWriter fileWriter = new FileWriter(csvFile);
+
+        try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
+            for (DiscrepancyItem item : data.items) {
+                printer.printRecord(
+                    item.zipFileName,
+                    item.container,
+                    item.type,
+                    item.actual,
+                    item.stated
+                );
+            }
+        }
+        return csvFile;
+    }
 }
