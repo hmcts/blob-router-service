@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +32,7 @@ public class NewEnvelopesFinder {
 
     private final Duration timeInterval;
 
-    private static final String CRIME_CONTAINER = "crime";
+    private static final List<String> nonCftContainers = Arrays.asList("crime", "pcq");
 
     private final Clock clock;
 
@@ -60,13 +59,13 @@ public class NewEnvelopesFinder {
         }
     }
 
-    public void checkNewCrimeEnvelopesCreated() {
+    public void checkNewEnvelopesCreatedInContainer(String container, String containerGroup) {
         if (isCurrentTimeInBusinessHours(clock)) {
-            if (serviceConfig.getEnabledSourceContainers().contains(CRIME_CONTAINER)) {
-                checkNewEnvelopesInContainers(singleton(CRIME_CONTAINER), "Crime");
+            if (serviceConfig.getEnabledSourceContainers().contains(container)) {
+                checkNewEnvelopesInContainers(singleton(container), containerGroup);
             } else {
                 logger.info(
-                    "Not checking for new envelopes in {} container because container is disabled", CRIME_CONTAINER
+                    "Not checking for new envelopes in {} container because container is disabled", container
                 );
             }
         }
@@ -88,7 +87,7 @@ public class NewEnvelopesFinder {
     private Set<String> getCftContainers() {
         return serviceConfig.getEnabledSourceContainers()
             .stream()
-            .filter(container -> !StringUtils.equals(CRIME_CONTAINER, container))
+            .filter(container -> !nonCftContainers.contains(container))
             .collect(Collectors.toSet());
     }
 
