@@ -78,7 +78,7 @@ public class NewEnvelopesFinderTest {
         )).willReturn(1);
 
         // when
-        envelopesFinder.checkNewCrimeEnvelopesCreated();
+        envelopesFinder.checkNewEnvelopesCreatedInContainer("crime", "Crime");
 
         // then
         verify(serviceConfiguration).getEnabledSourceContainers();
@@ -92,7 +92,7 @@ public class NewEnvelopesFinderTest {
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(asList("c1", "c2"));
 
         // when
-        envelopesFinder.checkNewCrimeEnvelopesCreated();
+        envelopesFinder.checkNewEnvelopesCreatedInContainer("crime", "Crime");
 
         // then
         verify(serviceConfiguration).getEnabledSourceContainers();
@@ -139,7 +139,7 @@ public class NewEnvelopesFinderTest {
         );
 
         // when
-        envelopesFinder.checkNewCrimeEnvelopesCreated();
+        envelopesFinder.checkNewEnvelopesCreatedInContainer("crime", "Crime");
 
         // then
         verifyNoInteractions(serviceConfiguration, envelopeRepository);
@@ -158,7 +158,7 @@ public class NewEnvelopesFinderTest {
         );
 
         // when
-        envelopesFinder.checkNewCrimeEnvelopesCreated();
+        envelopesFinder.checkNewEnvelopesCreatedInContainer("crime", "Crime");
 
         // then
         verifyNoInteractions(serviceConfiguration, envelopeRepository);
