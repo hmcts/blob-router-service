@@ -177,8 +177,7 @@ class ReconciliationCsvWriterTest {
     void should_return_detailed_report_csv_file_with_only_headers_when_no_discrepancy()
         throws IOException {
         //when
-        ReconciliationReportResponse data = new ReconciliationReportResponse(
-            Collections.emptyList());
+        ReconciliationReportResponse data = new ReconciliationReportResponse(Collections.emptyList());
 
         File summaryToCsv = reconciliationCsvWriter.writeDetailedReconciliationToCsv(data);
 
@@ -195,7 +194,6 @@ class ReconciliationCsvWriterTest {
     }
 
     private Tuple getTupleFromDetailedCsvRecord(CSVRecord data) {
-        return tuple(
-            data.get(0), data.get(1), data.get(2), data.get(3), data.get(4));
+        return tuple(data.get(0), data.get(1), data.get(2), data.get(3), data.get(4));
     }
 }
