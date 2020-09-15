@@ -163,7 +163,7 @@ public class NewEnvelopesFinderTest {
 
         // when
         assertThat(catchThrowable(
-            () -> envelopesFinder.checkNewEnvelopesCreatedInContainer(" ", null))
+            () -> envelopesFinder.checkNewEnvelopesCreatedInContainer("", null))
         ).isInstanceOf(IllegalArgumentException.class)
             .hasMessage("'container' value is required");
 
