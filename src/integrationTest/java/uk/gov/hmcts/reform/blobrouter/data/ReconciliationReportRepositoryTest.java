@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,11 +36,10 @@ public class ReconciliationReportRepositoryTest {
         "supplier version"
     );
 
-    @Autowired SupplierStatementRepository statementRepo;
-    @Autowired ReconciliationReportRepository reportRepo;
-    @Autowired ObjectMapper objectMapper;
-    @Autowired ClockProvider clockProvider;
-    @Autowired DbHelper dbHelper;
+    @Autowired private SupplierStatementRepository statementRepo;
+    @Autowired private ReconciliationReportRepository reportRepo;
+    @Autowired private ClockProvider clockProvider;
+    @Autowired private DbHelper dbHelper;
 
     @AfterEach
     void tearDown() {
