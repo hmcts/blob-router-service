@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +26,8 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @SpringBootTest
 public class SupplierStatementRepositoryTest {
 
-    @Autowired SupplierStatementRepository repo;
-    @Autowired ObjectMapper objectMapper;
-    @Autowired ClockProvider clockProvider;
+    @Autowired private SupplierStatementRepository repo;
+    @Autowired private ClockProvider clockProvider;
 
     @Autowired private NamedParameterJdbcTemplate jdbcTemplate;
 
