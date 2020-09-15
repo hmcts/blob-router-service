@@ -27,10 +27,10 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 @SpringBootTest
 public class EnvelopeEventRepositoryTest {
 
-    @Autowired EnvelopeRepository envelopeRepo;
-    @Autowired DbHelper dbHelper;
+    @Autowired private EnvelopeRepository envelopeRepo;
+    @Autowired private DbHelper dbHelper;
 
-    @Autowired EnvelopeEventRepository eventRepo;
+    @Autowired private EnvelopeEventRepository eventRepo;
 
     @AfterEach
     void tearDown() {
