@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
@@ -20,6 +21,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -62,13 +68,39 @@ public class SummaryReportService {
 
         EnvelopeSupplierStatement envelopeSupplierStatement = optSupplierStatement.get();
 
+        var existingReports = reconciliationReportRepository
+            .findByStatementId(envelopeSupplierStatement.id);
+
+        List<ReconciliationReport> existingReportsDistinctByAccount =
+            existingReports
+                .stream()
+                .filter(distinctByKey(r -> r.account))
+                .collect(Collectors.toList());
+
+        if (existingReportsDistinctByAccount.size() != existingReports.size()) {
+            logger.error(
+                "Report created more than once for same account. Supplier statement id {}, Date: {}",
+                envelopeSupplierStatement.id,
+                envelopeSupplierStatement.date
+            );
+        }
+
+        if (existingReportsDistinctByAccount.size() == TargetStorageAccount.values().length) {
+            logger.info(
+                "Summary Reports already ready for {}, supplier statement Id: {}",
+                date,
+                envelopeSupplierStatement.id
+            );
+            return;
+        }
+
         SupplierStatement supplierStatement;
         try {
             supplierStatement = objectMapper
                 .readValue(envelopeSupplierStatement.content, SupplierStatement.class);
         } catch (JsonProcessingException jsonEx) {
             logger.error(
-                "Error while parsing supplier statement. Supplier id:{}, date:{}",
+                "Error while parsing supplier statement. Supplier statement id:{}, date:{}",
                 envelopeSupplierStatement.id,
                 date,
                 jsonEx
@@ -97,21 +129,32 @@ public class SummaryReportService {
 
         for (var targetStorage : TargetStorageAccount.values()) {
             try {
+                boolean reportFound = existingReportsDistinctByAccount
+                    .stream()
+                    .anyMatch(r -> r.account.equals(targetStorage.name()));
 
-                var summaryReport = summaryReportCreator.createSummaryReport(
-                    processedEnvelopesMap.get(targetStorage),
-                    supplierEnvelopesMap.get(targetStorage)
-                );
+                if (reportFound) {
+                    logger.info(
+                        "Summary report exist for account: {}, supplier statement Id {}. Skip Processing.",
+                        targetStorage.name(),
+                        envelopeSupplierStatement.id
+                    );
+                } else {
+                    var summaryReport = summaryReportCreator.createSummaryReport(
+                        processedEnvelopesMap.get(targetStorage),
+                        supplierEnvelopesMap.get(targetStorage)
+                    );
 
-                String summaryContent = objectMapper.writeValueAsString(summaryReport);
-                var report = new NewReconciliationReport(
-                    envelopeSupplierStatement.id,
-                    targetStorage.name(),
-                    summaryContent,
-                    null,
-                    "1.0"
-                );
-                reconciliationReportRepository.save(report);
+                    String summaryContent = objectMapper.writeValueAsString(summaryReport);
+                    var report = new NewReconciliationReport(
+                        envelopeSupplierStatement.id,
+                        targetStorage.name(),
+                        summaryContent,
+                        null,
+                        "1.0"
+                    );
+                    reconciliationReportRepository.save(report);
+                }
             } catch (Exception ex) {
                 logger.error(
                     "Error creating summary report. Account: {}, supplier Id: {}, date: {}",
@@ -124,4 +167,8 @@ public class SummaryReportService {
         }
     }
 
+    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
+    }
 }
