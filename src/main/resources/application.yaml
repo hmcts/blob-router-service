@@ -138,6 +138,9 @@ scheduling:
     create-reconciliation-detailed-report:
       cron: ${CREATE_RECONCILIATION_DETAILED_REPORT_CRON}
       enabled: ${CREATE_RECONCILIATION_DETAILED_REPORT_ENABLED}
+    send-reconciliation-report-mail:
+      cron: ${SEND_RECONCILIATION_REPORT_MAIL_CRON}
+      enabled: ${SEND_RECONCILIATION_REPORT_MAIL_ENABLED}
 
 proxy:
   enabled: ${PROXY_ENABLED:true}
@@ -146,6 +149,9 @@ proxy:
 
 reconciliation:
   api-key: ${RECONCILIATION_API_KEY}
+  report:
+      mail-from: ${SMTP_USERNAME}
+      mail-recipients: ${REPORTS_RECIPIENTS}
 
 idam:
   s2s-auth:
