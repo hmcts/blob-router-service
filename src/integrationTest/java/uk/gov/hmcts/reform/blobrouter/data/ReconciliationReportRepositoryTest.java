@@ -316,4 +316,41 @@ public class ReconciliationReportRepositoryTest {
             .usingRecursiveComparison()
             .ignoringFields("createdAt").isEqualTo(List.of(existingReport1, existingReport2));
     }
+
+    @Test
+    void should_only_update_sent_at_when_updateSentAt_called() throws SQLException {
+        // given
+        var statementId = statementRepo.save(NEW_STATEMENT);
+        var reportId = reportRepo.save(
+            new NewReconciliationReport(
+                statementId,
+                ACCOUNT,
+                "{ \"x\": 123 }",
+                "{}",
+                VERSION
+            )
+        );
+
+        var start = LocalDateTime.now(clockProvider.getClock());
+
+        var reportBeforeUpdate = reportRepo.findById(reportId).get();
+
+        // when
+        reportRepo.updateSentAt(reportId);
+        var finish = LocalDateTime.now(clockProvider.getClock());
+
+        Optional<ReconciliationReport> reportOption = reportRepo.findById(reportId);
+
+        assertThat(reportOption).isNotEmpty();
+        var updatedReport = reportOption.get();
+
+        // then
+        assertThat(updatedReport.sentAt).isAfter(start);
+        assertThat(updatedReport.sentAt).isBefore(finish);
+
+        assertThat(reportBeforeUpdate)
+            .usingRecursiveComparison()
+            .ignoringFields("sentAt")
+            .isEqualTo(updatedReport);
+    }
 }
