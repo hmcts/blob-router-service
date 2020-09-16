@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -68,31 +70,33 @@ public class NewEnvelopesFinderTest {
         verify(envelopeRepository).getEnvelopesCount(eq(cftContainers), any(), any());
     }
 
-    @Test
-    void should_check_new_envelopes_in_crime_container_when_crime_is_enabled() {
+    @ParameterizedTest
+    @ValueSource(strings = {"crime", "pcq"})
+    void should_check_new_envelopes_in_the_container_when_the_container_is_enabled(String container) {
         // given
         envelopesFinder = newEnvelopeFinderWithBusinessHours();
-        given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("crime"));
+        given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList(container));
         given(envelopeRepository.getEnvelopesCount(
-            eq(singleton("crime")), any(), any()
+            eq(singleton(container)), any(), any()
         )).willReturn(1);
 
         // when
-        envelopesFinder.checkNewEnvelopesCreatedInContainer("crime", "Crime");
+        envelopesFinder.checkNewEnvelopesCreatedInContainer(container, container.toUpperCase());
 
         // then
         verify(serviceConfiguration).getEnabledSourceContainers();
-        verify(envelopeRepository).getEnvelopesCount(eq(singleton("crime")), any(), any());
+        verify(envelopeRepository).getEnvelopesCount(eq(singleton(container)), any(), any());
     }
 
-    @Test
-    void should_not_check_new_envelopes_in_crime_container_when_crime_is_not_enabled() {
+    @ParameterizedTest
+    @ValueSource(strings = {"crime", "pcq"})
+    void should_not_check_new_envelopes_in_the_container_when_the_container_is_not_enabled(String container) {
         // given
         envelopesFinder = newEnvelopeFinderWithBusinessHours();
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(asList("c1", "c2"));
 
         // when
-        envelopesFinder.checkNewEnvelopesCreatedInContainer("crime", "Crime");
+        envelopesFinder.checkNewEnvelopesCreatedInContainer(container, container.toUpperCase());
 
         // then
         verify(serviceConfiguration).getEnabledSourceContainers();
@@ -127,7 +131,50 @@ public class NewEnvelopesFinderTest {
     }
 
     @Test
-    void should_not_check_new_envelopes_in_crime_container_after_business_hours() {
+    void should_throw_exception_when_container_value_is_null() {
+        // given
+        envelopesFinder = new NewEnvelopesFinder(
+            envelopeRepository,
+            serviceConfiguration,
+            Duration.parse("PT10M"),
+            clockProvider
+        );
+
+        // when
+        assertThat(catchThrowable(
+            () -> envelopesFinder.checkNewEnvelopesCreatedInContainer(null, null))
+        ).isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("'container' value is required");
+
+        // then
+        verifyNoInteractions(serviceConfiguration);
+        verifyNoInteractions(envelopeRepository);
+    }
+
+    @Test
+    void should_throw_exception_when_container_value_is_empty() {
+        // given
+        envelopesFinder = new NewEnvelopesFinder(
+            envelopeRepository,
+            serviceConfiguration,
+            Duration.parse("PT10M"),
+            clockProvider
+        );
+
+        // when
+        assertThat(catchThrowable(
+            () -> envelopesFinder.checkNewEnvelopesCreatedInContainer("", null))
+        ).isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("'container' value is required");
+
+        // then
+        verifyNoInteractions(serviceConfiguration);
+        verifyNoInteractions(envelopeRepository);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"crime", "pcq"})
+    void should_not_check_new_envelopes_in_the_container_after_business_hours(String container) {
         // given
         ZonedDateTime dateTime = ZonedDateTime.of(
             LocalDateTime.of(2020, 3, 10, 19, 0, 0), ZoneId.systemDefault() // after business hours
@@ -139,14 +186,15 @@ public class NewEnvelopesFinderTest {
         );
 
         // when
-        envelopesFinder.checkNewEnvelopesCreatedInContainer("crime", "Crime");
+        envelopesFinder.checkNewEnvelopesCreatedInContainer(container, container.toUpperCase());
 
         // then
         verifyNoInteractions(serviceConfiguration, envelopeRepository);
     }
 
-    @Test
-    void should_not_check_new_envelopes_in_crime_container_on_weekend() {
+    @ParameterizedTest
+    @ValueSource(strings = {"crime", "pcq"})
+    void should_not_check_new_envelopes_for_the_container_on_weekend(String container) {
         // given
         ZonedDateTime dateTime = ZonedDateTime.of(
             LocalDateTime.of(2020, 3, 8, 11, 0, 0), ZoneId.systemDefault() // weekend (sunday)
@@ -158,7 +206,7 @@ public class NewEnvelopesFinderTest {
         );
 
         // when
-        envelopesFinder.checkNewEnvelopesCreatedInContainer("crime", "Crime");
+        envelopesFinder.checkNewEnvelopesCreatedInContainer(container, container.toUpperCase());
 
         // then
         verifyNoInteractions(serviceConfiguration, envelopeRepository);
