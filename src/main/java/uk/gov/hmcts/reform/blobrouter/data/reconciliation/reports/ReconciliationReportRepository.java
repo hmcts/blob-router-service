@@ -108,15 +108,4 @@ public class ReconciliationReportRepository {
             this.rowMapper
         );
     }
-
-    public void updateSentAt(UUID id) {
-        jdbcTemplate.update(
-            "UPDATE envelope_reconciliation_reports "
-                + "SET sent_at = :sendAt "
-                + "WHERE id = :id",
-            new MapSqlParameterSource()
-                .addValue("id", id)
-                .addValue("sendAt", LocalDateTime.now(clock))
-        );
-    }
 }
