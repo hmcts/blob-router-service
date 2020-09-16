@@ -334,20 +334,16 @@ public class ReconciliationReportRepositoryTest {
         var start = LocalDateTime.now(clockProvider.getClock());
 
         var reportBeforeUpdate = reportRepo.findById(reportId).get();
+        assertThat(reportBeforeUpdate.sentAt).isNull();
 
         // when
         reportRepo.updateSentAt(reportId);
         var finish = LocalDateTime.now(clockProvider.getClock());
 
-        Optional<ReconciliationReport> reportOption = reportRepo.findById(reportId);
-
-        assertThat(reportOption).isNotEmpty();
-        var updatedReport = reportOption.get();
-
         // then
+        var updatedReport = reportRepo.findById(reportId).get();
         assertThat(updatedReport.sentAt).isAfter(start);
         assertThat(updatedReport.sentAt).isBefore(finish);
-
         assertThat(reportBeforeUpdate)
             .usingRecursiveComparison()
             .ignoringFields("sentAt")
