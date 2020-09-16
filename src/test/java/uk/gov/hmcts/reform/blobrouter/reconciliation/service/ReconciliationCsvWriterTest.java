@@ -92,18 +92,19 @@ class ReconciliationCsvWriterTest {
 
     @Test
     void should_return_csv_file_with_only_headers_when_no_discrepancy() throws IOException {
-        //when
+        // given
         SummaryReport data = new SummaryReport(
             5,
             5,
             Collections.emptyList(),
             Collections.emptyList()
         );
+        // when
         File summaryToCsv = reconciliationCsvWriter.writeSummaryReconciliationToCsv(data);
 
-        //then
-        List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
 
+        List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
+        // then
         assertThat(csvRecordList)
             .isNotEmpty()
             .hasSize(1)
@@ -176,14 +177,17 @@ class ReconciliationCsvWriterTest {
     @Test
     void should_return_detailed_report_csv_file_with_only_headers_when_no_discrepancy()
         throws IOException {
-        //when
+
+        // given
         ReconciliationReportResponse data = new ReconciliationReportResponse(Collections.emptyList());
 
+        // when
         File summaryToCsv = reconciliationCsvWriter.writeDetailedReconciliationToCsv(data);
 
-        //then
+
         List<CSVRecord> csvRecordList = readCsv(summaryToCsv);
 
+        // then
         assertThat(csvRecordList)
             .isNotEmpty()
             .hasSize(1)
