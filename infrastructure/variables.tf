@@ -6,27 +6,22 @@ variable "raw_product" {
 
 variable "component" {}
 
-variable "env" {
-  type = "string"
-}
+variable "env" {}
 
-variable "subscription" {
-  type = "string"
-}
+variable "subscription" {}
 
 variable "common_tags" {
-  type = "map"
+  type = map(string)
 }
 
 # list of SSL client certificate thumbprints that are accepted by the API (gateway)
 # (excludes certificates used by API tests)
 variable "allowed_client_certificate_thumbprints" {
-  type    = "list"
+  type    = list(string)
   default = []
 }
 
 variable "location_db" {
-  type    = "string"
   default = "UK South"
 }
 
