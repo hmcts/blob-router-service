@@ -35,7 +35,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
@@ -44,7 +44,7 @@ class BlobProcessorTest {
 
     private static final String SOURCE_CONTAINER = "sourceContainer1";
     private static final String TARGET_CONTAINER = "targetContainer1";
-    private static final TargetStorageAccount TARGET_STORAGE_ACCOUNT = BULKSCAN;
+    private static final TargetStorageAccount TARGET_STORAGE_ACCOUNT = CFT;
 
     @Mock(lenient = true) BlobClient blobClient;
     @Mock(lenient = true) BlobProperties blobProperties;
@@ -60,7 +60,7 @@ class BlobProcessorTest {
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
-        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         willThrow(new RuntimeException("Exception message"))
@@ -89,7 +89,7 @@ class BlobProcessorTest {
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
-        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         willThrow(new RuntimeException(
@@ -125,7 +125,7 @@ class BlobProcessorTest {
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
-        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
 
         HttpResponse errorResponse = mock(HttpResponse.class);
         given(errorResponse.getStatusCode()).willReturn(BAD_GATEWAY.value());
@@ -155,7 +155,7 @@ class BlobProcessorTest {
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
-        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
 
         willThrow(new RuntimeException("test")).given(blobClient).download(any());
 
@@ -179,7 +179,7 @@ class BlobProcessorTest {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
-        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
         String fileName = "envelope1.zip";
@@ -202,7 +202,7 @@ class BlobProcessorTest {
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
 
-        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, BULKSCAN);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
         String fileName = "envelope1.zip";
@@ -227,7 +227,7 @@ class BlobProcessorTest {
         var targetContainerName = "targetContainer1";
         var content = "some zip file content".getBytes();
 
-        setupContainerConfig(sourceContainerName, targetContainerName, BULKSCAN);
+        setupContainerConfig(sourceContainerName, targetContainerName, CFT);
         blobExists(fileName, sourceContainerName);
         given(blobContentExtractor.getContentToUpload(any(), any())).willReturn(content);
 
@@ -243,7 +243,7 @@ class BlobProcessorTest {
         // then
         verifyNewEnvelopeHasBeenCreated();
         verify(blobDispatcher, times(1))
-            .dispatch(eq(fileName), aryEq(content), eq(targetContainerName), eq(BULKSCAN));
+            .dispatch(eq(fileName), aryEq(content), eq(targetContainerName), eq(CFT));
         verify(envelopeService).markAsDispatched(id);
     }
 

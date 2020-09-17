@@ -32,7 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,14 +77,14 @@ class DetailedReportServiceTest {
     void should_not_process_further_if_there_is_no_summary_report() {
         //given
         LocalDate date = LocalDate.now();
-        given(reconciliationReportRepository.getLatestReconciliationReport(date, BULKSCAN.name()))
+        given(reconciliationReportRepository.getLatestReconciliationReport(date, CFT.name()))
             .willReturn(Optional.empty());
 
         //when
-        service.process(date, BULKSCAN);
+        service.process(date, CFT);
 
         // then
-        verify(reconciliationReportRepository).getLatestReconciliationReport(date, BULKSCAN.name());
+        verify(reconciliationReportRepository).getLatestReconciliationReport(date, CFT.name());
         verifyNoMoreInteractions(reconciliationReportRepository);
         verifyNoInteractions(reconciliationService);
         verifyNoInteractions(reconciliationMapper);
@@ -96,14 +96,14 @@ class DetailedReportServiceTest {
     void should_not_process_further_if_detailed_report_already_present() {
         //given
         LocalDate date = LocalDate.now();
-        given(reconciliationReportRepository.getLatestReconciliationReport(date, BULKSCAN.name()))
+        given(reconciliationReportRepository.getLatestReconciliationReport(date, CFT.name()))
             .willReturn(Optional.of(createReconciliationReport("{}", "{\"report\" :1}")));
 
         //when
-        service.process(date, BULKSCAN);
+        service.process(date, CFT);
 
         // then
-        verify(reconciliationReportRepository).getLatestReconciliationReport(date, BULKSCAN.name());
+        verify(reconciliationReportRepository).getLatestReconciliationReport(date, CFT.name());
         verifyNoMoreInteractions(reconciliationReportRepository);
         verifyNoInteractions(reconciliationService);
         verifyNoInteractions(reconciliationMapper);
@@ -115,12 +115,12 @@ class DetailedReportServiceTest {
     void should_not_process_further_if_no_supplier_statement() {
         //given
         LocalDate date = LocalDate.now();
-        given(reconciliationReportRepository.getLatestReconciliationReport(date, BULKSCAN.name()))
+        given(reconciliationReportRepository.getLatestReconciliationReport(date, CFT.name()))
             .willReturn(Optional.of(createReconciliationReport("{\"a\" :1}", null)));
         given(reconciliationService.getSupplierStatement(date)).willReturn(Optional.empty());
 
         //when
-        service.process(date, BULKSCAN);
+        service.process(date, CFT);
 
         // then
         verify(reconciliationService).getSupplierStatement(date);
@@ -128,7 +128,7 @@ class DetailedReportServiceTest {
         verifyNoInteractions(reconciliationMapper);
         verifyNoInteractions(bulkScanProcessorClient);
         verifyNoInteractions(objectMapper);
-        verify(reconciliationReportRepository).getLatestReconciliationReport(date, BULKSCAN.name());
+        verify(reconciliationReportRepository).getLatestReconciliationReport(date, CFT.name());
         verifyNoMoreInteractions(reconciliationReportRepository);
     }
 
@@ -137,7 +137,7 @@ class DetailedReportServiceTest {
         //given
         LocalDate date = LocalDate.now();
         var reconciliationReport = createReconciliationReport("{\"a\" :1}", null);
-        given(reconciliationReportRepository.getLatestReconciliationReport(date, BULKSCAN.name()))
+        given(reconciliationReportRepository.getLatestReconciliationReport(date, CFT.name()))
             .willReturn(Optional.of(reconciliationReport));
 
         String content = Resources.toString(
@@ -170,18 +170,18 @@ class DetailedReportServiceTest {
             .willReturn(contentJson);
 
         //when
-        service.process(date, BULKSCAN);
+        service.process(date, CFT);
 
         // then
         verify(reconciliationService).getSupplierStatement(date);
         verifyNoMoreInteractions(reconciliationService);
-        verify(reconciliationMapper).convertToReconciliationStatement(any(), eq(BULKSCAN));
+        verify(reconciliationMapper).convertToReconciliationStatement(any(), eq(CFT));
         verifyNoMoreInteractions(reconciliationMapper);
         verify(bulkScanProcessorClient).postReconciliationReport(reconciliationStatement);
         verifyNoMoreInteractions(bulkScanProcessorClient);
         verify(objectMapper).writeValueAsString(reconciliationReportResponse);
         verifyNoMoreInteractions(objectMapper);
-        verify(reconciliationReportRepository).getLatestReconciliationReport(date, BULKSCAN.name());
+        verify(reconciliationReportRepository).getLatestReconciliationReport(date, CFT.name());
         verify(reconciliationReportRepository)
             .updateDetailedContent(reconciliationReport.id, contentJson);
         verifyNoMoreInteractions(reconciliationReportRepository);
@@ -194,7 +194,7 @@ class DetailedReportServiceTest {
         return new ReconciliationReport(
             UUID.randomUUID(),
             UUID.randomUUID(),
-            BULKSCAN.name(),
+            CFT.name(),
             summaryContent,
             detailedContent,
             "1.0",

@@ -111,7 +111,7 @@ public class BlobContainerClientProxyTest {
             blobName,
             blobContent,
             containerName,
-            TargetStorageAccount.BULKSCAN
+            TargetStorageAccount.CFT
         );
 
         verify(sasTokenCache).getSasToken(containerName);
@@ -141,7 +141,7 @@ public class BlobContainerClientProxyTest {
     @ParameterizedTest
     @EnumSource(
         value = TargetStorageAccount.class,
-        names = {"BULKSCAN", "PCQ"}
+        names = {"CFT", "PCQ"}
     )
     void should_invalidate_cache_when_upload_returns_error_response_40x(TargetStorageAccount storageAccount) {
         // given
@@ -151,7 +151,7 @@ public class BlobContainerClientProxyTest {
         if (storageAccount == TargetStorageAccount.PCQ) {
             given(blobContainerClientBuilderProvider.getPcqBlobContainerClientBuilder())
                 .willReturn(blobContainerClientBuilder);
-        } else if (storageAccount == TargetStorageAccount.BULKSCAN) {
+        } else if (storageAccount == TargetStorageAccount.CFT) {
             given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
                 .willReturn(blobContainerClientBuilder);
         }

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 
 class DetailedReportTaskTest {
 
@@ -23,7 +23,7 @@ class DetailedReportTaskTest {
         task.run();
 
         // then
-        verify(detailedReportService, times(1)).process(LocalDate.now(), BULKSCAN);
+        verify(detailedReportService, times(1)).process(LocalDate.now(), CFT);
     }
 
 }

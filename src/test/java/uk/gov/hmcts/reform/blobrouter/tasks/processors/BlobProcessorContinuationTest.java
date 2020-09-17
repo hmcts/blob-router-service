@@ -28,7 +28,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
@@ -50,7 +50,7 @@ public class BlobProcessorContinuationTest {
     void setUp() {
         given(serviceConfiguration.getStorageConfig())
             .willReturn(Map.of(
-                "s1", cfg("s1", "t1", BULKSCAN),
+                "s1", cfg("s1", "t1", CFT),
                 "s2", cfg("s2", "t2", CRIME)
             ));
         blobProcessor = new BlobProcessor(
@@ -80,7 +80,7 @@ public class BlobProcessorContinuationTest {
         // then
         verify(envelopeService, never()).createNewEnvelope(any(), any(), any());
         verify(envelopeService).markAsDispatched(id);
-        verify(blobDispatcher).dispatch(fileName, content, "t1", BULKSCAN);
+        verify(blobDispatcher).dispatch(fileName, content, "t1", CFT);
     }
 
     @Test
