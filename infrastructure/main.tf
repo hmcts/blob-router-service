@@ -22,8 +22,9 @@ module "reform-blob-router-db" {
   subscription       = var.subscription
 }
 
-# Staging DB to be used by AAT staging pod for functional tests
 module "reform-blob-router-staging-db" {
+  count = var.env == "aat" ? 1 : 0
+
   source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
   product            = "${var.component}-staging"
   location           = var.location_db
@@ -169,30 +170,35 @@ resource "azurerm_key_vault_secret" "POSTGRES_DATABASE" {
 
 # region staging DB secrets
 resource "azurerm_key_vault_secret" "staging_db_user" {
+  count        = var.env == "aat" ? 1 : 0
   name         = "${var.component}-staging-db-user"
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
   value        = module.reform-blob-router-staging-db.user_name
 }
 
 resource "azurerm_key_vault_secret" "staging_db_password" {
+  count        = var.env == "aat" ? 1 : 0
   name         = "${var.component}-staging-db-password"
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
   value        = module.reform-blob-router-staging-db.postgresql_password
 }
 
 resource "azurerm_key_vault_secret" "staging_db_host" {
+  count        = var.env == "aat" ? 1 : 0
   name         = "${var.component}-staging-db-host"
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
   value        = module.reform-blob-router-staging-db.host_name
 }
 
 resource "azurerm_key_vault_secret" "staging_db_port" {
+  count        = var.env == "aat" ? 1 : 0
   name         = "${var.component}-staging-db-port"
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
   value        = module.reform-blob-router-staging-db.postgresql_listen_port
 }
 
 resource "azurerm_key_vault_secret" "staging_db_name" {
+  count        = var.env == "aat" ? 1 : 0
   name         = "${var.component}-staging-db-name"
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
   value        = module.reform-blob-router-staging-db.postgresql_database
