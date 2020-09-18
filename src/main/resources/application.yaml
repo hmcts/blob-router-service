@@ -45,15 +45,15 @@ service:
   storage-config:
     - source-container: bulkscan
       sas-validity: 300 #In seconds
-      target-storage-account: bulkscan
+      target-storage-account: cft
       target-container: bulkscan
     - source-container: bulkscanauto
       sas-validity: 300 #In seconds
-      target-storage-account: bulkscan
+      target-storage-account: cft
       target-container: bulkscanauto
     - source-container: cmc
       sas-validity: 300 #In seconds
-      target-storage-account: bulkscan
+      target-storage-account: cft
       target-container: cmc
     - source-container: crime
       sas-validity: 300 #In seconds
@@ -67,23 +67,23 @@ service:
       target-container: ${PCQ_DESTINATION_CONTAINER}
     - source-container: divorce
       sas-validity: 300 #In seconds
-      target-storage-account: bulkscan
+      target-storage-account: cft
       target-container: divorce
     - source-container: finrem
       sas-validity: 300 #In seconds
-      target-storage-account: bulkscan
+      target-storage-account: cft
       target-container: finrem
     - source-container: probate
       sas-validity: 300 #In seconds
-      target-storage-account: bulkscan
+      target-storage-account: cft
       target-container: probate
     - source-container: sscs
       sas-validity: 300 #In seconds
-      target-storage-account: bulkscan
+      target-storage-account: cft
       target-container: sscs
     - source-container: publiclaw
       sas-validity: 300 #In seconds
-      target-storage-account: bulkscan
+      target-storage-account: cft
       target-container: publiclaw
 
 queue:
