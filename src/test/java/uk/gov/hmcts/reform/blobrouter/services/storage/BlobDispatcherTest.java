@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 
 @ExtendWith(MockitoExtension.class)
 class BlobDispatcherTest {
@@ -40,14 +40,14 @@ class BlobDispatcherTest {
         final byte[] blobContent = "some data".getBytes();
         final String container = "container";
 
-        doNothing().when(blobContainerClientProxy).upload(blobName, blobContent, container, BULKSCAN);
+        doNothing().when(blobContainerClientProxy).upload(blobName, blobContent, container, CFT);
 
         // when
-        dispatcher.dispatch(blobName, blobContent, container, BULKSCAN);
+        dispatcher.dispatch(blobName, blobContent, container, CFT);
 
         // then
         verify(blobContainerClientProxy)
-            .upload(blobName, blobContent, container, BULKSCAN);
+            .upload(blobName, blobContent, container, CFT);
 
     }
 
@@ -60,7 +60,7 @@ class BlobDispatcherTest {
 
         // when
         Throwable exc = catchThrowable(
-            () -> dispatcher.dispatch("foo.zip", "data".getBytes(), "some_container", BULKSCAN)
+            () -> dispatcher.dispatch("foo.zip", "data".getBytes(), "some_container", CFT)
         );
 
         // then

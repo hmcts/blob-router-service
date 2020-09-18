@@ -38,7 +38,7 @@ public class BlobContainerClientProxy {
 
     private BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
         switch (targetStorageAccount) {
-            case BULKSCAN:
+            case CFT:
                 return blobContainerClientBuilderProvider
                     .getBlobContainerClientBuilder()
                     .sasToken(sasTokenCache.getSasToken(containerName))
@@ -96,7 +96,7 @@ public class BlobContainerClientProxy {
                 (System.currentTimeMillis() - uploadStartTime),
                 ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
             );
-            if ((targetStorageAccount == TargetStorageAccount.BULKSCAN
+            if ((targetStorageAccount == TargetStorageAccount.CFT
                 || targetStorageAccount == TargetStorageAccount.PCQ)
                 && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
                 sasTokenCache.removeFromCache(destinationContainer);
