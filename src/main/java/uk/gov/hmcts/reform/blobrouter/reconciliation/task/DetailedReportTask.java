@@ -31,7 +31,7 @@ public class DetailedReportTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        detailedReportService.process(LocalDate.now(), TargetStorageAccount.BULKSCAN);
+        detailedReportService.process(LocalDate.now(), TargetStorageAccount.CFT);
 
         logger.info("Finished {} job", TASK_NAME);
     }

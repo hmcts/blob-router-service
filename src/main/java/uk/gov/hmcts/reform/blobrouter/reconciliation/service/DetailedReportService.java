@@ -46,7 +46,7 @@ public class DetailedReportService {
     public void process(LocalDate date, TargetStorageAccount account) {
 
         Assert.isTrue(
-            account == TargetStorageAccount.BULKSCAN,
+            account == TargetStorageAccount.CFT,
             "Only BULKSCAN account can be processed."
         );
 

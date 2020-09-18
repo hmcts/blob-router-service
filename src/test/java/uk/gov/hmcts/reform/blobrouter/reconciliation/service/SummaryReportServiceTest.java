@@ -50,7 +50,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 
@@ -117,7 +117,7 @@ class SummaryReportServiceTest {
         given(option.get()).willReturn(envelopeSupplierStatement);
 
         var existingReportList = List.of(
-            getReconciliationReport(envelopeSupplierStatement.id, BULKSCAN.name()),
+            getReconciliationReport(envelopeSupplierStatement.id, CFT.name()),
             getReconciliationReport(envelopeSupplierStatement.id, CRIME.name()),
             getReconciliationReport(envelopeSupplierStatement.id, PCQ.name())
         );
@@ -171,7 +171,7 @@ class SummaryReportServiceTest {
     void should_continue_processing_with_next_target_storage_if_one_fails()
         throws Exception {
         // given
-        given(storageConfig.get(anyString())).willReturn(createStorageConfigItem(BULKSCAN));
+        given(storageConfig.get(anyString())).willReturn(createStorageConfigItem(CFT));
         LocalDate date = LocalDate.now();
         String content = Resources.toString(
             getResource("reconciliation/valid-supplier-statement.json"),
@@ -395,9 +395,9 @@ class SummaryReportServiceTest {
     }
 
     private void setupStorageConfig() {
-        given(storageConfig.get("sscs")).willReturn(createStorageConfigItem(BULKSCAN));
-        given(storageConfig.get("probate")).willReturn(createStorageConfigItem(BULKSCAN));
-        given(storageConfig.get("cmc")).willReturn(createStorageConfigItem(BULKSCAN));
+        given(storageConfig.get("sscs")).willReturn(createStorageConfigItem(CFT));
+        given(storageConfig.get("probate")).willReturn(createStorageConfigItem(CFT));
+        given(storageConfig.get("cmc")).willReturn(createStorageConfigItem(CFT));
         given(storageConfig.get("crime")).willReturn(createStorageConfigItem(CRIME));
         given(storageConfig.get("pcq")).willReturn(createStorageConfigItem(PCQ));
     }

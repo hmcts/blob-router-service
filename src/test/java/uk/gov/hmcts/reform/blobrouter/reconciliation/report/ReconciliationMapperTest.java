@@ -21,7 +21,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.BULKSCAN;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 
@@ -95,7 +95,7 @@ class ReconciliationMapperTest {
         ReconciliationStatement reconciliationStatement =
             reconciliationMapper.convertToReconciliationStatement(
                 envelopeSupplierStatement,
-                BULKSCAN
+                CFT
             );
 
         // then
@@ -153,11 +153,11 @@ class ReconciliationMapperTest {
     }
 
     private void setupStorageConfig() {
-        given(storageConfig.get("sscs")).willReturn(createStorageConfigItem(BULKSCAN));
-        given(storageConfig.get("probate")).willReturn(createStorageConfigItem(BULKSCAN));
+        given(storageConfig.get("sscs")).willReturn(createStorageConfigItem(CFT));
+        given(storageConfig.get("probate")).willReturn(createStorageConfigItem(CFT));
         given(storageConfig.get("crime")).willReturn(createStorageConfigItem(CRIME));
         given(storageConfig.get("pcq")).willReturn(createStorageConfigItem(PCQ));
-        given(storageConfig.get("cmc")).willReturn(createStorageConfigItem(BULKSCAN));
+        given(storageConfig.get("cmc")).willReturn(createStorageConfigItem(CFT));
     }
 
 }

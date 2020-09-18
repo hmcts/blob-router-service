@@ -79,7 +79,7 @@ class BlobContentExtractorTest {
         var content = "irrelevant".getBytes();
 
         // when
-        var result = extractor.getContentToUpload(content, TargetStorageAccount.BULKSCAN);
+        var result = extractor.getContentToUpload(content, TargetStorageAccount.CFT);
 
         // then
         assertThat(result).isEqualTo(content);
