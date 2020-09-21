@@ -28,7 +28,8 @@ public class ReconciliationService {
     public ReconciliationService(
         SupplierStatementRepository repository,
         ReconciliationReportRepository reconciliationReportRepository,
-        ObjectMapper objectMapper) {
+        ObjectMapper objectMapper
+    ) {
         this.repository = repository;
         this.reconciliationReportRepository = reconciliationReportRepository;
         this.objectMapper = objectMapper;
