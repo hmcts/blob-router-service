@@ -33,7 +33,8 @@ public class CheckNewEnvelopesTask {
         // TODO: enable once 'crime' envelopes are enabled. (and update test)
         // newEnvelopesFinder.checkNewEnvelopesCreatedInContainer("crime", "Crime");
 
-        newEnvelopesFinder.checkNewEnvelopesCreatedInContainer("pcq", "PCQ");
+        // TODO: enable once 'pcq' envelopes are enabled. (and update test)
+        // newEnvelopesFinder.checkNewEnvelopesCreatedInContainer("pcq", "PCQ");
 
         logger.info("Finished {} job", TASK_NAME);
     }
