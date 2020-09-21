@@ -69,7 +69,7 @@ class ReconciliationMailServiceTest {
     private static final String mailFrom = "from@f.com";
     private static final String[] mailRecipients = {"r1@d.com"};
     private static final List<TargetStorageAccount> AVAILABLE_ACCOUNTS =
-        List.of(CFT, TargetStorageAccount.CRIME);
+        List.of(CFT, CRIME);
 
     private static final String BULKSCAN_NO_REPORT = "CFT Scanning Reconciliation NO REPORT RECEIVED";
     private static final String CRIME_NO_REPORT = "CRIME Scanning Reconciliation NO REPORT RECEIVED";

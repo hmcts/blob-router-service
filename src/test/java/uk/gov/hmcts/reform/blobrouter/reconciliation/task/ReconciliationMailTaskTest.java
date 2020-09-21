@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 
 class ReconciliationMailTaskTest {
 
@@ -26,6 +27,6 @@ class ReconciliationMailTaskTest {
 
         // then
         verify(reconciliationMailService, times(1))
-            .process(LocalDate.now(UTC), List.of(CFT, TargetStorageAccount.CRIME));;
+            .process(LocalDate.now(UTC), List.of(CFT, CRIME));;
     }
 }
