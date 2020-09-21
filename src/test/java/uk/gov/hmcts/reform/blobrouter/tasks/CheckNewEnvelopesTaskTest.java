@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.services.NewEnvelopesFinder;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -20,6 +21,6 @@ class CheckNewEnvelopesTaskTest {
 
         // then
         verify(envelopesFinder, times(1)).checkNewCftEnvelopesCreated();
-        verify(envelopesFinder, times(1)).checkNewEnvelopesCreatedInContainer("pcq", "PCQ");
+        verify(envelopesFinder, never()).checkNewEnvelopesCreatedInContainer("pcq", "PCQ");
     }
 }
