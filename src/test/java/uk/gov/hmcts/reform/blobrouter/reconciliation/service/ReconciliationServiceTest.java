@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
@@ -17,6 +18,7 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,9 +43,12 @@ class ReconciliationServiceTest {
     @Mock
     private SupplierStatementRepository repository;
 
+    @Mock
+    private ReconciliationReportRepository reconciliationReportRepository;
+
     @BeforeEach
     void setUp() {
-        service = new ReconciliationService(repository, objectMapper);
+        service = new ReconciliationService(repository, reconciliationReportRepository, objectMapper);
     }
 
     @Test
@@ -137,4 +142,22 @@ class ReconciliationServiceTest {
         );
 
     }
+
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void should_return_reconciliation_report_as_it_is_in_repository() {
+        // given
+        LocalDate date = LocalDate.now();
+        var expectedResponse = mock(List.class);
+
+        given(reconciliationReportRepository.findByDate(date)).willReturn(expectedResponse);
+
+        // when
+        var response = service.getReconciliationReports(date);
+
+        // then
+        assertThat(response).isSameAs(expectedResponse);
+    }
+
 }

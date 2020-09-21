@@ -68,6 +68,16 @@ public class ReconciliationReportRepository {
         }
     }
 
+    public List<ReconciliationReport> findByDate(LocalDate date) {
+        return jdbcTemplate.query(
+            "SELECT * FROM envelope_reconciliation_reports "
+                + "WHERE DATE(created_at) = :date "
+                + "ORDER BY created_at DESC",
+            new MapSqlParameterSource("date", date),
+            this.rowMapper
+        );
+    }
+
     public Optional<ReconciliationReport> getLatestReconciliationReport(LocalDate forDate, String account) {
         try {
             ReconciliationReport report = jdbcTemplate.queryForObject(
