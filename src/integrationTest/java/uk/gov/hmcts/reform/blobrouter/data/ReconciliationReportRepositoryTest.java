@@ -349,4 +349,63 @@ public class ReconciliationReportRepositoryTest {
             .ignoringFields("sentAt")
             .isEqualTo(updatedReport);
     }
+
+    @Test
+    void should_find_report_when_report_find_for_given_date_by_findByDate() throws SQLException {
+        // given
+        LocalDate date = LocalDate.now();
+
+        var statementId = statementRepo.save(NEW_STATEMENT);
+        var reportId = reportRepo.save(
+            new NewReconciliationReport(
+                statementId,
+                ACCOUNT,
+                "{ \"x\": 123 }",
+                "{}",
+                VERSION
+            )
+        );
+        // when
+        var reportList = reportRepo.findByDate(date);
+
+        // then
+        assertThat(reportList.size()).isEqualTo(1);
+        var report = reportList.get(0);
+        assertThat(report.createdAt.toLocalDate()).isEqualTo(date);
+        assertThat(report.detailedContent).isEqualTo("{}");
+        assertThat(report.summaryContent).isEqualTo("{ \"x\": 123 }");
+        assertThat(report.sentAt).isNull();
+        assertThat(report.id).isEqualTo(reportId);
+        assertThat(report.account).isEqualTo(ACCOUNT);
+        assertThat(report.contentTypeVersion).isEqualTo(VERSION);
+        assertThat(report.supplierStatementId).isEqualTo(statementId);
+    }
+
+    @Test
+    void should_return_empty_list_when_no_report_for_given_date_by_findByDate() throws SQLException {
+        // given
+        LocalDate date = LocalDate.of(2020, 9, 10);
+
+        var statementId = statementRepo.save(NEW_STATEMENT);
+        var reportId = reportRepo.save(
+            new NewReconciliationReport(
+                statementId,
+                ACCOUNT,
+                "{}",
+                "{}",
+                VERSION
+            )
+        );
+
+        assertThat(reportRepo.findById(reportId))
+            .isNotEmpty()
+            .get()
+            .extracting("createdAt")
+            .usingComparator((a, b) -> ((LocalDateTime) a).toLocalDate().compareTo((LocalDate) b))
+            .isEqualTo(LocalDate.now());
+        // when
+        var reportList = reportRepo.findByDate(date);
+        // then
+        assertThat(reportList.size()).isEqualTo(0);
+    }
 }
