@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.task;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationMailService;
 
 import java.time.LocalDate;
