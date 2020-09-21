@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
+import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
@@ -12,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,10 +22,16 @@ import java.util.UUID;
 public class ReconciliationService {
 
     private final SupplierStatementRepository repository;
+    private final ReconciliationReportRepository reconciliationReportRepository;
     private final ObjectMapper objectMapper;
 
-    public ReconciliationService(SupplierStatementRepository repository, ObjectMapper objectMapper) {
+    public ReconciliationService(
+        SupplierStatementRepository repository,
+        ReconciliationReportRepository reconciliationReportRepository,
+        ObjectMapper objectMapper
+    ) {
         this.repository = repository;
+        this.reconciliationReportRepository = reconciliationReportRepository;
         this.objectMapper = objectMapper;
     }
 
@@ -45,4 +54,7 @@ public class ReconciliationService {
         return repository.findLatest(date);
     }
 
+    public List<ReconciliationReport> getReconciliationReports(LocalDate date) {
+        return reconciliationReportRepository.findByDate(date);
+    }
 }
