@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,20 +15,13 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-public class ReconciliationApiTest {
+public class ReconciliationApiTest extends ApiGatewayBaseTest {
 
-    private static final String SUBSCRIPTION_KEY_HEADER_NAME = "Ocp-Apim-Subscription-Key";
     private static final String RECONCILIATION_ENDPOINT_PATH = "/reconciliation-report/{date}";
 
-    private static Config config;
-    private static String apiGatewayUrl;
-    private static String validSubscriptionKey;
-
     @BeforeAll
-    static void loadConfig() {
-        config = ConfigFactory.load();
-        apiGatewayUrl = getApiGatewayUrl();
-        validSubscriptionKey = getValidSubscriptionKey();
+    static void setup() throws Exception {
+        loadConfig();
     }
 
     @Test
@@ -91,18 +82,6 @@ public class ReconciliationApiTest {
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
             .body(statementsReport)
             .post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString());
-    }
-
-    private static String getApiGatewayUrl() {
-        String apiUrl = config.resolve().getString("api-gateway-url");
-        assertThat(apiUrl).as("API gateway URL").isNotEmpty();
-        return apiUrl;
-    }
-
-    private static String getValidSubscriptionKey() {
-        String subscriptionKey = config.resolve().getString("test-subscription-key");
-        assertThat(subscriptionKey).as("Subscription key").isNotEmpty();
-        return subscriptionKey;
     }
 
 }
