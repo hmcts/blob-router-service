@@ -28,7 +28,7 @@ public class ReconciliationMailService {
 
     private static final Logger logger = getLogger(ReconciliationMailService.class);
 
-    private final SupplierStatementRepository repository;
+    private final SupplierStatementRepository supplierStatementRepository;
     private final ReconciliationReportRepository reconciliationReportRepository;
     private final ReconciliationCsvWriter reconciliationCsvWriter;
     private final EmailSender emailSender;
@@ -37,8 +37,12 @@ public class ReconciliationMailService {
     private final String mailFrom;
     private final String[] mailRecipients;
 
+    private static final String ATTACHMENT_SUMMARY_PREFIX = "Summary-Report-";
+    private static final String ATTACHMENT_DETAILED_PREFIX = "Detailed-report-";
+    private static final String ATTACHMENT_SUFFIX = ".csv";
+
     public ReconciliationMailService(
-        SupplierStatementRepository repository,
+        SupplierStatementRepository supplierStatementRepository,
         ReconciliationReportRepository reconciliationReportRepository,
         ReconciliationCsvWriter reconciliationCsvWriter,
         EmailSender emailSender,
@@ -46,7 +50,7 @@ public class ReconciliationMailService {
         @Value("${reconciliation.report.mail-from") String mailFrom,
         @Value("${reconciliation.report.mail-recipients}") String[] recipients
     ) {
-        this.repository = repository;
+        this.supplierStatementRepository = supplierStatementRepository;
         this.reconciliationReportRepository = reconciliationReportRepository;
         this.reconciliationCsvWriter = reconciliationCsvWriter;
         this.emailSender = emailSender;
@@ -56,7 +60,7 @@ public class ReconciliationMailService {
     }
 
     public void process(LocalDate date, List<TargetStorageAccount> availableAccounts) {
-        Optional<EnvelopeSupplierStatement> optionalEnvelopeSupplierStatement = repository
+        Optional<EnvelopeSupplierStatement> optionalEnvelopeSupplierStatement = supplierStatementRepository
             .findLatest(date);
 
         for (var account : availableAccounts) {
@@ -78,12 +82,13 @@ public class ReconciliationMailService {
         reconciliationReportRepository
             .getLatestReconciliationReport(date, account.name())
             .ifPresentOrElse(
-                report -> processReconciliationReport(report, account),
+                report -> processReconciliationReport(date, report, account),
                 () -> logger.error("No report created for account {} for date {}", account, date)
             );
     }
 
     private void processReconciliationReport(
+        LocalDate date,
         ReconciliationReport reconciliationReport,
         TargetStorageAccount account
     ) {
@@ -92,7 +97,7 @@ public class ReconciliationMailService {
 
                 if (reconciliationReport.sentAt != null) {
                     logger.info(
-                        "Skipping mailing process, Reconciliation Report send at {}, Report Id: {}",
+                        "Skipping mailing process, Reconciliation Report sent at {}, Report Id: {}",
                         reconciliationReport.sentAt,
                         reconciliationReport.id
                     );
@@ -105,7 +110,10 @@ public class ReconciliationMailService {
                 File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
 
                 Map<String, File> attachments = new HashMap<>();
-                attachments.put("Summary Report", file);
+                attachments.put(
+                    getReportAttachmentName(ATTACHMENT_SUMMARY_PREFIX, date),
+                    file
+                );
                 ReconciliationReportResponse detailedReport = null;
                 if (reconciliationReport.detailedContent != null) {
                     detailedReport =
@@ -114,7 +122,9 @@ public class ReconciliationMailService {
 
                     File detailedReportFile = reconciliationCsvWriter
                         .writeDetailedReconciliationToCsv(detailedReport);
-                    attachments.put("Detailed report", detailedReportFile);
+                    attachments.put(
+                        getReportAttachmentName(ATTACHMENT_DETAILED_PREFIX, date),
+                        detailedReportFile);
                 }
 
                 emailSender.sendMessageWithAttachments(
@@ -176,5 +186,9 @@ public class ReconciliationMailService {
 
     private boolean noMissMatchInDetailedReport(ReconciliationReportResponse detailedReport) {
         return Objects.isNull(detailedReport) || CollectionUtils.isEmpty(detailedReport.items);
+    }
+
+    private String getReportAttachmentName(String attachmentPrefix, LocalDate reportDate) {
+        return attachmentPrefix + reportDate + ATTACHMENT_SUFFIX;
     }
 }

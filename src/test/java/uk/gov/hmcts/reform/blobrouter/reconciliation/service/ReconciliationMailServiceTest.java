@@ -287,7 +287,7 @@ class ReconciliationMailServiceTest {
                 eq(""),
                 eq(mailFrom),
                 eq(mailRecipients),
-                eq(Map.of("Summary Report", summaryReportFile))
+                eq(Map.of("Summary-Report-" + date + ".csv", summaryReportFile))
             );
         verifyNoMoreInteractions(emailSender);
         verify(reconciliationReportRepository).updateSentAt(reconciliationReport.id);
@@ -409,7 +409,11 @@ class ReconciliationMailServiceTest {
                 eq(""),
                 eq(mailFrom),
                 eq(mailRecipients),
-                eq(Map.of("Summary Report", summaryReportFile, "Detailed report", detailedReportFile))
+                eq(Map.of(
+                    "Summary-Report-" + date + ".csv", summaryReportFile,
+                    "Detailed-report-" + date + ".csv", detailedReportFile
+                    )
+                )
             );
         verifyNoMoreInteractions(emailSender);
         verify(reconciliationReportRepository).updateSentAt(reconciliationReport.id);
