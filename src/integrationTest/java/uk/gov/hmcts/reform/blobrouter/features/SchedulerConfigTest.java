@@ -31,7 +31,11 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.send-daily-report.enabled=true",
         "scheduling.task.send-daily-report.cron: */1 * * * * *",
         "scheduling.task.send-notifications.enabled=true",
-        "scheduling.task.send-notifications.cron: */1 * * * * *"
+        "scheduling.task.send-notifications.cron: */1 * * * * *",
+        "scheduling.task.send-reconciliation-report-mail.enabled=true",
+        "scheduling.task.send-reconciliation-report-mail.cron: */1 * * * * *",
+        "reconciliation.report.mail-from=sender@test",
+        "reconciliation.report.mail-recipients=recipient@test"
     }
 )
 @Profile("integration-test")
@@ -58,7 +62,8 @@ public class SchedulerConfigTest {
                 "check-new-envelopes",
                 "handle-rejected-files",
                 "send-daily-report",
-                "send-notifications"
+                "send-notifications",
+                "send-reconciliation-report-mail"
             );
     }
 }

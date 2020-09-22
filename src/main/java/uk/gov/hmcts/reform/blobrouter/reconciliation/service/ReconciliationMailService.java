@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
@@ -24,6 +25,7 @@ import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+@Service
 public class ReconciliationMailService {
 
     private static final Logger logger = getLogger(ReconciliationMailService.class);
