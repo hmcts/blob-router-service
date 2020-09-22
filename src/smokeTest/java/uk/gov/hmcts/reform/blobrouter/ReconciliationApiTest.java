@@ -50,7 +50,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
 
     @Test
     void should_reject_request_with_unrecognised_client_certificate() throws Exception {
-        Response response = callReconciliationEndpoint(getUnrecognisedClientKeyStore(), null);
+        Response response = callReconciliationEndpoint(getUnrecognisedClientKeyStore(), validSubscriptionKey);
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("Invalid client certificate");
@@ -58,7 +58,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
 
     @Test
     void should_reject_request_with_missing_client_certificate() throws Exception {
-        Response response = callReconciliationEndpoint(null, null);
+        Response response = callReconciliationEndpoint(null, validSubscriptionKey);
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("Missing client certificate");
@@ -66,7 +66,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
 
     @Test
     void should_reject_request_with_expired_client_certificate() throws Exception {
-        Response response = callReconciliationEndpoint(getExpiredClientKeyStore(), null);
+        Response response = callReconciliationEndpoint(getExpiredClientKeyStore(), validSubscriptionKey);
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("Invalid client certificate");
@@ -74,7 +74,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
 
     @Test
     void should_reject_request_with_not_yet_valid_client_certificate() throws Exception {
-        Response response = callReconciliationEndpoint(getNotYetValidClientKeyStore(), null);
+        Response response = callReconciliationEndpoint(getNotYetValidClientKeyStore(), validSubscriptionKey);
 
         assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
         assertThat(response.body().asString()).contains("Invalid client certificate");
@@ -107,7 +107,6 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
             .given()
             .baseUri(apiGatewayUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SUBSCRIPTION_KEY_HEADER_NAME, subscriptionKey)
             .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Smoke test")
             .body(statementsReport);
 
