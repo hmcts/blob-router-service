@@ -151,9 +151,13 @@ public class ReconciliationMailService {
 
         } catch (Exception ex) {
             logger.error(
-                "Sending reconciliation email failed for {}, for Reconciliation Report id: {}",
+                "Sending reconciliation email failed for {}, for Reconciliation Report id: {}, "
+                    + "mailFrom {}, mailRecipients {}",
                 account,
-                reconciliationReport.id
+                reconciliationReport.id,
+                mailFrom,
+                mailRecipients,
+                ex
             );
         }
     }
@@ -171,7 +175,8 @@ public class ReconciliationMailService {
             logger.error(
                 "Sending `No Supplier statement email` failed for {} for account {}",
                 date,
-                account
+                account,
+                ex
             );
         }
     }
