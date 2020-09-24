@@ -151,9 +151,12 @@ public class ReconciliationMailService {
 
         } catch (Exception ex) {
             logger.error(
-                "Sending reconciliation email failed for {}, for Reconciliation Report id: {}",
+                "Sending reconciliation email failed for {}, for Reconciliation Report id: {}, "
+                    + "mailFrom {}, mailRecipients {}",
                 account,
                 reconciliationReport.id,
+                mailFrom,
+                mailRecipients,
                 ex
             );
         }
