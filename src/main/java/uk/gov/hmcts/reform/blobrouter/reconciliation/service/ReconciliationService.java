@@ -21,17 +21,17 @@ import java.util.UUID;
 @Service
 public class ReconciliationService {
 
-    private final SupplierStatementRepository repository;
-    private final ReconciliationReportRepository reconciliationReportRepository;
+    private final SupplierStatementRepository statementRepo;
+    private final ReconciliationReportRepository reportRepo;
     private final ObjectMapper objectMapper;
 
     public ReconciliationService(
-        SupplierStatementRepository repository,
-        ReconciliationReportRepository reconciliationReportRepository,
+        SupplierStatementRepository statementRepo,
+        ReconciliationReportRepository reportRepo,
         ObjectMapper objectMapper
     ) {
-        this.repository = repository;
-        this.reconciliationReportRepository = reconciliationReportRepository;
+        this.statementRepo = statementRepo;
+        this.reportRepo = reportRepo;
         this.objectMapper = objectMapper;
     }
 
@@ -39,22 +39,22 @@ public class ReconciliationService {
     public UUID saveSupplierStatement(LocalDate date, SupplierStatement inputSupplierStatement) {
         try {
             String supplierStatement = objectMapper.writeValueAsString(inputSupplierStatement);
-            NewEnvelopeSupplierStatement statement = new NewEnvelopeSupplierStatement(
+            var statement = new NewEnvelopeSupplierStatement(
                 date,
                 supplierStatement,
                 "1.0" //TODO: should save different versions
             );
-            return repository.save(statement);
+            return statementRepo.save(statement);
         } catch (JsonProcessingException | SQLException e) {
             throw new InvalidSupplierStatementException("Failed to process Supplier statement", e);
         }
     }
 
     public Optional<EnvelopeSupplierStatement> getSupplierStatement(LocalDate date) {
-        return repository.findLatest(date);
+        return statementRepo.findLatest(date);
     }
 
     public List<ReconciliationReport> getReconciliationReports(LocalDate date) {
-        return reconciliationReportRepository.findByDate(date);
+        return reportRepo.findByDate(date);
     }
 }
