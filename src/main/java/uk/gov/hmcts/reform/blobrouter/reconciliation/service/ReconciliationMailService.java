@@ -51,7 +51,7 @@ public class ReconciliationMailService {
         ReconciliationCsvWriter reconciliationCsvWriter,
         EmailSender emailSender,
         ObjectMapper objectMapper,
-        @Value("${reconciliation.report.mail-from") String mailFrom,
+        @Value("${reconciliation.report.mail-from}") String mailFrom,
         @Value("${reconciliation.report.mail-recipients}") String[] recipients
     ) {
         this.supplierStatementRepository = supplierStatementRepository;
