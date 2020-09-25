@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -87,15 +88,16 @@ class ReconciliationMailServiceTest {
         );
     }
 
-    @Test
-    void should_send_mail_when_the_supplier_statement_is_missing() throws SendEmailException {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void should_send_mail_when_the_supplier_statement_is_missing(boolean automatedEmail) throws SendEmailException {
 
         // given
         LocalDate date = LocalDate.now();
         given(repository.findLatest(date)).willReturn(Optional.empty());
 
         // when
-        service.process(date, AVAILABLE_ACCOUNTS);
+        service.process(date, AVAILABLE_ACCOUNTS, automatedEmail);
 
         // then
         verify(repository).findLatest(date);
@@ -128,7 +130,7 @@ class ReconciliationMailServiceTest {
             .willReturn(Optional.empty());
 
         // when
-        service.process(date, AVAILABLE_ACCOUNTS);
+        service.process(date, AVAILABLE_ACCOUNTS, true);
 
         // then
         verify(repository).findLatest(date);
@@ -174,7 +176,7 @@ class ReconciliationMailServiceTest {
             .willReturn(mock(SummaryReport.class));
 
         // when
-        service.process(date, AVAILABLE_ACCOUNTS);
+        service.process(date, AVAILABLE_ACCOUNTS, true);
 
         // then
         verify(repository).findLatest(date);
@@ -187,14 +189,14 @@ class ReconciliationMailServiceTest {
         var accounts = accountCaptor.getAllValues();
         assertThat(accounts).containsAll(List.of(CFT.name(), CRIME.name()));
         verify(emailSender, times(1))
-            .sendMessageWithAttachments(anyString(), anyString(),anyString(), any(), any());
+            .sendMessageWithAttachments(anyString(), anyString(), anyString(), any(), any());
         verifyNoMoreInteractions(emailSender);
         verify(reconciliationReportRepository).updateSentAt(reconciliationReport.id);
         verifyNoMoreInteractions(reconciliationReportRepository);
     }
 
     @Test
-    void should_not_send_mail_when_reconciliation_report_summary_field_is_empty() {
+    void should_not_send_mail_when_reconciliation_report_summary_field_is_empty_and_automated_email_is_true() {
         // given
         LocalDate date = LocalDate.now();
         given(repository.findLatest(date))
@@ -204,7 +206,7 @@ class ReconciliationMailServiceTest {
             .willReturn(Optional.of(mock(ReconciliationReport.class)));
 
         // when
-        service.process(date, AVAILABLE_ACCOUNTS);
+        service.process(date, AVAILABLE_ACCOUNTS, true);
 
         // then
         verify(repository).findLatest(date);
@@ -219,7 +221,7 @@ class ReconciliationMailServiceTest {
     }
 
     @Test
-    void should_not_send_mail_when_reconciliation_report_send_at_field_is_not_empty() {
+    void should_not_send_mail_when_reconciliation_report_send_at_field_is_not_empty_and_automated_email_is_true() {
         // given
         LocalDate date = LocalDate.now();
         given(repository.findLatest(date))
@@ -240,7 +242,7 @@ class ReconciliationMailServiceTest {
             .willReturn(Optional.of(reconciliationReport));
 
         // when
-        service.process(date, List.of(CFT));
+        service.process(date, List.of(CFT), true);
 
         // then
         verify(repository).findLatest(date);
@@ -272,7 +274,7 @@ class ReconciliationMailServiceTest {
             .willReturn(summaryReportFile);
 
         // when
-        service.process(date, List.of(account));
+        service.process(date, List.of(account), true);
 
         // then
         verify(repository).findLatest(date);
@@ -288,6 +290,74 @@ class ReconciliationMailServiceTest {
                 eq(mailFrom),
                 eq(mailRecipients),
                 eq(Map.of("Summary-Report-" + date + ".csv", summaryReportFile))
+            );
+        verifyNoMoreInteractions(emailSender);
+        verify(reconciliationReportRepository).updateSentAt(reconciliationReport.id);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void should_send_summary_and_detailed_reports_when_reconciliation_report_has_both(boolean automatedEmail)
+        throws IOException, SendEmailException {
+
+        // given
+        var reconciliationReport = new ReconciliationReport(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "CRIME",
+            "{}",
+            "{\"a\":1}",
+            "1.0",
+            // should send email when manually triggered and report was already sent
+            automatedEmail ? null : LocalDateTime.now().minusMinutes(10),
+            LocalDateTime.now()
+        );
+
+        LocalDate date = LocalDate.now();
+        given(repository.findLatest(date))
+            .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
+
+        given(reconciliationReportRepository.getLatestReconciliationReport(any(), any()))
+            .willReturn(Optional.of(reconciliationReport));
+
+        var summaryReport = mock(SummaryReport.class);
+        given(objectMapper.readValue(reconciliationReport.summaryContent, SummaryReport.class))
+            .willReturn(summaryReport);
+
+        var detailedReport = new ReconciliationReportResponse(List.of(mock(DiscrepancyItem.class)));
+        given(objectMapper.readValue(reconciliationReport.detailedContent, ReconciliationReportResponse.class))
+            .willReturn(detailedReport);
+
+        var summaryReportFile = mock(File.class);
+        given(reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport))
+            .willReturn(summaryReportFile);
+
+        var detailedReportFile = mock(File.class);
+        given(reconciliationCsvWriter.writeDetailedReconciliationToCsv(detailedReport))
+            .willReturn(detailedReportFile);
+
+        // when
+        service.process(date, List.of(CFT), automatedEmail);
+
+        // then
+        verify(repository).findLatest(date);
+        verifyNoMoreInteractions(repository);
+        verify(reconciliationReportRepository, times(1))
+            .getLatestReconciliationReport(eq(date), eq(CFT.name()));
+        verify(objectMapper).readValue(anyString(), eq(SummaryReport.class));
+        verify(objectMapper).readValue(anyString(), eq(ReconciliationReportResponse.class));
+        verifyNoMoreInteractions(objectMapper);
+        verify(emailSender, times(1))
+            .sendMessageWithAttachments(
+                eq("CFT Scanning Reconciliation MISMATCH"),
+                eq(""),
+                eq(mailFrom),
+                eq(mailRecipients),
+                eq(Map.of(
+                    "Summary-Report-" + date + ".csv", summaryReportFile,
+                    "Detailed-report-" + date + ".csv", detailedReportFile
+                   )
+                )
             );
         verifyNoMoreInteractions(emailSender);
         verify(reconciliationReportRepository).updateSentAt(reconciliationReport.id);
@@ -352,71 +422,4 @@ class ReconciliationMailServiceTest {
             }
         };
     }
-
-    @Test
-    void should_send_summary_report_and_detailed_report_when_reconciliation_report_has_both_reports()
-        throws IOException, SendEmailException {
-
-        // given
-        var reconciliationReport = new ReconciliationReport(
-            UUID.randomUUID(),
-            UUID.randomUUID(),
-            "CRIME",
-            "{}",
-            "{\"a\":1}",
-            "1.0",
-            null,
-            LocalDateTime.now()
-        );
-
-        LocalDate date = LocalDate.now();
-        given(repository.findLatest(date))
-            .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
-
-        given(reconciliationReportRepository.getLatestReconciliationReport(any(), any()))
-            .willReturn(Optional.of(reconciliationReport));
-
-        var summaryReport = mock(SummaryReport.class);
-        given(objectMapper.readValue(reconciliationReport.summaryContent, SummaryReport.class))
-            .willReturn(summaryReport);
-
-        var detailedReport = new ReconciliationReportResponse(List.of(mock(DiscrepancyItem.class)));
-        given(objectMapper.readValue(reconciliationReport.detailedContent, ReconciliationReportResponse.class))
-            .willReturn(detailedReport);
-
-        var summaryReportFile = mock(File.class);
-        given(reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport))
-            .willReturn(summaryReportFile);
-
-        var detailedReportFile = mock(File.class);
-        given(reconciliationCsvWriter.writeDetailedReconciliationToCsv(detailedReport))
-            .willReturn(detailedReportFile);
-
-        // when
-        service.process(date, List.of(CFT));
-
-        // then
-        verify(repository).findLatest(date);
-        verifyNoMoreInteractions(repository);
-        verify(reconciliationReportRepository, times(1))
-            .getLatestReconciliationReport(eq(date), eq(CFT.name()));
-        verify(objectMapper).readValue(anyString(), eq(SummaryReport.class));
-        verify(objectMapper).readValue(anyString(), eq(ReconciliationReportResponse.class));
-        verifyNoMoreInteractions(objectMapper);
-        verify(emailSender, times(1))
-            .sendMessageWithAttachments(
-                eq("CFT Scanning Reconciliation MISMATCH"),
-                eq(""),
-                eq(mailFrom),
-                eq(mailRecipients),
-                eq(Map.of(
-                    "Summary-Report-" + date + ".csv", summaryReportFile,
-                    "Detailed-report-" + date + ".csv", detailedReportFile
-                    )
-                )
-            );
-        verifyNoMoreInteractions(emailSender);
-        verify(reconciliationReportRepository).updateSentAt(reconciliationReport.id);
-    }
-
 }

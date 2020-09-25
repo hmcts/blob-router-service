@@ -63,14 +63,14 @@ public class ReconciliationMailService {
         this.mailRecipients = recipients;
     }
 
-    public void process(LocalDate date, List<TargetStorageAccount> availableAccounts) {
+    public void process(LocalDate date, List<TargetStorageAccount> availableAccounts, boolean automatedEmail) {
         Optional<EnvelopeSupplierStatement> optionalEnvelopeSupplierStatement = supplierStatementRepository
             .findLatest(date);
 
         for (var account : availableAccounts) {
             try {
                 optionalEnvelopeSupplierStatement.ifPresentOrElse(
-                    e -> getReconciliationReportAndProcess(date, account),
+                    e -> getReconciliationReportAndProcess(date, account, automatedEmail),
                     () -> sendMailNoSupplierStatement(date, account)
                 );
             } catch (Exception ex) {
@@ -81,12 +81,13 @@ public class ReconciliationMailService {
 
     private void getReconciliationReportAndProcess(
         LocalDate date,
-        TargetStorageAccount account
+        TargetStorageAccount account,
+        boolean automatedEmail
     ) {
         reconciliationReportRepository
             .getLatestReconciliationReport(date, account.name())
             .ifPresentOrElse(
-                report -> processReconciliationReport(date, report, account),
+                report -> processReconciliationReport(date, report, account, automatedEmail),
                 () -> logger.error("No report created for account {} for date {}", account, date)
             );
     }
@@ -94,12 +95,13 @@ public class ReconciliationMailService {
     private void processReconciliationReport(
         LocalDate date,
         ReconciliationReport reconciliationReport,
-        TargetStorageAccount account
+        TargetStorageAccount account,
+        boolean automatedEmail
     ) {
         try {
             if (reconciliationReport.summaryContent != null) {
 
-                if (reconciliationReport.sentAt != null) {
+                if (automatedEmail && reconciliationReport.sentAt != null) {
                     logger.info(
                         "Skipping mailing process, Reconciliation Report sent at {}, Report Id: {}",
                         reconciliationReport.sentAt,
