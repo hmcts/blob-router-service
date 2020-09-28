@@ -248,6 +248,7 @@ class SummaryReportServiceTest {
 
         List envelopeList = Arrays.asList(
             createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
+            // SSCS - while finding target storage container name matching should be case insensitive
             createEnvelope("9810404021234_14-08-2020-03-08-31.zip", "SSCS"),
             createEnvelope("3108198112345_14-05-2020-10-11-21.zip", "crime"),
             createEnvelope("7171711717_8-05-2020-09-08-31.zip", "pcq")
@@ -325,6 +326,7 @@ class SummaryReportServiceTest {
             .willReturn(existingReportList);
 
         List envelopeList = Arrays.asList(
+            // PRoBatE - while finding target storage container name matching should be case insensitive
             createEnvelope("1010404021234_14-08-2020-08-31.zip", "PROBATE"),
             createEnvelope("9810404021234_14-08-2020-03-08-31.zip", "sscs"),
             createEnvelope("3108198112345_14-05-2020-10-11-21.zip", "crime"),
