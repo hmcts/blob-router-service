@@ -51,7 +51,7 @@ public class ReconciliationService {
     }
 
     public Optional<EnvelopeSupplierStatement> getSupplierStatement(LocalDate date) {
-        return statementRepo.findLatestByDate(date);
+        return statementRepo.findLatest(date);
     }
 
     public List<ReconciliationReport> getReconciliationReports(LocalDate date) {

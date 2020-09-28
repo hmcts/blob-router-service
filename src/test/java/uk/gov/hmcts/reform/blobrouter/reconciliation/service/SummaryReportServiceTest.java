@@ -88,13 +88,13 @@ class SummaryReportServiceTest {
     void should_continue_if_there_is_no_supplier_statement() throws JsonProcessingException {
         // given
         LocalDate date = LocalDate.now();
-        given(supplierStatementRepository.findLatestByDate(date)).willReturn(Optional.empty());
+        given(supplierStatementRepository.findLatest(date)).willReturn(Optional.empty());
 
         // when
         summaryReportService.process(date);
 
         // then
-        verify(supplierStatementRepository).findLatestByDate(date);
+        verify(supplierStatementRepository).findLatest(date);
         verifyNoMoreInteractions(supplierStatementRepository);
         verifyNoInteractions(envelopeService);
         verifyNoInteractions(reconciliationReportRepository);
@@ -112,7 +112,7 @@ class SummaryReportServiceTest {
             LocalDateTime.now()
         );
         var option = mock(Optional.class);
-        given(supplierStatementRepository.findLatestByDate(date)).willReturn(option);
+        given(supplierStatementRepository.findLatest(date)).willReturn(option);
         given(option.isPresent()).willReturn(true);
         given(option.get()).willReturn(envelopeSupplierStatement);
 
@@ -150,7 +150,7 @@ class SummaryReportServiceTest {
             LocalDateTime.now()
         );
         var option = mock(Optional.class);
-        given(supplierStatementRepository.findLatestByDate(date)).willReturn(option);
+        given(supplierStatementRepository.findLatest(date)).willReturn(option);
         given(option.isPresent()).willReturn(true);
         given(option.get()).willReturn(envelopeSupplierStatement);
 
@@ -187,7 +187,7 @@ class SummaryReportServiceTest {
             LocalDateTime.now()
         );
 
-        given(supplierStatementRepository.findLatestByDate(date))
+        given(supplierStatementRepository.findLatest(date))
             .willReturn(Optional.of(envelopeSupplierStatement));
 
         var envelopeList = Arrays.asList(
@@ -244,7 +244,7 @@ class SummaryReportServiceTest {
             LocalDateTime.now()
         );
 
-        given(supplierStatementRepository.findLatestByDate(date)).willReturn(Optional.of(envelopeSupplierStatement));
+        given(supplierStatementRepository.findLatest(date)).willReturn(Optional.of(envelopeSupplierStatement));
 
         List envelopeList = Arrays.asList(
             createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
@@ -308,7 +308,7 @@ class SummaryReportServiceTest {
             LocalDateTime.now()
         );
 
-        given(supplierStatementRepository.findLatestByDate(date)).willReturn(Optional.of(envelopeSupplierStatement));
+        given(supplierStatementRepository.findLatest(date)).willReturn(Optional.of(envelopeSupplierStatement));
 
         ReconciliationReport reconciliationReport = getReconciliationReport(supplierId, PCQ.name());
         ReconciliationReport reconciliationReportForSameAccount2 = getReconciliationReport(supplierId, PCQ.name());

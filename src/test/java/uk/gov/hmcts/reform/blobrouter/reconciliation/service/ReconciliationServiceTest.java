@@ -117,7 +117,7 @@ class ReconciliationServiceTest {
         LocalDate date = LocalDate.now();
         var expectedResponse = Optional.of(mock(EnvelopeSupplierStatement.class));
 
-        given(repository.findLatestByDate(date)).willReturn(expectedResponse);
+        given(repository.findLatest(date)).willReturn(expectedResponse);
 
         // when
         var response = service.getSupplierStatement(date);
@@ -131,7 +131,7 @@ class ReconciliationServiceTest {
         // given
         LocalDate date = LocalDate.now();
 
-        given(repository.findLatestByDate(date))
+        given(repository.findLatest(date))
             .willThrow(new RuntimeException("Repository exception"));
 
         // when
