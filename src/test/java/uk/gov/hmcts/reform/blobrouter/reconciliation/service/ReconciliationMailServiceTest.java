@@ -92,13 +92,13 @@ class ReconciliationMailServiceTest {
 
         // given
         LocalDate date = LocalDate.now();
-        given(repository.findLatestByDate(date)).willReturn(Optional.empty());
+        given(repository.findLatestCreatedByDate(date)).willReturn(Optional.empty());
 
         // when
         service.process(date, AVAILABLE_ACCOUNTS);
 
         // then
-        verify(repository).findLatestByDate(date);
+        verify(repository).findLatestCreatedByDate(date);
         verifyNoMoreInteractions(repository);
         ArgumentCaptor<String> titleCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -121,7 +121,7 @@ class ReconciliationMailServiceTest {
 
         // given
         LocalDate date = LocalDate.now();
-        given(repository.findLatestByDate(date))
+        given(repository.findLatestCreatedByDate(date))
             .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
 
         given(reconciliationReportRepository.getLatestReconciliationReport(any(), any()))
@@ -131,7 +131,7 @@ class ReconciliationMailServiceTest {
         service.process(date, AVAILABLE_ACCOUNTS);
 
         // then
-        verify(repository).findLatestByDate(date);
+        verify(repository).findLatestCreatedByDate(date);
         verifyNoMoreInteractions(repository);
         ArgumentCaptor<String> accountCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -149,7 +149,7 @@ class ReconciliationMailServiceTest {
 
         // given
         LocalDate date = LocalDate.now();
-        given(repository.findLatestByDate(date))
+        given(repository.findLatestCreatedByDate(date))
             .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
 
         var reconciliationReport = new ReconciliationReport(
@@ -177,7 +177,7 @@ class ReconciliationMailServiceTest {
         service.process(date, AVAILABLE_ACCOUNTS);
 
         // then
-        verify(repository).findLatestByDate(date);
+        verify(repository).findLatestCreatedByDate(date);
         verifyNoMoreInteractions(repository);
         ArgumentCaptor<String> accountCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -197,7 +197,7 @@ class ReconciliationMailServiceTest {
     void should_not_send_mail_when_reconciliation_report_summary_field_is_empty() {
         // given
         LocalDate date = LocalDate.now();
-        given(repository.findLatestByDate(date))
+        given(repository.findLatestCreatedByDate(date))
             .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
 
         given(reconciliationReportRepository.getLatestReconciliationReport(any(), any()))
@@ -207,7 +207,7 @@ class ReconciliationMailServiceTest {
         service.process(date, AVAILABLE_ACCOUNTS);
 
         // then
-        verify(repository).findLatestByDate(date);
+        verify(repository).findLatestCreatedByDate(date);
         verifyNoMoreInteractions(repository);
         ArgumentCaptor<String> accountCaptor = ArgumentCaptor.forClass(String.class);
         verify(reconciliationReportRepository, times(2))
@@ -222,7 +222,7 @@ class ReconciliationMailServiceTest {
     void should_not_send_mail_when_reconciliation_report_send_at_field_is_not_empty() {
         // given
         LocalDate date = LocalDate.now();
-        given(repository.findLatestByDate(date))
+        given(repository.findLatestCreatedByDate(date))
             .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
 
         var reconciliationReport = new ReconciliationReport(
@@ -243,7 +243,7 @@ class ReconciliationMailServiceTest {
         service.process(date, List.of(CFT));
 
         // then
-        verify(repository).findLatestByDate(date);
+        verify(repository).findLatestCreatedByDate(date);
         verifyNoMoreInteractions(repository);
         verify(reconciliationReportRepository, times(1))
             .getLatestReconciliationReport(eq(date), eq(CFT.name()));
@@ -258,7 +258,7 @@ class ReconciliationMailServiceTest {
     ) throws IOException, SendEmailException {
         // given
         LocalDate date = LocalDate.now();
-        given(repository.findLatestByDate(date))
+        given(repository.findLatestCreatedByDate(date))
             .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
 
         given(reconciliationReportRepository.getLatestReconciliationReport(any(), any()))
@@ -275,7 +275,7 @@ class ReconciliationMailServiceTest {
         service.process(date, List.of(account));
 
         // then
-        verify(repository).findLatestByDate(date);
+        verify(repository).findLatestCreatedByDate(date);
         verifyNoMoreInteractions(repository);
         verify(reconciliationReportRepository, times(1))
             .getLatestReconciliationReport(eq(date), eq(account.name()));
@@ -370,7 +370,7 @@ class ReconciliationMailServiceTest {
         );
 
         LocalDate date = LocalDate.now();
-        given(repository.findLatestByDate(date))
+        given(repository.findLatestCreatedByDate(date))
             .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
 
         given(reconciliationReportRepository.getLatestReconciliationReport(any(), any()))
@@ -396,7 +396,7 @@ class ReconciliationMailServiceTest {
         service.process(date, List.of(CFT));
 
         // then
-        verify(repository).findLatestByDate(date);
+        verify(repository).findLatestCreatedByDate(date);
         verifyNoMoreInteractions(repository);
         verify(reconciliationReportRepository, times(1))
             .getLatestReconciliationReport(eq(date), eq(CFT.name()));
