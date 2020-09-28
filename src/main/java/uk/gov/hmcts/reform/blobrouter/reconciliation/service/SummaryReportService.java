@@ -125,7 +125,7 @@ public class SummaryReportService {
             envelopeList
                 .stream()
                 .map(e -> new SummaryReportItem(e.fileName, e.container))
-                .collect(groupingBy(s -> storageConfig.get(s.container).getTargetStorageAccount()));
+                .collect(groupingBy(s -> storageConfig.get(s.container.toLowerCase()).getTargetStorageAccount()));
 
         for (var targetStorage : TargetStorageAccount.values()) {
             try {
