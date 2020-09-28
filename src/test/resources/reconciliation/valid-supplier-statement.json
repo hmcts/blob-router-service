@@ -3,7 +3,7 @@
       {
         "zip_file_name": "1010404021234_14-08-2020-08-31.zip",
         "rescan_for": null,
-        "container": "probate",
+        "container": "PRoBatE",
         "jurisdiction": "PROBATE",
         "scannable_item_dcns": [
           "1015404021234",
@@ -17,7 +17,7 @@
       {
         "zip_file_name": "9810404021234_14-08-2020-03-08-31.zip",
         "rescan_for": "121212_14-08-2020-03-08-21.zip",
-        "container": "sscs",
+        "container": "SSCS",
         "jurisdiction": "SSCS",
         "scannable_item_dcns": [
           "9988774021234",
@@ -31,7 +31,7 @@
       {
         "zip_file_name": "10929292923_14-05-2020-09-08-31.zip",
         "rescan_for": null,
-        "container": "crime",
+        "container": "CriME",
         "jurisdiction": "CRIME",
         "scannable_item_dcns": [
           "6666555550000",
