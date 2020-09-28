@@ -64,6 +64,11 @@ public class SupplierStatementRepository {
         }
     }
 
+    /**
+     * finds latest created (by column `created_at`) supplier statement by `date`.
+     * @param date supplier statement date
+     * @return latest supplier statement
+     */
     public Optional<EnvelopeSupplierStatement> findLatestCreatedByDate(LocalDate date) {
         try {
             EnvelopeSupplierStatement statement = jdbcTemplate.queryForObject(

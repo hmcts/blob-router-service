@@ -244,7 +244,8 @@ class SummaryReportServiceTest {
             LocalDateTime.now()
         );
 
-        given(supplierStatementRepository.findLatestCreatedByDate(date)).willReturn(Optional.of(envelopeSupplierStatement));
+        given(supplierStatementRepository.findLatestCreatedByDate(date))
+            .willReturn(Optional.of(envelopeSupplierStatement));
 
         List envelopeList = Arrays.asList(
             createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
@@ -308,7 +309,8 @@ class SummaryReportServiceTest {
             LocalDateTime.now()
         );
 
-        given(supplierStatementRepository.findLatestCreatedByDate(date)).willReturn(Optional.of(envelopeSupplierStatement));
+        given(supplierStatementRepository.findLatestCreatedByDate(date))
+            .willReturn(Optional.of(envelopeSupplierStatement));
 
         ReconciliationReport reconciliationReport = getReconciliationReport(supplierId, PCQ.name());
         ReconciliationReport reconciliationReportForSameAccount2 = getReconciliationReport(supplierId, PCQ.name());
