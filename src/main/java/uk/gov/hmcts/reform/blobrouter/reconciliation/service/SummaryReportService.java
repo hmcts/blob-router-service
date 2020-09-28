@@ -59,7 +59,7 @@ public class SummaryReportService {
     }
 
     public void process(LocalDate date) {
-        Optional<EnvelopeSupplierStatement> optSupplierStatement = repository.findLatest(date);
+        Optional<EnvelopeSupplierStatement> optSupplierStatement = repository.findLatestByDate(date);
 
         if (!optSupplierStatement.isPresent()) {
             logger.error("No supplier statement found for {}", date);

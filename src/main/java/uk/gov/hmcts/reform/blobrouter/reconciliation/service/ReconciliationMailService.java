@@ -65,7 +65,7 @@ public class ReconciliationMailService {
 
     public void process(LocalDate date, List<TargetStorageAccount> availableAccounts) {
         Optional<EnvelopeSupplierStatement> optionalEnvelopeSupplierStatement = supplierStatementRepository
-            .findLatest(date);
+            .findLatestByDate(date);
 
         for (var account : availableAccounts) {
             try {

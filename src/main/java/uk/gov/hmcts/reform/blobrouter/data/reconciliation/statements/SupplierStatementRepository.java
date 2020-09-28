@@ -64,10 +64,10 @@ public class SupplierStatementRepository {
         }
     }
 
-    public Optional<EnvelopeSupplierStatement> findLatest(LocalDate date) {
+    public Optional<EnvelopeSupplierStatement> findLatestByDate(LocalDate date) {
         try {
             EnvelopeSupplierStatement statement = jdbcTemplate.queryForObject(
-                "SELECT * FROM envelope_supplier_statements WHERE DATE(created_at) = :date "
+                "SELECT * FROM envelope_supplier_statements WHERE date = :date "
                     + "ORDER BY created_at DESC "
                     + "LIMIT 1",
                 new MapSqlParameterSource("date", date),
