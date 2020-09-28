@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
@@ -75,7 +75,7 @@ public class SummaryReportService {
             existingReports
                 .stream()
                 .filter(distinctByKey(r -> r.account))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         if (existingReportsDistinctByAccount.size() != existingReports.size()) {
             logger.error(
