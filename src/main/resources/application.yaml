@@ -156,7 +156,7 @@ reconciliation:
   report:
       mail-from: ${SMTP_USERNAME}
       mail-recipients: ${REPORTS_RECIPIENTS}
-      manual-report-generation-and-email-enabled: ${MANUAL_RECONCILIATION_REPORT_GENERATION_ENABLED}
+      manual-report-generation-and-email-enabled: ${MANUAL_RECONCILIATION_REPORT_GENERATION_EMAIL_ENABLED}
 
 idam:
   s2s-auth:
