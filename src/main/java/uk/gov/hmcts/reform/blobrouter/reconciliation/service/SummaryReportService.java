@@ -59,7 +59,6 @@ public class SummaryReportService {
     }
 
     public void process(LocalDate date) {
-      
         Optional<EnvelopeSupplierStatement> optSupplierStatement = statementRepository.findLatest(date);
 
         if (!optSupplierStatement.isPresent()) {
