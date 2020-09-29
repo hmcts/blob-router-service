@@ -17,9 +17,9 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.UUID;
-import javax.validation.Valid;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
