@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
@@ -35,23 +35,23 @@ public class SummaryReportService {
 
     private static final Logger logger = getLogger(SummaryReportService.class);
 
-    private final SupplierStatementRepository repository;
-    private final ReconciliationReportRepository reconciliationReportRepository;
+    private final SupplierStatementRepository statementRepository;
+    private final ReconciliationReportRepository reportRepository;
     private final ObjectMapper objectMapper;
     private final EnvelopeService envelopeService;
     private final Map<String, StorageConfigItem> storageConfig; // container-specific configuration, by container name
-    private SummaryReportCreator summaryReportCreator;
+    private final SummaryReportCreator summaryReportCreator;
 
     public SummaryReportService(
-        SupplierStatementRepository repository,
-        ReconciliationReportRepository reconciliationReportRepository,
+        SupplierStatementRepository statementRepository,
+        ReconciliationReportRepository reportRepository,
         ObjectMapper objectMapper,
         EnvelopeService envelopeService,
         ServiceConfiguration serviceConfiguration,
         SummaryReportCreator summaryReportCreator
     ) {
-        this.repository = repository;
-        this.reconciliationReportRepository = reconciliationReportRepository;
+        this.statementRepository = statementRepository;
+        this.reportRepository = reportRepository;
         this.objectMapper = objectMapper;
         this.envelopeService = envelopeService;
         this.storageConfig =  serviceConfiguration.getStorageConfig();
@@ -59,7 +59,8 @@ public class SummaryReportService {
     }
 
     public void process(LocalDate date) {
-        Optional<EnvelopeSupplierStatement> optSupplierStatement = repository.findLatestCreatedByDate(date);
+      
+        Optional<EnvelopeSupplierStatement> optSupplierStatement = statementRepository.findLatest(date);
 
         if (!optSupplierStatement.isPresent()) {
             logger.error("No supplier statement found for {}", date);
@@ -68,14 +69,14 @@ public class SummaryReportService {
 
         EnvelopeSupplierStatement envelopeSupplierStatement = optSupplierStatement.get();
 
-        var existingReports = reconciliationReportRepository
+        var existingReports = reportRepository
             .findByStatementId(envelopeSupplierStatement.id);
 
         List<ReconciliationReport> existingReportsDistinctByAccount =
             existingReports
                 .stream()
                 .filter(distinctByKey(r -> r.account))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         if (existingReportsDistinctByAccount.size() != existingReports.size()) {
             logger.error(
@@ -153,7 +154,7 @@ public class SummaryReportService {
                         null,
                         "1.0"
                     );
-                    reconciliationReportRepository.save(report);
+                    reportRepository.save(report);
                 }
             } catch (Exception ex) {
                 logger.error(
