@@ -3,14 +3,20 @@ package uk.gov.hmcts.reform.blobrouter.controllers;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.controller.ReconciliationReportController;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.DetailedReportService;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationMailService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.SummaryReportService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,7 +40,16 @@ public class ReconciliationReportControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ReconciliationService service;
+    private ReconciliationService reconciliationService;
+
+    @MockBean
+    private SummaryReportService summaryReportService;
+
+    @MockBean
+    private DetailedReportService detailedReportService;
+
+    @MockBean
+    private ReconciliationMailService mailService;
 
     private static final String VERSION = "v1";
 
@@ -85,7 +100,7 @@ public class ReconciliationReportControllerTest {
             LocalDateTime.now()
         );
 
-        given(service.getReconciliationReports(date))
+        given(reconciliationService.getReconciliationReports(date))
             .willReturn(Arrays.asList(report1, report2));
 
         mockMvc
@@ -118,17 +133,36 @@ public class ReconciliationReportControllerTest {
             .andExpect(jsonPath("$.data.[1].summary_content").isEmpty())
             .andExpect(jsonPath("$.data.[1].detailed_content").value(IsNull.nullValue()));
 
-
-        verify(service).getReconciliationReports(date);
-
+        verify(reconciliationService).getReconciliationReports(date);
     }
 
-    @Test
-    public void should_return_400_for_invalid_date() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"/reconciliation-reports", "/reconciliation-reports/generate-and-email-report"})
+    public void should_return_400_for_invalid_date(String path) throws Exception {
         mockMvc.perform(
-            get("/reconciliation-reports").queryParam("date", "20200911") // invalid date
+            get(path).queryParam("date", "20200911") // invalid date
         )
             .andDo(print())
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void should_generate_reports_and_send_email_for_the_given_date() throws Exception {
+        // given
+        LocalDate date = LocalDate.of(2020, 9, 10);
+
+        // when
+        // then
+        mockMvc
+            .perform(
+                get("/reconciliation-reports/generate-and-email-report")
+                    .queryParam("date", date.format(DateTimeFormatter.ISO_DATE))
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
+
+        verify(summaryReportService).process(date);
+        verify(detailedReportService).process(date, TargetStorageAccount.CFT);
+        verify(mailService).process(date, Arrays.asList(TargetStorageAccount.CFT, TargetStorageAccount.CRIME));
     }
 }
