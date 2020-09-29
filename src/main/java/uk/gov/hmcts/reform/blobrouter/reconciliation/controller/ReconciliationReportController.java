@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.controller;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
 @RestController
 @RequestMapping(path = "/reconciliation-reports", produces = MediaType.APPLICATION_JSON_VALUE)
+@ConditionalOnProperty(value = "scheduling.task.send-reconciliation-report-mail.enabled")
 public class ReconciliationReportController {
 
     private final ReconciliationService service;

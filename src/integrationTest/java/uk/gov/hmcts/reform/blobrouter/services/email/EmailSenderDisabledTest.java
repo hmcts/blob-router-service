@@ -11,7 +11,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @TestPropertySource(
     properties = {
-        "spring.mail.host=false"
+        "spring.mail.host=false",
+        "scheduling.task.send-reconciliation-report-mail.enabled=false"
     }
 )
 public class EmailSenderDisabledTest {
