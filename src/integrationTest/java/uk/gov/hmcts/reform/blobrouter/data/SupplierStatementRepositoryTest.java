@@ -112,7 +112,7 @@ public class SupplierStatementRepositoryTest {
     void should_return_latest_statement_if_more_than_one_statement_exist_for_given_day()
         throws SQLException {
         // given
-        LocalDate statementDate = LocalDate.now();
+        LocalDate statementDate = LocalDate.now().minusDays(2);
         var newEnvelopeSupplierStatement =
             new NewEnvelopeSupplierStatement(
                 statementDate,
@@ -129,7 +129,7 @@ public class SupplierStatementRepositoryTest {
         UUID idLatest = repo.save(newEnvelopeSupplierStatement);
 
         // when
-        Optional<EnvelopeSupplierStatement> statementOptional = repo.findLatest(LocalDate.now());
+        Optional<EnvelopeSupplierStatement> statementOptional = repo.findLatest(statementDate);
 
         // then
         assertThat(statementOptional).isNotEmpty();
