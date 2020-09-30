@@ -5,10 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import uk.gov.hmcts.reform.blobrouter.util.TimeZones;
 
-import javax.validation.ClockProvider;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import javax.validation.ClockProvider;
 
 @TestConfiguration
 public class TestClockProvider {
