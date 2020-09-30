@@ -24,6 +24,7 @@ import java.util.UUID;
 import javax.validation.ClockProvider;
 import javax.validation.Valid;
 
+import static java.lang.String.format;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
@@ -72,7 +73,14 @@ public class ReconciliationController {
         if (dateRelevantForCurrentReconciliationChecker.isTimeRelevant(ZonedDateTime.now(clockProvider.getClock()))) {
             return new SuccessfulResponse(uuid.toString());
         } else {
-            return new SuccessfulResponse(uuid.toString(), "IRRELEVANT REPORT");
+            return new SuccessfulResponse(
+                uuid.toString(),
+                format(
+                    "Provided statement is not going to be used for generating report for the date: %s. "
+                        + "The report was already generated for the day.",
+                    date.toString()
+                )
+            );
         }
     }
 

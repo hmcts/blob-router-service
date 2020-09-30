@@ -37,10 +37,18 @@ class SummaryCronRelevancyCheckerTest {
 
     private static Stream<Arguments> provideCheckerTestScenarios() {
         return Stream.of(
-            Arguments.of(new CheckerTestScenario("0 */30 1-6 * * *", true, 5, "The next cron would fire at 6am so 5am is relevant")),
-            Arguments.of(new CheckerTestScenario("0 */30 6 * * *", false, 7, "The next cron would fire next day at 1am so 7am is irrelevant")),
-            Arguments.of(new CheckerTestScenario("0 */30 3 * * *", false, 3, "The next cron would fire next day at 1am so 3am is irrelevant")),
-            Arguments.of(new CheckerTestScenario("0 */30 11 * * *", true, 10, "The next cron would fire at 11am so 10am is relevant"))
+            Arguments.of(new CheckerTestScenario("0 */30 1-6 * * *", true, 5,
+                                                 "The next cron would fire at 6am so 5am is relevant"
+            )),
+            Arguments.of(new CheckerTestScenario("0 */30 6 * * *", false, 7,
+                                                 "The next cron would fire next day so 7am is irrelevant"
+            )),
+            Arguments.of(new CheckerTestScenario("0 */30 3 * * *", false, 3,
+                                                 "The next cron would fire next day so 3am is irrelevant"
+            )),
+            Arguments.of(new CheckerTestScenario("0 */30 11 * * *", true, 10,
+                                                 "The next cron would fire at 11am so 10am is relevant"
+            ))
         );
     }
 
@@ -64,10 +72,10 @@ class SummaryCronRelevancyCheckerTest {
 
         @Override
         public String toString() {
-            return "cron=" + cron +
-                ", expectedResult=" + expectedResult +
-                ", hourUnderTest=" + hourUnderTest +
-                ", errorMessage='" + errorMessage + '\'';
+            return "cron=" + cron
+                + ", expectedResult=" + expectedResult
+                + ", hourUnderTest=" + hourUnderTest
+                + ", errorMessage='" + errorMessage + '\'';
         }
     }
 
