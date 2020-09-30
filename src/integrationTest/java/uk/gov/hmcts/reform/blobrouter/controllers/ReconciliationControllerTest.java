@@ -5,10 +5,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import uk.gov.hmcts.reform.blobrouter.config.TestClockProvider;
+import uk.gov.hmcts.reform.blobrouter.util.TimeZones;
+
+import javax.validation.ClockProvider;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.TemporalUnit;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -20,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @AutoConfigureMockMvc
 @SpringBootTest
+@Import(TestClockProvider.class)
 public class ReconciliationControllerTest extends ControllerTestBase {
 
     public static final String RECONCILIATION_URL = "/reconciliation-report/2020-08-10";
@@ -27,9 +40,11 @@ public class ReconciliationControllerTest extends ControllerTestBase {
     @Autowired
     private MockMvc mockMvc;
 
-    @Test
+
     void should_return_success_when_supplier_statement_report_is_valid() throws Exception {
         // given
+        Instant fiveAM = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).withHour(5).toInstant();
+        givenTheRequestWasMadeAt(fiveAM);
         String requestBody = Resources.toString(
             getResource("reconciliation/valid-supplier-statement-report.json"),
             UTF_8
@@ -45,16 +60,22 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("id").isNotEmpty());
+            .andExpect(MockMvcResultMatchers.jsonPath("id").isNotEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("warning").doesNotExist());
     }
+
 
     @Test
     void should_return_header_with_warning_when_the_upload_time_makes_the_statement_irrelevant() throws Exception {
+
         // given
+        Instant sevenAM = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).withHour(7).toInstant();
+        givenTheRequestWasMadeAt(sevenAM);
         String requestBody = Resources.toString(
             getResource("reconciliation/valid-supplier-statement-report.json"),
             UTF_8
         );
+
 
         // when
         mockMvc
@@ -66,7 +87,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(header().exists("warning"));
+            .andExpect(MockMvcResultMatchers.jsonPath("warning").exists());
     }
 
     @Test
@@ -169,5 +190,9 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isBadRequest());
+    }
+
+    private void givenTheRequestWasMadeAt(Instant fiveAM) {
+        TestClockProvider.stoppedInstant = fiveAM;
     }
 }

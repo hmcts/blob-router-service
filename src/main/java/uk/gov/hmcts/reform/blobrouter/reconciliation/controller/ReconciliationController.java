@@ -16,9 +16,12 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidApiKeyException;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.DateRelevantForCurrentReconciliationChecker;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.UUID;
+import javax.validation.ClockProvider;
 import javax.validation.Valid;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -30,12 +33,19 @@ public class ReconciliationController {
 
     private final String apiKey;
 
+    private final ClockProvider clockProvider;
+
+    private final DateRelevantForCurrentReconciliationChecker dateRelevantForCurrentReconciliationChecker;
+
     public ReconciliationController(
         ReconciliationService service,
-        @Value("${reconciliation.api-key}") String apiKey
+        @Value("${reconciliation.api-key}") String apiKey,
+        ClockProvider clockProvider
     ) {
         this.service = service;
         this.apiKey = apiKey;
+        this.clockProvider = clockProvider;
+        this.dateRelevantForCurrentReconciliationChecker = (dateTime) -> dateTime.getHour() < 6;
     }
 
     @PostMapping(
@@ -58,7 +68,12 @@ public class ReconciliationController {
     ) {
         validateAuthorization(authHeader);
         UUID uuid = service.saveSupplierStatement(date, supplierStatement);
-        return new SuccessfulResponse(uuid.toString());
+
+        if (dateRelevantForCurrentReconciliationChecker.isTimeRelevant(ZonedDateTime.now(clockProvider.getClock()))) {
+            return new SuccessfulResponse(uuid.toString());
+        } else {
+            return new SuccessfulResponse(uuid.toString(), "IRRELEVANT REPORT");
+        }
     }
 
     private void validateAuthorization(String authorizationKey) {

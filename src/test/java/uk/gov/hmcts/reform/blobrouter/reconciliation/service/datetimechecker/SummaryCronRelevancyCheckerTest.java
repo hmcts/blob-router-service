@@ -14,7 +14,7 @@ import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_I
 
 class SummaryCronRelevancyCheckerTest {
 
-    @ParameterizedTest(name = "{arguments}")
+    @ParameterizedTest
     @MethodSource("provideCheckerTestScenarios")
     void should_test_checker_under_provided_scenario(CheckerTestScenario scenario) {
         SummaryReportCronRelevancyChecker checker = new SummaryReportCronRelevancyChecker(scenario.cron);
