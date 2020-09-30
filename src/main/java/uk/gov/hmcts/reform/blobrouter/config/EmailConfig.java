@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,8 @@ public class EmailConfig {
     @ConditionalOnProperty(name = "spring.mail.host", havingValue = "false")
     public MessageSender emailSenderDisabled() {
         return new MessageSender() {
+            final Logger log = LoggerFactory.getLogger(MessageSender.class);
+
             @Override
             public void sendMessageWithAttachments(
                 String subject,
@@ -25,6 +29,7 @@ public class EmailConfig {
                 String[] recipients,
                 Map<String, File> attachments
             ) {
+                log.info("Not sending the email because the SMTP config is disabled.");
                 // do nothing
             }
         };
