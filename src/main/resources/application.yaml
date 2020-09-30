@@ -7,7 +7,7 @@ management:
       show-details: "always"
       group:
         readiness:
-          include: readinessState, db
+          include: db
   endpoints:
     web:
       base-path: /
@@ -44,6 +44,7 @@ spring:
             enable: true
     test-connection: false
 
+# always use lower case container name
 service:
   storage-config:
     - source-container: bulkscan

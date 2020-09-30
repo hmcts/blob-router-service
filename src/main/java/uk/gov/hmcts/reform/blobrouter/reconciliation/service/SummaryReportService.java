@@ -119,7 +119,8 @@ public class SummaryReportService {
             .envelopes
             .stream()
             .map(e -> new SummaryReportItem(e.zipFileName, e.container))
-            .collect(groupingBy(s -> storageConfig.get(s.container).getTargetStorageAccount()));
+            // finding target storage name case insensitive
+            .collect(groupingBy(s -> storageConfig.get(s.container.toLowerCase()).getTargetStorageAccount()));
 
         Map<TargetStorageAccount, List<SummaryReportItem>> processedEnvelopesMap =
             envelopeList

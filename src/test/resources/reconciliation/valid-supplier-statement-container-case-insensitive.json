@@ -1,0 +1,102 @@
+{
+    "envelopes": [
+      {
+        "zip_file_name": "1010404021234_14-08-2020-08-31.zip",
+        "rescan_for": null,
+        "container": "PRoBatE",
+        "jurisdiction": "PROBATE",
+        "scannable_item_dcns": [
+          "1015404021234",
+          "1015404021235"
+        ],
+        "payment_dcns": [
+          "123123",
+          "123124"
+        ]
+      },
+      {
+        "zip_file_name": "9810404021234_14-08-2020-03-08-31.zip",
+        "rescan_for": "121212_14-08-2020-03-08-21.zip",
+        "container": "SSCS",
+        "jurisdiction": "SSCS",
+        "scannable_item_dcns": [
+          "9988774021234",
+          "6655443301235"
+        ],
+        "payment_dcns": [
+          "999999",
+          "999234"
+        ]
+      },
+      {
+        "zip_file_name": "10929292923_14-05-2020-09-08-31.zip",
+        "rescan_for": null,
+        "container": "CriME",
+        "jurisdiction": "CRIME",
+        "scannable_item_dcns": [
+          "6666555550000",
+          "8888444400001"
+        ],
+        "payment_dcns": [
+          "6666666",
+          "5555555"
+        ]
+      },
+      {
+        "zip_file_name": "7171711717_8-05-2020-09-08-31.zip",
+        "rescan_for": null,
+        "container": "pcq",
+        "jurisdiction": "pcq",
+        "scannable_item_dcns": [
+          "6666555550000",
+          "8888444400001"
+        ],
+        "payment_dcns": [
+          "4444333221",
+          "5555555555"
+        ]
+      },
+      {
+        "zip_file_name": "11111222333_14-05-2020-09-08-31.zip",
+        "rescan_for": "9999999_4343_43343_4343.zip",
+        "container": "cmc",
+        "jurisdiction": "CMC",
+        "scannable_item_dcns": [
+          "4444774020000",
+          "5555443300001"
+        ],
+        "payment_dcns": [
+          "3456789",
+          "1234567"
+        ]
+      },
+      {
+        "zip_file_name": "1231122-05-2020-10-08-31.zip",
+        "rescan_for": null,
+        "container": "pcq",
+        "jurisdiction": "pcq",
+        "scannable_item_dcns": [
+          "12345678",
+          "87654321"
+        ],
+        "payment_dcns": [
+          "78901234",
+          "12345098"
+        ]
+      },
+      {
+        "zip_file_name": "3108198112345_14-05-2020-10-11-21.zip",
+        "rescan_for": null,
+        "container": "crime",
+        "jurisdiction": "CRIME",
+        "scannable_item_dcns": [
+          "310891810900",
+          "789321230954"
+        ],
+        "payment_dcns": [
+          "908712557",
+          "762471324"
+        ]
+      }
+    ]
+}

@@ -230,8 +230,10 @@ class SummaryReportServiceTest {
         // given
         setupStorageConfig();
         LocalDate date = LocalDate.now();
+
+        // while finding target storage name should be case insensitive
         String content = Resources.toString(
-            getResource("reconciliation/valid-supplier-statement.json"),
+            getResource("reconciliation/valid-supplier-statement-container-case-insensitive.json"),
             UTF_8
         );
 
@@ -294,8 +296,10 @@ class SummaryReportServiceTest {
         // given
         setupStorageConfig();
         LocalDate date = LocalDate.now();
+
+        // while finding target storage name should be case insensitive
         String content = Resources.toString(
-            getResource("reconciliation/valid-supplier-statement.json"),
+            getResource("reconciliation/valid-supplier-statement-container-case-insensitive.json"),
             UTF_8
         );
 
