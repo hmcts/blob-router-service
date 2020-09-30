@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 /**
@@ -13,5 +14,5 @@ import java.time.ZonedDateTime;
  * </ul>
  */
 public interface DateRelevantForCurrentReconciliationChecker {
-    boolean isTimeRelevant(ZonedDateTime dateTime);
+    boolean isTimeRelevant(ZonedDateTime dateTime, LocalDate reportDay);
 }

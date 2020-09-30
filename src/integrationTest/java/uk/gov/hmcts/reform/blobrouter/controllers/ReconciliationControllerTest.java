@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.config.TestClockProvider;
 import uk.gov.hmcts.reform.blobrouter.util.TimeZones;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 import static com.google.common.io.Resources.getResource;
@@ -28,13 +29,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import(TestClockProvider.class)
 public class ReconciliationControllerTest extends ControllerTestBase {
 
-    public static final String RECONCILIATION_URL = "/reconciliation-report/2020-08-10";
+    public static final String RECONCILIATION_URL = "/reconciliation-report/"
+        + LocalDate.now().minusDays(1);
 
     @Autowired
     private MockMvc mockMvc;
 
-
+    @Test
     void should_return_success_when_supplier_statement_report_is_valid() throws Exception {
+
         // given
         Instant fiveAM = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).withHour(5).toInstant();
         givenTheRequestWasMadeAt(fiveAM);
@@ -68,7 +71,6 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             getResource("reconciliation/valid-supplier-statement-report.json"),
             UTF_8
         );
-
 
         // when
         mockMvc

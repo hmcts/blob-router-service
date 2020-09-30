@@ -17,6 +17,7 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.DateRelevantForCurrentReconciliationChecker;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.SummaryReportCronAwareChecker;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -41,12 +42,13 @@ public class ReconciliationController {
     public ReconciliationController(
         ReconciliationService service,
         @Value("${reconciliation.api-key}") String apiKey,
-        ClockProvider clockProvider
+        ClockProvider clockProvider,
+        SummaryReportCronAwareChecker dateRelevantForCurrentReconciliationChecker
     ) {
         this.service = service;
         this.apiKey = apiKey;
         this.clockProvider = clockProvider;
-        this.dateRelevantForCurrentReconciliationChecker = (dateTime) -> dateTime.getHour() < 6;
+        this.dateRelevantForCurrentReconciliationChecker = dateRelevantForCurrentReconciliationChecker;
     }
 
     @PostMapping(
@@ -70,7 +72,8 @@ public class ReconciliationController {
         validateAuthorization(authHeader);
         UUID uuid = service.saveSupplierStatement(date, supplierStatement);
 
-        if (dateRelevantForCurrentReconciliationChecker.isTimeRelevant(ZonedDateTime.now(clockProvider.getClock()))) {
+        ZonedDateTime now = ZonedDateTime.now(clockProvider.getClock());
+        if (dateRelevantForCurrentReconciliationChecker.isTimeRelevant(now, date)) {
             return new SuccessfulResponse(uuid.toString());
         } else {
             return new SuccessfulResponse(
