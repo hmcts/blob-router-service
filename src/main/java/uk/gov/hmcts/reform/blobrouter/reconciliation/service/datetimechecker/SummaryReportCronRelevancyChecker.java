@@ -13,27 +13,40 @@ import java.time.ZonedDateTime;
  */
 @Component
 public class SummaryReportCronRelevancyChecker implements DateRelevantForCurrentReconciliationChecker {
-    private final int endHour;
+    private String usedCronExpression;
+    private int endHour;
+    private boolean initialized;
+
 
     @Autowired
     public SummaryReportCronRelevancyChecker(@Value("${scheduling.task.create-reconciliation-summary-report.cron}") String cronExpression) {
-        endHour = extractEndHourFromCron(cronExpression);
+        usedCronExpression = cronExpression;
+        initializeEndHourFromCron();
     }
 
-    private int extractEndHourFromCron(String cronExpression) {
-        String[] cronElements = cronExpression.split(" ");
+    private void initializeEndHourFromCron() {
+        String[] cronElements = usedCronExpression.split(" ");
         String cronHourPart = cronElements[2];
+
+        if ("*".equals(cronHourPart)) {
+            return;
+        }
 
         int indexOfHyphen = cronHourPart.indexOf('-');
         if (indexOfHyphen != -1) {
-            return Integer.parseInt(cronHourPart.substring(indexOfHyphen + 1));
+            endHour = Integer.parseInt(cronHourPart.substring(indexOfHyphen + 1));
         } else {
-            return Integer.parseInt(cronHourPart);
+            endHour = Integer.parseInt(cronHourPart);
         }
+
+        initialized = true;
     }
 
     @Override
     public boolean isTimeRelevant(ZonedDateTime dateTime) {
+        if (!initialized) {
+            throw new IllegalStateException("Can't determine relevancy from provided cron expression: " + usedCronExpression);
+        }
         return dateTime.getHour() < endHour;
     }
 }

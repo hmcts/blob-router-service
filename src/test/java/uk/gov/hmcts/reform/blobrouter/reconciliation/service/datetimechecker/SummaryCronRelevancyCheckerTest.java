@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -21,6 +23,16 @@ class SummaryCronRelevancyCheckerTest {
         boolean actualResult = checker.isTimeRelevant(timeUnderTest);
 
         assertEquals(scenario.expectedResult, actualResult, scenario.errorMessage);
+    }
+
+    @Test
+    void should_raise_an_exception_when_using_checker_which_cant_be_initialized() {
+        SummaryReportCronRelevancyChecker checkerForMinuteCron = new SummaryReportCronRelevancyChecker("* */1 * * * *");
+
+        ZonedDateTime fiveAm = currentTimeWithHourShiftedTo(5);
+        Assertions.assertThrows(IllegalStateException.class, () ->
+            checkerForMinuteCron.isTimeRelevant(fiveAm)
+        );
     }
 
     private static Stream<Arguments> provideCheckerTestScenarios() {
