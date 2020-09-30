@@ -121,17 +121,14 @@ public class ReconciliationMailService {
                 ReconciliationReportResponse detailedReport = null;
                 if (reconciliationReport.detailedContent != null) {
                     detailedReport =
-                        objectMapper.readValue(
-                            reconciliationReport.detailedContent,
-                            ReconciliationReportResponse.class
-                        );
+                        objectMapper.readValue(reconciliationReport.detailedContent,
+                            ReconciliationReportResponse.class);
 
                     File detailedReportFile = reconciliationCsvWriter
                         .writeDetailedReconciliationToCsv(detailedReport);
                     attachments.put(
                         getReportAttachmentName(ATTACHMENT_DETAILED_PREFIX, date),
-                        detailedReportFile
-                    );
+                        detailedReportFile);
                 }
 
                 emailSender.sendMessageWithAttachments(
