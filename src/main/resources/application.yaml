@@ -5,6 +5,9 @@ management:
   endpoint:
     health:
       show-details: "always"
+      group:
+        readiness:
+          include: db
   endpoints:
     web:
       base-path: /
@@ -41,6 +44,7 @@ spring:
             enable: true
     test-connection: false
 
+# always use lower case container name
 service:
   storage-config:
     - source-container: bulkscan
