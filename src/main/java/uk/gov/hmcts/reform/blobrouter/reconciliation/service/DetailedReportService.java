@@ -84,7 +84,8 @@ public class DetailedReportService {
 
         reconciliationService
             .getSupplierStatement(date) //XXX shouldn't this fetch by ID from the report? I
-            // with current implementation there is a slight chance that ReconciliationReport and detailedContent in it, will contain different info
+            // with current implementation there is a slight chance that ReconciliationReport and detailedContent in it,
+            // will contain different info
             .ifPresentOrElse(
                 supplierStatement -> createDetailedReport(supplierStatement, account, reconciliationReport),
                 () -> logger.error("No supplier statement report for: {} but there is summary report.", date)

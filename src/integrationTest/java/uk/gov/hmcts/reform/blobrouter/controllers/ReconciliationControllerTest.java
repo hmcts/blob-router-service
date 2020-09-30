@@ -14,6 +14,7 @@ import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,6 +46,27 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("id").isNotEmpty());
+    }
+
+    @Test
+    void should_return_header_with_warning_when_the_upload_time_makes_the_statement_irrelevant() throws Exception {
+        // given
+        String requestBody = Resources.toString(
+            getResource("reconciliation/valid-supplier-statement-report.json"),
+            UTF_8
+        );
+
+        // when
+        mockMvc
+            .perform(
+                post(RECONCILIATION_URL)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-api-key")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .content(requestBody)
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(header().exists("warning"));
     }
 
     @Test

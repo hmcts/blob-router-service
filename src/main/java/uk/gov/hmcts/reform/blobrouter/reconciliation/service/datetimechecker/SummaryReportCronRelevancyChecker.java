@@ -8,7 +8,8 @@ import java.time.ZonedDateTime;
 
 /**
  * Implementation of {@link DateRelevantForCurrentReconciliationChecker}, which checks time relevancy based on defined
- * cron's expression hour portion. It ignores the date portion of the provided DateTime, i.e. the checker is happy with the datetime
+ * cron's expression hour portion. It ignores the date portion of the provided DateTime, i.e. the checker is happy
+ * with the datetime
  * if provided hour would still cause the cron to fire on the same day.
  */
 @Component
@@ -19,7 +20,8 @@ public class SummaryReportCronRelevancyChecker implements DateRelevantForCurrent
 
 
     @Autowired
-    public SummaryReportCronRelevancyChecker(@Value("${scheduling.task.create-reconciliation-summary-report.cron}") String cronExpression) {
+    public SummaryReportCronRelevancyChecker(@Value("${scheduling.task.create-reconciliation-summary-report.cron}")
+                                             String cronExpression) {
         usedCronExpression = cronExpression;
         initializeEndHourFromCron();
     }
@@ -45,7 +47,8 @@ public class SummaryReportCronRelevancyChecker implements DateRelevantForCurrent
     @Override
     public boolean isTimeRelevant(ZonedDateTime dateTime) {
         if (!initialized) {
-            throw new IllegalStateException("Can't determine relevancy from provided cron expression: " + usedCronExpression);
+            throw new IllegalStateException("Can't determine relevancy from provided cron expression: "
+                                                + usedCronExpression);
         }
         return dateTime.getHour() < endHour;
     }
