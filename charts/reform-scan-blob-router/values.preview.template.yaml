@@ -68,7 +68,6 @@ java:
     S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
 
     # enabled
-    MANUAL_RECONCILIATION_REPORT_GENERATION_EMAIL_ENABLED: true
     SEND_RECONCILIATION_REPORT_MAIL_ENABLED: true
     SMTP_HOST: smtp.office365.com
     SMTP_USERNAME: test-username

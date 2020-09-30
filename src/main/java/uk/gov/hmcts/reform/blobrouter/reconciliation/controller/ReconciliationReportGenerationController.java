@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.controller;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,6 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
 @RestController
 @RequestMapping(path = "/reconciliation-reports")
-@ConditionalOnProperty("reconciliation.manual-report-generation-and-email-enabled")
 public class ReconciliationReportGenerationController {
 
     private final ReconciliationMailService reconciliationMailService;
