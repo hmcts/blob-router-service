@@ -119,7 +119,7 @@ class ReconciliationServiceTest {
         // then
         assertThat(exc)
             .isInstanceOf(InvalidSupplierStatementException.class)
-            .hasMessageContaining("Invalid statement. Unrecognized Containers :[c1]");
+            .hasMessageContaining("Invalid statement. Unrecognized Containers : [c1]");
     }
 
     @Test

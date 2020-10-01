@@ -70,7 +70,7 @@ public class ReconciliationService {
 
             if (!unrecognizedContainers.isEmpty()) {
                 throw new InvalidSupplierStatementException(
-                    "Invalid statement. Unrecognized Containers :"
+                    "Invalid statement. Unrecognized Containers : "
                         + unrecognizedContainers.toString());
             }
         }
