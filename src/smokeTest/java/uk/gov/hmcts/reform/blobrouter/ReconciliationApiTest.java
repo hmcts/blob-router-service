@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,6 +27,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
     }
 
     @Test
+    @Disabled
     void should_accept_request_with_valid_certificate_and_valid_subscription_key() throws Exception {
         Response response = callReconciliationEndpoint(validClientKeyStore, validSubscriptionKey);
 
