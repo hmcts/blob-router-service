@@ -16,8 +16,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidApiKeyException;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.DateRelevantForCurrentReconciliationChecker;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.SummaryReportCronAwareChecker;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.StatementRelevancyForAutomatedReportChecker;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -37,18 +36,18 @@ public class ReconciliationController {
 
     private final ClockProvider clockProvider;
 
-    private final DateRelevantForCurrentReconciliationChecker dateRelevantForCurrentReconciliationChecker;
+    private final StatementRelevancyForAutomatedReportChecker statementRelevancyChecker;
 
     public ReconciliationController(
         ReconciliationService service,
         @Value("${reconciliation.api-key}") String apiKey,
         ClockProvider clockProvider,
-        SummaryReportCronAwareChecker dateRelevantForCurrentReconciliationChecker
+        StatementRelevancyForAutomatedReportChecker statementRelevancyChecker
     ) {
         this.service = service;
         this.apiKey = apiKey;
         this.clockProvider = clockProvider;
-        this.dateRelevantForCurrentReconciliationChecker = dateRelevantForCurrentReconciliationChecker;
+        this.statementRelevancyChecker = statementRelevancyChecker;
     }
 
     @PostMapping(
@@ -73,15 +72,15 @@ public class ReconciliationController {
         UUID uuid = service.saveSupplierStatement(date, supplierStatement);
 
         ZonedDateTime now = ZonedDateTime.now(clockProvider.getClock());
-        if (dateRelevantForCurrentReconciliationChecker.isTimeRelevant(now, date)) {
+        if (statementRelevancyChecker.isTimeRelevant(now, date)) {
             return new SuccessfulResponse(uuid.toString());
         } else {
             return new SuccessfulResponse(
                 uuid.toString(),
                 format(
                     "Provided statement is not going to be used for generating report for the date: %s. "
-                        + "The report was already generated for the day.",
-                    date.toString()
+                        + "The report was already generated. In order to include this statement in the report"
+                        + "it needs to be generted manually.", date.toString()
                 )
             );
         }

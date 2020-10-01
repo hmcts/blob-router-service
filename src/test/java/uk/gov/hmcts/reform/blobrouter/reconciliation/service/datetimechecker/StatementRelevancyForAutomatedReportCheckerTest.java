@@ -10,20 +10,22 @@ import java.time.ZonedDateTime;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.SummaryReportCronAwareCheckerTest.CheckerTestScenario.scenario;
+import static uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.StatementRelevancyForAutomatedReportCheckerTest.CheckerTestScenario.scenario;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
-class SummaryReportCronAwareCheckerTest {
+class StatementRelevancyForAutomatedReportCheckerTest {
     private static final ZonedDateTime NOW_UTC = ZonedDateTime.now(Clock.systemUTC());
     private static final ZonedDateTime NOW_LONDON = ZonedDateTime.now(EUROPE_LONDON_ZONE_ID);
     private static final LocalDate TODAY = LocalDate.now();
+    private static final LocalDate TOMORROW = TODAY.plusDays(1);
     private static final LocalDate YESTERDAY = TODAY.minusDays(1);
     private static final LocalDate TWO_DAY_AGO = TODAY.minusDays(2);
 
     @ParameterizedTest(name = "{arguments}")
     @MethodSource("provideCheckerTestScenarios")
     void should_test_checker_under_provided_scenario(CheckerTestScenario scenario) {
-        DateRelevantForCurrentReconciliationChecker checker = new SummaryReportCronAwareChecker(scenario.cron);
+        StatementRelevancyForAutomatedReportChecker checker =
+            new StatementRelevancyForAutomatedReportChecker(scenario.cron);
 
         ZonedDateTime timeUnderTest = scenario.dateTimeUnderTest;
         boolean actualResult = checker.isTimeRelevant(timeUnderTest, scenario.reportDate);
@@ -92,6 +94,44 @@ class SummaryReportCronAwareCheckerTest {
                 .withReportDate(TWO_DAY_AGO)
                 .withExpectedResult(false)
                 .withErrorMessage("Statement for the report submitted two days ago is irrelevant")
+                .build(),
+            scenario()
+                .withCron("0 30 3 * * *")
+                .withDateTimeUnderTest(NOW_UTC.withHour(2).withMinute(31))
+                .withReportDate(YESTERDAY)
+                .withExpectedResult(false)
+                .withErrorMessage("Statement is irrelevant - miss the cron by one minute "
+                                      + "(CRON is BST, provided 2:31 UTC)")
+                .build(),
+            scenario()
+                .withCron("0 30 3 * * *")
+                .withDateTimeUnderTest(NOW_LONDON.withHour(3).withMinute(29).withSecond(59))
+                .withReportDate(YESTERDAY)
+                .withExpectedResult(true)
+                .withErrorMessage("Statement is relevant - the next cron will run in one minute")
+                .build(),
+            scenario()
+                .withCron("0 */30 2 * * *")
+                .withDateTimeUnderTest(NOW_UTC.withHour(1).withMinute(30))
+                .withReportDate(YESTERDAY)
+                .withExpectedResult(false)
+                .withErrorMessage("Statement is irrelevant - we hit exactly the cron time, "
+                                      + "the last report is being generated")
+                .build(),
+            scenario()
+                .withCron("0 */30 2 * * *")
+                .withDateTimeUnderTest(NOW_LONDON.withHour(2).withMinute(15))
+                .withReportDate(TOMORROW)
+                .withExpectedResult(true)
+                .withErrorMessage("Statement is relevant - it's for tomorrow's report "
+                                      + "(which will be generated in 2 days")
+                .build(),
+            scenario()
+                .withCron("0 */30 2 * * *")
+                .withDateTimeUnderTest(NOW_LONDON.withHour(1).withMinute(45))
+                .withReportDate(TODAY)
+                .withExpectedResult(true)
+                .withErrorMessage("Statement is relevant - it's for today's report (which will be generated tomorrow")
                 .build()
         );
 
