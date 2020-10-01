@@ -23,5 +23,6 @@ public class EmailSenderDisabledTest {
     @Test
     void should_not_have_report_sender_in_context() {
         assertThat(context.getBeanNamesForType(EmailSender.class)).isEmpty();
+        assertThat(context.getBeanNamesForType(MessageSender.class)).isNotEmpty();
     }
 }
