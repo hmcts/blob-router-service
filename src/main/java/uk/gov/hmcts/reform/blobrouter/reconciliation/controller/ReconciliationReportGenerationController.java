@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.service.DetailedReportService;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.CftDetailedReportService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationMailService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.SummaryReportService;
 
@@ -18,16 +18,16 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 public class ReconciliationReportGenerationController {
 
     private final ReconciliationMailService reconciliationMailService;
-    private final DetailedReportService detailedReportService;
+    private final CftDetailedReportService cftDetailedReportService;
     private final SummaryReportService summaryReportService;
 
     public ReconciliationReportGenerationController(
         ReconciliationMailService reconciliationMailService,
-        DetailedReportService detailedReportService,
+        CftDetailedReportService cftDetailedReportService,
         SummaryReportService summaryReportService
     ) {
         this.reconciliationMailService = reconciliationMailService;
-        this.detailedReportService = detailedReportService;
+        this.cftDetailedReportService = cftDetailedReportService;
         this.summaryReportService = summaryReportService;
     }
 
@@ -37,7 +37,7 @@ public class ReconciliationReportGenerationController {
     ) {
         // generate reports
         summaryReportService.process(date);
-        detailedReportService.process(date, TargetStorageAccount.CFT);
+        cftDetailedReportService.process(date);
 
         // email report
         reconciliationMailService.process(date, Arrays.asList(TargetStorageAccount.values()));

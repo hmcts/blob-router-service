@@ -5,8 +5,7 @@ import org.slf4j.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.service.DetailedReportService;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.CftDetailedReportService;
 
 import java.time.LocalDate;
 
@@ -20,10 +19,10 @@ public class DetailedReportTask {
     private static final String TASK_NAME = "create-reconciliation-detailed-report";
     private static final Logger logger = getLogger(DetailedReportTask.class);
 
-    private final DetailedReportService detailedReportService;
+    private final CftDetailedReportService cftDetailedReportService;
 
-    public DetailedReportTask(DetailedReportService detailedReportService) {
-        this.detailedReportService = detailedReportService;
+    public DetailedReportTask(CftDetailedReportService cftDetailedReportService) {
+        this.cftDetailedReportService = cftDetailedReportService;
     }
 
     @Scheduled(cron = "${scheduling.task.create-reconciliation-detailed-report.cron}", zone = EUROPE_LONDON)
@@ -31,7 +30,7 @@ public class DetailedReportTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        detailedReportService.process(LocalDate.now(), TargetStorageAccount.CFT);
+        cftDetailedReportService.process(LocalDate.now());
 
         logger.info("Finished {} job", TASK_NAME);
     }

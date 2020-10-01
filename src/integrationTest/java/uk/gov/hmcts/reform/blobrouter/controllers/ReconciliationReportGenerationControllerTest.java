@@ -9,7 +9,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.controller.ReconciliationReportGenerationController;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.service.DetailedReportService;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.CftDetailedReportService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationMailService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.SummaryReportService;
 
@@ -33,7 +33,7 @@ public class ReconciliationReportGenerationControllerTest {
     private SummaryReportService summaryReportService;
 
     @MockBean
-    private DetailedReportService detailedReportService;
+    private CftDetailedReportService detailedReportService;
 
     @MockBean
     private ReconciliationMailService mailService;
@@ -64,7 +64,7 @@ public class ReconciliationReportGenerationControllerTest {
             .andExpect(status().isOk());
 
         verify(summaryReportService).process(date);
-        verify(detailedReportService).process(date, TargetStorageAccount.CFT);
+        verify(detailedReportService).process(date);
         verify(mailService).process(date, Arrays.asList(TargetStorageAccount.values()));
     }
 }
