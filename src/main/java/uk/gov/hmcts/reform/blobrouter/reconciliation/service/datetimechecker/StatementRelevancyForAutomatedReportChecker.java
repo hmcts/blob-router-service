@@ -28,7 +28,8 @@ public class StatementRelevancyForAutomatedReportChecker {
 
     public StatementRelevancyForAutomatedReportChecker(
         @Value("${scheduling.task.create-reconciliation-summary-report.cron}")
-        String cron) {
+        String cron
+    ) {
         this.cron = cron;
     }
 
@@ -38,11 +39,12 @@ public class StatementRelevancyForAutomatedReportChecker {
         //if not, it means the deadline for the statement passed
 
         LocalDate cronRunForSpecifiedReport = reportDay.plusDays(1);
-        System.out.println(ChronoUnit.DAYS.between(cronRunForSpecifiedReport, statetementUploadDateTime));
         String cronExpressionForGivenReport = prepareCronExpressionForSpecifiedReportDay(cronRunForSpecifiedReport);
 
-        CronSequenceGenerator cronSequenceGenerator = new CronSequenceGenerator(cronExpressionForGivenReport,
-                                                                                getTimeZone(EUROPE_LONDON_ZONE_ID));
+        var cronSequenceGenerator = new CronSequenceGenerator(
+            cronExpressionForGivenReport,
+            getTimeZone(EUROPE_LONDON_ZONE_ID)
+        );
 
         Date statementUploadInstant = Date.from(statetementUploadDateTime.toInstant());
         Date nextCronRunAfterUploadTime = cronSequenceGenerator.next(statementUploadInstant);
@@ -53,7 +55,8 @@ public class StatementRelevancyForAutomatedReportChecker {
         long daysBetweenWhenReportIsRunAndUploadedDate =
             ChronoUnit.DAYS.between(cronRunForSpecifiedReport, statetementUploadDateTime);
         return isWithinDays(statementUploadInstant, nextCronRunAfterUploadTime,
-                            Math.abs(daysBetweenWhenReportIsRunAndUploadedDate));
+                            Math.abs(daysBetweenWhenReportIsRunAndUploadedDate)
+        );
     }
 
     private boolean isWithinDays(Date statementUploadTime, Date nextCronRunAfterUploadTime, long daysDifference) {

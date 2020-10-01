@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidApiKeyException;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.service.SummaryReportService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.StatementRelevancyForAutomatedReportChecker;
 
 import java.time.LocalDate;
