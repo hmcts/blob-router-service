@@ -16,7 +16,6 @@ import java.util.Arrays;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
 @RestController
-@RequestMapping(path = "/reconciliation-reports")
 public class ReconciliationReportGenerationController {
 
     private final ReconciliationMailService reconciliationMailService;
@@ -33,7 +32,7 @@ public class ReconciliationReportGenerationController {
         this.summaryReportService = summaryReportService;
     }
 
-    @PostMapping(path = "/generate-and-email-report")
+    @PostMapping(path = "/reconciliation/generate-and-email-reports")
     public void generateAndEmailReports(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date
     ) {
