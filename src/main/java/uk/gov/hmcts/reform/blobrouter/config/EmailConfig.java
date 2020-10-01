@@ -5,14 +5,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import uk.gov.hmcts.reform.blobrouter.services.email.MessageSender;
 
 import java.io.File;
 import java.util.Map;
 
 @Configuration
-@Lazy
 public class EmailConfig {
 
     @Bean
