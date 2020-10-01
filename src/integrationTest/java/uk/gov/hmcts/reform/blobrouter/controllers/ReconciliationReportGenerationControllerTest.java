@@ -41,7 +41,7 @@ public class ReconciliationReportGenerationControllerTest {
     @Test
     public void should_return_400_when_the_given_date_is_invalid() throws Exception {
         mockMvc.perform(
-            post("/reconciliation-reports/generate-and-email-report")
+            post("/reconciliation/generate-and-email-reports")
                 .queryParam("date", "20200911") // invalid date
         )
             .andDo(print())
@@ -57,7 +57,7 @@ public class ReconciliationReportGenerationControllerTest {
         // then
         mockMvc
             .perform(
-                post("/reconciliation-reports/generate-and-email-report")
+                post("/reconciliation/generate-and-email-reports")
                     .queryParam("date", date.format(DateTimeFormatter.ISO_DATE))
             )
             .andDo(print())
