@@ -1,29 +1,28 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.task;
 
 import org.junit.jupiter.api.Test;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.service.DetailedReportService;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.CftDetailedReportService;
 
 import java.time.LocalDate;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 
 class DetailedReportTaskTest {
 
     @Test
     void should_call_summary_report_service() {
         // given
-        var detailedReportService = mock(DetailedReportService.class);
+        var cftDetailedReportService = mock(CftDetailedReportService.class);
 
-        var task = new DetailedReportTask(detailedReportService);
+        var task = new DetailedReportTask(cftDetailedReportService);
 
         // when
         task.run();
 
         // then
-        verify(detailedReportService, times(1)).process(LocalDate.now(), CFT);
+        verify(cftDetailedReportService, times(1)).process(LocalDate.now());
     }
 
 }
