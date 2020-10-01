@@ -24,7 +24,6 @@ import java.util.UUID;
 
 import static com.google.common.io.Resources.getResource;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -33,10 +32,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 
 @ExtendWith(MockitoExtension.class)
-class DetailedReportServiceTest {
+class CftDetailedReportServiceTest {
 
     @Mock private ReconciliationMapper reconciliationMapper;
     @Mock private ReconciliationService reconciliationService;
@@ -44,33 +42,17 @@ class DetailedReportServiceTest {
     @Mock private ObjectMapper objectMapper;
     @Mock private ReconciliationReportRepository reconciliationReportRepository;
 
-    private DetailedReportService service;
+    private CftDetailedReportService service;
 
     @BeforeEach
     void setUp() {
-        service = new DetailedReportService(
+        service = new CftDetailedReportService(
             reconciliationMapper,
             reconciliationReportRepository,
             reconciliationService,
             bulkScanProcessorClient,
             objectMapper
         );
-    }
-
-    @Test
-    void should_throw_exception_if_target_account_different_than_bulkscan() {
-        //given
-        LocalDate date = LocalDate.now();
-
-        //when
-        assertThrows(IllegalArgumentException.class, () -> service.process(date, CRIME));
-
-        // then
-        verifyNoInteractions(reconciliationReportRepository);
-        verifyNoInteractions(reconciliationService);
-        verifyNoInteractions(reconciliationMapper);
-        verifyNoInteractions(bulkScanProcessorClient);
-        verifyNoInteractions(objectMapper);
     }
 
     @Test
@@ -81,7 +63,7 @@ class DetailedReportServiceTest {
             .willReturn(Optional.empty());
 
         //when
-        service.process(date, CFT);
+        service.process(date);
 
         // then
         verify(reconciliationReportRepository).getLatestReconciliationReport(date, CFT.name());
@@ -100,7 +82,7 @@ class DetailedReportServiceTest {
             .willReturn(Optional.of(createReconciliationReport("{}", "{\"report\" :1}")));
 
         //when
-        service.process(date, CFT);
+        service.process(date);
 
         // then
         verify(reconciliationReportRepository).getLatestReconciliationReport(date, CFT.name());
@@ -120,7 +102,7 @@ class DetailedReportServiceTest {
         given(reconciliationService.getSupplierStatement(date)).willReturn(Optional.empty());
 
         //when
-        service.process(date, CFT);
+        service.process(date);
 
         // then
         verify(reconciliationService).getSupplierStatement(date);
@@ -170,7 +152,7 @@ class DetailedReportServiceTest {
             .willReturn(contentJson);
 
         //when
-        service.process(date, CFT);
+        service.process(date);
 
         // then
         verify(reconciliationService).getSupplierStatement(date);
