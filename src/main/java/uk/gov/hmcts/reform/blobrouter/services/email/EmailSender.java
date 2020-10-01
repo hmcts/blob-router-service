@@ -13,7 +13,7 @@ import javax.mail.internet.MimeMessage;
 
 @Component
 @ConditionalOnProperty("spring.mail.host")
-public class EmailSender {
+public class EmailSender implements MessageSender {
 
     private static final Logger log = LoggerFactory.getLogger(EmailSender.class);
 
@@ -25,6 +25,7 @@ public class EmailSender {
     }
     // endregion
 
+    @Override
     public void sendMessageWithAttachments(
         String subject,
         String body,

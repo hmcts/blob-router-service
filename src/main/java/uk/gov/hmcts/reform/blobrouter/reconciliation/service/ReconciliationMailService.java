@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
@@ -13,7 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierSta
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.ReconciliationReportResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
-import uk.gov.hmcts.reform.blobrouter.services.email.EmailSender;
+import uk.gov.hmcts.reform.blobrouter.services.email.MessageSender;
 
 import java.io.File;
 import java.time.LocalDate;
@@ -27,7 +26,6 @@ import java.util.Optional;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
-@ConditionalOnProperty(value = "scheduling.task.send-reconciliation-report-mail.enabled")
 public class ReconciliationMailService {
 
     private static final Logger logger = getLogger(ReconciliationMailService.class);
@@ -35,7 +33,7 @@ public class ReconciliationMailService {
     private final SupplierStatementRepository supplierStatementRepository;
     private final ReconciliationReportRepository reconciliationReportRepository;
     private final ReconciliationCsvWriter reconciliationCsvWriter;
-    private final EmailSender emailSender;
+    private final MessageSender emailSender;
     private final ObjectMapper objectMapper;
 
     private final String mailFrom;
@@ -49,7 +47,7 @@ public class ReconciliationMailService {
         SupplierStatementRepository supplierStatementRepository,
         ReconciliationReportRepository reconciliationReportRepository,
         ReconciliationCsvWriter reconciliationCsvWriter,
-        EmailSender emailSender,
+        MessageSender emailSender,
         ObjectMapper objectMapper,
         @Value("${reconciliation.report.mail-from}") String mailFrom,
         @Value("${reconciliation.report.mail-recipients}") String[] recipients
