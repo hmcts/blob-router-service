@@ -15,10 +15,11 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class ReconciliationService {
@@ -58,17 +59,14 @@ public class ReconciliationService {
 
     private void validateContainers(SupplierStatement inputSupplierStatement) {
         if (inputSupplierStatement.envelopes != null) {
-            List<String> unrecognizedContainers = new ArrayList<String>();
-            inputSupplierStatement
+            List<String> unrecognizedContainers = inputSupplierStatement
                 .envelopes
                 .stream()
                 .map(e -> e.container)
                 .distinct()
-                .forEach(c -> {
-                    if (!serviceConfig.getSourceContainers().contains(c.toLowerCase())) {
-                        unrecognizedContainers.add(c);
-                    }
-                });
+                .filter(c -> !serviceConfig.getSourceContainers().contains(c.toLowerCase()))
+                .collect(toList());
+
 
             if (!unrecognizedContainers.isEmpty()) {
                 throw new InvalidSupplierStatementException(
