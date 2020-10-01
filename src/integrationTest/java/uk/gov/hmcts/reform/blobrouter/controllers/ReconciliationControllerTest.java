@@ -167,6 +167,6 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             )
             .andDo(print())
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Invalid statement. Unrecognized Containers :[c1, c2]"));
+            .andExpect(jsonPath("$.message").value("Invalid statement. Unrecognized Containers : [c1, c2]"));
     }
 }
