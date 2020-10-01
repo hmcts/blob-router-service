@@ -103,6 +103,7 @@ class ReconciliationServiceTest {
     @Test
     void should_throw_exception_when_supplier_statement_has_invalid_containers() throws Exception {
         // given
+        // container name comparision case insensitive
         given(serviceConfig.getSourceContainers()).willReturn(List.of("bulkscan"));
         var supplierStatement = new SupplierStatement(
             List.of(
