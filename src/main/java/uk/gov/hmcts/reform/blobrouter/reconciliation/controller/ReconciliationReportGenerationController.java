@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.service.SummaryReportServic
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
@@ -38,15 +37,11 @@ public class ReconciliationReportGenerationController {
     public void generateAndEmailReports(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date
     ) {
-        List<TargetStorageAccount> availableAccounts = Arrays.asList(
-            TargetStorageAccount.CFT, TargetStorageAccount.CRIME
-        );
-
         // generate reports
         summaryReportService.process(date);
         detailedReportService.process(date, TargetStorageAccount.CFT);
 
         // email report
-        reconciliationMailService.process(date, availableAccounts);
+        reconciliationMailService.process(date, Arrays.asList(TargetStorageAccount.values()));
     }
 }

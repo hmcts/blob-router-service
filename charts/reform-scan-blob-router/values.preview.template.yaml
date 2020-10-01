@@ -66,12 +66,6 @@ java:
 
     S2S_NAME: "reform_scan_blob_router"
     S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
-
-    # enabled
-    SEND_RECONCILIATION_REPORT_MAIL_ENABLED: true
-    SMTP_HOST: smtp.office365.com
-    SMTP_USERNAME: test-username
-    SMTP_PASSWORD: test-password
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}

@@ -65,6 +65,6 @@ public class ReconciliationReportGenerationControllerTest {
 
         verify(summaryReportService).process(date);
         verify(detailedReportService).process(date, TargetStorageAccount.CFT);
-        verify(mailService).process(date, Arrays.asList(TargetStorageAccount.CFT, TargetStorageAccount.CRIME));
+        verify(mailService).process(date, Arrays.asList(TargetStorageAccount.values()));
     }
 }
