@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidApiKeyException;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.SummaryReportService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker.StatementRelevancyForAutomatedReportChecker;
 
 import java.time.LocalDate;
@@ -25,10 +27,12 @@ import javax.validation.ClockProvider;
 import javax.validation.Valid;
 
 import static java.lang.String.format;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
 public class ReconciliationController {
+    private static final Logger logger = getLogger(ReconciliationController.class);
 
     private final ReconciliationService service;
 
@@ -75,12 +79,14 @@ public class ReconciliationController {
         if (statementRelevancyChecker.isTimeRelevant(now, date)) {
             return new SuccessfulResponse(uuid.toString());
         } else {
+            logger.warn("Submitted statement with ID: {} for date {} was submitted after the report was generated",
+                        uuid, date);
             return new SuccessfulResponse(
                 uuid.toString(),
                 format(
                     "Provided statement is not going to be used for generating report for the date: %s. "
                         + "The report was already generated. In order to include this statement in the report"
-                        + "it needs to be generted manually.", date.toString()
+                        + "it needs to be generted manually.", date
                 )
             );
         }

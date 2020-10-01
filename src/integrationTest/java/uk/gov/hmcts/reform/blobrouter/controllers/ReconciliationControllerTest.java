@@ -62,7 +62,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
 
 
     @Test
-    void should_return_header_with_warning_when_the_upload_time_makes_the_statement_irrelevant() throws Exception {
+    void should_return_warning_message_in_body_when_the_upload_time_makes_the_statement_irrelevant() throws Exception {
 
         // given
         Instant sevenAM = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).withHour(7).toInstant();
@@ -187,7 +187,7 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             .andExpect(status().isBadRequest());
     }
 
-    private void givenTheRequestWasMadeAt(Instant fiveAM) {
-        TestClockProvider.stoppedInstant = fiveAM;
+    private void givenTheRequestWasMadeAt(Instant time) {
+        TestClockProvider.stoppedInstant = time;
     }
 }
