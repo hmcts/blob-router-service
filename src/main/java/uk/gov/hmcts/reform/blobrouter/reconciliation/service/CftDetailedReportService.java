@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
@@ -19,9 +18,9 @@ import java.util.Objects;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
-public class DetailedReportService {
+public class CftDetailedReportService {
 
-    private static final Logger logger = getLogger(DetailedReportService.class);
+    private static final Logger logger = getLogger(CftDetailedReportService.class);
 
     private final ReconciliationMapper reconciliationMapper;
     private final ReconciliationReportRepository reconciliationReportRepository;
@@ -29,7 +28,7 @@ public class DetailedReportService {
     private final BulkScanProcessorClient bulkScanProcessorClient;
     private final ObjectMapper objectMapper;
 
-    public DetailedReportService(
+    public CftDetailedReportService(
         ReconciliationMapper reconciliationMapper,
         ReconciliationReportRepository reconciliationReportRepository,
         ReconciliationService reconciliationService,
@@ -43,33 +42,19 @@ public class DetailedReportService {
         this.objectMapper = objectMapper;
     }
 
-    public void process(LocalDate date, TargetStorageAccount account) {
-
-        Assert.isTrue(
-            account == TargetStorageAccount.CFT,
-            "Only BULKSCAN account can be processed."
-        );
-
+    public void process(LocalDate date) {
         // get the latest one and check its detailed content.
         // if there are older records without detailed report we do not need to process them.
         var optionReconciliationReport =
-            reconciliationReportRepository.getLatestReconciliationReport(date, account.name());
+            reconciliationReportRepository.getLatestReconciliationReport(date, TargetStorageAccount.CFT.name());
 
         optionReconciliationReport.ifPresentOrElse(
-            reconciliationReport -> processReconciliationReport(reconciliationReport, date, account),
-            () -> logger.info(
-                "No summary report to create reconciliation detailed report, Account: {}, Date: {}",
-                account,
-                date
-            )
+            reconciliationReport -> processReconciliationReport(reconciliationReport, date),
+            () -> logger.info("No summary report to create reconciliation detailed report for CFT, Date: {}", date)
         );
     }
 
-    private void processReconciliationReport(
-        ReconciliationReport reconciliationReport,
-        LocalDate date,
-        TargetStorageAccount account
-    ) {
+    private void processReconciliationReport(ReconciliationReport reconciliationReport, LocalDate date) {
 
         if (Objects.nonNull(reconciliationReport.detailedContent)) {
             logger.info(
@@ -85,20 +70,21 @@ public class DetailedReportService {
         reconciliationService
             .getSupplierStatement(date)
             .ifPresentOrElse(
-                supplierStatement -> createDetailedReport(supplierStatement, account, reconciliationReport),
+                supplierStatement -> createDetailedReport(
+                    supplierStatement, reconciliationReport
+                ),
                 () -> logger.error("No supplier statement report for: {} but there is summary report.", date)
             );
     }
 
     private void createDetailedReport(
         EnvelopeSupplierStatement supplierStatement,
-        TargetStorageAccount account,
         ReconciliationReport reconciliationReport
     ) {
         try {
             ReconciliationStatement reconciliationStatement =
                 reconciliationMapper
-                    .convertToReconciliationStatement(supplierStatement, account);
+                    .convertToReconciliationStatement(supplierStatement, TargetStorageAccount.CFT);
 
             ReconciliationReportResponse reconciliationReportResponse = bulkScanProcessorClient
                 .postReconciliationReport(reconciliationStatement);
@@ -111,7 +97,7 @@ public class DetailedReportService {
                     + "Supplier Statement Id: {}, Report Id: {}, Account: {}, Date: {}",
                 supplierStatement.id,
                 reconciliationReport.id,
-                account,
+                TargetStorageAccount.CFT,
                 supplierStatement.date
             );
 
@@ -121,7 +107,7 @@ public class DetailedReportService {
                     + "Supplier Statement Id: {}, Reconciliation report Id: {}, Account: {}",
                 supplierStatement.id,
                 reconciliationReport.id,
-                account,
+                TargetStorageAccount.CFT,
                 ex
             );
         }
