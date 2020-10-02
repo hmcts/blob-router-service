@@ -187,6 +187,27 @@ public class ReconciliationControllerTest extends ControllerTestBase {
             .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void should_return_bad_request_when_supplier_statement_has_invalid_containers() throws Exception {
+        // given
+        String requestBody = Resources.toString(
+            getResource("reconciliation/invalid-supplier-statement-with-invalid-containers.json"),
+            UTF_8
+        );
+
+        // when
+        mockMvc
+            .perform(
+                post(RECONCILIATION_URL)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer valid-api-key")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .content(requestBody)
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.message").value("Invalid statement. Unrecognized Containers : [c1, c2]"));
+    }
+
     private void givenTheRequestWasMadeAt(Instant time) {
         TestClockProvider.stoppedInstant = time;
     }

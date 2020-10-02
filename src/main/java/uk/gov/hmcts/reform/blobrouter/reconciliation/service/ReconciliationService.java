@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
@@ -18,26 +19,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.stream.Collectors.toList;
+
 @Service
 public class ReconciliationService {
 
     private final SupplierStatementRepository statementRepo;
     private final ReconciliationReportRepository reportRepo;
     private final ObjectMapper objectMapper;
+    private final ServiceConfiguration serviceConfig;
 
     public ReconciliationService(
         SupplierStatementRepository statementRepo,
         ReconciliationReportRepository reportRepo,
-        ObjectMapper objectMapper
+        ObjectMapper objectMapper,
+        ServiceConfiguration serviceConfig
     ) {
         this.statementRepo = statementRepo;
         this.reportRepo = reportRepo;
         this.objectMapper = objectMapper;
+        this.serviceConfig = serviceConfig;
     }
 
     @Transactional
     public UUID saveSupplierStatement(LocalDate date, SupplierStatement inputSupplierStatement) {
         try {
+            validateContainers(inputSupplierStatement);
             String supplierStatement = objectMapper.writeValueAsString(inputSupplierStatement);
             var statement = new NewEnvelopeSupplierStatement(
                 date,
@@ -47,6 +54,25 @@ public class ReconciliationService {
             return statementRepo.save(statement);
         } catch (JsonProcessingException | SQLException e) {
             throw new InvalidSupplierStatementException("Failed to process Supplier statement", e);
+        }
+    }
+
+    private void validateContainers(SupplierStatement inputSupplierStatement) {
+        if (inputSupplierStatement.envelopes != null) {
+            List<String> unrecognizedContainers = inputSupplierStatement
+                .envelopes
+                .stream()
+                .map(e -> e.container)
+                .distinct()
+                .filter(c -> !serviceConfig.getSourceContainers().contains(c.toLowerCase()))
+                .collect(toList());
+
+
+            if (!unrecognizedContainers.isEmpty()) {
+                throw new InvalidSupplierStatementException(
+                    "Invalid statement. Unrecognized Containers : "
+                        + unrecognizedContainers.toString());
+            }
         }
     }
 

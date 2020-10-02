@@ -1,0 +1,54 @@
+{
+  "envelopes": [
+    {
+      "zip_file_name": "1010404021234_14-08-2020-03-06-18.zip",
+      "rescan_for": null,
+      "container": "c1",
+      "jurisdiction": "C1",
+      "scannable_item_dcns": [
+        "1015404021235"
+      ],
+      "payment_dcns": [
+        "123124"
+      ]
+    },
+    {
+      "zip_file_name": "10_14-08-2020-03-06-18.zip",
+      "rescan_for": null,
+      "container": "bulkscan",
+      "jurisdiction": "BULKSCAN",
+      "scannable_item_dcns": [
+        "1015404021234",
+        "1015404021235"
+      ],
+      "payment_dcns": [
+        "123123",
+        "123124"
+      ]
+    },
+    {
+      "zip_file_name": "21234_14-08-2020-03-06-18.zip",
+      "rescan_for": null,
+      "container": "c2",
+      "jurisdiction": "C2",
+      "scannable_item_dcns": [
+        "1015404021234"
+      ],
+      "payment_dcns": [
+        "123123"
+      ]
+    },
+    {
+      "zip_file_name": "18.zip",
+      "rescan_for": null,
+      "container": "c2",
+      "jurisdiction": "C2",
+      "scannable_item_dcns": [
+        "404021234"
+      ],
+      "payment_dcns": [
+        "123"
+      ]
+    }
+  ]
+}

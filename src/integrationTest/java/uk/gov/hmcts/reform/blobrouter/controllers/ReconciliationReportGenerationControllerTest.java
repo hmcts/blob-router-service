@@ -9,7 +9,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.controller.ReconciliationReportGenerationController;
-import uk.gov.hmcts.reform.blobrouter.reconciliation.service.DetailedReportService;
+import uk.gov.hmcts.reform.blobrouter.reconciliation.service.CftDetailedReportService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationMailService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.SummaryReportService;
 
@@ -33,7 +33,7 @@ public class ReconciliationReportGenerationControllerTest {
     private SummaryReportService summaryReportService;
 
     @MockBean
-    private DetailedReportService detailedReportService;
+    private CftDetailedReportService detailedReportService;
 
     @MockBean
     private ReconciliationMailService mailService;
@@ -41,7 +41,7 @@ public class ReconciliationReportGenerationControllerTest {
     @Test
     public void should_return_400_when_the_given_date_is_invalid() throws Exception {
         mockMvc.perform(
-            post("/reconciliation-reports/generate-and-email-report")
+            post("/reconciliation/generate-and-email-reports")
                 .queryParam("date", "20200911") // invalid date
         )
             .andDo(print())
@@ -57,14 +57,14 @@ public class ReconciliationReportGenerationControllerTest {
         // then
         mockMvc
             .perform(
-                post("/reconciliation-reports/generate-and-email-report")
+                post("/reconciliation/generate-and-email-reports")
                     .queryParam("date", date.format(DateTimeFormatter.ISO_DATE))
             )
             .andDo(print())
             .andExpect(status().isOk());
 
         verify(summaryReportService).process(date);
-        verify(detailedReportService).process(date, TargetStorageAccount.CFT);
+        verify(detailedReportService).process(date);
         verify(mailService).process(date, Arrays.asList(TargetStorageAccount.values()));
     }
 }

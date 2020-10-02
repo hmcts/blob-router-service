@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.EnvelopeSupplierStatement;
@@ -46,14 +47,18 @@ class ReconciliationServiceTest {
     @Mock
     private ReconciliationReportRepository reconciliationReportRepository;
 
+    @Mock
+    private ServiceConfiguration serviceConfig;
+
     @BeforeEach
     void setUp() {
-        service = new ReconciliationService(repository, reconciliationReportRepository, objectMapper);
+        service = new ReconciliationService(repository, reconciliationReportRepository, objectMapper, serviceConfig);
     }
 
     @Test
     void should_save_when_the_supplier_statement_is_valid() throws Exception {
         // given
+        given(serviceConfig.getSourceContainers()).willReturn(List.of("bulkscan"));
         var supplierStatement = new SupplierStatement(singletonList(
             new Envelope("a.zip", null, "bulkscan", "BULKSCAN", singletonList("1234"), singletonList("123"))
         ));
@@ -93,6 +98,29 @@ class ReconciliationServiceTest {
         assertThat(exc)
             .isInstanceOf(InvalidSupplierStatementException.class)
             .hasMessageContaining("Failed to process Supplier statement");
+    }
+
+    @Test
+    void should_throw_exception_when_supplier_statement_has_invalid_containers() throws Exception {
+        // given
+        // container name comparision case insensitive
+        given(serviceConfig.getSourceContainers()).willReturn(List.of("bulkscan"));
+        var supplierStatement = new SupplierStatement(
+            List.of(
+                new Envelope("a.zip", null, "c1", "C1", singletonList("12"), singletonList("1")),
+                new Envelope("q.x", null, "BULKSCAN", "B", singletonList("4"), singletonList("3"))
+            )
+        );
+
+        // when
+        var exc = catchThrowable(
+            () -> service.saveSupplierStatement(LocalDate.now(),supplierStatement)
+        );
+
+        // then
+        assertThat(exc)
+            .isInstanceOf(InvalidSupplierStatementException.class)
+            .hasMessageContaining("Invalid statement. Unrecognized Containers : [c1]");
     }
 
     @Test
@@ -142,7 +170,6 @@ class ReconciliationServiceTest {
         );
 
     }
-
 
     @Test
     @SuppressWarnings("unchecked")
