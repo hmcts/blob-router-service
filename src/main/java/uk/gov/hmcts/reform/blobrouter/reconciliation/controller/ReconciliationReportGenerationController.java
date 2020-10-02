@@ -1,9 +1,11 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.controller;
 
+import io.swagger.annotations.ApiOperation;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import springfox.documentation.annotations.ApiIgnore;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.CftDetailedReportService;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationMailService;
@@ -32,6 +34,8 @@ public class ReconciliationReportGenerationController {
     }
 
     @PostMapping(path = "/reconciliation/generate-and-email-reports")
+    @ApiIgnore
+    @ApiOperation(value = "Generates summary and detailed reconciliation reports and emails the new reports")
     public void generateAndEmailReports(
         @RequestParam(name = "date") @DateTimeFormat(iso = DATE) LocalDate date
     ) {
