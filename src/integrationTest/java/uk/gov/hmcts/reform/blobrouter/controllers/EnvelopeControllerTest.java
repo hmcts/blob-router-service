@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.controllers;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -214,7 +213,6 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(status().isBadRequest());
     }
 
-    @NotNull
     private Envelope envelope(String fileName, String container, Instant createdDate) {
         return new Envelope(
             UUID.randomUUID(),
@@ -229,12 +227,6 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         );
     }
 
-    @NotNull
-    private Envelope envelope(String fileName, String container) {
-        return envelope(fileName, container, now());
-    }
-
-    @NotNull
     private EnvelopeEvent envelopeEvent(UUID envelopeId, int eventId, EventType eventType) {
         return new EnvelopeEvent(eventId, envelopeId, eventType, null, null, now());
     }
