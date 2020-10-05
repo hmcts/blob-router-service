@@ -82,11 +82,11 @@ public class ReconciliationReportRepository {
         try {
             ReconciliationReport report = jdbcTemplate.queryForObject(
                 "SELECT er.*"
-                + " FROM envelope_reconciliation_reports er"
-                + " INNER JOIN envelope_supplier_statements ess ON ess.id =er.envelope_supplier_statement_id"
-                + " WHERE ess.date = :date AND er.account = :account"
-                + " ORDER BY er.created_at DESC"
-                + " LIMIT 1",
+                    + " FROM envelope_reconciliation_reports er"
+                    + " INNER JOIN envelope_supplier_statements ess ON ess.id = er.envelope_supplier_statement_id"
+                    + " WHERE ess.date = :date AND er.account = :account"
+                    + " ORDER BY er.created_at DESC"
+                    + " LIMIT 1",
                 new MapSqlParameterSource()
                     .addValue("date", forDate)
                     .addValue("account", account),
