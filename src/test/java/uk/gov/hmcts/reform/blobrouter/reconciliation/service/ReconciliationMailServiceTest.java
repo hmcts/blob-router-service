@@ -71,8 +71,8 @@ class ReconciliationMailServiceTest {
     private static final List<TargetStorageAccount> AVAILABLE_ACCOUNTS =
         List.of(CFT, CRIME);
 
-    private static final String BULKSCAN_NO_REPORT = "CFT Scanning Reconciliation NO REPORT RECEIVED";
-    private static final String CRIME_NO_REPORT = "CRIME Scanning Reconciliation NO REPORT RECEIVED";
+    private static final String BULKSCAN_NO_REPORT = "CFT Scanning Reconciliation NO SUPPLIER STATEMENT RECEIVED";
+    private static final String CRIME_NO_REPORT = "CRIME Scanning Reconciliation NO SUPPLIER STATEMENT RECEIVED";
 
     @BeforeEach
     void setUp() {
