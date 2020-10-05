@@ -105,7 +105,7 @@ class ReconciliationMailServiceTest {
         verify(emailSender, times(2))
             .sendMessageWithAttachments(
                 titleCaptor.capture(),
-                eq("No Report received for " + date),
+                eq("No supplier statement received for " + date),
                 eq(mailFrom),
                 eq(mailRecipients),
                 eq(Collections.emptyMap())
