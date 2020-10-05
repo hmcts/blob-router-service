@@ -16,7 +16,6 @@ import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEn
 import uk.gov.hmcts.reform.blobrouter.util.TimeZones;
 
 import java.sql.SQLException;
-import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
