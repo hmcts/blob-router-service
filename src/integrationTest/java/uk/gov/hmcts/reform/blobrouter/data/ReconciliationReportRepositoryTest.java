@@ -150,10 +150,10 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_not_find_anything_when_conditions_do_not_match() {
         // given
-        saveNewReportAndGetId("{}", "{ \"x\": 123 }");
+        saveNewReportAndGetId("{}", "{ \"x\": 123 }", now().minusDays(1));
 
         // when
-        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
 
         // then
         assertThat(report).isEmpty();
@@ -164,10 +164,10 @@ public class ReconciliationReportRepositoryTest {
         // given
         var expectedSummaryContent = "{}";
         var expectedDetailedContent = "{ \"x\": 123 }";
-        var id = saveNewReportAndGetId(expectedSummaryContent, expectedDetailedContent);
+        var id = saveNewReportAndGetId(expectedSummaryContent, expectedDetailedContent, now().minusDays(1));
 
         // when
-        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
 
         // then
         assertThat(report)
@@ -184,13 +184,16 @@ public class ReconciliationReportRepositoryTest {
     @Test
     void should_find_only_latest_report_when_conditions_are_met() {
         // given
-        saveNewReportAndGetId("{}", "{ \"x\": 983 }");
+        saveNewReportAndGetId("{}", "{ \"x\": 983 }", now().minusDays(1));
         var expectedReportContent = "[]";
         var expectedDetailedContent = "{ \"x\": \"123x\" }";
-        var id = saveNewReportAndGetId(expectedReportContent, expectedDetailedContent);
+        var id = saveNewReportAndGetId(expectedReportContent, expectedDetailedContent, now().minusDays(1));
+
+        // latest but different report date
+        saveNewReportAndGetId("{ \"qx\": \"6fff3x\" }", "{ \"x1\": 11983 }", now());
 
         // when
-        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now(), ACCOUNT);
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
 
         // then
         assertThat(report)
@@ -204,9 +207,15 @@ public class ReconciliationReportRepositoryTest {
             });
     }
 
-    private UUID saveNewReportAndGetId(String summaryContent, String detailedContent) {
+    private UUID saveNewReportAndGetId(String summaryContent, String detailedContent, LocalDate reportDate) {
         try {
-            var statementId = statementRepo.save(NEW_STATEMENT);
+            var statementId = statementRepo.save(
+                new NewEnvelopeSupplierStatement(
+                    reportDate,
+                    "{\"content\":\"some_content\"}",
+                    "supplier version"
+                )
+            );
             var report = new NewReconciliationReport(statementId, ACCOUNT, summaryContent, detailedContent, VERSION);
 
             return reportRepo.save(report);

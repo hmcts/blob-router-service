@@ -81,12 +81,12 @@ public class ReconciliationReportRepository {
     public Optional<ReconciliationReport> getLatestReconciliationReport(LocalDate forDate, String account) {
         try {
             ReconciliationReport report = jdbcTemplate.queryForObject(
-                "SELECT * "
-                    + "FROM envelope_reconciliation_reports "
-                    + "WHERE account = :account"
-                    + "  AND DATE(created_at) = :date "
-                    + "ORDER BY created_at DESC "
-                    + "LIMIT 1",
+                "SELECT er.*"
+                + " FROM envelope_reconciliation_reports er"
+                + " INNER JOIN envelope_supplier_statements ess ON ess.id =er.envelope_supplier_statement_id"
+                + " WHERE ess.date = :date AND er.account = :account"
+                + " ORDER BY er.created_at DESC"
+                + " LIMIT 1",
                 new MapSqlParameterSource()
                     .addValue("date", forDate)
                     .addValue("account", account),
