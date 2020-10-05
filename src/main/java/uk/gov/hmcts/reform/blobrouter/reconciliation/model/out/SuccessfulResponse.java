@@ -9,7 +9,16 @@ public class SuccessfulResponse {
     @JsonProperty("id")
     public final String id;
 
-    public SuccessfulResponse(String id) {
+    @ApiModelProperty(value = "Warning related to the supplied statement")
+    @JsonProperty("warning")
+    public final String warning;
+
+    public SuccessfulResponse(String id, String warning) {
         this.id = id;
+        this.warning = warning;
+    }
+
+    public SuccessfulResponse(String id) {
+        this(id, null);
     }
 }
