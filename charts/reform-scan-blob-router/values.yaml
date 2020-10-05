@@ -57,6 +57,7 @@ java:
 
     NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "SendSharedAccessKey"
     NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
+    NOTIFICATIONS_QUEUE_NAME: "notifications"
 
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
     PCQ_BACKEND_API_URL: "http://pcq-backend-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
