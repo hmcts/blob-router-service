@@ -164,7 +164,7 @@ public class ReconciliationMailService {
         try {
             emailSender.sendMessageWithAttachments(
                 account.name() + " Scanning Reconciliation NO REPORT RECEIVED",
-                "No Report received for " + date,
+                "No supplier statement received for " + date,
                 mailFrom,
                 mailRecipients,
                 Collections.emptyMap()

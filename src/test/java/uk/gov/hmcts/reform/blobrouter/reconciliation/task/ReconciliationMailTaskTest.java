@@ -16,7 +16,7 @@ import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 class ReconciliationMailTaskTest {
 
     @Test
-    void should_call_summary_report_service() {
+    void should_call_mail_service() {
         // given
         var reconciliationMailService = mock(ReconciliationMailService.class);
         var task = new ReconciliationMailTask(reconciliationMailService);
