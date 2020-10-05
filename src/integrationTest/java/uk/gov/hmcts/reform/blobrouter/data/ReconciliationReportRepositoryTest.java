@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,6 +48,11 @@ public class ReconciliationReportRepositoryTest {
     @Autowired private ClockProvider clockProvider;
     @Autowired private DbHelper dbHelper;
 
+    @BeforeEach
+    void setup() {
+        //if no stopped instant is provided the current time will be used
+        TestClockProvider.stoppedInstant = null;
+    }
     @AfterEach
     void tearDown() {
         dbHelper.deleteAll();
@@ -213,15 +220,19 @@ public class ReconciliationReportRepositoryTest {
     }
 
     @Test
-    void should_find_latest_report_even_if_was_generated_on_another_day() {
+    void should_find_latest_report_by_datetime_even_if_was_generated_on_another_day() {
         // given
         // original report was generated yesterday
         TestClockProvider.stoppedInstant = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).minusDays(1).toInstant();
         saveNewReportAndGetId("{}", "{ \"x\": 983 }", now().minusDays(1));
 
-        // new supplier statement was provided and new report was regenerated today
+        // newest supplier statement by date new report was regenerated today
         TestClockProvider.stoppedInstant = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).toInstant();
         var newReport = saveNewReportAndGetId("{}", "{ \"x\": 666 }", now().minusDays(1));
+
+        // there is existing report, which is no longer relevant
+        TestClockProvider.stoppedInstant = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).minusMinutes(5).toInstant();
+        saveNewReportAndGetId("{}", "{ \"x\": 666 }", now().minusDays(1));
 
         // when
         Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
@@ -465,4 +476,5 @@ public class ReconciliationReportRepositoryTest {
         // then
         assertThat(reportList.size()).isEqualTo(0);
     }
+
 }
