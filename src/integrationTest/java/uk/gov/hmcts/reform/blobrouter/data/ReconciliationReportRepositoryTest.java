@@ -4,17 +4,22 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.hmcts.reform.blobrouter.config.TestClockProvider;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.NewReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.SupplierStatementRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements.model.NewEnvelopeSupplierStatement;
+import uk.gov.hmcts.reform.blobrouter.util.TimeZones;
 
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +31,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
+@Import(TestClockProvider.class)
 public class ReconciliationReportRepositoryTest {
 
     private static final String ACCOUNT = "account";
@@ -205,6 +211,27 @@ public class ReconciliationReportRepositoryTest {
                 assertThat(actualReport.detailedContent).isEqualTo(expectedDetailedContent);
                 assertThat(actualReport.contentTypeVersion).isEqualTo(VERSION);
             });
+    }
+
+    @Test
+    void should_find_latest_report_even_if_was_generated_on_another_day() {
+        // given
+        // original report was generated yesterday
+        TestClockProvider.stoppedInstant = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).minusDays(1).toInstant();
+        saveNewReportAndGetId("{}", "{ \"x\": 983 }", now().minusDays(1));
+
+        // new supplier statement was provided and new report was regenerated today
+        TestClockProvider.stoppedInstant = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).toInstant();
+        var newReport = saveNewReportAndGetId("{}", "{ \"x\": 666 }", now().minusDays(1));
+
+        // when
+        Optional<ReconciliationReport> report = reportRepo.getLatestReconciliationReport(now().minusDays(1), ACCOUNT);
+
+        // then
+        assertThat(report)
+            .isNotEmpty()
+            .get()
+            .satisfies(actualReport -> assertThat(actualReport.id).isEqualTo(newReport));
     }
 
     private UUID saveNewReportAndGetId(String summaryContent, String detailedContent, LocalDate reportDate) {
@@ -388,6 +415,28 @@ public class ReconciliationReportRepositoryTest {
         assertThat(report.account).isEqualTo(ACCOUNT);
         assertThat(report.contentTypeVersion).isEqualTo(VERSION);
         assertThat(report.supplierStatementId).isEqualTo(statementId);
+    }
+
+    @Test
+    void should_find_reports_genarated_across_two_days_for_given_date_by_findByDate() {
+        // given
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        // first report was generated yesterday
+        TestClockProvider.stoppedInstant = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).minusDays(1).toInstant();
+        UUID firstReportId = saveNewReportAndGetId("{ \"x\": 123 }", null, yesterday);
+
+        //another report was generated today (for yesterday)
+        TestClockProvider.stoppedInstant = ZonedDateTime.now(TimeZones.EUROPE_LONDON_ZONE_ID).toInstant();
+        UUID secondReportId = saveNewReportAndGetId("{ \"x\": 666 }", null, yesterday);
+
+        // when
+        var reportList = reportRepo.findByDate(yesterday);
+
+        // then
+        assertThat(reportList.size()).isEqualTo(2);
+        assertThat(reportList)
+            .extracting("id")
+            .containsExactlyInAnyOrder(firstReportId, secondReportId);
     }
 
     @Test
