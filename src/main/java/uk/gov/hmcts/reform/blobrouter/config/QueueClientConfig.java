@@ -17,12 +17,13 @@ public class QueueClientConfig {
     public QueueClient notificationsQueueClient(
         @Value("${queue.notifications.access-key}") String accessKey,
         @Value("${queue.notifications.access-key-name}") String accessKeyName,
-        @Value("${queue.notifications.namespace}") String namespace
+        @Value("${queue.notifications.namespace}") String namespace,
+        @Value("${queue.notifications.queue-name}") String queueName
     ) throws InterruptedException, ServiceBusException {
         return new QueueClient(
             new ConnectionStringBuilder(
                 namespace,
-                "notifications",
+                queueName,
                 accessKeyName,
                 accessKey
             ),
