@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 class DetailedReportTaskTest {
 
     @Test
-    void should_call_summary_report_service() {
+    void should_call_detailed_report_service() {
         // given
         var cftDetailedReportService = mock(CftDetailedReportService.class);
 
