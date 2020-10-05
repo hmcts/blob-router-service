@@ -85,7 +85,7 @@ public class ReconciliationController {
                 format(
                     "Provided statement is not going to be used for generating report for the date: %s. "
                         + "The report was already generated. In order to include this statement in the report"
-                        + "it needs to be generted manually.", date
+                        + "it needs to be generated manually.", date
                 )
             );
         }
