@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,7 +123,6 @@ public class EnvelopeEventRepositoryTest {
         assertThat(eventsInDb).isEmpty();
     }
 
-    @NotNull
     private EnvelopeEvent envelopeEvent(UUID envelopeId, NewEnvelopeEvent event, long eventId) {
         return new EnvelopeEvent(eventId, envelopeId, event.type, event.errorCode, event.notes, now());
     }
