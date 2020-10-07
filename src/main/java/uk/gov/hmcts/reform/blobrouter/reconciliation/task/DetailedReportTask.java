@@ -30,7 +30,7 @@ public class DetailedReportTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        cftDetailedReportService.process(LocalDate.now());
+        cftDetailedReportService.process(LocalDate.now().minusDays(1));
 
         logger.info("Finished {} job", TASK_NAME);
     }
