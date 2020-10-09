@@ -142,13 +142,12 @@ class ReconciliationServiceTest {
     @Test
     void should_return_supplier_statement_as_it_is_in_repository() {
         // given
-        LocalDate date = LocalDate.now();
         var expectedResponse = Optional.of(mock(EnvelopeSupplierStatement.class));
-
-        given(repository.findLatest(date)).willReturn(expectedResponse);
+        var supplierStatementId = UUID.randomUUID();
+        given(repository.findById(supplierStatementId)).willReturn(expectedResponse);
 
         // when
-        var response = service.getSupplierStatement(date);
+        var response = service.getSupplierStatement(supplierStatementId);
 
         // then
         assertThat(response).isSameAs(expectedResponse);
@@ -157,16 +156,16 @@ class ReconciliationServiceTest {
     @Test
     void should_throw_exception_when_repository_throws() {
         // given
-        LocalDate date = LocalDate.now();
+        var supplierStatementId = UUID.randomUUID();
 
-        given(repository.findLatest(date))
+        given(repository.findById(supplierStatementId))
             .willThrow(new RuntimeException("Repository exception"));
 
         // when
         // then
         assertThrows(
             RuntimeException.class,
-            () -> service.getSupplierStatement(date)
+            () -> service.getSupplierStatement(supplierStatementId)
         );
 
     }
