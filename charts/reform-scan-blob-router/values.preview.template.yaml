@@ -22,8 +22,8 @@ java:
       secretRef: servicebus-secret-namespace-{{ .Release.Name }}
       key: namespaceName
   keyVaults:
-    reform-scan:
-      resourceGroup: reform-scan
+    reform-scan-v2:
+      resourceGroup: reform-scan-v2
       secrets:
         - reports-email-username
         - reports-email-password

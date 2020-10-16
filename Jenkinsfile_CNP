@@ -14,7 +14,7 @@ def component = "blob-router"
 def channel = '#bsp-build-notices'
 
 def combinedSecrets = [
-   'reform-scan-${env}': [
+   'reform-scan-v2-${env}': [
      // Base64-encoded PKCS 12 key store, containing client's private key and certificate known to the API
      secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
      secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
@@ -36,7 +36,7 @@ def combinedSecrets = [
  ]
 
  def smokeTestSecrets = [
-   'reform-scan-${env}': [
+   'reform-scan-v2-${env}': [
      secret('test-valid-key-store', 'TEST_VALID_KEY_STORE'),
      secret('test-valid-key-store-password', 'TEST_VALID_KEY_STORE_PASSWORD'),
 

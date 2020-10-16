@@ -41,12 +41,12 @@ module "reform-blob-router-staging-db" {
 
 data "azurerm_key_vault" "bulk_scan_key_vault" {
   name                = local.bulk-scan-vault-name
-  resource_group_name = "bulk-scan-${var.env}"
+  resource_group_name = "bulk-scan-v2-${var.env}"
 }
 
 data "azurerm_key_vault" "reform_scan_key_vault" {
   name                = local.reform-scan-vault-name
-  resource_group_name = "reform-scan-${var.env}"
+  resource_group_name = "reform-scan-v2-${var.env}"
 }
 
 data "azurerm_key_vault" "s2s_key_vault" {

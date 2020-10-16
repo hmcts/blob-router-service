@@ -4,8 +4,8 @@ java:
   aadIdentityName: reform-scan
   readinessPath: '/health/readiness'
   keyVaults:
-    reform-scan:
-      resourceGroup: reform-scan
+    reform-scan-v2:
+      resourceGroup: reform-scan-v2
       secrets:
         - app-insights-instrumentation-key
         - reports-email-username

@@ -3,8 +3,8 @@ spring:
     propertiesvolume:
       enabled: true
       prefixed: false
-      paths: /mnt/secrets/reform-scan
-      name: reform-scan
+      paths: /mnt/secrets/reform-scan-v2
+      name: reform-scan-v2
       aliases:
         app-insights-instrumentation-key: azure.application-insights.instrumentation-key
         storage-account-name: storage.account-name
