@@ -75,7 +75,7 @@ withPipeline(type, product, component) {
     builder.gradle('integration')
   }
 
-  enableDbMigration('reform-scan') // vault 'prefix'
+  enableDbMigration('reform-scan-v2') // vault 'prefix'
   enableAksStagingDeployment()
   enableSlackNotifications(channel)
   disableLegacyDeployment()
