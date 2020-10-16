@@ -3,8 +3,8 @@ provider "azurerm" {
 }
 
 locals {
-  reform-scan-vault-name = "reform-scan-${var.env}"
-  bulk-scan-vault-name   = "bulk-scan-${var.env}"
+  reform-scan-vault-name = "reform-scan-v2-${var.env}"
+  bulk-scan-vault-name   = "bulk-scan-v2-${var.env}"
   s2s-vault-name         = "s2s-${var.env}"
 }
 
