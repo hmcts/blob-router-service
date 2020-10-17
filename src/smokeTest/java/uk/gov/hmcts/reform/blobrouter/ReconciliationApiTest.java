@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
@@ -23,13 +22,6 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
     @BeforeAll
     static void setup() throws Exception {
         loadConfig();
-    }
-
-    @Test
-    void should_accept_request_with_valid_certificate_and_valid_subscription_key() throws Exception {
-        Response response = callReconciliationEndpoint(validClientKeyStore, validSubscriptionKey);
-
-        assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST.value());
     }
 
     @Test
