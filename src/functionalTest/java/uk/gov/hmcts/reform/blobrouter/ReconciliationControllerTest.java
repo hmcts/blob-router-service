@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter;
 
 import com.google.common.io.Resources;
 import io.restassured.RestAssured;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
+@Disabled
 public class ReconciliationControllerTest {
 
     private static final TestConfiguration config = new TestConfiguration();
