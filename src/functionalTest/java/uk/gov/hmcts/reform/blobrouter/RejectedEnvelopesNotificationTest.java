@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter;
 
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 
@@ -17,6 +18,7 @@ import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArc
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.uploadFile;
 
+@Disabled
 public class RejectedEnvelopesNotificationTest extends FunctionalTestBase {
 
     @Override
