@@ -46,7 +46,7 @@ java:
 
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
 
-    STORAGE_BULKSCAN_URL: https://v2.bulkscan.aat.platform.hmcts.net
+    STORAGE_BULKSCAN_URL: https://v2-bulkscan.aat.platform.hmcts.net
     STORAGE_PCQ_URL: "https://pcqsharedaat.blob.core.windows.net"
 
     STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"

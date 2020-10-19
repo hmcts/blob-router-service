@@ -6,7 +6,7 @@ java:
     DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
     SEND_NOTIFICATIONS_CRON: "0/10 * * * * *"
     FLYWAY_SKIP_MIGRATIONS: false
-    STORAGE_URL: https://reformscanstg.aat.platform.hmcts.net
+    STORAGE_URL: https://v2-reformscanstg.aat.platform.hmcts.net
     NOTIFICATIONS_QUEUE_NAME: "notifications-staging"
   # Don't modify below here
   image: ${IMAGE_NAME}
