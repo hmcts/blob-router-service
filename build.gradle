@@ -254,7 +254,7 @@ dependencies {
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation libraries.junit5
-  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.17.2'
+  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.18.0'
   functionalTestImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
   functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
   functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
