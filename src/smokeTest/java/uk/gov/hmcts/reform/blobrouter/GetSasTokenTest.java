@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +21,7 @@ public class GetSasTokenTest extends ApiGatewayBaseTest {
         loadConfig();
     }
 
-    @Test
+    @Disabled
     void should_accept_request_with_valid_certificate_and_subscription_key() throws Exception {
         Response response =
             callSasTokenEndpoint(validClientKeyStore, validSubscriptionKey)
