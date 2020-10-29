@@ -36,26 +36,6 @@ public class HttpConfiguration {
     }
 
     @Bean
-    @ConditionalOnProperty(prefix = "proxy", name = "enabled", havingValue = "true")
-    public HttpClient azureHttpClientWithProxy(
-        @Value("${proxy.host-name}") String proxyHostName,
-        @Value("${proxy.port}") int proxyPort
-    ) {
-        return new NettyAsyncHttpClientBuilder()
-            .proxy(
-                new ProxyOptions(
-                    ProxyOptions.Type.HTTP,
-                    new InetSocketAddress(
-                        proxyHostName,
-                        proxyPort
-                    )
-                )
-            )
-            .build();
-    }
-
-    @Bean
-    @ConditionalOnProperty(prefix = "proxy", name = "enabled", havingValue = "false")
     public HttpClient azureHttpClientWithoutProxy() {
         return new NettyAsyncHttpClientBuilder().build();
     }

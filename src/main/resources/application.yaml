@@ -147,11 +147,6 @@ scheduling:
       cron: ${SEND_RECONCILIATION_REPORT_MAIL_CRON}
       enabled: ${SEND_RECONCILIATION_REPORT_MAIL_ENABLED}
 
-proxy:
-  enabled: ${PROXY_ENABLED:true}
-  host-name: proxyout.reform.hmcts.net
-  port: 8080
-
 reconciliation:
   api-key: ${RECONCILIATION_API_KEY}
   report:
