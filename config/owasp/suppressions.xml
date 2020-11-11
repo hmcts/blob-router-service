@@ -4,7 +4,7 @@
     <notes><![CDATA[ Hard dependency from azure-storage library ]]></notes>
     <cpe regex="true">cpe:\/a:apache:sling:(0\.1\.0)</cpe>
   </suppress>
-  <suppress until="2021-01-07">
+  <suppress until="2021-02-07">
     <notes><![CDATA[ No fix available ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
     <cve>CVE-2018-1258</cve>
