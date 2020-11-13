@@ -16,10 +16,10 @@ java:
       secretRef: storage-secret-crime-{{ .Release.Name }}
       key: accessKey
     SB_ACCESS_KEY:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
       key: primaryKey
     SB_NAMESPACE:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
       key: namespaceName
   keyVaults:
     reform-scan:
