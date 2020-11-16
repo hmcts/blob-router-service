@@ -31,7 +31,7 @@ public class SummaryReportTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        summaryReportService.process(LocalDate.now(UTC));
+        summaryReportService.process(LocalDate.now(UTC).minusDays(1));
 
         logger.info("Finished {} job", TASK_NAME);
 
