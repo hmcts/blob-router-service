@@ -75,7 +75,7 @@ java:
     postgresqlUsername: db_user
     postgresqlPassword: db_pass
     postgresqlDatabase: db
-resourceGroup: reform-scan-aks
+
 reformblobstorage:
   enabled: true
   resourceGroup: reform-scan-aks
