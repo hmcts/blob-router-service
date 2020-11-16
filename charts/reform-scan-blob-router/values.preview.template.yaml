@@ -16,10 +16,10 @@ java:
       secretRef: storage-secret-crime-{{ .Release.Name }}
       key: accessKey
     SB_ACCESS_KEY:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
       key: primaryKey
     SB_NAMESPACE:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}
+      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
       key: namespaceName
   keyVaults:
     reform-scan:
@@ -46,7 +46,7 @@ java:
 
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 0
 
-    STORAGE_BULKSCAN_URL: https://bulkscan.aat.platform.hmcts.net
+    STORAGE_BULKSCAN_URL: https://bulkscanaat.blob.core.windows.net
     STORAGE_PCQ_URL: "https://pcqsharedaat.blob.core.windows.net"
 
     STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
