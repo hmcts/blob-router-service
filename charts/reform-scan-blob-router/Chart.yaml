@@ -2,7 +2,7 @@ apiVersion: v2
 description: A Helm chart for Blob Router Service
 name: reform-scan-blob-router
 home: https://github.com/hmcts/blob-router-service
-version: 0.2.10
+version: 0.2.11
 maintainers:
   - name: HMCTS BSP Team
     email: bspteam@hmcts.net
@@ -18,14 +18,14 @@ dependencies:
     alias: reformblobstorage
     version: 0.2.1
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
-    condition: blobstorage.enabled
+    condition: reformblobstorage.enabled
   - name: blobstorage
     alias: crimeblobstorage
     version: 0.2.1
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
-    condition: blobstorage.enabled
+    condition: crimeblobstorage.enabled
   - name: blobstorage
     alias: pcqblobstorage
     version: 0.2.1
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
-    condition: blobstorage.enabled
+    condition: pcqblobstorage.enabled
