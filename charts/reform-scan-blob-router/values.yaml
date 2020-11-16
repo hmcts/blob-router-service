@@ -68,10 +68,13 @@ java:
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   enabled: false
+  resourceGroup: reform-scan-aks
 crimeblobstorage:
   enabled: false
+  resourceGroup: reform-scan-aks
 pcqblobstorage:
   enabled: false
+  resourceGroup: reform-scan-aks
 
 servicebus:
   enabled: false
