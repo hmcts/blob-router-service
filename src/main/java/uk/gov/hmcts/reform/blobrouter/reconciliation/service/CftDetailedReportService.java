@@ -68,7 +68,7 @@ public class CftDetailedReportService {
         }
 
         reconciliationService
-            .getSupplierStatement(date)
+            .getSupplierStatement(reconciliationReport.supplierStatementId)
             .ifPresentOrElse(
                 supplierStatement -> createDetailedReport(
                     supplierStatement, reconciliationReport
