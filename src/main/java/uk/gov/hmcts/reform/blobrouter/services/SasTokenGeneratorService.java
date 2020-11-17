@@ -49,10 +49,7 @@ public class SasTokenGeneratorService {
 
         var permissions = new BlobContainerSasPermission()
             .setListPermission(true)
-            .setReadPermission(true)
-            .setWritePermission(true)
-            .setCreatePermission(true)
-            .setAddPermission(true);
+            .setCreatePermission(true);
 
         return new BlobServiceSasSignatureValues()
             .setContainerName(serviceName)
