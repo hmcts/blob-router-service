@@ -70,7 +70,7 @@ service:
       target-storage-account: pcq
       target-container: ${PCQ_DESTINATION_CONTAINER}
     - source-container: divorce
-      sas-validity: 1200 #In seconds
+      sas-validity: 300 #In seconds
       target-storage-account: cft
       target-container: divorce
     - source-container: finrem
