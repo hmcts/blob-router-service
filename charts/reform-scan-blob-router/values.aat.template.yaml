@@ -9,7 +9,6 @@ java:
     STORAGE_URL: https://reformscanstg.aat.platform.hmcts.net
     NOTIFICATIONS_QUEUE_NAME: "notifications-staging"
     PROXY_ENABLED: "false"
-    STORAGE_BULKSCAN_URL: https://bulkscanaat.blob.core.windows.net
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
