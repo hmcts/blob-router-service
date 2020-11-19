@@ -47,7 +47,8 @@ java:
     SEND_RECONCILIATION_REPORT_MAIL_ENABLED: "false"
 
     STORAGE_URL: https://reformscan.{{ .Values.global.environment }}.platform.hmcts.net
-    STORAGE_BULKSCAN_URL: https://bulkscan.{{ .Values.global.environment }}.platform.hmcts.net
+    STORAGE_BULKSCAN_URL: https://bulkscan{{ .Values.global.environment }}.blob.core.windows.net
+
     STORAGE_PCQ_URL: https://pcqshared{{ .Values.global.environment }}.blob.core.windows.net
 
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
