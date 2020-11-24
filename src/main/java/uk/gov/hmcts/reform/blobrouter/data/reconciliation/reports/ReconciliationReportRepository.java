@@ -70,8 +70,10 @@ public class ReconciliationReportRepository {
 
     public List<ReconciliationReport> findByDate(LocalDate date) {
         return jdbcTemplate.query(
-            "SELECT * FROM envelope_reconciliation_reports "
-                + "WHERE DATE(created_at) = :date "
+            "SELECT er.* "
+                + "FROM envelope_reconciliation_reports er "
+                + "INNER JOIN envelope_supplier_statements ess ON ess.id = er.envelope_supplier_statement_id "
+                + "WHERE ess.date = :date "
                 + "ORDER BY created_at DESC",
             new MapSqlParameterSource("date", date),
             this.rowMapper

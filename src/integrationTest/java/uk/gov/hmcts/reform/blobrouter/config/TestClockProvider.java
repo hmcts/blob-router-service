@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.blobrouter.util.TimeZones;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import javax.validation.ClockProvider;
 
 @TestConfiguration
@@ -35,7 +36,11 @@ public class TestClockProvider {
 
             @Override
             public Instant instant() {
-                return stoppedInstant;
+                if (stoppedInstant == null) {
+                    return ZonedDateTime.now(zoneId).toInstant();
+                } else {
+                    return stoppedInstant;
+                }
             }
         };
     }
