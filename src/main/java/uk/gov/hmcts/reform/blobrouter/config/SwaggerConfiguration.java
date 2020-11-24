@@ -22,7 +22,8 @@ public class SwaggerConfiguration {
             .select()
             .apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE + ".controllers")
                       .or(RequestHandlerSelectors.basePackage(BASE_PACKAGE + ".reconciliation.controller")))
-            .paths(PathSelectors.any())
+            .paths(PathSelectors.ant("/token/*")
+                       .or((PathSelectors.ant("/reconciliation-report/*"))))
             .build();
     }
 
