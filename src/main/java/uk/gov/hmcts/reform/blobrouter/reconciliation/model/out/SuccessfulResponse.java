@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.model.out;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -11,6 +12,7 @@ public class SuccessfulResponse {
 
     @ApiModelProperty(value = "Warning related to the supplied statement")
     @JsonProperty("warning")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public final String warning;
 
     public SuccessfulResponse(String id, String warning) {
