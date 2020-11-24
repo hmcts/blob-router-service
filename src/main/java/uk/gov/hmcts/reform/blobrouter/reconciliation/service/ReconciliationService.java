@@ -76,8 +76,8 @@ public class ReconciliationService {
         }
     }
 
-    public Optional<EnvelopeSupplierStatement> getSupplierStatement(LocalDate date) {
-        return statementRepo.findLatest(date);
+    public Optional<EnvelopeSupplierStatement> getSupplierStatement(UUID supplierId) {
+        return statementRepo.findById(supplierId);
     }
 
     public List<ReconciliationReport> getReconciliationReports(LocalDate date) {

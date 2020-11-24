@@ -38,7 +38,7 @@ public class ReconciliationMailTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        reconciliationMailService.process(LocalDate.now(UTC), AVAILABLE_ACCOUNTS);
+        reconciliationMailService.process(LocalDate.now(UTC).minusDays(1), AVAILABLE_ACCOUNTS);
 
         logger.info("Finished {} job", TASK_NAME);
     }

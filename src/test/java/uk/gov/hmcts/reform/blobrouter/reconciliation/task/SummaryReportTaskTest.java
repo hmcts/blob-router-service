@@ -22,6 +22,6 @@ class SummaryReportTaskTest {
         task.run();
 
         // then
-        verify(summaryReportService, times(1)).process(LocalDate.now(UTC));;
+        verify(summaryReportService, times(1)).process(LocalDate.now(UTC).minusDays(1));;
     }
 }

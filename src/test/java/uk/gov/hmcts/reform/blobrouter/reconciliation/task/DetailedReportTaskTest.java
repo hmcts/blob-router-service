@@ -22,7 +22,7 @@ class DetailedReportTaskTest {
         task.run();
 
         // then
-        verify(cftDetailedReportService, times(1)).process(LocalDate.now());
+        verify(cftDetailedReportService, times(1)).process(LocalDate.now().minusDays(1));
     }
 
 }

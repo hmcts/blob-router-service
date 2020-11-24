@@ -97,15 +97,17 @@ class CftDetailedReportServiceTest {
     void should_not_process_further_if_no_supplier_statement() {
         //given
         LocalDate date = LocalDate.now();
+        var reconciliationReport = createReconciliationReport("{\"a\" :1}", null);
         given(reconciliationReportRepository.getLatestReconciliationReport(date, CFT.name()))
-            .willReturn(Optional.of(createReconciliationReport("{\"a\" :1}", null)));
-        given(reconciliationService.getSupplierStatement(date)).willReturn(Optional.empty());
+            .willReturn(Optional.of(reconciliationReport));
+        given(reconciliationService.getSupplierStatement(reconciliationReport.supplierStatementId))
+            .willReturn(Optional.empty());
 
         //when
         service.process(date);
 
         // then
-        verify(reconciliationService).getSupplierStatement(date);
+        verify(reconciliationService).getSupplierStatement(reconciliationReport.supplierStatementId);
         verifyNoMoreInteractions(reconciliationService);
         verifyNoInteractions(reconciliationMapper);
         verifyNoInteractions(bulkScanProcessorClient);
@@ -136,7 +138,7 @@ class CftDetailedReportServiceTest {
                 LocalDateTime.now()
             );
 
-        given(reconciliationService.getSupplierStatement(date))
+        given(reconciliationService.getSupplierStatement(reconciliationReport.supplierStatementId))
             .willReturn(Optional.of(envelopeSupplierStatement));
 
         var reconciliationStatement = mock(ReconciliationStatement.class);
@@ -155,7 +157,7 @@ class CftDetailedReportServiceTest {
         service.process(date);
 
         // then
-        verify(reconciliationService).getSupplierStatement(date);
+        verify(reconciliationService).getSupplierStatement(reconciliationReport.supplierStatementId);
         verifyNoMoreInteractions(reconciliationService);
         verify(reconciliationMapper).convertToReconciliationStatement(any(), eq(CFT));
         verifyNoMoreInteractions(reconciliationMapper);

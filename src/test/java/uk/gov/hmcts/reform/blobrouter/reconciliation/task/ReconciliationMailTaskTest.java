@@ -26,6 +26,6 @@ class ReconciliationMailTaskTest {
 
         // then
         verify(reconciliationMailService, times(1))
-            .process(LocalDate.now(UTC), List.of(CFT, CRIME));;
+            .process(LocalDate.now(UTC).minusDays(1), List.of(CFT, CRIME));;
     }
 }
