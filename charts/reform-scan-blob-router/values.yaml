@@ -23,6 +23,7 @@ java:
         - notification-queue-send-shared-access-key
         - reconciliation-api-key
         - s2s-secret-blob-router
+        - reconciliation-report-recipients
 
   environment:
     DB_CONN_OPTIONS: ?sslmode=require
