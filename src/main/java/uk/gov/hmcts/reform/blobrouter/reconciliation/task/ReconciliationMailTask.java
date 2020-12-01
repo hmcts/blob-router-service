@@ -15,6 +15,7 @@ import static java.time.ZoneOffset.UTC;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
 @Component
@@ -25,7 +26,7 @@ public class ReconciliationMailTask {
     private static final Logger logger = getLogger(ReconciliationMailTask.class);
 
     private static final List<TargetStorageAccount> AVAILABLE_ACCOUNTS =
-        List.of(CFT, CRIME);
+        List.of(CFT, CRIME, PCQ);
 
     private final ReconciliationMailService reconciliationMailService;
 
