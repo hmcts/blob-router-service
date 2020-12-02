@@ -47,6 +47,18 @@ public final class DirectoryZipper {
         );
     }
 
+    public static byte[] zipFileWithSignature(String fileName, String signaturePath) throws Exception {
+        byte[] innerZip = toByteArray(getResource(fileName));
+        byte[] signature = toByteArray(getResource(signaturePath));
+
+        return zipItems(
+            asList(
+                new ZipItem(ZipVerifiers.ENVELOPE, innerZip),
+                new ZipItem(ZipVerifiers.SIGNATURE, signature)
+            )
+        );
+    }
+
     private static byte[] zipItems(List<ZipItem> items) throws IOException {
         var outputStream = new ByteArrayOutputStream();
         try (var zos = new ZipOutputStream(outputStream)) {
