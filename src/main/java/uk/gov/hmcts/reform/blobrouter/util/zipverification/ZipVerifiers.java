@@ -4,11 +4,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
 
 import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
+import java.security.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,13 +26,28 @@ public class ZipVerifiers {
             signature.initVerify(publicKey);
             byte[] signatureByteArray = new byte[1024];
             try (ZipInputStream zis = zipInputStream) {
-                byte[] buffer = new byte[1024];
-                int len;
                 while (zis.available() != 0) {
                     ZipEntry zipEntry = zis.getNextEntry();
                     if (zipEntry.getName().equalsIgnoreCase(ENVELOPE)) {
-                        len = zis.read(buffer);
-                        signature.update(buffer, 0, len);
+
+                        int buff = 1024;
+                        MessageDigest hashSum = MessageDigest.getInstance("SHA-256");
+                        byte[] buffer = new byte[buff];
+                        byte[] partialHash = null;
+
+                        long read = 0;
+
+                        // calculate the hash of the hole file for the test
+                        long offset = zipEntry.getSize();
+                        int unitsize;
+                        while (read < offset) {
+                            unitsize = (int) (((offset - read) >= buff) ? buff : (offset - read));
+                            zis.read(buffer, (int)read, unitsize);
+
+                            signature.update(buffer, (int)read, unitsize);
+
+                            read += unitsize;
+                        }
                     }
                     if (zipEntry.getName().equalsIgnoreCase(SIGNATURE)) {
                         signatureByteArray = toByteArray(zis);
