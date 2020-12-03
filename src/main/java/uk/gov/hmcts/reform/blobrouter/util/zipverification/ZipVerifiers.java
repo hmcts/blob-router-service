@@ -33,17 +33,15 @@ public class ZipVerifiers {
                     if (zipEntry.getName().equalsIgnoreCase(ENVELOPE)) {
 
                         int bufferSize = 1024;
-                        int offset = 0;
                         while (zis.available() != 0) {
                             byte[] envelopeData = new byte[bufferSize];
-                            int numBytesRead = zis.readNBytes(envelopeData, offset, bufferSize);
-                            signature.update(envelopeData, offset, numBytesRead);
+                            int numBytesRead = zis.readNBytes(envelopeData, 0, bufferSize);
+                            signature.update(envelopeData, 0, numBytesRead);
 //                            signature.update(zis.readAllBytes()); // works
                             if (numBytesRead < bufferSize) {
                                 // we know we're at the end
                                 break;
                             }
-                            offset += bufferSize;
                         }
                     } else if (zipEntry.getName().equalsIgnoreCase(SIGNATURE)) {
                         signatureByteArray = toByteArray(zis);
