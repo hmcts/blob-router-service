@@ -36,8 +36,9 @@ public class ZipVerifiers {
                         int offset = 0;
                         while (zis.available() != 0) {
                             byte[] envelopeData = new byte[bufferSize];
-                            int numBytesRead = zis.read(envelopeData, offset, bufferSize);
+                            int numBytesRead = zis.readNBytes(envelopeData, offset, bufferSize);
                             signature.update(envelopeData, offset, numBytesRead);
+//                            signature.update(zis.readAllBytes()); // works
                             if (numBytesRead < bufferSize) {
                                 // we know we're at the end
                                 break;
