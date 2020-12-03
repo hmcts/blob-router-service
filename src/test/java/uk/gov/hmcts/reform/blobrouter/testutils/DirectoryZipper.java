@@ -48,6 +48,9 @@ public final class DirectoryZipper {
     }
 
     public static byte[] zipFileWithSignature(String fileName, String signaturePath) throws Exception {
+        File innerFile = new File(getResource(fileName).getPath());
+        new ZipItem(innerFile.getName(), getFileBytes(innerFile));
+
         byte[] innerZip = toByteArray(getResource(fileName));
         byte[] signature = toByteArray(getResource(signaturePath));
 

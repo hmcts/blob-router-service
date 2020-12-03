@@ -39,34 +39,25 @@ class ZipVerifiersTest {
         invalidPublicKey = loadPublicKey("signature/invalid_test_public_key.der");
     }
 
-    @Test
-    void should_verify_signed_file_successfully() throws Exception {
-        byte[] zipBytes = zipFileWithSignature("test.pdf", "signature/test.pdf.sig");
-
-        assertThatCode(() ->
-            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
-        ).doesNotThrowAnyException();
-    }
-
-    @Test
-    void should_not_verify_other_file_successfully() throws Exception {
-        byte[] zipBytes = zipFileWithSignature("test1.pdf", "signature/test.pdf.sig");
-        assertThatThrownBy(() ->
-            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
-        )
-            .isInstanceOf(DocSignatureFailureException.class)
-            .hasMessage("Zip signature failed verification");
-    }
-
-//    @Test
-//    void should_verify_2_valid_filenames_successfully() {
-//        Set<String> files = Set.of(
-//            ZipVerifiers.ENVELOPE,
-//            ZipVerifiers.SIGNATURE
-//        );
+//    @Test - don't think we need to keep this
+//    void should_verify_signed_file_successfully() throws Exception {
+//        byte[] zipBytes = zipFileWithSignature("test.pdf", "signature/test.pdf.sig");
 //
-//        assertThatCode(() -> ZipVerifiers.verifyFileNames(files)).doesNotThrowAnyException();
+//        assertThatCode(() ->
+//            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
+//        ).doesNotThrowAnyException();
 //    }
+//
+//    @Test - don't think we need to keep this
+//    void should_not_verify_other_file_successfully() throws Exception {
+//        byte[] zipBytes = zipFileWithSignature("test1.pdf", "signature/test.pdf.sig");
+//        assertThatThrownBy(() ->
+//            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
+//        )
+//            .isInstanceOf(DocSignatureFailureException.class)
+//            .hasMessage("Zip signature failed verification");
+//    }
+
 
 //    @Test
 //    void should_not_verify_more_than_2_files_successfully() {
@@ -76,7 +67,7 @@ class ZipVerifiersTest {
 //            "signature2"
 //        );
 //
-//        assertThatThrownBy(() -> ZipVerifiers.verifyFileNames(files))
+//        assertThatThrownBy(() -> ZipVerifiers.verifyZip(files))
 //            .isInstanceOf(InvalidZipArchiveException.class)
 //            .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
 //    }
@@ -92,14 +83,16 @@ class ZipVerifiersTest {
 //            .isInstanceOf(InvalidZipArchiveException.class)
 //            .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
 //    }
-/*
+
     @Test
     void should_verify_valid_zip_successfully() throws Exception {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
-        var zis = ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey);
-        assertThat(zis).isNotNull();
-    }
 
+        assertThatCode(() ->
+            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
+        ).doesNotThrowAnyException();
+    }
+/*
     @Test
     void should_not_verify_invalid_zip_successfully() throws Exception {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");

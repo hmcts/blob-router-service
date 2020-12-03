@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.util.zipverification;
 
 import uk.gov.hmcts.reform.blobrouter.exceptions.DocSignatureFailureException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
 
 import java.io.IOException;
@@ -26,31 +27,27 @@ public class ZipVerifiers {
             signature.initVerify(publicKey);
             byte[] signatureByteArray = new byte[1024];
             try (ZipInputStream zis = zipInputStream) {
-                while (zis.available() != 0) {
-                    ZipEntry zipEntry = zis.getNextEntry();
+                ZipEntry zipEntry;
+                while ((zipEntry = zis.getNextEntry()) != null) {
+
                     if (zipEntry.getName().equalsIgnoreCase(ENVELOPE)) {
 
-                        int buff = 1024;
-                        MessageDigest hashSum = MessageDigest.getInstance("SHA-256");
-                        byte[] buffer = new byte[buff];
-                        byte[] partialHash = null;
-
-                        long read = 0;
-
-                        // calculate the hash of the hole file for the test
-                        long offset = zipEntry.getSize();
-                        int unitsize;
-                        while (read < offset) {
-                            unitsize = (int) (((offset - read) >= buff) ? buff : (offset - read));
-                            zis.read(buffer, (int)read, unitsize);
-
-                            signature.update(buffer, (int)read, unitsize);
-
-                            read += unitsize;
+                        int bufferSize = 1024;
+                        int offset = 0;
+                        while (zis.available() != 0) {
+                            byte[] envelopeData = new byte[bufferSize];
+                            int numBytesRead = zis.read(envelopeData, offset, bufferSize);
+                            signature.update(envelopeData, offset, numBytesRead);
+                            if (numBytesRead < bufferSize) {
+                                // we know we're at the end
+                                break;
+                            }
+                            offset += bufferSize;
                         }
-                    }
-                    if (zipEntry.getName().equalsIgnoreCase(SIGNATURE)) {
+                    } else if (zipEntry.getName().equalsIgnoreCase(SIGNATURE)) {
                         signatureByteArray = toByteArray(zis);
+                    } else {
+                        throw new InvalidZipArchiveException("Zip entries do not match expected file names. Found file named " + zipEntry.getName());
                     }
                 }
             } catch (IOException e) {
