@@ -51,7 +51,8 @@ class ZipVerifiersTest {
         });
 
         assertThatThrownBy(() ->
-                               ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey))
+            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
+        )
             .isInstanceOf(InvalidZipArchiveException.class);
     }
 
@@ -69,7 +70,8 @@ class ZipVerifiersTest {
         });
 
         assertThatThrownBy(() ->
-                               ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey))
+            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
+        )
             .isInstanceOf(InvalidZipArchiveException.class)
             .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
     }
