@@ -25,34 +25,32 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static void verifyZip(ZipInputStream zis, PublicKey publicKey) {
+    public static void verifyZip(ZipInputStream zis, PublicKey publicKey) throws IOException {
         try {
 
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initVerify(publicKey);
             byte[] signatureByteArray = null;
-            try {
-                ZipEntry zipEntry;
-                while ((zipEntry = zis.getNextEntry()) != null) {
 
-                    if (zipEntry.getName().equalsIgnoreCase(ENVELOPE)) {
+            ZipEntry zipEntry;
+            while ((zipEntry = zis.getNextEntry()) != null) {
 
-                        while (zis.available() != 0) {
-                            byte[] envelopeData = new byte[BUFFER_SIZE];
-                            int numBytesRead = zis.readNBytes(envelopeData, 0, BUFFER_SIZE);
-                            signature.update(envelopeData, 0, numBytesRead);
-                        }
-                    } else if (zipEntry.getName().equalsIgnoreCase(SIGNATURE)) {
-                        signatureByteArray = zis.readAllBytes();
-                    } else {
-                        throw new InvalidZipArchiveException(
-                            "Zip entries do not match expected file names. Found file named " + zipEntry.getName()
-                        );
+                if (zipEntry.getName().equalsIgnoreCase(ENVELOPE)) {
+
+                    while (zis.available() != 0) {
+                        byte[] envelopeData = new byte[BUFFER_SIZE];
+                        int numBytesRead = zis.readNBytes(envelopeData, 0, BUFFER_SIZE);
+                        signature.update(envelopeData, 0, numBytesRead);
                     }
+                } else if (zipEntry.getName().equalsIgnoreCase(SIGNATURE)) {
+                    signatureByteArray = zis.readAllBytes();
+                } else {
+                    throw new InvalidZipArchiveException(
+                        "Zip entries do not match expected file names. Found file named " + zipEntry.getName()
+                    );
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+            
             if (Objects.isNull(signatureByteArray)) {
                 throw new InvalidZipArchiveException(
                     "Invalid zip archive"
