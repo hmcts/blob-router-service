@@ -41,6 +41,21 @@ class ZipVerifiersTest {
     }
 
     @Test
+    void should_not_verify_envelope_without_signature() throws Exception {
+        byte[] innerZip = zipDir("signature/sample_valid_content");
+
+        byte[] zipBytes = zipFiles(new HashMap<String, byte[]>() {
+            {
+                put(ZipVerifiers.ENVELOPE, innerZip);
+            }
+        });
+
+        assertThatThrownBy(() ->
+                               ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey))
+            .isInstanceOf(InvalidZipArchiveException.class);
+    }
+
+    @Test
     void should_not_verify_more_than_2_files_successfully() throws Exception {
         byte[] innerZip = zipDir("signature/sample_valid_content");
         byte[] signature = signWithSha256Rsa(innerZip, toByteArray(getResource("signature/test_private_key.der")));
@@ -54,7 +69,7 @@ class ZipVerifiersTest {
         });
 
         assertThatThrownBy(() ->
-            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey))
+                               ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey))
             .isInstanceOf(InvalidZipArchiveException.class)
             .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
     }

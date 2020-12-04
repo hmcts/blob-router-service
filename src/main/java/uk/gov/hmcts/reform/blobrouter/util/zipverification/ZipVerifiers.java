@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -24,12 +25,13 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static void verifyZip(ZipInputStream zipInputStream, PublicKey publicKey) throws IOException {
+    public static void verifyZip(ZipInputStream zis, PublicKey publicKey) {
         try {
+
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initVerify(publicKey);
             byte[] signatureByteArray = null;
-            try (ZipInputStream zis = zipInputStream) {
+            try {
                 ZipEntry zipEntry;
                 while ((zipEntry = zis.getNextEntry()) != null) {
 
@@ -51,6 +53,11 @@ public class ZipVerifiers {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            if (Objects.isNull(signatureByteArray)) {
+                throw new InvalidZipArchiveException(
+                    "Invalid zip archive"
+                );
+            }
             if (!signature.verify(signatureByteArray)) {
                 throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE);
             }
@@ -58,8 +65,6 @@ public class ZipVerifiers {
             throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE, e);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new SignatureValidationException(e);
-        } catch (NullPointerException e) {
-            throw new IOException(e);
         }
     }
 }
