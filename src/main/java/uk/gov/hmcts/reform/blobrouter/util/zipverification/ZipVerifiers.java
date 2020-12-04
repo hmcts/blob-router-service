@@ -5,7 +5,11 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.SignatureValidationException;
 
 import java.io.IOException;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -20,7 +24,7 @@ public class ZipVerifiers {
     private ZipVerifiers() {
     }
 
-    public static void verifyZip(ZipInputStream zipInputStream, PublicKey publicKey) {
+    public static void verifyZip(ZipInputStream zipInputStream, PublicKey publicKey) throws IOException {
         try {
             Signature signature = Signature.getInstance("SHA256withRSA");
             signature.initVerify(publicKey);
@@ -39,7 +43,9 @@ public class ZipVerifiers {
                     } else if (zipEntry.getName().equalsIgnoreCase(SIGNATURE)) {
                         signatureByteArray = zis.readAllBytes();
                     } else {
-                        throw new InvalidZipArchiveException("Zip entries do not match expected file names. Found file named " + zipEntry.getName());
+                        throw new InvalidZipArchiveException(
+                            "Zip entries do not match expected file names. Found file named " + zipEntry.getName()
+                        );
                     }
                 }
             } catch (IOException e) {
@@ -52,6 +58,8 @@ public class ZipVerifiers {
             throw new DocSignatureFailureException(INVALID_SIGNATURE_MESSAGE, e);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             throw new SignatureValidationException(e);
+        } catch (NullPointerException e) {
+            throw new IOException(e);
         }
     }
 }
