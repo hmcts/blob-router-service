@@ -62,6 +62,14 @@ public final class DirectoryZipper {
         );
     }
 
+    public static byte[] zipFiles(List<String> resources) {
+        return zipItems(
+            Stream.of(new File(getResource(dirName).getPath()).listFiles())
+                .map(f -> new ZipItem(f.getName(), getFileBytes(f)))
+                .collect(toList())
+        );
+    }
+
     private static byte[] zipItems(List<ZipItem> items) throws IOException {
         var outputStream = new ByteArrayOutputStream();
         try (var zos = new ZipOutputStream(outputStream)) {

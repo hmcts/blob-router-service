@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,38 +41,29 @@ class ZipVerifiersTest {
         invalidPublicKey = loadPublicKey("signature/invalid_test_public_key.der");
     }
 
-//    @Test - don't think we need to keep this
-//    void should_verify_signed_file_successfully() throws Exception {
-//        byte[] zipBytes = zipFileWithSignature("test.pdf", "signature/test.pdf.sig");
-//
-//        assertThatCode(() ->
-//            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
-//        ).doesNotThrowAnyException();
-//    }
-//
-//    @Test - don't think we need to keep this
-//    void should_not_verify_other_file_successfully() throws Exception {
-//        byte[] zipBytes = zipFileWithSignature("test1.pdf", "signature/test.pdf.sig");
-//        assertThatThrownBy(() ->
-//            ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey)
-//        )
-//            .isInstanceOf(DocSignatureFailureException.class)
-//            .hasMessage("Zip signature failed verification");
-//    }
+    @Test
+    void should_not_verify_more_than_2_files_successfully() throws IOException {
+        Set<String> files = Set.of(
+            ZipVerifiers.ENVELOPE,
+            ZipVerifiers.SIGNATURE,
+            "signature2"
+        );
+
+        zipItems(
+            asList(
+                new ZipItem(ZipVerifiers.ENVELOPE, zipDir("signature/sample_valid_content")),
+                new ZipItem(ZipVerifiers.SIGNATURE, signature),
+                new ZipItem("signature2", signature)
+            )
+        );
+
+        byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
 
 
-//    @Test
-//    void should_not_verify_more_than_2_files_successfully() {
-//        Set<String> files = Set.of(
-//            ZipVerifiers.ENVELOPE,
-//            ZipVerifiers.SIGNATURE,
-//            "signature2"
-//        );
-//
-//        assertThatThrownBy(() -> ZipVerifiers.verifyZip(files))
-//            .isInstanceOf(InvalidZipArchiveException.class)
-//            .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
-//    }
+        assertThatThrownBy(() -> ZipVerifiers.verifyZip(new ZipInputStream(new ByteArrayInputStream(zipBytes)), publicKey))
+            .isInstanceOf(InvalidZipArchiveException.class)
+            .hasMessageContaining(INVALID_ZIP_ENTRIES_MESSAGE);
+    }
 
 //    @Test
 //    void should_not_verify_invalid_filenames_successfully() {
@@ -102,30 +95,6 @@ class ZipVerifiersTest {
         );
     }
 /*
-    @Test
-    void should_verify_valid_test_zip_successfully() throws Exception {
-        byte[] zipBytes = zipDir("signature/sample_valid_content");
-        byte[] signature = signWithSha256Rsa(
-            zipBytes,
-            toByteArray(getResource("signature/test_private_key.der"))
-        );
-
-        assertThatCode(() ->
-            ZipVerifiers.verifySignature(publicKey, zipBytes, signature)
-        ).doesNotThrowAnyException();
-    }
-
-    @Test
-    void should_not_verify_invalid_signature_successfully() throws Exception {
-        byte[] zipBytes = zipDir("signature/sample_valid_content");
-        byte[] otherSignature = toByteArray(getResource("signature/signature"));
-
-        assertThatThrownBy(() ->
-            ZipVerifiers.verifySignature(invalidPublicKey, zipBytes, otherSignature)
-        )
-            .isInstanceOf(DocSignatureFailureException.class)
-            .hasMessage(INVALID_SIGNATURE_MESSAGE);
-    }
 
     @Test
     void should_not_verify_valid_zip_with_wrong_public_key_successfully() throws Exception {
