@@ -198,7 +198,7 @@ ext["rest-assured.version"] = '4.1.2'
 
 dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.1.4'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.3.1'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.16.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.16.0'
