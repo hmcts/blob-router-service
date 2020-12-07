@@ -44,4 +44,12 @@
     <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat\-embed\-websocket@.*$</packageUrl>
     <cve>CVE-2020-13943</cve>
   </suppress>
+
+  <suppress until="2021-02-01">
+    <notes><![CDATA[
+   file name: httpclient-4.5.12.jar
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpclient@.*$</packageUrl>
+    <cve>CVE-2020-13956</cve>
+  </suppress>
 </suppressions>
