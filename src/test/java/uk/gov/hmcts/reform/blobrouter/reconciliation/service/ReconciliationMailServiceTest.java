@@ -48,7 +48,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 
-
 @ExtendWith(MockitoExtension.class)
 class ReconciliationMailServiceTest {
 
@@ -414,8 +413,9 @@ class ReconciliationMailServiceTest {
     @ParameterizedTest
     @MethodSource("summaryReportTest")
     void should_send_summary_report_mail_when_reconciliation_report_has_just_summary_report(
-        TargetStorageAccount account, ReconciliationReport reconciliationReport,
-        SummaryReport summaryReport, String title
+        TargetStorageAccount account,
+        ReconciliationReport reconciliationReport,
+        SummaryReport summaryReport
     ) throws IOException, SendEmailException {
         // given
         LocalDate date = LocalDate.now();
@@ -464,8 +464,7 @@ class ReconciliationMailServiceTest {
                     null,
                     LocalDateTime.now()
                 ),
-                mock(SummaryReport.class),
-                "CFT Scanning Reconciliation NO ERROR"
+                mock(SummaryReport.class)
             },
             new Object[]{
                 CRIME,
@@ -484,8 +483,7 @@ class ReconciliationMailServiceTest {
                     120,
                     List.of(new SummaryReportItem("12312.31312.312.zip", "crime")),
                     emptyList()
-                ),
-                "CRIME Scanning Reconciliation MISMATCH"
+                )
             },
             new Object[]{
                 CRIME,
@@ -504,8 +502,7 @@ class ReconciliationMailServiceTest {
                     120,
                     emptyList(),
                     List.of(new SummaryReportItem("2.31312.312.zip", "crime"))
-                ),
-                "CRIME Scanning Reconciliation MISMATCH"
+                )
             }
         };
     }

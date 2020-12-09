@@ -49,27 +49,28 @@ public class ReconciliationSender {
     ) throws IOException, SendEmailException {
         Map<String, File> attachments = new HashMap<>();
 
-            File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
+        File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
+        attachments.put(
+            getReportAttachmentName(ATTACHMENT_SUMMARY_PREFIX, date),
+            file
+        );
+
+        if (detailedReport != null) {
+            File detailedReportFile = reconciliationCsvWriter
+                .writeDetailedReconciliationToCsv(detailedReport);
             attachments.put(
-                getReportAttachmentName(ATTACHMENT_SUMMARY_PREFIX, date),
-                file
+                getReportAttachmentName(ATTACHMENT_DETAILED_PREFIX, date),
+                detailedReportFile
             );
+        }
 
-            if (detailedReport != null) {
-                File detailedReportFile = reconciliationCsvWriter
-                    .writeDetailedReconciliationToCsv(detailedReport);
-                attachments.put(
-                    getReportAttachmentName(ATTACHMENT_DETAILED_PREFIX, date),
-                    detailedReportFile);
-            }
-
-            emailSender.sendMessageWithAttachments(
-                createTitle(account, summaryReport, detailedReport),
-                "",
-                mailFrom,
-                mailRecipients,
-                attachments
-            );
+        emailSender.sendMessageWithAttachments(
+            createTitle(account, summaryReport, detailedReport),
+            "",
+            mailFrom,
+            mailRecipients,
+            attachments
+        );
     }
 
     private String createTitle(
