@@ -32,8 +32,7 @@ class ReconciliationSenderTest {
             emailSender,
             reconciliationCsvWriter,
             mailFrom,
-            mailRecipients,
-            skipEmptyReports
+            mailRecipients
         );
     }
 }
