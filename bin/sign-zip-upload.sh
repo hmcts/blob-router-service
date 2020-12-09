@@ -91,7 +91,7 @@ rm ${SIGNATURE_FILE_NAME}
 
 echo "Uploading $ZIP_FILE_NAME to blob storage..."
 
-UPLOAD_COMMAND=`curl -i -X PUT --upload-file "$ZIP_FILE_NAME" -H "x-ms-date: $(date -u)" -H "x-ms-blob-type: BlockBlob" -H "Content-Type: application/octet-stream" "http://reformscan$ENVI.blob.core.windows.net/$CONTAINER/$ZIP_FILE_NAME?$SAS_TOKEN"`
+UPLOAD_COMMAND=`curl -i -X PUT --upload-file "$ZIP_FILE_NAME" -H "x-ms-date: $(date -u)" -H "x-ms-blob-type: BlockBlob" -H "Content-Type: application/octet-stream" "https://reformscan.$ENVI.platform.hmcts.net/$CONTAINER/$ZIP_FILE_NAME?$SAS_TOKEN"`
 
 if [[ ${UPLOAD_COMMAND} == *"201 Created"* ]]; then
   echo "Uploaded $ZIP_FILE_NAME to blob storage"
