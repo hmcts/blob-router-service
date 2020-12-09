@@ -57,6 +57,8 @@ public class ReconciliationSender {
     ) throws IOException, SendEmailException {
         Map<String, File> attachments = new HashMap<>();
 
+        logger.info("Sending email with reconciliation report for {}, {}", account, date);
+
         if (willReportsBeAttached(summaryReport, detailedReport)) {
             File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
             attachments.put(
@@ -80,8 +82,15 @@ public class ReconciliationSender {
                 mailRecipients,
                 attachments
             );
+
+            logger.info("Email with reconciliation report has been sent for {}, {}", account, date);
         } else {
-            logger.info("");
+            logger.info(
+                "Email with reconciliation report has not been sent for {}, {} "
+                            + "because there are no discrepancies",
+                        account,
+                        date
+            );
         }
     }
 
