@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -17,19 +16,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
 @Component
 public class ReconciliationSender {
-
-    private static final Logger logger = getLogger(ReconciliationSender.class);
 
     private final MessageSender emailSender;
 
     private final ReconciliationCsvWriter reconciliationCsvWriter;
     private final String mailFrom;
     private final String[] mailRecipients;
-    private final boolean skipEmptyReports;
 
     private static final String ATTACHMENT_SUMMARY_PREFIX = "Summary-Report-";
     private static final String ATTACHMENT_DETAILED_PREFIX = "Detailed-report-";
@@ -39,14 +33,12 @@ public class ReconciliationSender {
         MessageSender emailSender,
         ReconciliationCsvWriter reconciliationCsvWriter,
         @Value("${reconciliation.report.mail-from}") String mailFrom,
-        @Value("${reconciliation.report.mail-recipients}") String[] mailRecipients,
-        @Value("${reconciliation.report.skip-empty}") boolean skipEmptyReports
+        @Value("${reconciliation.report.mail-recipients}") String[] mailRecipients
     ) {
         this.emailSender = emailSender;
         this.reconciliationCsvWriter = reconciliationCsvWriter;
         this.mailFrom = mailFrom;
         this.mailRecipients = mailRecipients;
-        this.skipEmptyReports = skipEmptyReports;
     }
 
     public void sendReconciliationReport(
@@ -57,7 +49,6 @@ public class ReconciliationSender {
     ) throws IOException, SendEmailException {
         Map<String, File> attachments = new HashMap<>();
 
-        if (willReportsBeAttached(summaryReport, detailedReport)) {
             File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
             attachments.put(
                 getReportAttachmentName(ATTACHMENT_SUMMARY_PREFIX, date),
@@ -79,20 +70,6 @@ public class ReconciliationSender {
                 mailRecipients,
                 attachments
             );
-        } else {
-            logger.info("");
-        }
-    }
-
-    private boolean willReportsBeAttached(SummaryReport summaryReport, ReconciliationReportResponse detailedReport) {
-        return !skipEmptyReports
-            || !CollectionUtils.isEmpty(summaryReport.receivedButNotReported)
-            || !CollectionUtils.isEmpty(summaryReport.reportedButNotReceived)
-            || isDetailedReportNotNullOrEmpty(detailedReport);
-    }
-
-    private boolean isDetailedReportNotNullOrEmpty(ReconciliationReportResponse detailedReport) {
-        return detailedReport != null && !CollectionUtils.isEmpty(detailedReport.items);
     }
 
     private String createTitle(
