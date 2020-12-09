@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,13 +21,11 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReportItem;
 import uk.gov.hmcts.reform.blobrouter.services.email.EmailSender;
 import uk.gov.hmcts.reform.blobrouter.services.email.SendEmailException;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,10 +34,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNotNull;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
@@ -56,7 +59,7 @@ class ReconciliationMailServiceTest {
     private ReconciliationReportRepository reconciliationReportRepository;
 
     @Mock
-    private ReconciliationCsvWriter reconciliationCsvWriter;
+    private ReconciliationSender reconciliationSender;
 
     @Mock
     private EmailSender emailSender;
@@ -79,9 +82,9 @@ class ReconciliationMailServiceTest {
         service = new ReconciliationMailService(
             repository,
             reconciliationReportRepository,
-            reconciliationCsvWriter,
             emailSender,
             objectMapper,
+            reconciliationSender,
             mailFrom,
             mailRecipients
         );
@@ -140,12 +143,11 @@ class ReconciliationMailServiceTest {
 
         var accounts = accountCaptor.getAllValues();
         assertThat(accounts).containsAll(List.of(CFT.name(), CRIME.name()));
-        verifyNoMoreInteractions(emailSender);
+        verifyNoInteractions(emailSender);
     }
 
     @Test
-    void should_continue_with_next_account_if_one_gets_exception()
-        throws JsonProcessingException, SendEmailException {
+    void should_continue_with_next_account_if_one_gets_exception() throws Exception {
 
         // given
         LocalDate date = LocalDate.now();
@@ -170,8 +172,9 @@ class ReconciliationMailServiceTest {
             .willReturn(Optional.of(reconciliationReport));
 
 
+        final SummaryReport summaryReport = mock(SummaryReport.class);
         given(objectMapper.readValue(reconciliationReport.summaryContent, SummaryReport.class))
-            .willReturn(mock(SummaryReport.class));
+            .willReturn(summaryReport);
 
         // when
         service.process(date, AVAILABLE_ACCOUNTS);
@@ -186,10 +189,168 @@ class ReconciliationMailServiceTest {
 
         var accounts = accountCaptor.getAllValues();
         assertThat(accounts).containsAll(List.of(CFT.name(), CRIME.name()));
-        verify(emailSender, times(1))
-            .sendMessageWithAttachments(anyString(), anyString(),anyString(), any(), any());
-        verifyNoMoreInteractions(emailSender);
+        verify(reconciliationSender, times(1))
+            .sendReconciliationReport(
+                any(LocalDate.class),
+                eq(CRIME),
+                eq(summaryReport),
+                nullable(ReconciliationReportResponse.class)
+            );
+        verifyNoMoreInteractions(reconciliationSender);
+        verifyNoInteractions(emailSender);
         verify(reconciliationReportRepository).updateSentAt(reconciliationReport.id);
+        verifyNoMoreInteractions(reconciliationReportRepository);
+    }
+
+    @Test
+    void should_continue_with_next_account_if_reconciliation_sender_throws() throws Exception {
+
+        // given
+        LocalDate date = LocalDate.now();
+        given(repository.findLatest(date))
+            .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
+
+        var reconciliationReportCft = new ReconciliationReport(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "CFT",
+            "{}",
+            "{\"a\":1}",
+            "1.0",
+            null,
+            LocalDateTime.now()
+        );
+        var reconciliationReportCrime = new ReconciliationReport(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "CRIME",
+            "{}",
+            "{\"a\":1}",
+            "1.0",
+            null,
+            LocalDateTime.now()
+        );
+
+        given(reconciliationReportRepository.getLatestReconciliationReport(date, CFT.name()))
+            .willReturn(Optional.of(reconciliationReportCft));
+        given(reconciliationReportRepository.getLatestReconciliationReport(date, CRIME.name()))
+            .willReturn(Optional.of(reconciliationReportCrime));
+
+        final SummaryReport summaryReportCft = mock(SummaryReport.class);
+        given(objectMapper.readValue(reconciliationReportCft.summaryContent, SummaryReport.class))
+            .willReturn(summaryReportCft);
+        final SummaryReport summaryReportCrime = mock(SummaryReport.class);
+        given(objectMapper.readValue(reconciliationReportCrime.summaryContent, SummaryReport.class))
+            .willReturn(summaryReportCrime);
+
+        willThrow(new SendEmailException("msg", new Exception()))
+            .given(reconciliationSender)
+            .sendReconciliationReport(
+                date,
+                CFT,
+                summaryReportCft,
+                null
+            );
+        willDoNothing()
+            .given(reconciliationSender)
+            .sendReconciliationReport(
+                date,
+                CRIME,
+                summaryReportCrime,
+                null
+            );
+
+        // when
+        service.process(date, AVAILABLE_ACCOUNTS);
+
+        // then
+        verify(repository).findLatest(date);
+        verifyNoMoreInteractions(repository);
+        ArgumentCaptor<String> accountCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(reconciliationReportRepository, times(2))
+            .getLatestReconciliationReport(eq(date), accountCaptor.capture());
+
+        var accounts = accountCaptor.getAllValues();
+        assertThat(accounts).containsAll(List.of(CFT.name(), CRIME.name()));
+        verify(reconciliationSender, times(2))
+            .sendReconciliationReport(
+                any(LocalDate.class),
+                any(TargetStorageAccount.class),
+                any(SummaryReport.class),
+                nullable(ReconciliationReportResponse.class)
+            );
+        verifyNoMoreInteractions(reconciliationSender);
+        verifyNoInteractions(emailSender);
+        verify(reconciliationReportRepository, times(1)).updateSentAt(reconciliationReportCrime.id);
+        verifyNoMoreInteractions(reconciliationReportRepository);
+    }
+
+    @Test
+    void should_process_multiple_accounts() throws Exception {
+
+        // given
+        LocalDate date = LocalDate.now();
+        given(repository.findLatest(date))
+            .willReturn(Optional.of(mock(EnvelopeSupplierStatement.class)));
+
+        var reconciliationReportCft = new ReconciliationReport(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "CFT",
+            "{}",
+            "{\"a\":1}",
+            "1.0",
+            null,
+            LocalDateTime.now()
+        );
+        var reconciliationReportCrime = new ReconciliationReport(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "CRIME",
+            "{}",
+            "{\"a\":1}",
+            "1.0",
+            null,
+            LocalDateTime.now()
+        );
+
+        given(reconciliationReportRepository.getLatestReconciliationReport(date, CFT.name()))
+            .willReturn(Optional.of(reconciliationReportCft));
+        given(reconciliationReportRepository.getLatestReconciliationReport(date, CRIME.name()))
+            .willReturn(Optional.of(reconciliationReportCrime));
+
+        final SummaryReport summaryReportCft = mock(SummaryReport.class);
+        given(objectMapper.readValue(reconciliationReportCft.summaryContent, SummaryReport.class))
+            .willReturn(summaryReportCft);
+        final SummaryReport summaryReportCrime = mock(SummaryReport.class);
+        given(objectMapper.readValue(reconciliationReportCrime.summaryContent, SummaryReport.class))
+            .willReturn(summaryReportCrime);
+
+        // when
+        service.process(date, AVAILABLE_ACCOUNTS);
+
+        // then
+        verify(repository).findLatest(date);
+        verifyNoMoreInteractions(repository);
+        ArgumentCaptor<String> accountCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(reconciliationReportRepository, times(2))
+            .getLatestReconciliationReport(eq(date), accountCaptor.capture());
+
+        var accounts = accountCaptor.getAllValues();
+        assertThat(accounts).containsAll(List.of(CFT.name(), CRIME.name()));
+        verify(reconciliationSender, times(2))
+            .sendReconciliationReport(
+                any(LocalDate.class),
+                any(TargetStorageAccount.class),
+                any(SummaryReport.class),
+                nullable(ReconciliationReportResponse.class)
+            );
+        verifyNoMoreInteractions(reconciliationSender);
+        verifyNoInteractions(emailSender);
+        verify(reconciliationReportRepository).updateSentAt(reconciliationReportCft.id);
+        verify(reconciliationReportRepository).updateSentAt(reconciliationReportCrime.id);
         verifyNoMoreInteractions(reconciliationReportRepository);
     }
 
@@ -215,7 +376,7 @@ class ReconciliationMailServiceTest {
 
         var accounts = accountCaptor.getAllValues();
         assertThat(accounts).containsAll(List.of(CFT.name(), CRIME.name()));
-        verifyNoMoreInteractions(emailSender);
+        verifyNoInteractions(emailSender);
     }
 
     @Test
@@ -247,7 +408,7 @@ class ReconciliationMailServiceTest {
         verifyNoMoreInteractions(repository);
         verify(reconciliationReportRepository, times(1))
             .getLatestReconciliationReport(eq(date), eq(CFT.name()));
-        verifyNoMoreInteractions(emailSender);
+        verifyNoInteractions(emailSender);
     }
 
     @ParameterizedTest
@@ -267,10 +428,6 @@ class ReconciliationMailServiceTest {
         given(objectMapper.readValue(reconciliationReport.summaryContent, SummaryReport.class))
             .willReturn(summaryReport);
 
-        var summaryReportFile = mock(File.class);
-        given(reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport))
-            .willReturn(summaryReportFile);
-
         // when
         service.process(date, List.of(account));
 
@@ -281,15 +438,15 @@ class ReconciliationMailServiceTest {
             .getLatestReconciliationReport(eq(date), eq(account.name()));
         verify(objectMapper).readValue(anyString(), eq(SummaryReport.class));
         verifyNoMoreInteractions(objectMapper);
-        verify(emailSender, times(1))
-            .sendMessageWithAttachments(
-                eq(title),
-                eq(""),
-                eq(mailFrom),
-                eq(mailRecipients),
-                eq(Map.of("Summary-Report-" + date + ".csv", summaryReportFile))
+        verify(reconciliationSender, times(1))
+            .sendReconciliationReport(
+                any(LocalDate.class),
+                any(TargetStorageAccount.class),
+                any(SummaryReport.class),
+                isNull()
             );
-        verifyNoMoreInteractions(emailSender);
+        verifyNoMoreInteractions(reconciliationSender);
+        verifyNoInteractions(emailSender);
         verify(reconciliationReportRepository).updateSentAt(reconciliationReport.id);
     }
 
@@ -384,14 +541,6 @@ class ReconciliationMailServiceTest {
         given(objectMapper.readValue(reconciliationReport.detailedContent, ReconciliationReportResponse.class))
             .willReturn(detailedReport);
 
-        var summaryReportFile = mock(File.class);
-        given(reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport))
-            .willReturn(summaryReportFile);
-
-        var detailedReportFile = mock(File.class);
-        given(reconciliationCsvWriter.writeDetailedReconciliationToCsv(detailedReport))
-            .willReturn(detailedReportFile);
-
         // when
         service.process(date, List.of(CFT));
 
@@ -403,20 +552,14 @@ class ReconciliationMailServiceTest {
         verify(objectMapper).readValue(anyString(), eq(SummaryReport.class));
         verify(objectMapper).readValue(anyString(), eq(ReconciliationReportResponse.class));
         verifyNoMoreInteractions(objectMapper);
-        verify(emailSender, times(1))
-            .sendMessageWithAttachments(
-                eq("CFT Scanning Reconciliation MISMATCH"),
-                eq(""),
-                eq(mailFrom),
-                eq(mailRecipients),
-                eq(Map.of(
-                    "Summary-Report-" + date + ".csv", summaryReportFile,
-                    "Detailed-report-" + date + ".csv", detailedReportFile
-                    )
-                )
+        verify(reconciliationSender, times(1))
+            .sendReconciliationReport(
+                any(LocalDate.class),
+                any(TargetStorageAccount.class),
+                any(SummaryReport.class),
+                isNotNull()
             );
         verifyNoMoreInteractions(emailSender);
         verify(reconciliationReportRepository).updateSentAt(reconciliationReport.id);
     }
-
 }
