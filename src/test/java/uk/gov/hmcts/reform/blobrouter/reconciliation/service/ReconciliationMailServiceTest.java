@@ -416,7 +416,7 @@ class ReconciliationMailServiceTest {
         TargetStorageAccount account,
         ReconciliationReport reconciliationReport,
         SummaryReport summaryReport
-    ) throws IOException, SendEmailException {
+    ) throws Exception {
         // given
         LocalDate date = LocalDate.now();
         given(repository.findLatest(date))
