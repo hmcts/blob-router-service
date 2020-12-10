@@ -87,7 +87,10 @@ withPipeline(type, product, component) {
   onPR(){
     loadVaultSecrets(smokeTestSecrets)
   }
-
+  
+  def branchesToSync = ['demo', 'perftest']
+  syncBranchesWithMaster(branchesToSync)
+  
   // Vars needed for smoke / functional testing
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://reformscanaatstaging.blob.core.windows.net'
