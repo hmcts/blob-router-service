@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.exception.HttpResponseException;
-import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.slf4j.Logger;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
 import java.io.ByteArrayInputStream;
-import java.time.Duration;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -23,8 +21,6 @@ public class BlobContainerClientProxy {
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
     private final SasTokenCache sasTokenCache;
-
-    private static final Duration UPLOAD_TIMEOUT = Duration.ofSeconds(40);
 
     public BlobContainerClientProxy(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
@@ -75,16 +71,9 @@ public class BlobContainerClientProxy {
             logger.info("Uploading content of blob {} to Container: {}", blobName, destinationContainer);
             uploadStartTime = System.currentTimeMillis();
             blockBlobClient
-                .uploadWithResponse(
+                .upload(
                     new ByteArrayInputStream(blobContents),
-                    blobContents.length,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    UPLOAD_TIMEOUT,
-                    Context.NONE
+                    blobContents.length
             );
 
             logger.info("Finished uploading content of blob {} to Container: {}", blobName, destinationContainer);
