@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -24,12 +23,15 @@ public class ReconciliationSender {
 
     private static final Logger logger = getLogger(ReconciliationSender.class);
 
+    private static final String NO_ERROR_SUBJECT_FORMAT = "[NO ERROR] %s Scanning Reconciliation";
+    private static final String MISMATCH_SUBJECT_FORMAT = "[MISMATCH] %s Scanning Reconciliation";
+    private static final String EMPTY_BODY = "";
+
     private final MessageSender emailSender;
 
     private final ReconciliationCsvWriter reconciliationCsvWriter;
     private final String mailFrom;
     private final String[] mailRecipients;
-    private final boolean skipEmptyReports;
 
     private static final String ATTACHMENT_SUMMARY_PREFIX = "Summary-Report-";
     private static final String ATTACHMENT_DETAILED_PREFIX = "Detailed-report-";
@@ -39,14 +41,12 @@ public class ReconciliationSender {
         MessageSender emailSender,
         ReconciliationCsvWriter reconciliationCsvWriter,
         @Value("${reconciliation.report.mail-from}") String mailFrom,
-        @Value("${reconciliation.report.mail-recipients}") String[] mailRecipients,
-        @Value("${reconciliation.report.skip-empty}") boolean skipEmptyReports
+        @Value("${reconciliation.report.mail-recipients}") String[] mailRecipients
     ) {
         this.emailSender = emailSender;
         this.reconciliationCsvWriter = reconciliationCsvWriter;
         this.mailFrom = mailFrom;
         this.mailRecipients = mailRecipients;
-        this.skipEmptyReports = skipEmptyReports;
     }
 
     public void sendReconciliationReport(
@@ -60,13 +60,15 @@ public class ReconciliationSender {
         logger.info("Sending email with reconciliation report for {}, {}", account, date);
 
         if (willReportsBeAttached(summaryReport, detailedReport)) {
-            File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
-            attachments.put(
-                getReportAttachmentName(ATTACHMENT_SUMMARY_PREFIX, date),
-                file
-            );
+            if (isSummaryReportNotEmpty(summaryReport)) {
+                File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
+                attachments.put(
+                    getReportAttachmentName(ATTACHMENT_SUMMARY_PREFIX, date),
+                    file
+                );
+            }
 
-            if (detailedReport != null) {
+            if (isDetailedReportNotNullOrEmpty(detailedReport)) {
                 File detailedReportFile = reconciliationCsvWriter
                     .writeDetailedReconciliationToCsv(detailedReport);
                 attachments.put(
@@ -76,8 +78,8 @@ public class ReconciliationSender {
             }
 
             emailSender.sendMessageWithAttachments(
-                createTitle(account, summaryReport, detailedReport),
-                "",
+                String.format(MISMATCH_SUBJECT_FORMAT, account),
+                EMPTY_BODY,
                 mailFrom,
                 mailRecipients,
                 attachments
@@ -85,6 +87,14 @@ public class ReconciliationSender {
 
             logger.info("Email with reconciliation report has been sent for {}, {}", account, date);
         } else {
+            emailSender.sendMessageWithAttachments(
+                String.format(NO_ERROR_SUBJECT_FORMAT, account),
+                EMPTY_BODY,
+                mailFrom,
+                mailRecipients,
+                attachments
+            );
+
             logger.info(
                 "Email with reconciliation report has not been sent for {}, {} "
                             + "because there are no discrepancies",
@@ -94,31 +104,18 @@ public class ReconciliationSender {
         }
     }
 
+    private boolean isSummaryReportNotEmpty(SummaryReport summaryReport) {
+        return !CollectionUtils.isEmpty(summaryReport.receivedButNotReported)
+            || !CollectionUtils.isEmpty(summaryReport.reportedButNotReceived);
+    }
+
     private boolean willReportsBeAttached(SummaryReport summaryReport, ReconciliationReportResponse detailedReport) {
-        return !skipEmptyReports
-            || !CollectionUtils.isEmpty(summaryReport.receivedButNotReported)
-            || !CollectionUtils.isEmpty(summaryReport.reportedButNotReceived)
+        return isSummaryReportNotEmpty(summaryReport)
             || isDetailedReportNotNullOrEmpty(detailedReport);
     }
 
     private boolean isDetailedReportNotNullOrEmpty(ReconciliationReportResponse detailedReport) {
         return detailedReport != null && !CollectionUtils.isEmpty(detailedReport.items);
-    }
-
-    private String createTitle(
-        TargetStorageAccount account,
-        SummaryReport summaryReport,
-        ReconciliationReportResponse detailedReport
-    ) {
-        return (CollectionUtils.isEmpty(summaryReport.receivedButNotReported)
-            && CollectionUtils.isEmpty(summaryReport.reportedButNotReceived))
-            && noMissMatchInDetailedReport(detailedReport)
-            ? account.name() + " Scanning Reconciliation NO ERROR"
-            : account.name() + " Scanning Reconciliation MISMATCH";
-    }
-
-    private boolean noMissMatchInDetailedReport(ReconciliationReportResponse detailedReport) {
-        return Objects.isNull(detailedReport) || CollectionUtils.isEmpty(detailedReport.items);
     }
 
     private String getReportAttachmentName(String attachmentPrefix, LocalDate reportDate) {

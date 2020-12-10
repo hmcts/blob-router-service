@@ -157,7 +157,6 @@ reconciliation:
   report:
       mail-from: ${SMTP_USERNAME}
       mail-recipients: ${RECONCILIATION_REPORT_RECIPIENTS}
-      skip-empty: ${RECONCILIATION_REPORT_SKIP_EMPTY:true}
 
 idam:
   s2s-auth:

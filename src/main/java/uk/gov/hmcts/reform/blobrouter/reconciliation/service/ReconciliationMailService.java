@@ -34,6 +34,10 @@ public class ReconciliationMailService {
     private final String mailFrom;
     private final String[] mailRecipients;
 
+    private static final String NO_SUPPLIER_STATEMENT_RECEIVED_SUBJECT_FORMAT = "[NO SUPPLIER STATEMENT RECEIVED] %s "
+        + "Scanning Reconciliation";
+    private static final String NO_SUPPLIER_STATEMENT_RECEIVED_BODY_FORMAT = "No supplier statement received for %s";
+
     public ReconciliationMailService(
         SupplierStatementRepository supplierStatementRepository,
         ReconciliationReportRepository reconciliationReportRepository,
@@ -141,8 +145,8 @@ public class ReconciliationMailService {
     private void sendMailNoSupplierStatement(LocalDate date, TargetStorageAccount account) {
         try {
             emailSender.sendMessageWithAttachments(
-                account.name() + " Scanning Reconciliation NO SUPPLIER STATEMENT RECEIVED",
-                "No supplier statement received for " + date,
+                String.format(NO_SUPPLIER_STATEMENT_RECEIVED_SUBJECT_FORMAT, account.name()),
+                String.format(NO_SUPPLIER_STATEMENT_RECEIVED_BODY_FORMAT, date),
                 mailFrom,
                 mailRecipients,
                 Collections.emptyMap()
