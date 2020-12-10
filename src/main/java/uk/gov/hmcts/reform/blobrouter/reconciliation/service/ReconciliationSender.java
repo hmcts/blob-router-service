@@ -59,7 +59,7 @@ public class ReconciliationSender {
 
         logger.info("Sending email with reconciliation report for {}, {}", account, date);
 
-        if (willReportsBeAttached(summaryReport, detailedReport)) {
+        if (isThereAnyDiscrepancy(summaryReport, detailedReport)) {
             if (isSummaryReportNotEmpty(summaryReport)) {
                 File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
                 attachments.put(
@@ -96,7 +96,7 @@ public class ReconciliationSender {
             );
 
             logger.info(
-                "Email with reconciliation report has not been sent for {}, {} "
+                "Email with no reconciliation report has been sent for {}, {} "
                             + "because there are no discrepancies",
                         account,
                         date
@@ -104,14 +104,17 @@ public class ReconciliationSender {
         }
     }
 
+    private boolean isThereAnyDiscrepancy(
+        SummaryReport summaryReport,
+        ReconciliationReportResponse detailedReport
+    ) {
+        return isSummaryReportNotEmpty(summaryReport)
+            || isDetailedReportNotNullOrEmpty(detailedReport);
+    }
+
     private boolean isSummaryReportNotEmpty(SummaryReport summaryReport) {
         return !CollectionUtils.isEmpty(summaryReport.receivedButNotReported)
             || !CollectionUtils.isEmpty(summaryReport.reportedButNotReceived);
-    }
-
-    private boolean willReportsBeAttached(SummaryReport summaryReport, ReconciliationReportResponse detailedReport) {
-        return isSummaryReportNotEmpty(summaryReport)
-            || isDetailedReportNotNullOrEmpty(detailedReport);
     }
 
     private boolean isDetailedReportNotNullOrEmpty(ReconciliationReportResponse detailedReport) {
