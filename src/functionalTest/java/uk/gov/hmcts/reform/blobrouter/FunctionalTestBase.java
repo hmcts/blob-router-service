@@ -35,23 +35,6 @@ public abstract class FunctionalTestBase {
         );
 
         BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder();
-
-        if (config.useProxyForSourceStorage) {
-            blobServiceClientBuilder = blobServiceClientBuilder.httpClient(
-                new NettyAsyncHttpClientBuilder()
-                    .proxy(
-                        new ProxyOptions(
-                            ProxyOptions.Type.HTTP,
-                            new InetSocketAddress(
-                                "proxyout.reform.hmcts.net",
-                                8080
-                            )
-                        )
-                    )
-                    .build()
-            );
-        }
-
         this.blobRouterStorageClient = blobServiceClientBuilder
             .credential(blobRouterStorageCredential)
             .endpoint(config.sourceStorageAccountUrl)
