@@ -59,7 +59,7 @@ public class ReconciliationSender {
 
         logger.info("Sending email with reconciliation report for {}, {}", account, date);
 
-        if (isThereAnyDiscrepancy(summaryReport, detailedReport)) {
+        if (isAnyReportNotEmpty(summaryReport, detailedReport)) {
             if (isSummaryReportNotEmpty(summaryReport)) {
                 File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
                 attachments.put(
@@ -104,7 +104,7 @@ public class ReconciliationSender {
         }
     }
 
-    private boolean isThereAnyDiscrepancy(
+    private boolean isAnyReportNotEmpty(
         SummaryReport summaryReport,
         ReconciliationReportResponse detailedReport
     ) {
