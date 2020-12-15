@@ -118,14 +118,14 @@ public class SummaryReportService {
             supplierEnvelopesMap = supplierStatement
             .envelopes
             .stream()
-            .map(e -> new SummaryReportItem(e.zipFileName, e.container))
+            .map(e -> new SummaryReportItem(e.zipFileName, e.container.toLowerCase()))
             // finding target storage name case insensitive
             .collect(groupingBy(s -> storageConfig.get(s.container.toLowerCase()).getTargetStorageAccount()));
 
         Map<TargetStorageAccount, List<SummaryReportItem>> processedEnvelopesMap =
             envelopeList
                 .stream()
-                .map(e -> new SummaryReportItem(e.fileName, e.container))
+                .map(e -> new SummaryReportItem(e.fileName, e.container.toLowerCase()))
                 .collect(groupingBy(s -> storageConfig.get(s.container).getTargetStorageAccount()));
 
         for (var targetStorage : TargetStorageAccount.values()) {
