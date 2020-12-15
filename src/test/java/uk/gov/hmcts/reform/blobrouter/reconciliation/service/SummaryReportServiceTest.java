@@ -251,19 +251,15 @@ class SummaryReportServiceTest {
         List envelopeList = Arrays.asList(
             createEnvelope("1010404021234_14-08-2020-08-31.zip", "probate"),
             createEnvelope("9810404021234_14-08-2020-03-08-31.zip", "sscs"),
-            createEnvelope("3108198112345_14-05-2020-10-11-21.zip", "crime"),
-            createEnvelope("7171711717_8-05-2020-09-08-31.zip", "pcq")
+            createEnvelope("12312.31312.312.zip", "sscs"),
+            createEnvelope("10929292923_14-05-2020-09-08-31.zip", "crime"),
+            createEnvelope("7171711717_8-05-2020-09-08-31.zip", "pcq"),
+            createEnvelope("1231122-05-2020-10-08-31.zip", "pcq")
         );
         given(envelopeService.getEnvelopes(date)).willReturn(envelopeList);
-        given(summaryReportCreator.createSummaryReport(any(), any()))
-            .willReturn(
-                new SummaryReport(
-                    120,
-                    120,
-                    List.of(new SummaryReportItem("12312.31312.312.zip", "sscs")),
-                    List.of(new SummaryReportItem("9810404021234_14-08-2020-03-08-31.zip", "cmc"))
-                )
-            );
+
+
+        given(summaryReportCreator.createSummaryReport(any(), any())).willCallRealMethod();
 
         //when
         summaryReportService.process(date);
@@ -282,7 +278,8 @@ class SummaryReportServiceTest {
             assertThat(newReconciliationReport.account).isEqualTo(targetStorageAccounts[i].name());
 
             String summaryContent = Resources.toString(
-                getResource("reconciliation/summary-report/summary-report-with-both-discrepancy.json"),
+                getResource("reconciliation/summary-report/" + targetStorageAccounts[i].name()
+                    + "-summary-report-with-both-discrepancy.json"),
                 UTF_8
             );
 
