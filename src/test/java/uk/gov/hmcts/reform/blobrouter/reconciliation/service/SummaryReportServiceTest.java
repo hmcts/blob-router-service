@@ -278,7 +278,7 @@ class SummaryReportServiceTest {
             assertThat(newReconciliationReport.account).isEqualTo(targetStorageAccounts[i].name());
 
             String summaryContent = Resources.toString(
-                getResource("reconciliation/summary-report/"+ targetStorageAccounts[i].name()
+                getResource("reconciliation/summary-report/" + targetStorageAccounts[i].name()
                     + "-summary-report-with-both-discrepancy.json"),
                 UTF_8
             );
