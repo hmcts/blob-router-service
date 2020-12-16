@@ -58,7 +58,7 @@ public class ReconciliationMapper {
 
     private boolean filterByContainer(Envelope envelope, TargetStorageAccount targetStorageAccount) {
         return storageConfig
-            .get(envelope.container)
+            .get(envelope.container.toLowerCase())
             .getTargetStorageAccount()
             .equals(targetStorageAccount);
     }
