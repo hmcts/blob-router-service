@@ -49,7 +49,7 @@ public class ReconciliationMapper {
     private ReportedZipFile mapToReportedZipFile(Envelope envelope) {
         return new ReportedZipFile(
             envelope.zipFileName,
-            envelope.container,
+            envelope.container.toLowerCase(),
             envelope.rescanFor,
             envelope.scannableItemDcns,
             envelope.paymentDcns
