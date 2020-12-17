@@ -78,7 +78,7 @@ class ReconciliationMapperTest {
         // given
         setupStorageConfig();
         String content = Resources.toString(
-            getResource("reconciliation/valid-supplier-statement.json"),
+            getResource("reconciliation/valid-supplier-statement-container-case-insensitive.json"),
             UTF_8
         );
 

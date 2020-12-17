@@ -49,7 +49,7 @@ public class ReconciliationMapper {
     private ReportedZipFile mapToReportedZipFile(Envelope envelope) {
         return new ReportedZipFile(
             envelope.zipFileName,
-            envelope.container,
+            envelope.container.toLowerCase(),
             envelope.rescanFor,
             envelope.scannableItemDcns,
             envelope.paymentDcns
@@ -58,7 +58,7 @@ public class ReconciliationMapper {
 
     private boolean filterByContainer(Envelope envelope, TargetStorageAccount targetStorageAccount) {
         return storageConfig
-            .get(envelope.container)
+            .get(envelope.container.toLowerCase())
             .getTargetStorageAccount()
             .equals(targetStorageAccount);
     }
