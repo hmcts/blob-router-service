@@ -105,7 +105,7 @@ class ReconciliationMapperTest {
         ReportedZipFile cmcFile = reconciliationStatement.envelopes.get(2);
         assertReportedZipFile(probateFile,
             "1010404021234_14-08-2020-08-31.zip",
-            "PROBATE",
+            "probate",
             null,
             List.of("1015404021234", "1015404021235"),
             List.of("123123", "123124")
@@ -113,7 +113,7 @@ class ReconciliationMapperTest {
 
         assertReportedZipFile(sscsFile,
             "9810404021234_14-08-2020-03-08-31.zip",
-            "sScs",
+            "sscs",
             "121212_14-08-2020-03-08-21.zip",
             List.of("9988774021234", "6655443301235"),
             List.of("999999", "999234")
