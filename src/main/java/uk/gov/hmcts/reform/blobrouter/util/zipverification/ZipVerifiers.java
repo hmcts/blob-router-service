@@ -37,8 +37,8 @@ public class ZipVerifiers {
 
                 if (zipEntry.getName().equalsIgnoreCase(ENVELOPE)) {
 
-                    while (zis.available() != 0) {
-                        byte[] envelopeData = new byte[BUFFER_SIZE];
+                    byte[] envelopeData = new byte[BUFFER_SIZE];
+                    while (zis.available() != 0) {                      
                         int numBytesRead = zis.readNBytes(envelopeData, 0, BUFFER_SIZE);
                         signature.update(envelopeData, 0, numBytesRead);
                     }
