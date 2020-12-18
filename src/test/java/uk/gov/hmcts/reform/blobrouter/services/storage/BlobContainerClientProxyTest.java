@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.http.HttpResponse;
-import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
@@ -18,13 +17,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
 import java.io.ByteArrayInputStream;
-import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -47,8 +44,6 @@ public class BlobContainerClientProxyTest {
     final String containerName = "container123";
     final String blobName = "hello.zip";
     final byte[] blobContent = "some data".getBytes();
-
-    private static final Duration UPLOAD_TIMEOUT = Duration.ofSeconds(40);
 
     @BeforeEach
     private void setUp() {
@@ -75,16 +70,9 @@ public class BlobContainerClientProxyTest {
         ArgumentCaptor<ByteArrayInputStream> data = ArgumentCaptor.forClass(ByteArrayInputStream.class);
 
         verify(blockBlobClient)
-            .uploadWithResponse(
+            .upload(
                 data.capture(),
-                eq(Long.valueOf(blobContent.length)),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                eq(UPLOAD_TIMEOUT),
-                eq(Context.NONE)
+                eq(Long.valueOf(blobContent.length))
             );
 
         assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);
@@ -120,16 +108,9 @@ public class BlobContainerClientProxyTest {
         ArgumentCaptor<ByteArrayInputStream> data = ArgumentCaptor.forClass(ByteArrayInputStream.class);
 
         verify(blockBlobClient)
-            .uploadWithResponse(
+            .upload(
                 data.capture(),
-                eq(Long.valueOf(blobContent.length)),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                eq(UPLOAD_TIMEOUT),
-                eq(Context.NONE)
+                eq(Long.valueOf(blobContent.length))
             );
 
         assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);
@@ -221,16 +202,9 @@ public class BlobContainerClientProxyTest {
         ArgumentCaptor<ByteArrayInputStream> data = ArgumentCaptor.forClass(ByteArrayInputStream.class);
 
         verify(blockBlobClient)
-            .uploadWithResponse(
+            .upload(
                 data.capture(),
-                eq(Long.valueOf(blobContent.length)),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                isNull(),
-                eq(UPLOAD_TIMEOUT),
-                eq(Context.NONE)
+                eq(Long.valueOf(blobContent.length))
             );
 
         assertThat(data.getValue().readAllBytes()).isEqualTo(blobContent);

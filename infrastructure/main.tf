@@ -10,7 +10,9 @@ locals {
 
 module "reform-blob-router-db" {
   source             = "git@github.com:hmcts/cnp-module-postgres?ref=master"
-  product            = var.component
+  product            = var.product
+  component          = var.component
+  name               = var.component
   location           = var.location_db
   env                = var.env
   database_name      = "blob_router"

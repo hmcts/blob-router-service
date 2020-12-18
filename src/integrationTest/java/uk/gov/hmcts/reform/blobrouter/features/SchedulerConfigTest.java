@@ -35,7 +35,8 @@ import static org.mockito.Mockito.verify;
         "scheduling.task.send-reconciliation-report-mail.enabled=true",
         "scheduling.task.send-reconciliation-report-mail.cron: */1 * * * * *",
         "reconciliation.report.mail-from=sender@test",
-        "reconciliation.report.mail-recipients=recipient@test"
+        "reconciliation.report.mail-recipients=recipient@test",
+        "reconciliation.report.skip-empty=false"
     }
 )
 @Profile("integration-test")

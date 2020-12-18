@@ -8,7 +8,6 @@ java:
     FLYWAY_SKIP_MIGRATIONS: false
     STORAGE_URL: https://reformscanstg.aat.platform.hmcts.net
     NOTIFICATIONS_QUEUE_NAME: "notifications-staging"
-    PROXY_ENABLED: "false"
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}

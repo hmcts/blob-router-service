@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter;
 
-import com.azure.core.http.ProxyOptions;
-import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
@@ -9,7 +7,6 @@ import io.restassured.RestAssured;
 import uk.gov.hmcts.reform.blobrouter.config.TestConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
-import java.net.InetSocketAddress;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ThreadLocalRandom;
@@ -35,23 +32,6 @@ public abstract class FunctionalTestBase {
         );
 
         BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder();
-
-        if (config.useProxyForSourceStorage) {
-            blobServiceClientBuilder = blobServiceClientBuilder.httpClient(
-                new NettyAsyncHttpClientBuilder()
-                    .proxy(
-                        new ProxyOptions(
-                            ProxyOptions.Type.HTTP,
-                            new InetSocketAddress(
-                                "proxyout.reform.hmcts.net",
-                                8080
-                            )
-                        )
-                    )
-                    .build()
-            );
-        }
-
         this.blobRouterStorageClient = blobServiceClientBuilder
             .credential(blobRouterStorageCredential)
             .endpoint(config.sourceStorageAccountUrl)

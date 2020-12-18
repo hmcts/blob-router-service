@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
@@ -14,13 +13,9 @@ import uk.gov.hmcts.reform.blobrouter.reconciliation.report.ReconciliationReport
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.SummaryReport;
 import uk.gov.hmcts.reform.blobrouter.services.email.MessageSender;
 
-import java.io.File;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -32,31 +27,31 @@ public class ReconciliationMailService {
 
     private final SupplierStatementRepository supplierStatementRepository;
     private final ReconciliationReportRepository reconciliationReportRepository;
-    private final ReconciliationCsvWriter reconciliationCsvWriter;
     private final MessageSender emailSender;
     private final ObjectMapper objectMapper;
+    private final ReconciliationSender reconciliationSender;
 
     private final String mailFrom;
     private final String[] mailRecipients;
 
-    private static final String ATTACHMENT_SUMMARY_PREFIX = "Summary-Report-";
-    private static final String ATTACHMENT_DETAILED_PREFIX = "Detailed-report-";
-    private static final String ATTACHMENT_SUFFIX = ".csv";
+    private static final String NO_SUPPLIER_STATEMENT_RECEIVED_SUBJECT_FORMAT = "[NO SUPPLIER STATEMENT RECEIVED] %s "
+        + "Scanning Reconciliation";
+    private static final String NO_SUPPLIER_STATEMENT_RECEIVED_BODY_FORMAT = "No supplier statement received for %s";
 
     public ReconciliationMailService(
         SupplierStatementRepository supplierStatementRepository,
         ReconciliationReportRepository reconciliationReportRepository,
-        ReconciliationCsvWriter reconciliationCsvWriter,
         MessageSender emailSender,
         ObjectMapper objectMapper,
+        ReconciliationSender reconciliationSender,
         @Value("${reconciliation.report.mail-from}") String mailFrom,
         @Value("${reconciliation.report.mail-recipients}") String[] recipients
     ) {
         this.supplierStatementRepository = supplierStatementRepository;
         this.reconciliationReportRepository = reconciliationReportRepository;
-        this.reconciliationCsvWriter = reconciliationCsvWriter;
         this.emailSender = emailSender;
         this.objectMapper = objectMapper;
+        this.reconciliationSender = reconciliationSender;
         this.mailFrom = mailFrom;
         this.mailRecipients = recipients;
     }
@@ -109,36 +104,23 @@ public class ReconciliationMailService {
                 SummaryReport summaryReport =
                     objectMapper.readValue(reconciliationReport.summaryContent, SummaryReport.class);
 
-                File file = reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport);
-
-                Map<String, File> attachments = new HashMap<>();
-                attachments.put(
-                    getReportAttachmentName(ATTACHMENT_SUMMARY_PREFIX, date),
-                    file
-                );
                 ReconciliationReportResponse detailedReport = null;
                 if (reconciliationReport.detailedContent != null) {
                     detailedReport =
-                        objectMapper.readValue(reconciliationReport.detailedContent,
-                            ReconciliationReportResponse.class);
-
-                    File detailedReportFile = reconciliationCsvWriter
-                        .writeDetailedReconciliationToCsv(detailedReport);
-                    attachments.put(
-                        getReportAttachmentName(ATTACHMENT_DETAILED_PREFIX, date),
-                        detailedReportFile);
+                        objectMapper.readValue(
+                            reconciliationReport.detailedContent,
+                            ReconciliationReportResponse.class
+                        );
                 }
 
-                emailSender.sendMessageWithAttachments(
-                    createTitle(account, summaryReport, detailedReport),
-                    "",
-                    mailFrom,
-                    mailRecipients,
-                    attachments
+                reconciliationSender.sendReconciliationReport(
+                    date,
+                    account,
+                    summaryReport,
+                    detailedReport
                 );
 
                 reconciliationReportRepository.updateSentAt(reconciliationReport.id);
-
             } else {
                 logger.error(
                     "No summary report for account {}, Reconciliation report id: {}",
@@ -163,8 +145,8 @@ public class ReconciliationMailService {
     private void sendMailNoSupplierStatement(LocalDate date, TargetStorageAccount account) {
         try {
             emailSender.sendMessageWithAttachments(
-                account.name() + " Scanning Reconciliation NO SUPPLIER STATEMENT RECEIVED",
-                "No supplier statement received for " + date,
+                String.format(NO_SUPPLIER_STATEMENT_RECEIVED_SUBJECT_FORMAT, account.name()),
+                String.format(NO_SUPPLIER_STATEMENT_RECEIVED_BODY_FORMAT, date),
                 mailFrom,
                 mailRecipients,
                 Collections.emptyMap()
@@ -177,25 +159,5 @@ public class ReconciliationMailService {
                 ex
             );
         }
-    }
-
-    private String createTitle(
-        TargetStorageAccount account,
-        SummaryReport summaryReport,
-        ReconciliationReportResponse detailedReport
-    ) {
-        return (CollectionUtils.isEmpty(summaryReport.receivedButNotReported)
-            && CollectionUtils.isEmpty(summaryReport.reportedButNotReceived))
-            && noMissMatchInDetailedReport(detailedReport)
-            ? account.name() + " Scanning Reconciliation NO ERROR"
-            : account.name() + " Scanning Reconciliation MISMATCH";
-    }
-
-    private boolean noMissMatchInDetailedReport(ReconciliationReportResponse detailedReport) {
-        return Objects.isNull(detailedReport) || CollectionUtils.isEmpty(detailedReport.items);
-    }
-
-    private String getReportAttachmentName(String attachmentPrefix, LocalDate reportDate) {
-        return attachmentPrefix + reportDate + ATTACHMENT_SUFFIX;
     }
 }

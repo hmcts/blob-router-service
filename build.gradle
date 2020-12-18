@@ -8,7 +8,7 @@ plugins {
   id 'org.owasp.dependencycheck' version '6.0.3'
   id 'com.github.ben-manes.versions' version '0.36.0'
   id 'org.sonarqube' version '3.0'
-  id 'org.flywaydb.flyway' version '7.3.0'
+  id 'org.flywaydb.flyway' version '7.3.2'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -160,7 +160,7 @@ dependencyCheck {
 
 dependencyManagement {
   dependencies {
-    dependencySet(group: 'com.google.guava', version: '30.0-jre') {
+    dependencySet(group: 'com.google.guava', version: '30.1-jre') {
       entry 'guava'
     }
     // this should not be used, ideally.
@@ -172,6 +172,10 @@ dependencyManagement {
     dependencySet(group: 'net.minidev', version: '2.3') {
       entry 'json-smart'
     }
+    //avoid   CVE-2020-13943 and CVE-2020-17527
+    dependency group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.40'
+    //avoid   CVE-2020-13943 and CVE-2020-17527
+    dependency group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '9.0.40'
   }
 }
 
@@ -200,8 +204,8 @@ dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '6.1.4'
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.16.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.16.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.19.1'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.19.1'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.9.0'
   implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.5.1'
@@ -246,10 +250,10 @@ dependencies {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.1'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.0', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.1', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.0'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.15.1'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.5.13'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath

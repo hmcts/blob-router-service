@@ -39,12 +39,12 @@ class ReconciliationMapperTest {
         given(serviceConfiguration.getStorageConfig()).willReturn(storageConfig);
         reconciliationMapper =
             new ReconciliationMapper(objectMapper, serviceConfiguration);
+        setupStorageConfig();
     }
 
     @Test
     void should_filter_by_target_container() throws IOException {
         // given
-        setupStorageConfig();
         String content = Resources.toString(
             getResource("reconciliation/valid-supplier-statement.json"),
             UTF_8
@@ -76,9 +76,8 @@ class ReconciliationMapperTest {
     @Test
     void should_map_content_to_ReconciliationStatement() throws IOException {
         // given
-        setupStorageConfig();
         String content = Resources.toString(
-            getResource("reconciliation/valid-supplier-statement.json"),
+            getResource("reconciliation/valid-supplier-statement-container-case-insensitive.json"),
             UTF_8
         );
 

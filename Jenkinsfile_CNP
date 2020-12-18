@@ -87,12 +87,14 @@ withPipeline(type, product, component) {
   onPR(){
     loadVaultSecrets(smokeTestSecrets)
   }
-
+  
+  def branchesToSync = ['demo', 'perftest']
+  syncBranchesWithMaster(branchesToSync)
+  
   // Vars needed for smoke / functional testing
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://reformscanaatstaging.blob.core.windows.net'
   env.API_GATEWAY_URL = "https://core-api-mgmt-aat.azure-api.net/reform-scan"
-  env.TEST_USE_PROXY_FOR_SOURCE_STORAGE = "false"
 
   before('smoketest:preview') {
      withAksClient('nonprod', product) {
