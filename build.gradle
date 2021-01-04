@@ -261,7 +261,7 @@ dependencies {
   functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.18.1'
   functionalTestImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
   functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.1'
-  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured',  {
+  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
   }
 
