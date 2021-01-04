@@ -5,7 +5,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.10.RELEASE'
   id 'org.springframework.boot' version '2.3.4.RELEASE'
-  id 'org.owasp.dependencycheck' version '6.0.3'
+  id 'org.owasp.dependencycheck' version '6.0.4'
   id 'com.github.ben-manes.versions' version '0.36.0'
   id 'org.sonarqube' version '3.0'
   id 'org.flywaydb.flyway' version '7.3.2'
@@ -208,7 +208,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.19.1'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.9.0'
-  implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.5.1'
+  implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.6.0'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
@@ -219,7 +219,7 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
 
   // region: feign clients
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.6.RELEASE'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.0.0'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '10.8'
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '10.8'
   // end region
@@ -246,10 +246,10 @@ dependencies {
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
 
-  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.5.RELEASE', {
+  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.0.0', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.1'
+  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.1', {
     exclude group: 'junit', module: 'junit'
   }
@@ -261,7 +261,7 @@ dependencies {
   functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.18.1'
   functionalTestImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
   functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.1'
-  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
+  functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: '4.3.3',  {
     exclude group: 'junit', module: 'junit'
   }
 
@@ -269,7 +269,7 @@ dependencies {
   smokeTestImplementation libraries.junit5
   smokeTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.17.2'
   smokeTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
-  smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
+  smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: '4.3.3', {
     exclude group: 'junit', module: 'junit'
   }
 }

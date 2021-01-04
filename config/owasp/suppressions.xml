@@ -36,4 +36,13 @@
     <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpclient@.*$</packageUrl>
     <cve>CVE-2020-13956</cve>
   </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   file name: lang-tag-1.4.4.jar
+   dependency of azure service bus but using latest version as of 04/01/2021
+   ]]></notes>
+    <packageUrl regex="true">^pkg:maven/com\.nimbusds/lang\-tag@.*$</packageUrl>
+    <cpe>cpe:/a:tag_project:tag</cpe>
+  </suppress>
 </suppressions>
