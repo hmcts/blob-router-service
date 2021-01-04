@@ -50,6 +50,8 @@ public class SasTokenGeneratorService {
         var permissions = new BlobContainerSasPermission()
             .setAddPermission(true)
             .setListPermission(true)
+            .setReadPermission(true)
+            .setWritePermission(true)
             .setCreatePermission(true);
 
         return new BlobServiceSasSignatureValues()
