@@ -198,7 +198,7 @@ ext.libraries = [
     "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
   ]
 ]
-ext["rest-assured.version"] = '4.1.2'
+ext["rest-assured.version"] = '4.2.1'
 
 dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.14'
@@ -249,7 +249,7 @@ dependencies {
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.5.RELEASE', {
     exclude group: 'com.github.tomakehurst', module: 'wiremock-jre8-standalone'
   }
-  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.1'
+  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.1', {
     exclude group: 'junit', module: 'junit'
   }

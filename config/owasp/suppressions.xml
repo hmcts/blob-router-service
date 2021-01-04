@@ -36,7 +36,6 @@
     <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpclient@.*$</packageUrl>
     <cve>CVE-2020-13956</cve>
   </suppress>
-
   <suppress until="2021-03-01">
     <notes><![CDATA[
    file name: lang-tag-1.4.4.jar
