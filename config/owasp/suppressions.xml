@@ -37,12 +37,14 @@
     <cve>CVE-2020-13956</cve>
   </suppress>
 
-  <suppress>
+    <suppress until="2021-03-01">
     <notes><![CDATA[
    file name: lang-tag-1.4.4.jar
-   dependency of azure service bus but using latest version as of 04/01/2021
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/com\.nimbusds/lang\-tag@.*$</packageUrl>
-    <cpe>cpe:/a:tag_project:tag</cpe>
+    <cve>CVE-2020-29242</cve>
+    <cve>CVE-2020-29243</cve>
+    <cve>CVE-2020-29244</cve>
+    <cve>CVE-2020-29245</cve>
   </suppress>
 </suppressions>
