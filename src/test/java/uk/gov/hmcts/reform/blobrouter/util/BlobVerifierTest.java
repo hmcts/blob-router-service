@@ -16,7 +16,7 @@ import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSig
 import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipDir;
 
 @ExtendWith(MockitoExtension.class)
-class BlobVerifierTest {
+class  BlobVerifierTest {
 
     private BlobVerifier verifier;
 
