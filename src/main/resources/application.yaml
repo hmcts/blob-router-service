@@ -16,6 +16,8 @@ management:
       enabled: false
 
 spring:
+  config:
+    use-legacy-processing: true
   application:
     name: Blob Router Service
   datasource:
