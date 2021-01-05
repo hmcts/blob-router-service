@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -44,6 +45,15 @@ public final class DirectoryZipper {
                 new ZipItem(ZipVerifiers.ENVELOPE, innerZip),
                 new ZipItem(ZipVerifiers.SIGNATURE, signature)
             )
+        );
+    }
+
+    public static byte[] zipFiles(Map<String, byte[]> resources) throws IOException {
+
+        return zipItems(
+            resources.keySet().stream()
+                .map(fileName -> new ZipItem(fileName, resources.get(fileName)))
+                .collect(toList())
         );
     }
 
