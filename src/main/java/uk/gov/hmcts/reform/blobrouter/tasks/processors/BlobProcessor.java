@@ -84,9 +84,9 @@ public class BlobProcessor {
     ) {
         UUID id = envelopeIdSupplier.get();
         try {
-            byte[] rawBlob = downloadBlob(blobClient);
+            var verificationResult = blobVerifier.verifyZip(blobClient.getBlobName(), blobClient.openInputStream());
 
-            var verificationResult = blobVerifier.verifyZip(blobClient.getBlobName(), rawBlob);
+            byte[] rawBlob = downloadBlob(blobClient);
 
             if (verificationResult.isOk) {
                 dispatch(blobClient, id, rawBlob);
