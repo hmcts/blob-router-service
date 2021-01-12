@@ -26,7 +26,7 @@ import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_I
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
-class LeaseMetaDataCheckerTest {
+class BlobMetaDataHandlerTest {
 
     @Mock private BlobClient blobClient;
     @Mock private BlobProperties blobProperties;
@@ -37,11 +37,11 @@ class LeaseMetaDataCheckerTest {
 
     private static final String LEASE_EXPIRATION_TIME = "leaseExpirationTime";
 
-    private LeaseMetaDataChecker leaseMetaDataChecker;
+    private BlobMetaDataHandler blobMetaDataHandler;
 
     @BeforeEach
     void setUp() {
-        leaseMetaDataChecker = new LeaseMetaDataChecker(15);
+        blobMetaDataHandler = new BlobMetaDataHandler(15);
         blobMetaData = new HashMap<>();
     }
 
@@ -52,7 +52,7 @@ class LeaseMetaDataCheckerTest {
         given(blobProperties.getMetadata()).willReturn(blobMetaData);
 
         //when
-        boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
+        boolean isReady = blobMetaDataHandler.isBlobReadyToUse(blobClient, leaseId);
 
         //then
         assertThat(isReady).isTrue();
@@ -70,7 +70,7 @@ class LeaseMetaDataCheckerTest {
         given(blobProperties.getMetadata()).willReturn(blobMetaData);
 
         //when
-        boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
+        boolean isReady = blobMetaDataHandler.isBlobReadyToUse(blobClient, leaseId);
 
         //then
         assertThat(isReady).isFalse();
@@ -87,7 +87,7 @@ class LeaseMetaDataCheckerTest {
         given(blobProperties.getMetadata()).willReturn(blobMetaData);
 
         //when
-        boolean isReady = leaseMetaDataChecker.isReadyToUse(blobClient, leaseId);
+        boolean isReady = blobMetaDataHandler.isBlobReadyToUse(blobClient, leaseId);
 
         //then
         assertThat(isReady).isTrue();
@@ -106,7 +106,7 @@ class LeaseMetaDataCheckerTest {
             .willReturn(mock(Response.class));
 
         //when
-        leaseMetaDataChecker.clearMetaData(blobClient, leaseId);
+        blobMetaDataHandler.clearAllMetaData(blobClient, leaseId);
 
         //then
         var conditionCaptor = ArgumentCaptor.forClass(BlobRequestConditions.class);

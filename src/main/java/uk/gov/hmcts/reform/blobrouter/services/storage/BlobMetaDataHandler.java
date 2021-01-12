@@ -15,19 +15,19 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @Component
-public class LeaseMetaDataChecker {
+public class BlobMetaDataHandler {
 
-    private static final Logger logger = getLogger(LeaseAcquirer.class);
+    private static final Logger logger = getLogger(BlobMetaDataHandler.class);
 
     public static final String LEASE_EXPIRATION_TIME = "leaseExpirationTime";
 
     private final int leaseTimeout;
 
-    public LeaseMetaDataChecker(@Value("${storage-blob-lease-timeout-in-minutes}") int leaseTimeout) {
+    public BlobMetaDataHandler(@Value("${storage-blob-lease-timeout-in-minutes}") int leaseTimeout) {
         this.leaseTimeout = leaseTimeout;
     }
 
-    public boolean isReadyToUse(BlobClient blobClient, String leaseId) {
+    public boolean isBlobReadyToUse(BlobClient blobClient, String leaseId) {
         Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
         String leaseExpirationTime = blobMetaData.get(LEASE_EXPIRATION_TIME);
         var zipFilename = blobClient.getBlobName();
@@ -73,7 +73,7 @@ public class LeaseMetaDataChecker {
         }
     }
 
-    public void clearMetaData(BlobClient blobClient, String leaseId) {
+    public void clearAllMetaData(BlobClient blobClient, String leaseId) {
         blobClient.setMetadataWithResponse(
             null,
             new BlobRequestConditions().setLeaseId(leaseId),
