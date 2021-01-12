@@ -51,7 +51,7 @@ java:
     STORAGE_BULKSCAN_URL: https://bulkscan{{ .Values.global.environment }}.blob.core.windows.net
 
     STORAGE_PCQ_URL: https://pcqshared{{ .Values.global.environment }}.blob.core.windows.net
-
+    STORAGE_BLOB_LEASE_TIMEOUT_IN_MINUTES:  10
     STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES: 30
     STORAGE_BLOB_PUBLIC_KEY: "nonprod_public_key.der"
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
