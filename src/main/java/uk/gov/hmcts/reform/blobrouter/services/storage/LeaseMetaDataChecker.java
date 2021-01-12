@@ -40,7 +40,7 @@ public class LeaseMetaDataChecker {
             leaseExpirationTime
         );
 
-        if (isMetaDataLeaseExpired(leaseExpirationTime)) {
+        if (isMetaDataLeaseNotAcquiredOrExpired(leaseExpirationTime)) {
             blobMetaData.put(
                 LEASE_EXPIRATION_TIME,
                 LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
@@ -54,7 +54,7 @@ public class LeaseMetaDataChecker {
             return true;
         } else {
             logger.info(
-                "Lease already acquired on file {} in container {} less than {} seconds ago. ",
+                "Lease already acquired on file {} in container {}, it will expire at {} .",
                 zipFilename,
                 containerName,
                 blobMetaData.get(LEASE_EXPIRATION_TIME)
@@ -63,7 +63,7 @@ public class LeaseMetaDataChecker {
         }
     }
 
-    private boolean isMetaDataLeaseExpired(String leaseExpirationTime) {
+    private boolean isMetaDataLeaseNotAcquiredOrExpired(String leaseExpirationTime) {
         if (StringUtils.isBlank(leaseExpirationTime)) {
             return true; // lease not acquired on file
         } else {
