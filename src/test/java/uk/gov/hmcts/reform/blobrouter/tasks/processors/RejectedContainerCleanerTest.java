@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
-import uk.gov.hmcts.reform.blobrouter.services.storage.BlobMetaDataHandler;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import java.util.Optional;
@@ -60,7 +59,6 @@ class RejectedContainerCleanerTest {
 
     @Mock BlobClient blobClient1;
     @Mock BlobClient blobClient2;
-    @Mock BlobMetaDataHandler blobMetaDataHandler;
 
     RejectedContainerCleaner cleaner;
 
@@ -70,7 +68,7 @@ class RejectedContainerCleanerTest {
             storageClient,
             blobChecker,
             envelopeService,
-            new LeaseAcquirer(blobClient -> leaseClient, blobMetaDataHandler)
+            new LeaseAcquirer(blobClient -> leaseClient)
         );
     }
 
@@ -122,7 +120,6 @@ class RejectedContainerCleanerTest {
 
         var leaseId = UUID.randomUUID().toString();
         given(leaseClient.acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS)).willReturn(leaseId);
-        given(blobMetaDataHandler.isBlobReadyToUse(blobClient2, leaseId)).willReturn(true);
 
         var envelopeId = UUID.randomUUID();
         given(envelopeService.findLastEnvelope(REJECTED_BLOB, REJECTED_CONTAINER))

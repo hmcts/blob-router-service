@@ -20,11 +20,9 @@ public class LeaseAcquirer {
     private static final Logger logger = getLogger(LeaseAcquirer.class);
 
     private final LeaseClientProvider leaseClientProvider;
-    private final BlobMetaDataHandler blobMetaDataHandler;
 
-    public LeaseAcquirer(LeaseClientProvider leaseClientProvider, BlobMetaDataHandler blobMetaDataHandler) {
+    public LeaseAcquirer(LeaseClientProvider leaseClientProvider) {
         this.leaseClientProvider = leaseClientProvider;
-        this.blobMetaDataHandler = blobMetaDataHandler;
     }
 
     /**
@@ -44,29 +42,10 @@ public class LeaseAcquirer {
             var leaseClient = leaseClientProvider.get(blobClient);
             var leaseId = leaseClient.acquireLease(LEASE_DURATION_IN_SECONDS);
 
-            boolean isReady = false;
+            onSuccess.accept(leaseId);
 
-            try {
-                isReady = blobMetaDataHandler.isBlobReadyToUse(blobClient, leaseId);
-            } catch (Exception ex) {
-                logger.warn(
-                    "Could not check meta data for lease expiration on file {} in container {}",
-                    blobClient.getBlobName(),
-                    blobClient.getContainerName()
-                );
-            } finally {
-                if (!isReady) {
-                    release(leaseClient, blobClient);
-                    //it means lease did not acquired let the failure function decide
-                    onFailure.accept(LEASE_ALREADY_PRESENT);
-                }
-            }
-
-            if (isReady) {
-                onSuccess.accept(leaseId);
-                if (releaseLease) {
-                    clearMetadataAndReleaseLease(leaseClient, blobClient, leaseId);
-                }
+            if (releaseLease) {
+                release(leaseClient, blobClient);
             }
         } catch (BlobStorageException exc) {
             if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
@@ -79,25 +58,6 @@ public class LeaseAcquirer {
             }
 
             onFailure.accept(exc.getErrorCode());
-        }
-    }
-
-    private void clearMetadataAndReleaseLease(
-        BlobLeaseClient leaseClient,
-        BlobClient blobClient,
-        String leaseId
-    ) {
-        try {
-            blobMetaDataHandler.clearAllMetaData(blobClient, leaseId);
-            release(leaseClient, blobClient);
-        } catch (BlobStorageException exc) {
-            logger.warn(
-                "Could not clear metadata, lease with ID {}. Blob: {}, container: {}",
-                leaseClient.getLeaseId(),
-                blobClient.getBlobName(),
-                blobClient.getContainerName(),
-                exc
-            );
         }
     }
 
