@@ -54,17 +54,17 @@ public class LeaseAcquirer {
                     blobClient.getBlobName(),
                     blobClient.getContainerName()
                 );
-            } finally {
-                if (isReady) {
-                    onSuccess.accept(leaseId);
-                    if (releaseLease) {
-                        clearMetadataAndReleaseLease(leaseClient, blobClient, leaseId);
-                    }
-                } else {
-                    release(leaseClient, blobClient);
-                    //it means lease did not acquired let the failure function decide
-                    onFailure.accept(LEASE_ALREADY_PRESENT);
+            }
+
+            if (isReady) {
+                onSuccess.accept(leaseId);
+                if (releaseLease) {
+                    clearMetadataAndReleaseLease(leaseClient, blobClient, leaseId);
                 }
+            } else {
+                release(leaseClient, blobClient);
+                //it means lease did not acquired let the failure function decide
+                onFailure.accept(LEASE_ALREADY_PRESENT);
             }
 
 
