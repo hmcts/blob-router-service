@@ -78,7 +78,7 @@ public class ContainerCleaner {
         try {
             blobClient.deleteWithResponse(
                 DeleteSnapshotsOptionType.INCLUDE,
-                new BlobRequestConditions().setLeaseId(leaseId),
+                new BlobRequestConditions(),
                 null,
                 Context.NONE
             );

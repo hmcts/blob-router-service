@@ -90,7 +90,7 @@ public class RejectedContainerCleaner {
             // therefore snapshots are always older than the 'base' blob and it is safe to delete them
             blobClient.deleteWithResponse(
                 DeleteSnapshotsOptionType.INCLUDE,
-                new BlobRequestConditions().setLeaseId(leaseId),
+                new BlobRequestConditions(),
                 null,
                 Context.NONE
             );

@@ -136,7 +136,7 @@ class ContainerCleanerTest {
         assertThat(conditionCaptor.getAllValues())
             .hasSize(2)
             .extracting(BlobRequestConditions::getLeaseId)
-            .containsExactly(leaseId1, leaseId2);
+            .containsExactly(null, null);
 
         // and
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);

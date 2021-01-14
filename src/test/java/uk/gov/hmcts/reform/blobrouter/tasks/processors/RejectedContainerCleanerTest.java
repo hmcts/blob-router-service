@@ -140,7 +140,7 @@ class RejectedContainerCleanerTest {
         verify(blobClient1, never()).deleteWithResponse(any(), any(), any(), any());
         verify(blobClient2, times(1))
             .deleteWithResponse(eq(DeleteSnapshotsOptionType.INCLUDE), conditionCapturer.capture(), any(), any());
-        assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(leaseId);
+        assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(null);
 
         // and
         verify(envelopeService).saveEvent(envelopeId, EventType.DELETED_FROM_REJECTED);
