@@ -1,11 +1,8 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
-import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.models.BlobRequestConditions;
-import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
@@ -76,12 +73,7 @@ public class ContainerCleaner {
         String leaseId
     ) {
         try {
-            blobClient.deleteWithResponse(
-                DeleteSnapshotsOptionType.INCLUDE,
-                new BlobRequestConditions(),
-                null,
-                Context.NONE
-            );
+            blobClient.delete();
             envelopeService.markEnvelopeAsDeleted(envelope);
             logger.info(
                 "Deleted dispatched blob {} from container {}, leaseId: {}",
