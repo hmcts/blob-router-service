@@ -55,19 +55,19 @@ public class LeaseAcquirer {
                     blobClient.getContainerName()
                 );
             } finally {
-                if (!isReady) {
+                if (isReady) {
+                    onSuccess.accept(leaseId);
+                    if (releaseLease) {
+                        clearMetadataAndReleaseLease(leaseClient, blobClient, leaseId);
+                    }
+                } else {
                     release(leaseClient, blobClient);
                     //it means lease did not acquired let the failure function decide
                     onFailure.accept(LEASE_ALREADY_PRESENT);
                 }
             }
 
-            if (isReady) {
-                onSuccess.accept(leaseId);
-                if (releaseLease) {
-                    clearMetadataAndReleaseLease(leaseClient, blobClient, leaseId);
-                }
-            }
+
         } catch (BlobStorageException exc) {
             if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
                 logger.error(
