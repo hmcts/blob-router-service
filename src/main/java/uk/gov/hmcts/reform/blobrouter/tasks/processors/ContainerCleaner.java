@@ -84,9 +84,10 @@ public class ContainerCleaner {
             );
             envelopeService.markEnvelopeAsDeleted(envelope);
             logger.info(
-                "Deleted dispatched blob {} from container {}",
+                "Deleted dispatched blob {} from container {}, leaseId: {}",
                 envelope.fileName,
-                blobClient.getContainerName()
+                blobClient.getContainerName(),
+                leaseId
             );
         } catch (Exception ex) {
             logger.error(

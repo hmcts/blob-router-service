@@ -73,7 +73,7 @@ public class BlobMetaDataHandler {
         }
     }
 
-    public void clearAllMetaData(BlobClient blobClient, String leaseId) {
+    public void clearAllMetaData(BlobClient blobClient) {
         blobClient.setMetadata(null);
     }
 }

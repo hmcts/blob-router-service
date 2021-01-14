@@ -88,7 +88,7 @@ public class LeaseAcquirer {
         String leaseId
     ) {
         try {
-            blobMetaDataHandler.clearAllMetaData(blobClient, leaseId);
+            blobMetaDataHandler.clearAllMetaData(blobClient);
         } catch (BlobStorageException exc) {
             logger.warn(
                 "Could not clear metadata, lease with ID {}. Blob: {}, container: {}",

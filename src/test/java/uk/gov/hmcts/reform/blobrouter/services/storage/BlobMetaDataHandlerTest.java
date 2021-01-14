@@ -103,7 +103,7 @@ class BlobMetaDataHandlerTest {
         doNothing().when(blobClient).setMetadata(any());
 
         //when
-        blobMetaDataHandler.clearAllMetaData(blobClient, leaseId);
+        blobMetaDataHandler.clearAllMetaData(blobClient);
 
         //then
         verify(blobClient).setMetadata(null);

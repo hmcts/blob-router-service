@@ -101,7 +101,7 @@ public class RejectedContainerCleaner {
                     e -> envelopeService.saveEvent(e.id, EventType.DELETED_FROM_REJECTED),
                     () -> logger.warn("Envelope not found. {}", blobInfo)
                 );
-            logger.info("Deleted rejected file. {}", blobInfo);
+            logger.info("Deleted rejected file. {}, leaseId {}", blobInfo, leaseId);
         } catch (Exception exc) {
             logger.error("Error deleting rejected file. {}", blobInfo, exc);
         }
