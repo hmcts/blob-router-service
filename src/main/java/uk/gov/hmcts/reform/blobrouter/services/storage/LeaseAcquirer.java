@@ -60,7 +60,7 @@ public class LeaseAcquirer {
             if (isReady) {
                 onSuccess.accept(leaseId);
                 if (releaseLease) {
-                    clearMetadataAndReleaseLease(leaseClient, blobClient, leaseId);
+                    clearMetadataAndReleaseLease(leaseClient, blobClient);
                 }
             } else {
                 //it means lease did not acquired let the failure function decide
@@ -84,8 +84,7 @@ public class LeaseAcquirer {
 
     private void clearMetadataAndReleaseLease(
         BlobLeaseClient leaseClient,
-        BlobClient blobClient,
-        String leaseId
+        BlobClient blobClient
     ) {
         try {
             blobMetaDataHandler.clearAllMetaData(blobClient);
