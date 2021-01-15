@@ -55,7 +55,7 @@ class RejectedBlobCheckerTest {
         var properties = mock(BlobItemProperties.class);
 
         given(blobItem.getProperties()).willReturn(properties);
-        given(properties.getLastModified()).willReturn(dateTime);
+        given(properties.getCreationTime()).willReturn(dateTime);
 
         return blobItem;
     }
