@@ -1,10 +1,12 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.core.http.HttpResponse;
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -111,8 +115,19 @@ class ContainerCleanerTest {
         verify(blobClient2).getContainerName();
 
         // and
-        verify(blobClient1).delete();
-        verify(blobClient2).delete();
+
+        verify(blobClient1).deleteWithResponse(
+            eq(DeleteSnapshotsOptionType.INCLUDE),
+            eq(null),
+            eq(null),
+            eq(Context.NONE)
+        );
+        verify(blobClient2).deleteWithResponse(
+            eq(DeleteSnapshotsOptionType.INCLUDE),
+            eq(null),
+            eq(null),
+            eq(Context.NONE)
+        );
 
         // and
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
@@ -134,7 +149,7 @@ class ContainerCleanerTest {
         given(blobMetaDataHandler.isBlobReadyToUse(blobClient1, leaseId)).willReturn(true);
 
         doThrow(new BlobStorageException("msg", httpResponse, null))
-            .when(blobClient1).delete();
+            .when(blobClient1).deleteWithResponse(any(), any(), eq(null), eq(Context.NONE));
 
         // when
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
@@ -143,7 +158,7 @@ class ContainerCleanerTest {
         verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).getContainerName();
-        verify(blobClient1).delete();
+        verify(blobClient1).deleteWithResponse(any(), eq(null), eq(null), eq(Context.NONE));
         verifyNoMoreInteractions(envelopeService);
     }
 

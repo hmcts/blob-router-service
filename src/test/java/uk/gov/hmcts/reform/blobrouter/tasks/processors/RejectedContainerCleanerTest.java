@@ -6,6 +6,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -130,8 +132,10 @@ class RejectedContainerCleanerTest {
         verify(blobChecker).shouldBeDeleted(blobItem1);
         verify(blobChecker).shouldBeDeleted(blobItem2);
 
+
         verify(blobClient1, never()).deleteWithResponse(any(), any(), any(), any());
-        verify(blobClient2, times(1)).delete();
+        verify(blobClient2, times(1))
+            .deleteWithResponse(eq(DeleteSnapshotsOptionType.INCLUDE), eq(null), any(), any());
 
         // and
         verify(envelopeService).saveEvent(envelopeId, EventType.DELETED_FROM_REJECTED);
