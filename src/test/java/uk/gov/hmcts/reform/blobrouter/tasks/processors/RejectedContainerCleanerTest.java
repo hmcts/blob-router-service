@@ -6,13 +6,11 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobItem;
-import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
@@ -26,7 +24,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -135,12 +132,10 @@ class RejectedContainerCleanerTest {
         verify(blobChecker).shouldBeDeleted(blobItem1);
         verify(blobChecker).shouldBeDeleted(blobItem2);
 
-        var conditionCapturer = ArgumentCaptor.forClass(BlobRequestConditions.class);
 
         verify(blobClient1, never()).deleteWithResponse(any(), any(), any(), any());
         verify(blobClient2, times(1))
-            .deleteWithResponse(eq(DeleteSnapshotsOptionType.INCLUDE), conditionCapturer.capture(), any(), any());
-        assertThat(conditionCapturer.getValue().getLeaseId()).isEqualTo(leaseId);
+            .deleteWithResponse(eq(DeleteSnapshotsOptionType.INCLUDE), eq(null), any(), any());
 
         // and
         verify(envelopeService).saveEvent(envelopeId, EventType.DELETED_FROM_REJECTED);

@@ -55,14 +55,14 @@ public class LeaseAcquirer {
                     blobClient.getContainerName()
                 );
             }
+            release(leaseClient, blobClient);
 
             if (isReady) {
                 onSuccess.accept(leaseId);
                 if (releaseLease) {
-                    clearMetadataAndReleaseLease(leaseClient, blobClient, leaseId);
+                    clearMetadataAndReleaseLease(leaseClient, blobClient);
                 }
             } else {
-                release(leaseClient, blobClient);
                 //it means lease did not acquired let the failure function decide
                 onFailure.accept(LEASE_ALREADY_PRESENT);
             }
@@ -84,12 +84,10 @@ public class LeaseAcquirer {
 
     private void clearMetadataAndReleaseLease(
         BlobLeaseClient leaseClient,
-        BlobClient blobClient,
-        String leaseId
+        BlobClient blobClient
     ) {
         try {
-            blobMetaDataHandler.clearAllMetaData(blobClient, leaseId);
-            release(leaseClient, blobClient);
+            blobMetaDataHandler.clearAllMetaData(blobClient);
         } catch (BlobStorageException exc) {
             logger.warn(
                 "Could not clear metadata, lease with ID {}. Blob: {}, container: {}",

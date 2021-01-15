@@ -5,14 +5,12 @@ import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
@@ -27,7 +25,6 @@ import java.util.UUID;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -118,25 +115,19 @@ class ContainerCleanerTest {
         verify(blobClient2).getContainerName();
 
         // and
-        var conditionCaptor = ArgumentCaptor.forClass(BlobRequestConditions.class);
 
         verify(blobClient1).deleteWithResponse(
             eq(DeleteSnapshotsOptionType.INCLUDE),
-            conditionCaptor.capture(),
+            eq(null),
             eq(null),
             eq(Context.NONE)
         );
         verify(blobClient2).deleteWithResponse(
             eq(DeleteSnapshotsOptionType.INCLUDE),
-            conditionCaptor.capture(),
+            eq(null),
             eq(null),
             eq(Context.NONE)
         );
-
-        assertThat(conditionCaptor.getAllValues())
-            .hasSize(2)
-            .extracting(BlobRequestConditions::getLeaseId)
-            .containsExactly(leaseId1, leaseId2);
 
         // and
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
@@ -167,7 +158,7 @@ class ContainerCleanerTest {
         verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).getContainerName();
-        verify(blobClient1).deleteWithResponse(any(), any(), eq(null), eq(Context.NONE));
+        verify(blobClient1).deleteWithResponse(any(), eq(null), eq(null), eq(Context.NONE));
         verifyNoMoreInteractions(envelopeService);
     }
 

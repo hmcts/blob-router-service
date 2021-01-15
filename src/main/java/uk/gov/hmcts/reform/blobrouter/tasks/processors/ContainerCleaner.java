@@ -4,7 +4,6 @@ import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -78,15 +77,16 @@ public class ContainerCleaner {
         try {
             blobClient.deleteWithResponse(
                 DeleteSnapshotsOptionType.INCLUDE,
-                new BlobRequestConditions().setLeaseId(leaseId),
+                null,
                 null,
                 Context.NONE
             );
             envelopeService.markEnvelopeAsDeleted(envelope);
             logger.info(
-                "Deleted dispatched blob {} from container {}",
+                "Deleted dispatched blob {} from container {}, leaseId: {}",
                 envelope.fileName,
-                blobClient.getContainerName()
+                blobClient.getContainerName(),
+                leaseId
             );
         } catch (Exception ex) {
             logger.error(
