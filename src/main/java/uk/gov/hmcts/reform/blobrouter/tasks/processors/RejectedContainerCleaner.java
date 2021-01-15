@@ -5,7 +5,6 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobListDetails;
-import com.azure.storage.blob.models.BlobRequestConditions;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import org.slf4j.Logger;
@@ -88,12 +87,7 @@ public class RejectedContainerCleaner {
             // every time a duplicate is moved to rejected container
             // a snapshot is created and original blob is replaced,
             // therefore snapshots are always older than the 'base' blob and it is safe to delete them
-            blobClient.deleteWithResponse(
-                DeleteSnapshotsOptionType.INCLUDE,
-                new BlobRequestConditions().setLeaseId(leaseId),
-                null,
-                Context.NONE
-            );
+            blobClient.deleteWithResponse(DeleteSnapshotsOptionType.INCLUDE, null, null, Context.NONE);
 
             envelopeService
                 .findLastEnvelope(blobName, containerName)
@@ -101,7 +95,7 @@ public class RejectedContainerCleaner {
                     e -> envelopeService.saveEvent(e.id, EventType.DELETED_FROM_REJECTED),
                     () -> logger.warn("Envelope not found. {}", blobInfo)
                 );
-            logger.info("Deleted rejected file. {}", blobInfo);
+            logger.info("Deleted rejected file. {}, leaseId {}", blobInfo, leaseId);
         } catch (Exception exc) {
             logger.error("Error deleting rejected file. {}", blobInfo, exc);
         }

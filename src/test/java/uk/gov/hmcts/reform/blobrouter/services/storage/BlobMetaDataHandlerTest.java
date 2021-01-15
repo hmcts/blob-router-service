@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.core.http.rest.Response;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobRequestConditions;
@@ -17,9 +16,8 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
@@ -102,18 +100,13 @@ class BlobMetaDataHandlerTest {
     @Test
     void should_clear_blob_metadata_when_clear_successful() {
         //given
-        given(blobClient.setMetadataWithResponse(any(), any(), any(), any()))
-            .willReturn(mock(Response.class));
+        doNothing().when(blobClient).setMetadata(any());
 
         //when
-        blobMetaDataHandler.clearAllMetaData(blobClient, leaseId);
+        blobMetaDataHandler.clearAllMetaData(blobClient);
 
         //then
-        var conditionCaptor = ArgumentCaptor.forClass(BlobRequestConditions.class);
-        var metaDataCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(blobClient)
-            .setMetadataWithResponse(isNull(), conditionCaptor.capture(), any(), any());
+        verify(blobClient).setMetadata(null);
 
-        assertThat(conditionCaptor.getValue().getLeaseId()).isEqualTo(leaseId);
     }
 }

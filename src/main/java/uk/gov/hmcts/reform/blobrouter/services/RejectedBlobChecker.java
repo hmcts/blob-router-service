@@ -25,7 +25,7 @@ public class RejectedBlobChecker {
     public boolean shouldBeDeleted(BlobItem blobItem) {
         return blobItem
             .getProperties()
-            .getLastModified()
+            .getCreationTime()
             .plus(ttl)
             .isBefore(now());
     }
