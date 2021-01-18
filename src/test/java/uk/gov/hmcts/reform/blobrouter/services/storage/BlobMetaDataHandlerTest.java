@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +17,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
@@ -46,6 +49,8 @@ class BlobMetaDataHandlerTest {
         //given
         given(blobClient.getProperties()).willReturn(blobProperties);
         given(blobProperties.getMetadata()).willReturn(blobMetaData);
+        String etag = "etag-21321312";
+        given(blobProperties.getETag()).willReturn(etag);
 
         LocalDateTime minExpiryTime = LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
             .plusMinutes(leaseTimeoutInMin);
@@ -54,11 +59,15 @@ class BlobMetaDataHandlerTest {
 
         //then
         assertThat(isReady).isTrue();
-        var conditionCapturer = ArgumentCaptor.forClass(Map.class);
-        verify(blobClient).setMetadata(conditionCapturer.capture());
-        Map<String, String> map = conditionCapturer.getValue();
+        var mapCapturer = ArgumentCaptor.forClass(Map.class);
+        var conditionCapturer = ArgumentCaptor.forClass(BlobRequestConditions.class);
+        verify(blobClient)
+            .setMetadataWithResponse(mapCapturer.capture(), conditionCapturer.capture(), eq(null), eq(Context.NONE));
+        Map<String, String> map = mapCapturer.getValue();
         LocalDateTime leaseExpiresAt = LocalDateTime.parse(map.get(LEASE_EXPIRATION_TIME));
         assertThat(minExpiryTime).isBefore(leaseExpiresAt);
+        BlobRequestConditions con = conditionCapturer.getValue();
+        assertThat(con.getIfMatch()).isEqualTo(etag);
     }
 
     @Test
@@ -79,9 +88,11 @@ class BlobMetaDataHandlerTest {
     @Test
     void should_return_true_when_metadata_lease_expiration_expired() {
         //given
+        String etag = "etag-21321312";
+
         given(blobClient.getProperties()).willReturn(blobProperties);
         blobMetaData.put(LEASE_EXPIRATION_TIME, LocalDateTime.now(EUROPE_LONDON_ZONE_ID).toString());
-
+        given(blobProperties.getETag()).willReturn(etag);
         given(blobProperties.getMetadata()).willReturn(blobMetaData);
         LocalDateTime minExpiryTime = LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
             .plusMinutes(leaseTimeoutInMin);
@@ -90,11 +101,14 @@ class BlobMetaDataHandlerTest {
 
         //then
         assertThat(isReady).isTrue();
-        LocalDateTime leaseExpiresAt = LocalDateTime.parse(blobMetaData.get(LEASE_EXPIRATION_TIME));
-        assertThat(leaseExpiresAt.isAfter(LocalDateTime.now(EUROPE_LONDON_ZONE_ID))).isTrue();
-        var conditionCapturer = ArgumentCaptor.forClass(Map.class);
-        verify(blobClient).setMetadata(conditionCapturer.capture());
+        var mapCapturer = ArgumentCaptor.forClass(Map.class);
+        var conditionCapturer = ArgumentCaptor.forClass(BlobRequestConditions.class);
+        verify(blobClient)
+            .setMetadataWithResponse(mapCapturer.capture(), conditionCapturer.capture(), eq(null), eq(Context.NONE));
+        Map<String, String> map = mapCapturer.getValue();
+        LocalDateTime leaseExpiresAt = LocalDateTime.parse(map.get(LEASE_EXPIRATION_TIME));
         assertThat(minExpiryTime).isBefore(leaseExpiresAt);
+        assertThat(conditionCapturer.getValue().getIfMatch()).isEqualTo(etag);
     }
 
     @Test

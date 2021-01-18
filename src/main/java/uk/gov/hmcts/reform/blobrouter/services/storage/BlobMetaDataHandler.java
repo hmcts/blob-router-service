@@ -1,6 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobRequestConditions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +29,9 @@ public class BlobMetaDataHandler {
     }
 
     public boolean isBlobReadyToUse(BlobClient blobClient) {
-        Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
+        BlobProperties blobProperties = blobClient.getProperties();
+        String etag = blobProperties.getETag();
+        Map<String, String> blobMetaData = blobProperties.getMetadata();
         String leaseExpirationTime = blobMetaData.get(LEASE_EXPIRATION_TIME);
         var zipFilename = blobClient.getBlobName();
         var containerName = blobClient.getContainerName();
@@ -44,7 +49,12 @@ public class BlobMetaDataHandler {
                 LocalDateTime.now(EUROPE_LONDON_ZONE_ID)
                     .plusMinutes(leaseTimeout).toString()
             );
-            blobClient.setMetadata(blobMetaData);
+            blobClient.setMetadataWithResponse(
+                blobMetaData,
+                new BlobRequestConditions().setIfMatch(etag),
+                null,
+                Context.NONE
+            );
             return true;
         } else {
             logger.info(
