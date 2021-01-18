@@ -67,7 +67,7 @@ class BlobMetaDataHandlerTest {
         LocalDateTime leaseExpiresAt = LocalDateTime.parse(map.get(LEASE_EXPIRATION_TIME));
         assertThat(minExpiryTime).isBefore(leaseExpiresAt);
         BlobRequestConditions con = conditionCapturer.getValue();
-        assertThat(con.getIfMatch()).isEqualTo(etag);
+        assertThat(con.getIfMatch()).isEqualTo("\"" + etag + "\"");
     }
 
     @Test
@@ -108,7 +108,7 @@ class BlobMetaDataHandlerTest {
         Map<String, String> map = mapCapturer.getValue();
         LocalDateTime leaseExpiresAt = LocalDateTime.parse(map.get(LEASE_EXPIRATION_TIME));
         assertThat(minExpiryTime).isBefore(leaseExpiresAt);
-        assertThat(conditionCapturer.getValue().getIfMatch()).isEqualTo(etag);
+        assertThat(conditionCapturer.getValue().getIfMatch()).isEqualTo("\"" + etag + "\"");
     }
 
     @Test

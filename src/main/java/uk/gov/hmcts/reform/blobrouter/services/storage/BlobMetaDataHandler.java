@@ -51,7 +51,7 @@ public class BlobMetaDataHandler {
             );
             blobClient.setMetadataWithResponse(
                 blobMetaData,
-                new BlobRequestConditions().setIfMatch(etag),
+                new BlobRequestConditions().setIfMatch("\"" + etag + "\""),
                 null,
                 Context.NONE
             );
