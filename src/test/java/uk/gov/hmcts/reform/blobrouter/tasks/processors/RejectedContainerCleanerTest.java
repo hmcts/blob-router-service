@@ -7,7 +7,6 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobContainerItem;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
-import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +39,6 @@ class RejectedContainerCleanerTest {
     @Mock BlobServiceClient storageClient;
     @Mock RejectedBlobChecker blobChecker;
     @Mock EnvelopeService envelopeService;
-    @Mock BlobLeaseClient leaseClient;
 
     @Mock PagedIterable<BlobContainerItem> containers;
     @Mock BlobContainerItem container1Item;
@@ -67,7 +65,7 @@ class RejectedContainerCleanerTest {
             storageClient,
             blobChecker,
             envelopeService,
-            new LeaseAcquirer(blobClient -> leaseClient, blobMetaDataHandler)
+            new LeaseAcquirer(blobMetaDataHandler)
         );
     }
 
@@ -118,8 +116,7 @@ class RejectedContainerCleanerTest {
         given(blobClient2.getBlobName()).willReturn(REJECTED_BLOB);
 
         var leaseId = UUID.randomUUID().toString();
-        given(leaseClient.acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS)).willReturn(leaseId);
-        given(blobMetaDataHandler.isBlobReadyToUse(blobClient2, leaseId)).willReturn(true);
+        given(blobMetaDataHandler.isBlobReadyToUse(blobClient2)).willReturn(true);
 
         var envelopeId = UUID.randomUUID();
         given(envelopeService.findLastEnvelope(REJECTED_BLOB, REJECTED_CONTAINER))
