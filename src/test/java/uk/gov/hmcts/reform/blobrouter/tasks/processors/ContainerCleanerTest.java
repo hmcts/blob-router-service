@@ -5,6 +5,7 @@ import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -154,6 +157,56 @@ class ContainerCleanerTest {
         verify(blobClient1).getContainerName();
         verify(blobClient1).deleteWithResponse(any(), eq(null), eq(null), eq(Context.NONE));
         verifyNoMoreInteractions(envelopeService);
+    }
+
+    @Test
+    void should_handle_blob_not_found_lease_error() {
+        // given
+        given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME))
+            .willReturn(singletonList(
+                ENVELOPE_1
+            ));
+        given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
+        BlobStorageException mockException = mock(BlobStorageException.class);
+        given(mockException.getErrorCode()).willReturn(null);
+        given(mockException.getStatusCode()).willReturn(404);
+        
+        doThrow(mockException)
+            .when(leaseClient).acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS);
+
+        // when
+        assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
+
+        // then
+        verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
+        verifyNoMoreInteractions(containerClient);
+        verify(blobClient1,never()).deleteWithResponse(any(), any(), any(), any());
+        verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
+        verifyNoMoreInteractions(envelopeService);
+    }
+
+    @Test
+    void should_handle_lease_error() {
+        // given
+        given(envelopeService.getReadyToDeleteDispatches(CONTAINER_NAME))
+            .willReturn(singletonList(
+                ENVELOPE_1
+            ));
+        given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
+        String leaseId = UUID.randomUUID().toString();
+        BlobStorageException mockException = mock(BlobStorageException.class);
+        given(mockException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
+        doThrow(mockException)
+            .when(leaseClient).acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS);
+
+        // when
+        assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
+
+        // then
+        verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
+        verifyNoMoreInteractions(containerClient);
+        verify(blobClient1,never()).deleteWithResponse(any(), any(), any(), any());
+        verify(envelopeService,never()).markEnvelopeAsDeleted(ENVELOPE_1);
     }
 
     private static Envelope createEnvelope(UUID uuid, Status status, String fileName) {

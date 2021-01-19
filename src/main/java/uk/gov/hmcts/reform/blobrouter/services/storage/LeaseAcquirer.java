@@ -62,7 +62,18 @@ public class LeaseAcquirer {
 
 
         } catch (BlobStorageException exc) {
-            if (exc.getErrorCode() != LEASE_ALREADY_PRESENT && exc.getErrorCode() != BLOB_NOT_FOUND) {
+            var errorCode = exc.getErrorCode();
+            if (errorCode == null) {
+                logger.info("Error code is NULL, File name: {}, Container: {}",
+                    blobClient.getBlobName(),
+                    blobClient.getContainerName(),
+                    exc
+                );
+                if (exc.getStatusCode() == 404) {
+                    errorCode = BLOB_NOT_FOUND;
+                }
+            }
+            if (errorCode != LEASE_ALREADY_PRESENT && errorCode != BLOB_NOT_FOUND) {
                 logger.error(
                     "Error acquiring lease for blob. File name: {}, Container: {}",
                     blobClient.getBlobName(),
@@ -71,7 +82,7 @@ public class LeaseAcquirer {
                 );
             }
 
-            onFailure.accept(exc.getErrorCode());
+            onFailure.accept(errorCode);
         }
     }
 
