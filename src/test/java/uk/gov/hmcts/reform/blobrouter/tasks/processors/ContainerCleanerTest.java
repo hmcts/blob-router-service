@@ -172,7 +172,7 @@ class ContainerCleanerTest {
         given(mockException.getStatusCode()).willReturn(404);
         
         doThrow(mockException)
-            .when(leaseClient).acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS);
+            .when(blobMetaDataHandler).isBlobReadyToUse(blobClient1);
 
         // when
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
@@ -196,9 +196,9 @@ class ContainerCleanerTest {
         String leaseId = UUID.randomUUID().toString();
         BlobStorageException mockException = mock(BlobStorageException.class);
         given(mockException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
-        doThrow(mockException)
-            .when(leaseClient).acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS);
 
+        doThrow(mockException)
+            .when(blobMetaDataHandler).isBlobReadyToUse(blobClient1);
         // when
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
 

@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlobLeaseClient;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,7 @@ public class LeaseAcquirer {
         Consumer<BlobErrorCode> onFailure,
         boolean releaseLease
     ) {
+        BlobErrorCode errorCode = LEASE_ALREADY_PRESENT;
         try {
             boolean isReady = false;
             try {
@@ -48,6 +50,9 @@ public class LeaseAcquirer {
                     blobClient.getBlobName(),
                     blobClient.getContainerName()
                 );
+                if (ex instanceof BlobStorageException) {
+                    errorCode = getErrorCode(blobClient, (BlobStorageException) ex);
+                }
             }
 
             if (isReady) {
@@ -57,33 +62,33 @@ public class LeaseAcquirer {
                 }
             } else {
                 //it means lease did not acquired let the failure function decide
-                onFailure.accept(LEASE_ALREADY_PRESENT);
+                onFailure.accept(errorCode);
             }
-
 
         } catch (BlobStorageException exc) {
-            var errorCode = exc.getErrorCode();
-            if (errorCode == null) {
-                logger.info("Error code is NULL, File name: {}, Container: {}",
-                    blobClient.getBlobName(),
-                    blobClient.getContainerName(),
-                    exc
-                );
-                if (exc.getStatusCode() == 404) {
-                    errorCode = BLOB_NOT_FOUND;
-                }
-            }
-            if (errorCode != LEASE_ALREADY_PRESENT && errorCode != BLOB_NOT_FOUND) {
-                logger.error(
-                    "Error acquiring lease for blob. File name: {}, Container: {}",
-                    blobClient.getBlobName(),
-                    blobClient.getContainerName(),
-                    exc
-                );
-            }
-
-            onFailure.accept(errorCode);
+            logger.error(
+                "Error acquiring lease for blob. File name: {}, Container: {}",
+                blobClient.getBlobName(),
+                blobClient.getContainerName(),
+                exc
+            );
         }
+    }
+
+    private BlobErrorCode getErrorCode(BlobClient blobClient, BlobStorageException exc) {
+        // sometimes there is no error code in blob storage devmode
+        BlobErrorCode errorCode = exc.getErrorCode();
+        if (errorCode == null) {
+            logger.info("Error code is NULL, File name: {}, Container: {}",
+                blobClient.getBlobName(),
+                blobClient.getContainerName(),
+                exc
+            );
+            if (exc.getStatusCode() == HttpStatus.SC_NOT_FOUND) {
+                errorCode = BLOB_NOT_FOUND;
+            }
+        }
+        return errorCode;
     }
 
     private void clearMetadataAndReleaseLease(

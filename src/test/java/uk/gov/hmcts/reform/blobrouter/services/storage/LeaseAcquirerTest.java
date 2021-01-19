@@ -11,7 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.function.Consumer;
 
-import static com.azure.storage.blob.models.BlobErrorCode.LEASE_ALREADY_PRESENT;
+import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -54,17 +54,19 @@ class LeaseAcquirerTest {
     @Test
     void should_run_provided_action_when_metadata_lease_was_not_acquired() {
         // given
+        doThrow(blobStorageException).when(blobMetaDataHandler).isBlobReadyToUse(blobClient);
+
+        given(blobStorageException.getErrorCode()).willReturn(null);
+        given(blobStorageException.getStatusCode()).willReturn(404);
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
-
-        doThrow(blobStorageException).when(blobMetaDataHandler).isBlobReadyToUse(blobClient);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
 
         // then
         verify(onSuccess, never()).accept(anyString());
-        verify(onFailure).accept(LEASE_ALREADY_PRESENT);
+        verify(onFailure).accept(BLOB_NOT_FOUND);
     }
 
     @Test
@@ -112,14 +114,15 @@ class LeaseAcquirerTest {
         var onSuccess = mock(Consumer.class);
         var onFailure = mock(Consumer.class);
 
-        willThrow(blobStorageException).given(blobMetaDataHandler).isBlobReadyToUse(blobClient);
+        given(blobMetaDataHandler.isBlobReadyToUse(blobClient)).willReturn(true);
+        willThrow(blobStorageException).given(blobMetaDataHandler).clearAllMetaData(blobClient);
 
         // when
-        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
+        leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, true);
 
         // then
-        verify(onSuccess, never()).accept(null);
-        verify(onFailure).accept(LEASE_ALREADY_PRESENT);
+        verify(onSuccess).accept(null);
+        verify(onFailure, never()).accept(any());
         verifyNoMoreInteractions(blobMetaDataHandler);
     }
 }
