@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
+import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -56,14 +57,22 @@ public class ContainerCleaner {
             blobClient,
             leaseId -> tryToDeleteBlob(envelope, blobClient, leaseId),
             errorCode -> {
-                envelopeService.markEnvelopeAsDeleted(envelope);
-                logger.info(
-                    // once cleared up - i'll create amendment as at this stage we should not care about error code
-                    "Marked blob as deleted. File name: {}, container: {}, original error code: {}",
-                    envelope.fileName,
-                    blobClient.getContainerName(),
-                    errorCode
-                );
+                if (BLOB_NOT_FOUND == errorCode) {
+                    envelopeService.markEnvelopeAsDeleted(envelope);
+                    logger.info(
+                        "Marked blob as deleted. File name: {}, container: {}, original error code: {}",
+                        envelope.fileName,
+                        blobClient.getContainerName(),
+                        errorCode
+                    );
+                } else {
+                    logger.error(
+                        "Blob delete error,File name: {}, container: {}, original error code: {}",
+                        envelope.fileName,
+                        blobClient.getContainerName(),
+                        errorCode
+                    );
+                }
             },
             false
         );
