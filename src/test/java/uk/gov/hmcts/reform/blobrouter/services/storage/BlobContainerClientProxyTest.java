@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -137,8 +138,9 @@ public class BlobContainerClientProxyTest {
                 .willReturn(blobContainerClientBuilder);
         }
 
-        given(blobContainerClientBuilder.sasToken(any())).willThrow(
-            new BlobStorageException("Sas invalid 401", mockHttpResponse, null));
+        willThrow(new BlobStorageException("Sas invalid 401", mockHttpResponse, null))
+            .given(blobContainerClientBuilder)
+            .sasToken(any());
 
         // then
         assertThatThrownBy(
@@ -158,9 +160,9 @@ public class BlobContainerClientProxyTest {
     void should_not_invalidate_cache_when_target_storage_crime_and_error_response_40x() {
 
         HttpResponse mockHttpResponse = mock(HttpResponse.class);
-        given(crimeClient.getBlobClient(any())).willThrow(
-            new BlobStorageException("Sas invalid 401", mockHttpResponse, null));
-
+        willThrow(new BlobStorageException("Sas invalid 401", mockHttpResponse, null))
+            .given(crimeClient)
+            .getBlobClient(any());
         assertThatThrownBy(
             () -> blobContainerClientProxy.upload(
                 blobName,
