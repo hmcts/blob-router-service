@@ -128,6 +128,7 @@ You can get your subscription key for the API using Azure Portal. In order to do
 - Navigate to `Subscriptions` which holds the list of them. At least 1 (default) should be present
 - Click on the `...` at the right of selected subscription and choose `Show/hide keys`. This will toggle the keys. You will need to provide one of the Primary/Secondary value in your request to the API.
 
+
 ### Getting the token through the API
 
 You can call the API using the following curl command (assuming your current directory contains the private key
