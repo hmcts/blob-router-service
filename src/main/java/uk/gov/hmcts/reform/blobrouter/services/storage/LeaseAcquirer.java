@@ -48,7 +48,8 @@ public class LeaseAcquirer {
                 logger.warn(
                     "Could not check meta data for lease expiration on file {} in container {}",
                     blobClient.getBlobName(),
-                    blobClient.getContainerName()
+                    blobClient.getContainerName(),
+                    ex
                 );
                 if (ex instanceof BlobStorageException) {
                     errorCode = getErrorCode(blobClient, (BlobStorageException) ex);
