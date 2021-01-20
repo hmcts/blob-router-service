@@ -10,8 +10,8 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.util.PublicKeyDecoder;
 import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.zip.ZipInputStream;
 
@@ -38,8 +38,8 @@ public class BlobVerifier {
         }
     }
 
-    public VerificationResult verifyZip(String blobName, byte[] rawBlob) {
-        try (var zis = new ZipInputStream(new ByteArrayInputStream(rawBlob))) {
+    public VerificationResult verifyZip(String blobName, InputStream zipSource) {
+        try (var zis = new ZipInputStream(zipSource)) {
 
             ZipVerifiers.verifyZip(zis, publicKey);
             return ok();

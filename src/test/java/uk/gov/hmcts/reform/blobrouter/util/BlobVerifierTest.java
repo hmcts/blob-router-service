@@ -8,6 +8,7 @@ import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidConfigException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 
+import java.io.ByteArrayInputStream;
 import java.security.spec.InvalidKeySpecException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +32,7 @@ class  BlobVerifierTest {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/test_private_key.der");
 
         // then
-        assertThat(verifier.verifyZip("test.zip", zipBytes).isOk).isTrue();
+        assertThat(verifier.verifyZip("test.zip", new ByteArrayInputStream(zipBytes)).isOk).isTrue();
     }
 
     @Test
@@ -40,7 +41,7 @@ class  BlobVerifierTest {
         byte[] zipBytes = zipAndSignDir("signature/sample_valid_content", "signature/some_other_private_key.der");
 
         // then
-        var result = verifier.verifyZip("test.zip", zipBytes);
+        var result = verifier.verifyZip("test.zip", new ByteArrayInputStream(zipBytes));
         assertThat(result.isOk).isFalse();
         assertThat(result.error).isEqualTo(ErrorCode.ERR_SIG_VERIFY_FAILED);
         assertThat(result.errorDescription).isEqualTo("Invalid signature");
@@ -53,7 +54,7 @@ class  BlobVerifierTest {
         byte[] zipBytes = zipDir("signature/sample_valid_content"); // no signature
 
         // then
-        var result = verifier.verifyZip("test.zip", zipBytes);
+        var result = verifier.verifyZip("test.zip", new ByteArrayInputStream(zipBytes));
         assertThat(result.isOk).isFalse();
         assertThat(result.error).isEqualTo(ErrorCode.ERR_ZIP_PROCESSING_FAILED);
         assertThat(result.errorDescription).isEqualTo("Invalid zip archive");
@@ -65,7 +66,7 @@ class  BlobVerifierTest {
         byte[] zipBytes = "not zip file".getBytes();
 
         // then
-        var result = verifier.verifyZip("test.zip", zipBytes);
+        var result = verifier.verifyZip("test.zip", new ByteArrayInputStream(zipBytes));
         assertThat(result.isOk).isFalse();
         assertThat(result.error).isEqualTo(ErrorCode.ERR_ZIP_PROCESSING_FAILED);
         assertThat(result.errorDescription).isEqualTo("Invalid zip archive");
