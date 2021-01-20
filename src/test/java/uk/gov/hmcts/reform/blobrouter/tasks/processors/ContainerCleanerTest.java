@@ -8,7 +8,6 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
-import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,7 +50,6 @@ class ContainerCleanerTest {
     @Mock BlobContainerClient containerClient;
     @Mock BlobClient blobClient1;
     @Mock BlobClient blobClient2;
-    @Mock BlobLeaseClient leaseClient;
     @Mock BlobMetaDataHandler blobMetaDataHandler;
 
     private static final Envelope ENVELOPE_1 = createEnvelope(UUID.randomUUID(), DISPATCHED, "file1.zip");
@@ -62,7 +60,7 @@ class ContainerCleanerTest {
         containerCleaner = new ContainerCleaner(
             storageClient,
             envelopeService,
-            new LeaseAcquirer(blobClient -> leaseClient, blobMetaDataHandler)
+            new LeaseAcquirer(blobMetaDataHandler)
         );
 
         given(storageClient.getBlobContainerClient(CONTAINER_NAME)).willReturn(containerClient);
@@ -102,11 +100,8 @@ class ContainerCleanerTest {
             ));
         given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
         given(containerClient.getBlobClient(ENVELOPE_2.fileName)).willReturn(blobClient2);
-        String leaseId1 = UUID.randomUUID().toString();
-        String leaseId2 = UUID.randomUUID().toString();
-        given(leaseClient.acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS)).willReturn(leaseId1, leaseId2);
-        given(blobMetaDataHandler.isBlobReadyToUse(blobClient1, leaseId1)).willReturn(true);
-        given(blobMetaDataHandler.isBlobReadyToUse(blobClient2, leaseId2)).willReturn(true);
+        given(blobMetaDataHandler.isBlobReadyToUse(blobClient1)).willReturn(true);
+        given(blobMetaDataHandler.isBlobReadyToUse(blobClient2)).willReturn(true);
         // when
         containerCleaner.process(CONTAINER_NAME);
 
@@ -146,10 +141,9 @@ class ContainerCleanerTest {
                 ENVELOPE_1
             ));
         given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
-        String leaseId = UUID.randomUUID().toString();
-        given(leaseClient.acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS))
-            .willReturn(leaseId);
-        given(blobMetaDataHandler.isBlobReadyToUse(blobClient1, leaseId)).willReturn(true);
+        given(blobMetaDataHandler.isBlobReadyToUse(blobClient1)).willReturn(true);
+
+        given(blobMetaDataHandler.isBlobReadyToUse(blobClient1)).willReturn(true);
 
         doThrow(new BlobStorageException("msg", httpResponse, null))
             .when(blobClient1).deleteWithResponse(any(), any(), eq(null), eq(Context.NONE));
@@ -178,7 +172,7 @@ class ContainerCleanerTest {
         given(mockException.getStatusCode()).willReturn(404);
         
         doThrow(mockException)
-            .when(leaseClient).acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS);
+            .when(blobMetaDataHandler).isBlobReadyToUse(blobClient1);
 
         // when
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
@@ -202,9 +196,9 @@ class ContainerCleanerTest {
         String leaseId = UUID.randomUUID().toString();
         BlobStorageException mockException = mock(BlobStorageException.class);
         given(mockException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
-        doThrow(mockException)
-            .when(leaseClient).acquireLease(LeaseAcquirer.LEASE_DURATION_IN_SECONDS);
 
+        doThrow(mockException)
+            .when(blobMetaDataHandler).isBlobReadyToUse(blobClient1);
         // when
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
 

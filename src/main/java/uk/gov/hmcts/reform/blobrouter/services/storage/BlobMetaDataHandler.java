@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.models.BlobProperties;
 import com.azure.storage.blob.models.BlobRequestConditions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,8 +28,10 @@ public class BlobMetaDataHandler {
         this.leaseTimeout = leaseTimeout;
     }
 
-    public boolean isBlobReadyToUse(BlobClient blobClient, String leaseId) {
-        Map<String, String> blobMetaData = blobClient.getProperties().getMetadata();
+    public boolean isBlobReadyToUse(BlobClient blobClient) {
+        BlobProperties blobProperties = blobClient.getProperties();
+        String etag = blobProperties.getETag();
+        Map<String, String> blobMetaData = blobProperties.getMetadata();
         String leaseExpirationTime = blobMetaData.get(LEASE_EXPIRATION_TIME);
         var zipFilename = blobClient.getBlobName();
         var containerName = blobClient.getContainerName();
@@ -48,8 +51,9 @@ public class BlobMetaDataHandler {
             );
             blobClient.setMetadataWithResponse(
                 blobMetaData,
-                new BlobRequestConditions().setLeaseId(leaseId),
-                null, Context.NONE
+                new BlobRequestConditions().setIfMatch("\"" + etag + "\""),
+                null,
+                Context.NONE
             );
             return true;
         } else {
