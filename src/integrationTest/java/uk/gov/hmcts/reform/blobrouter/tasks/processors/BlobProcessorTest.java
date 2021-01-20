@@ -94,9 +94,8 @@ class BlobProcessorTest extends BlobStorageBaseTest {
         BlobClient blobClient = sourceContainerClient.getBlobClient(blobName);
 
         blobClient
+            .getBlockBlobClient()
             .upload(new ByteArrayInputStream(bytes), bytes.length);
-
-         System.out.println( blobClient.getBlockBlobClient().getProperties().getETag());
 
         // when
         blobProcessor.process(blobClient);
