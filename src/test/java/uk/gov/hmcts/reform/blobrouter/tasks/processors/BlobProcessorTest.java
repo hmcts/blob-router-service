@@ -129,6 +129,7 @@ class BlobProcessorTest {
 
         HttpResponse errorResponse = mock(HttpResponse.class);
         given(errorResponse.getStatusCode()).willReturn(BAD_GATEWAY.value());
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         willThrow(new BlobStorageException("test", errorResponse, null))
             .given(blobClient)
@@ -156,6 +157,7 @@ class BlobProcessorTest {
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         willThrow(new RuntimeException("test")).given(blobClient).download(any());
 

@@ -86,10 +86,8 @@ public class BlobProcessor {
         try {
             var verificationResult = blobVerifier.verifyZip(blobClient.getBlobName(), blobClient.openInputStream());
 
-            byte[] rawBlob = downloadBlob(blobClient);
-
             if (verificationResult.isOk) {
-                dispatch(blobClient, id, rawBlob);
+                dispatch(blobClient, id);
             } else {
                 reject(blobClient, id, verificationResult.error, verificationResult.errorDescription);
             }
@@ -98,9 +96,11 @@ public class BlobProcessor {
         }
     }
 
-    private void dispatch(BlobClient blob, UUID id, byte[] rawBlob) throws IOException {
+    private void dispatch(BlobClient blob, UUID id) throws IOException {
         StorageConfigItem containerConfig = storageConfig.get(blob.getContainerName());
         TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
+
+        byte[] rawBlob = downloadBlob(blob);
 
         dispatcher.dispatch(
             blob.getBlobName(),
@@ -131,7 +131,7 @@ public class BlobProcessor {
         );
     }
 
-    private byte[] downloadBlob(BlobClient blobClient) throws IOException {
+    private byte[] downloadBlob(BlobClient blobClient) {
         try (var outputStream = new ByteArrayOutputStream()) {
             blobClient.download(outputStream);
 
