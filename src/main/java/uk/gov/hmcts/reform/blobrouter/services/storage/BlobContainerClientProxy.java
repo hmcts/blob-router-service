@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.exception.HttpResponseException;
+import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
@@ -23,6 +24,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
+import static com.azure.core.util.polling.LongRunningOperationStatus.*;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
@@ -132,7 +134,8 @@ public class BlobContainerClientProxy {
             var start = System.nanoTime();
             final SyncPoller<BlobCopyInfo, Void> poller =
                 targetBlob.beginCopy(sourceBlob.getBlobUrl() + "?" + sasToken, Duration.ofSeconds(2));
-            PollResponse<BlobCopyInfo> pollResponse = poller.waitForCompletion();
+            PollResponse<BlobCopyInfo> pollResponse = poller.waitUntil(SUCCESSFULLY_COMPLETED);
+
             logger.info("Move done from {}   to Container: {} Copy Id: {}, Copy status: {} ,Takes {} second",
                 sourceBlob.getBlobUrl(),
                 destinationContainer,
