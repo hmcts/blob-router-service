@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.http.HttpResponse;
+import com.azure.core.util.polling.LongRunningOperationStatus;
 import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
@@ -233,7 +234,7 @@ public class BlobContainerClientProxyTest {
         SyncPoller syncPoller = mock(SyncPoller.class);
         given(blockBlobClient.beginCopy(any(), any())).willReturn(syncPoller);
         var pollResponse = mock(PollResponse.class);
-        given(syncPoller.waitForCompletion()).willReturn(pollResponse);
+        given(syncPoller.waitUntil(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED)).willReturn(pollResponse);
         given(pollResponse.getValue()).willReturn(mock(BlobCopyInfo.class));
 
         BlobClient sourceBlobClient = mock(BlobClient.class);
