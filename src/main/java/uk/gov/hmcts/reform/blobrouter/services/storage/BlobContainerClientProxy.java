@@ -23,7 +23,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
-import static com.azure.core.util.polling.LongRunningOperationStatus.*;
+import static com.azure.core.util.polling.LongRunningOperationStatus.SUCCESSFULLY_COMPLETED;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
