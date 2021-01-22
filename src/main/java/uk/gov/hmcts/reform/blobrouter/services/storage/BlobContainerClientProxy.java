@@ -133,7 +133,6 @@ public class BlobContainerClientProxy {
             final SyncPoller<BlobCopyInfo, Void> poller =
                 targetBlob.beginCopy(sourceBlob.getBlobUrl() + "?" + sasToken, Duration.ofSeconds(2));
             PollResponse<BlobCopyInfo> pollResponse = poller.waitForCompletion();
-            System.out.printf("Copy identifier: %s%n", pollResponse.getValue().getCopyId());
             logger.info("Move done from {}   to Container: {} Copy Id: {}, Copy status: {} ,Takes {} second",
                 sourceBlob.getBlobUrl(),
                 destinationContainer,
