@@ -139,6 +139,7 @@ public class BlobContainerClientProxy {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     logger.info("Skipped");
+                    Thread.currentThread().interrupt();
                 }
             }
 
