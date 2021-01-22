@@ -1,7 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.exception.HttpResponseException;
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -10,6 +13,10 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -93,4 +100,46 @@ public class BlobContainerClientProxy {
             throw ex;
         }
     }
+
+    public void moveBlob(
+        BlobClient sourceBlob,
+        String destinationContainer,
+        TargetStorageAccount targetStorageAccount
+    ) {
+        try {
+            var blobName = sourceBlob.getBlobName();
+            logger.info("Move from {}   to Container: {}", sourceBlob.getBlobUrl(),
+                destinationContainer);
+
+            String sasToken = sourceBlob
+                .generateSas(
+                    new BlobServiceSasSignatureValues(
+                        OffsetDateTime
+                            .of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
+                        new BlobContainerSasPermission().setReadPermission(true)
+                    )
+                );
+            final BlockBlobClient targetBlob =
+                get(targetStorageAccount, destinationContainer)
+                    .getBlobClient(blobName)
+                    .getBlockBlobClient();
+
+            targetBlob
+                .copyFromUrl(sourceBlob.getBlobUrl() + "?" + sasToken);
+        } catch (HttpResponseException ex) {
+            logger.info(
+                "Uploading failed for  url {} to Container: {}, error code: {}",
+                sourceBlob.getBlobUrl(),
+                destinationContainer,
+                ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
+            );
+            if ((targetStorageAccount == TargetStorageAccount.CFT
+                || targetStorageAccount == TargetStorageAccount.PCQ)
+                && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
+                sasTokenCache.removeFromCache(destinationContainer);
+            }
+            throw ex;
+        }
+    }
+
 }

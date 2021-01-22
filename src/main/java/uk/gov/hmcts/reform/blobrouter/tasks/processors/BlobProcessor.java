@@ -25,6 +25,8 @@ import java.util.function.Supplier;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 
 @Component
 @EnableConfigurationProperties(ServiceConfiguration.class)
@@ -100,14 +102,21 @@ public class BlobProcessor {
         StorageConfigItem containerConfig = storageConfig.get(blob.getContainerName());
         TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
 
-        byte[] rawBlob = downloadBlob(blob);
-
-        dispatcher.dispatch(
-            blob.getBlobName(),
-            blobContentExtractor.getContentToUpload(rawBlob, targetStorageAccount),
-            containerConfig.getTargetContainer(),
-            targetStorageAccount
-        );
+        if (targetStorageAccount == CRIME || targetStorageAccount == PCQ) {
+            byte[] rawBlob = downloadBlob(blob);
+            dispatcher.dispatch(
+                blob.getBlobName(),
+                blobContentExtractor.getContentToUpload(rawBlob, targetStorageAccount),
+                containerConfig.getTargetContainer(),
+                targetStorageAccount
+            );
+        } else {
+            dispatcher.moveBlob(
+                blob,
+                containerConfig.getTargetContainer(),
+                targetStorageAccount
+            );
+        }
 
         envelopeService.markAsDispatched(id);
 

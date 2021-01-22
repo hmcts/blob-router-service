@@ -213,4 +213,84 @@ public class BlobContainerClientProxyTest {
         verify(sasTokenCache, never()).removeFromCache(containerName);
     }
 
+    @Test
+    void should_move_to_bulk_scan_storage_when_target_storage_bulk_scan() {
+
+        given(sasTokenCache.getSasToken(any())).willReturn("token1");
+
+        given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+            .willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.containerName(containerName)).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.sasToken("token1")).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.buildClient()).willReturn(blobContainerClient);
+        given(blobContainerClient.getBlobClient(blobName)).willReturn(blobClient);
+        given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
+
+
+        BlobClient sourceBlobClient = mock(BlobClient.class);
+        given(sourceBlobClient.getBlobName()).willReturn(blobName);
+
+        String sasToken = "sas_token_01-09-2021";
+        given(sourceBlobClient.generateSas(any())).willReturn(sasToken);
+        String blobUrl = "http://" + containerName + "/" + blobName;
+        given(sourceBlobClient.getBlobUrl()).willReturn(blobUrl);
+
+
+        blobContainerClientProxy.moveBlob(
+            sourceBlobClient,
+            containerName,
+            TargetStorageAccount.CFT
+        );
+
+        verify(sasTokenCache).getSasToken(containerName);
+
+        // then
+        ArgumentCaptor<String> copyUrlCap = ArgumentCaptor.forClass(String.class);
+
+        verify(blockBlobClient)
+            .copyFromUrl(copyUrlCap.capture());
+
+        assertThat(copyUrlCap.getValue()).isEqualTo(blobUrl + "?" + sasToken);
+
+        verify(sasTokenCache, never()).removeFromCache(containerName);
+
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = TargetStorageAccount.class,
+        names = {"CFT", "PCQ"}
+    )
+    void should_invalidate_cache_when_moveBlob_returns_error_response_40x(TargetStorageAccount storageAccount) {
+        // given
+        HttpResponse mockHttpResponse = mock(HttpResponse.class);
+        given(mockHttpResponse.getStatusCode()).willReturn(401);
+
+        if (storageAccount == TargetStorageAccount.PCQ) {
+            given(blobContainerClientBuilderProvider.getPcqBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        } else if (storageAccount == TargetStorageAccount.CFT) {
+            given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        }
+
+        willThrow(new BlobStorageException("Sas invalid 401", mockHttpResponse, null))
+            .given(blobContainerClientBuilder)
+            .sasToken(any());
+
+        BlobClient sourceBlobClient = mock(BlobClient.class);
+        given(sourceBlobClient.getBlobName()).willReturn(blobName);
+
+        // then
+        assertThatThrownBy(
+            () -> blobContainerClientProxy.moveBlob(
+                sourceBlobClient,
+                containerName,
+                storageAccount
+            )
+        ).isInstanceOf(BlobStorageException.class);
+        verify(sasTokenCache).removeFromCache(containerName);
+
+    }
+
 }
