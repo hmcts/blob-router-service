@@ -133,8 +133,6 @@ public class BlobContainerClientProxy {
             var start = System.nanoTime();
             final SyncPoller<BlobCopyInfo, Void> poller =
                 targetBlob.beginCopy(sourceBlob.getBlobUrl() + "?" + sasToken, Duration.ofSeconds(2));
-            targetBlob.upload(sourceBlob.openInputStream(), sourceBlob.getProperties().getBlobSize());
-
             PollResponse<BlobCopyInfo> pollResponse = poller.waitForCompletion(Duration.ofMinutes(10));
             while (pollResponse.getValue().getCopyStatus() == PENDING) {
                 try {
