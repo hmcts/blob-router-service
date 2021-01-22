@@ -1,9 +1,12 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.http.HttpResponse;
+import com.azure.core.util.polling.PollResponse;
+import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
+import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,6 +31,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+@SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
 public class BlobContainerClientProxyTest {
 
@@ -226,6 +230,11 @@ public class BlobContainerClientProxyTest {
         given(blobContainerClient.getBlobClient(blobName)).willReturn(blobClient);
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
 
+        SyncPoller syncPoller = mock(SyncPoller.class);
+        given(blockBlobClient.beginCopy(any(), any())).willReturn(syncPoller);
+        var pollResponse = mock(PollResponse.class);
+        given(syncPoller.waitForCompletion()).willReturn(pollResponse);
+        given(pollResponse.getValue()).willReturn(mock(BlobCopyInfo.class));
 
         BlobClient sourceBlobClient = mock(BlobClient.class);
         given(sourceBlobClient.getBlobName()).willReturn(blobName);
@@ -248,7 +257,7 @@ public class BlobContainerClientProxyTest {
         ArgumentCaptor<String> copyUrlCap = ArgumentCaptor.forClass(String.class);
 
         verify(blockBlobClient)
-            .copyFromUrl(copyUrlCap.capture());
+            .beginCopy(copyUrlCap.capture(), any());
 
         assertThat(copyUrlCap.getValue()).isEqualTo(blobUrl + "?" + sasToken);
 

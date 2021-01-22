@@ -1,8 +1,11 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.exception.HttpResponseException;
+import com.azure.core.util.polling.PollResponse;
+import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -13,10 +16,12 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
 import java.io.ByteArrayInputStream;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.TimeUnit;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -124,8 +129,18 @@ public class BlobContainerClientProxy {
                     .getBlobClient(blobName)
                     .getBlockBlobClient();
 
-            targetBlob
-                .copyFromUrl(sourceBlob.getBlobUrl() + "?" + sasToken);
+            var start = System.nanoTime();
+            final SyncPoller<BlobCopyInfo, Void> poller =
+                targetBlob.beginCopy(sourceBlob.getBlobUrl() + "?" + sasToken, Duration.ofSeconds(2));
+            PollResponse<BlobCopyInfo> pollResponse = poller.waitForCompletion();
+            System.out.printf("Copy identifier: %s%n", pollResponse.getValue().getCopyId());
+            logger.info("Move done from {}   to Container: {} Copy Id: {}, Copy status: {} ,Takes {} second",
+                sourceBlob.getBlobUrl(),
+                destinationContainer,
+                pollResponse.getValue().getCopyId(),
+                pollResponse.getValue().getCopyStatus(),
+                TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start)
+            );
         } catch (HttpResponseException ex) {
             logger.info(
                 "Uploading failed for  url {} to Container: {}, error code: {}",
