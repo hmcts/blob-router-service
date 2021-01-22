@@ -137,6 +137,10 @@ public class BlobContainerClientProxy {
             while (pollResponse.getValue().getCopyStatus() == PENDING) {
                 try {
                     Thread.sleep(2000);
+                    logger.info("Move status from {}   status {}",
+                        sourceBlob.getBlobUrl(),
+                        pollResponse.getValue().getCopyStatus()
+                    );
                 } catch (InterruptedException e) {
                     logger.info("Skipped");
                     Thread.currentThread().interrupt();
