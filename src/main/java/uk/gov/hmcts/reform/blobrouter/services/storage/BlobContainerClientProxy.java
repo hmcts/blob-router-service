@@ -23,7 +23,6 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
-import static com.azure.storage.blob.models.CopyStatusType.PENDING;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
@@ -134,24 +133,11 @@ public class BlobContainerClientProxy {
             final SyncPoller<BlobCopyInfo, Void> poller =
                 targetBlob.beginCopy(sourceBlob.getBlobUrl() + "?" + sasToken, Duration.ofSeconds(2));
             PollResponse<BlobCopyInfo> pollResponse = poller.waitForCompletion(Duration.ofMinutes(10));
-            while (pollResponse.getValue().getCopyStatus() == PENDING) {
-                try {
-                    Thread.sleep(2000);
-                    logger.info("Move status from {}   status {}",
-                        sourceBlob.getBlobUrl(),
-                        pollResponse.getValue().getCopyStatus()
-                    );
-                } catch (InterruptedException e) {
-                    logger.info("Skipped");
-                    Thread.currentThread().interrupt();
-                }
-            }
 
-
-            logger.info("Move done from {}   to Container: {} Copy Id: {}, Copy status: {} ,Takes {} second",
+            logger.info("Move done from {}   to Container: {} Poll response: {}, Copy status: {} ,Takes {} second",
                 sourceBlob.getBlobUrl(),
                 destinationContainer,
-                pollResponse.getValue().getCopyId(),
+                pollResponse.getStatus(),
                 pollResponse.getValue().getCopyStatus(),
                 TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start)
             );
