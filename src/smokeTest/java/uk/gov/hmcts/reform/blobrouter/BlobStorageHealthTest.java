@@ -14,9 +14,6 @@ public class BlobStorageHealthTest {
 
     @Test
     public void should_get_the_sas_token_for_service() {
-
-        assertThat(TEST_URL).isEqualTo("http://localhost");
-
         RestAssured
             .given()
             .relaxedHTTPSValidation()
