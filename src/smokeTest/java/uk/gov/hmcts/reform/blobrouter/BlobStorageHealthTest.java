@@ -5,6 +5,7 @@ import io.restassured.RestAssured;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 
 public class BlobStorageHealthTest {
@@ -13,6 +14,7 @@ public class BlobStorageHealthTest {
 
     @Test
     public void should_get_the_sas_token_for_service() {
+       assertThat(TEST_URL).isEqualTo("http://localhost");
         RestAssured
             .given()
             .relaxedHTTPSValidation()
