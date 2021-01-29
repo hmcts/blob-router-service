@@ -20,6 +20,9 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.CREATED;
+import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.REJECTED;
 
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest
@@ -41,7 +44,7 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             now().plusSeconds(100),
-            Status.DISPATCHED
+            DISPATCHED
         );
 
         // when
@@ -70,7 +73,7 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             null,
-            Status.REJECTED
+            REJECTED
         );
 
         // when
@@ -99,7 +102,7 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             now().plusSeconds(100),
-            Status.DISPATCHED
+            DISPATCHED
         );
 
         UUID id = repo.insert(newEnvelope);
@@ -121,7 +124,7 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             now().plusSeconds(100),
-            Status.REJECTED
+            REJECTED
         );
 
         UUID id = repo.insert(newEnvelope);
@@ -138,8 +141,8 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_update_envelopes_status() {
         // given
-        var oldStatus = Status.DISPATCHED;
-        var newStatus = Status.REJECTED;
+        var oldStatus = DISPATCHED;
+        var newStatus = REJECTED;
 
         UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, oldStatus));
 
@@ -154,7 +157,7 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_update_dispatch_time() {
         // given
-        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, Status.DISPATCHED));
+        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, DISPATCHED));
         Instant newDispatchTime = now();
 
         // when
@@ -180,15 +183,15 @@ public class EnvelopeRepositoryTest {
     void should_find_not_deleted_envelopes_by_status() {
         // given
         String container = "container1";
-        repo.insert(newEnvelope(Status.DISPATCHED, container));
-        repo.insert(newEnvelope(Status.DISPATCHED, container));
-        repo.insert(newEnvelope(Status.DISPATCHED, container));
-        repo.insert(newEnvelope(Status.REJECTED, container));
-        repo.insert(newEnvelope(Status.REJECTED, container));
+        repo.insert(newEnvelope(DISPATCHED, container));
+        repo.insert(newEnvelope(DISPATCHED, container));
+        repo.insert(newEnvelope(DISPATCHED, container));
+        repo.insert(newEnvelope(REJECTED, container));
+        repo.insert(newEnvelope(REJECTED, container));
 
         // when
-        List<Envelope> dispatched = repo.find(Status.DISPATCHED, container, false);
-        List<Envelope> rejected = repo.find(Status.REJECTED, container, false);
+        List<Envelope> dispatched = repo.find(DISPATCHED, container, false);
+        List<Envelope> rejected = repo.find(REJECTED, container, false);
 
         // then
         assertThat(dispatched).hasSize(3);
@@ -199,11 +202,11 @@ public class EnvelopeRepositoryTest {
     void should_find_envelopes_only_for_the_requested_container() {
         // given
         String containerName = "container1";
-        repo.insert(newEnvelope(Status.DISPATCHED, containerName));
-        repo.insert(newEnvelope(Status.DISPATCHED, "other-container"));
+        repo.insert(newEnvelope(DISPATCHED, containerName));
+        repo.insert(newEnvelope(DISPATCHED, "other-container"));
 
         // when
-        List<Envelope> found = repo.find(Status.DISPATCHED, containerName, false);
+        List<Envelope> found = repo.find(DISPATCHED, containerName, false);
 
         // then
         assertThat(found).hasSize(1);
@@ -214,13 +217,13 @@ public class EnvelopeRepositoryTest {
     void should_find_deleted_envelopes_by_status() {
         // given
         String containerName = "container1";
-        NewEnvelope envelope = newEnvelope(Status.DISPATCHED, containerName);
+        NewEnvelope envelope = newEnvelope(DISPATCHED, containerName);
         UUID id = repo.insert(envelope);
         repo.markAsDeleted(id);
 
         // when
-        List<Envelope> deleted = repo.find(Status.DISPATCHED, containerName, true);
-        List<Envelope> notDeleted = repo.find(Status.DISPATCHED, containerName, false);
+        List<Envelope> deleted = repo.find(DISPATCHED, containerName, true);
+        List<Envelope> notDeleted = repo.find(DISPATCHED, containerName, false);
 
         // then
         assertThat(deleted).hasSize(1);
@@ -245,8 +248,8 @@ public class EnvelopeRepositoryTest {
         final String container = "bar";
 
         // and
-        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(99), now(), Status.DISPATCHED));
-        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(10), null, Status.REJECTED));
+        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(99), now(), DISPATCHED));
+        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(10), null, REJECTED));
 
         // when
         Optional<Envelope> result = repo.findLast(fileName, container);
@@ -255,14 +258,14 @@ public class EnvelopeRepositoryTest {
         assertThat(result).hasValueSatisfying(envelope -> {
             assertThat(envelope.fileName).isEqualTo(fileName);
             assertThat(envelope.container).isEqualTo(container);
-            assertThat(envelope.status).isEqualTo(Status.REJECTED);
+            assertThat(envelope.status).isEqualTo(REJECTED);
         });
     }
 
     @Test
     void should_return_empty_optional_when_last_envelope_for_given_container_and_file_name_does_not_exist() {
         // given
-        repo.insert(new NewEnvelope("a", "b", now(), now(), Status.DISPATCHED));
+        repo.insert(new NewEnvelope("a", "b", now(), now(), DISPATCHED));
 
         // when
         Optional<Envelope> result = repo.findLast("some_other_file_name", "some_other_container");
@@ -274,27 +277,27 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_find_envelopes_by_status() {
         //given
-        addEnvelope("C1", "f1", Status.DISPATCHED, false);
-        addEnvelope("C1", "f2", Status.REJECTED, false);
-        addEnvelope("C1", "f3", Status.DISPATCHED, true);
-        addEnvelope("C1", "f4", Status.REJECTED, true);
+        addEnvelope("C1", "f1", DISPATCHED, false);
+        addEnvelope("C1", "f2", REJECTED, false);
+        addEnvelope("C1", "f3", DISPATCHED, true);
+        addEnvelope("C1", "f4", REJECTED, true);
 
-        addEnvelope("C2", "f5", Status.DISPATCHED, false);
-        addEnvelope("C2", "f6", Status.REJECTED, false);
-        addEnvelope("C2", "f7", Status.DISPATCHED, true);
-        addEnvelope("C2", "f8", Status.REJECTED, true);
+        addEnvelope("C2", "f5", DISPATCHED, false);
+        addEnvelope("C2", "f6", REJECTED, false);
+        addEnvelope("C2", "f7", DISPATCHED, true);
+        addEnvelope("C2", "f8", REJECTED, true);
 
         // then
-        assertThat(repo.find(Status.DISPATCHED, false))
+        assertThat(repo.find(DISPATCHED, false))
             .extracting(env -> env.fileName)
             .containsExactlyInAnyOrder("f1", "f5");
-        assertThat(repo.find(Status.DISPATCHED, true))
+        assertThat(repo.find(DISPATCHED, true))
             .extracting(env -> env.fileName)
             .containsExactlyInAnyOrder("f3", "f7");
-        assertThat(repo.find(Status.REJECTED, false))
+        assertThat(repo.find(REJECTED, false))
             .extracting(env -> env.fileName)
             .containsExactlyInAnyOrder("f2", "f6");
-        assertThat(repo.find(Status.REJECTED, true))
+        assertThat(repo.find(REJECTED, true))
             .extracting(env -> env.fileName)
             .containsExactlyInAnyOrder("f4", "f8");
     }
@@ -319,10 +322,10 @@ public class EnvelopeRepositoryTest {
         //given
         Instant fromDate = now().minus(5, MINUTES);
 
-        addEnvelope("C1", "f1", Status.CREATED, fromDate.plusSeconds(60)); // in time range
-        addEnvelope("C3", "f3", Status.DISPATCHED, fromDate.plusSeconds(10)); // in time range
-        addEnvelope("C2", "f2", Status.REJECTED, fromDate.minusSeconds(30)); // not in time range
-        addEnvelope("some-container", "f4", Status.CREATED, fromDate.plusSeconds(30)); // invalid container
+        addEnvelope("C1", "f1", CREATED, fromDate.plusSeconds(60)); // in time range
+        addEnvelope("C3", "f3", DISPATCHED, fromDate.plusSeconds(10)); // in time range
+        addEnvelope("C2", "f2", REJECTED, fromDate.minusSeconds(30)); // not in time range
+        addEnvelope("some-container", "f4", CREATED, fromDate.plusSeconds(30)); // invalid container
 
         // then
         assertThat(repo.getEnvelopesCount(newHashSet("C1", "C2", "C3", "C4"), fromDate, now())).isEqualTo(2);
@@ -405,8 +408,31 @@ public class EnvelopeRepositoryTest {
         assertThat(envelopes).isEmpty();
     }
 
+    @Test
+    void should_get_empty_result_when_no_incomplete_envelopes_are_there_in_db() {
+        assertThat(repo.getIncompleteEnvelopesBefore(now().minusSeconds(3600))).isEmpty();
+    }
+
+    @Test
+    void should_get_incomplete_envelopes() {
+        // given
+        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(7200), null, CREATED));
+        repo.insert(new NewEnvelope("Y", "B.zip", now().minusSeconds(10), null, DISPATCHED));
+        repo.insert(new NewEnvelope("Z", "C.zip", now().minusSeconds(10), null, REJECTED));
+        repo.insert(new NewEnvelope("Z", "D.zip", now().minusSeconds(7200), null, CREATED));
+        repo.insert(new NewEnvelope("Z", "E.zip", now().minusSeconds(10), null, CREATED));
+
+        // when
+        List<Envelope> result = repo.getIncompleteEnvelopesBefore(now().minusSeconds(3600));
+
+        // then
+        assertThat(result)
+            .extracting(envelope -> envelope.fileName)
+            .containsExactlyInAnyOrder("A.zip", "D.zip");
+    }
+
     private UUID addEnvelope(String fileName, String container) {
-        return addEnvelope(container, fileName, Status.CREATED, false);
+        return addEnvelope(container, fileName, CREATED, false);
     }
 
     private UUID addEnvelope(String container, String fileName, Status status, boolean isDeleted) {

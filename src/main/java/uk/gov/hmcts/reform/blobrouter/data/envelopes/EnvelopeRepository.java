@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data.envelopes;
 
+import feign.Param;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -190,6 +191,17 @@ public class EnvelopeRepository {
                 + " ORDER BY created_at DESC",
             parameterSource,
             this.mapper
+        );
+    }
+
+    public List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") Instant dateTime) {
+        return jdbcTemplate.query(
+            "SELECT * FROM envelopes"
+                + " WHERE file_created_at < :datetime AND status = 'CREATED'"
+                + " ORDER BY created_at DESC",
+            new MapSqlParameterSource()
+                .addValue("datetime", Timestamp.from(dateTime)),
+            mapper
         );
     }
 }
