@@ -116,6 +116,7 @@ Finally, add this thumbprint to `allowed_client_certificate_thumbprints` terrafo
 allowed_client_certificate_thumbprints = ["2FC66765E63BB2436F0F9E4F59E951A6D1D20D43"]
 ```
 
+
 Once you're run the deployment, the API will recognise your certificate.
 
 ### Retrieving subscription key
