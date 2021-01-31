@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -33,6 +34,7 @@ public class BlobContainerClientProxy {
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
     private final SasTokenCache sasTokenCache;
+    public static final Map<String, String> META_DATA_MAP = Map.of("waitingCopy", "true");
 
     public BlobContainerClientProxy(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
@@ -130,17 +132,51 @@ public class BlobContainerClientProxy {
                     .getBlockBlobClient();
 
             var start = System.nanoTime();
-            final SyncPoller<BlobCopyInfo, Void> poller =
-                targetBlob.beginCopy(sourceBlob.getBlobUrl() + "?" + sasToken, Duration.ofSeconds(2));
-            PollResponse<BlobCopyInfo> pollResponse = poller.waitForCompletion(Duration.ofMinutes(10));
+            SyncPoller<BlobCopyInfo, Void> poller = null;
+            try {
+                poller = targetBlob
+                    .beginCopy(
+                        sourceBlob.getBlobUrl() + "?" + sasToken,
+                        META_DATA_MAP,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Duration.ofMinutes(10)
+                    );
 
-            logger.info("Move done from {}   to Container: {} Poll response: {}, Copy status: {} ,Takes {} second",
-                sourceBlob.getBlobUrl(),
-                destinationContainer,
-                pollResponse.getStatus(),
-                pollResponse.getValue().getCopyStatus(),
-                TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start)
-            );
+                PollResponse<BlobCopyInfo> pollResponse = poller
+                    .waitForCompletion(Duration.ofMinutes(10));
+                targetBlob.setMetadata(null);
+                logger.info("Move done from {}   to Container: {} Poll response: {}, Copy status: {} ,Takes {} second",
+                    sourceBlob.getBlobUrl(),
+                    destinationContainer,
+                    pollResponse.getStatus(),
+                    pollResponse.getValue().getCopyStatus(),
+                    TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start)
+                );
+
+            } catch (Exception ex) {
+                logger.error("Copy Error, for {}  to Container: {} ",
+                    sourceBlob.getBlobUrl(),
+                    destinationContainer,
+                    ex
+                );
+
+                if (poller != null) {
+                    try {
+                        targetBlob.abortCopyFromUrl(poller.poll().getValue().getCopyId());
+                    } catch (Exception exc) {
+                        logger.error("Abort Copy From Url got Error,  for {}  to Container: {} ",
+                            sourceBlob.getBlobUrl(),
+                            destinationContainer,
+                            exc
+                        );
+                    }
+                }
+                throw ex;
+            }
+
         } catch (HttpResponseException ex) {
             logger.info(
                 "Uploading failed for  url {} to Container: {}, error code: {}",

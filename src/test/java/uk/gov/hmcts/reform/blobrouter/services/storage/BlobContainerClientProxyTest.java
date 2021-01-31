@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
 import java.io.ByteArrayInputStream;
 import java.time.Duration;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -31,6 +32,8 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy.META_DATA_MAP;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -232,7 +235,9 @@ public class BlobContainerClientProxyTest {
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
 
         SyncPoller syncPoller = mock(SyncPoller.class);
-        given(blockBlobClient.beginCopy(any(), any())).willReturn(syncPoller);
+        given(blockBlobClient.beginCopy(any(), eq(META_DATA_MAP), eq(null), eq(null), eq(null), eq(null),any()))
+            .willReturn(syncPoller);
+
         var pollResponse = mock(PollResponse.class);
         given(syncPoller.waitForCompletion(Duration.ofMinutes(10))).willReturn(pollResponse);
         given(pollResponse.getValue()).willReturn(mock(BlobCopyInfo.class));
@@ -258,7 +263,75 @@ public class BlobContainerClientProxyTest {
         ArgumentCaptor<String> copyUrlCap = ArgumentCaptor.forClass(String.class);
 
         verify(blockBlobClient)
-            .beginCopy(copyUrlCap.capture(), any());
+            .beginCopy(copyUrlCap.capture(), any(), eq(null), eq(null), eq(null), eq(null),any());
+
+        verify(blockBlobClient).setMetadata(null);
+        verifyNoMoreInteractions(blockBlobClient);
+
+        assertThat(copyUrlCap.getValue()).isEqualTo(blobUrl + "?" + sasToken);
+
+        verify(sasTokenCache, never()).removeFromCache(containerName);
+
+    }
+
+    @Test
+    void should_abort_copy_when_there_is_exception() {
+
+        given(sasTokenCache.getSasToken(any())).willReturn("token1");
+
+        given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+            .willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.containerName(containerName)).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.sasToken("token1")).willReturn(blobContainerClientBuilder);
+        given(blobContainerClientBuilder.buildClient()).willReturn(blobContainerClient);
+        given(blobContainerClient.getBlobClient(blobName)).willReturn(blobClient);
+        given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
+
+        SyncPoller syncPoller = mock(SyncPoller.class);
+        given(blockBlobClient.beginCopy(any(), any(), any(), any(), any(), any(), any()))
+            .willReturn(syncPoller);
+
+        var pollResponse = mock(PollResponse.class);
+        willThrow(new RuntimeException("Copy Failed"))
+            .given(syncPoller).waitForCompletion(Duration.ofMinutes(10));
+
+        var blobCopyInfo = mock(BlobCopyInfo.class);
+        given(syncPoller.poll()).willReturn(pollResponse);
+        given(pollResponse.getValue()).willReturn(blobCopyInfo);
+
+        String copyId = UUID.randomUUID().toString();
+        given(blobCopyInfo.getCopyId()).willReturn(copyId);
+
+        BlobClient sourceBlobClient = mock(BlobClient.class);
+        given(sourceBlobClient.getBlobName()).willReturn(blobName);
+
+        String sasToken = "sas_token_01-09-2021";
+        given(sourceBlobClient.generateSas(any())).willReturn(sasToken);
+        String blobUrl = "http://" + containerName + "/" + blobName;
+        given(sourceBlobClient.getBlobUrl()).willReturn(blobUrl);
+
+        assertThatThrownBy(
+            () ->   blobContainerClientProxy.moveBlob(
+                sourceBlobClient,
+                containerName,
+                TargetStorageAccount.CFT
+            )
+        ).isInstanceOf(RuntimeException.class);
+
+
+
+        verify(sasTokenCache).getSasToken(containerName);
+
+        // then
+        ArgumentCaptor<String> copyUrlCap = ArgumentCaptor.forClass(String.class);
+
+        verify(blockBlobClient)
+            .beginCopy(copyUrlCap.capture(), any(), eq(null), eq(null), eq(null), eq(null),any());
+
+        verify(blockBlobClient).abortCopyFromUrl(copyId);
+
+        verify(blockBlobClient, never()).setMetadata(null);
+        verifyNoMoreInteractions(blockBlobClient);
 
         assertThat(copyUrlCap.getValue()).isEqualTo(blobUrl + "?" + sasToken);
 
