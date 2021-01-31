@@ -142,11 +142,11 @@ public class BlobContainerClientProxy {
                         null,
                         null,
                         null,
-                        Duration.ofMinutes(10)
+                        Duration.ofSeconds(2)
                     );
 
                 PollResponse<BlobCopyInfo> pollResponse = poller
-                    .waitForCompletion(Duration.ofMinutes(10));
+                    .waitForCompletion(Duration.ofMinutes(5));
                 targetBlob.setMetadata(null);
                 logger.info("Move done from {}   to Container: {} Poll response: {}, Copy status: {} ,Takes {} second",
                     sourceBlob.getBlobUrl(),

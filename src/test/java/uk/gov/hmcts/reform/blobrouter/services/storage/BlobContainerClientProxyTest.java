@@ -239,7 +239,7 @@ public class BlobContainerClientProxyTest {
             .willReturn(syncPoller);
 
         var pollResponse = mock(PollResponse.class);
-        given(syncPoller.waitForCompletion(Duration.ofMinutes(10))).willReturn(pollResponse);
+        given(syncPoller.waitForCompletion(Duration.ofMinutes(5))).willReturn(pollResponse);
         given(pollResponse.getValue()).willReturn(mock(BlobCopyInfo.class));
 
         BlobClient sourceBlobClient = mock(BlobClient.class);
@@ -293,7 +293,7 @@ public class BlobContainerClientProxyTest {
 
         var pollResponse = mock(PollResponse.class);
         willThrow(new RuntimeException("Copy Failed"))
-            .given(syncPoller).waitForCompletion(Duration.ofMinutes(10));
+            .given(syncPoller).waitForCompletion(Duration.ofMinutes(5));
 
         var blobCopyInfo = mock(BlobCopyInfo.class);
         given(syncPoller.poll()).willReturn(pollResponse);
