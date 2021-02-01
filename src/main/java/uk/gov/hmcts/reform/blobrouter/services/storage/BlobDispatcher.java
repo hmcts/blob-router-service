@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
+import com.azure.storage.blob.BlobClient;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
@@ -35,6 +36,28 @@ public class BlobDispatcher {
         logger.info(
             "Finished uploading file. Blob name: {}. Container: {}. Storage: {}",
             blobName,
+            destinationContainer,
+            targetStorageAccount
+        );
+    }
+
+    public void moveBlob(
+        BlobClient blob,
+        String destinationContainer,
+        TargetStorageAccount targetStorageAccount
+    ) {
+        logger.info(
+            "Move file from: {} to Container: {}. Storage: {}",
+            blob.getBlobUrl(),
+            destinationContainer,
+            targetStorageAccount
+        );
+
+        blobContainerClientProxy.moveBlob(blob, destinationContainer, targetStorageAccount);
+
+        logger.info(
+            "Finished moving blob: {} to Container: {}. Storage: {}",
+            blob.getBlobUrl(),
             destinationContainer,
             targetStorageAccount
         );
