@@ -10,26 +10,7 @@
     <cve>CVE-2018-1258</cve>
   </suppress>
 
-  <suppress until="2021-01-05">
-    <notes><![CDATA[
-      This is only used for TESTING purposes.
-    ]]></notes>
-    <packageUrl regex="true">^pkg:javascript/handlebars@4\.0\.4.*$</packageUrl>
-    <vulnerabilityName>A prototype pollution vulnerability in handlebars is exploitable if an attacker can control the template</vulnerabilityName>
-    <vulnerabilityName>Disallow calling helperMissing and blockHelperMissing directly</vulnerabilityName>
-    <vulnerabilityName>Prototype pollution</vulnerabilityName>
-  </suppress>
-
-  <suppress until="2021-01-31">
-    <notes><![CDATA[
-   file name: oauth2-oidc-sdk-7.1.1.jar
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.nimbusds/oauth2\-oidc\-sdk@.*$</packageUrl>
-    <cve>CVE-2007-1651</cve>
-    <cve>CVE-2007-1652</cve>
-  </suppress>
-
-  <suppress until="2021-02-01">
+  <suppress until="2021-04-01">
     <notes><![CDATA[
    file name: httpclient-4.5.12.jar
    ]]></notes>
