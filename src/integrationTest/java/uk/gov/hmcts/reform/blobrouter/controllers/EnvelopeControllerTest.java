@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import reactor.util.function.Tuples;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
@@ -11,6 +12,8 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
+import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
+import uk.gov.hmcts.reform.blobrouter.services.IncompleteEnvelopesService;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -25,8 +28,10 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
@@ -39,6 +44,8 @@ public class EnvelopeControllerTest extends ControllerTestBase {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean private IncompleteEnvelopesService incompleteEnvelopesService;
 
     @Test
     void should_find_envelope_by_file_name_and_container_if_it_exists() throws Exception {
@@ -211,6 +218,28 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         )
             .andDo(print())
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void should_return_incomplete_stale_envelopes() throws Exception {
+
+        given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
+            .willReturn(asList(
+                new BlobInfo("cmc", "file1.zip", "2021-01-15T10:39:27"),
+                new BlobInfo("sscs", "file2.zip", "2021-01-14T11:38:28")
+            ));
+
+        mockMvc.perform(get("/envelopes/stale-incomplete-blobs")
+                            .header("ServiceAuthorization", "testServiceAuthHeader"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("data[0].container").value("cmc"))
+            .andExpect(jsonPath("data[0].file_name").value("file1.zip"))
+            .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27"))
+            .andExpect(jsonPath("data[1].container").value("sscs"))
+            .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
+            .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28"));
     }
 
     private Envelope envelope(String fileName, String container, Instant createdDate) {
