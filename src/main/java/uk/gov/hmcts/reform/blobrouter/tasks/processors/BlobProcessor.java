@@ -17,7 +17,6 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -98,15 +97,13 @@ public class BlobProcessor {
         }
     }
 
-    private void dispatch(BlobClient blob, UUID id) throws IOException {
+    private void dispatch(BlobClient blob, UUID id) {
         StorageConfigItem containerConfig = storageConfig.get(blob.getContainerName());
         TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
 
         if (targetStorageAccount == CRIME || targetStorageAccount == PCQ) {
-            byte[] rawBlob = downloadBlob(blob);
             dispatcher.dispatch(
-                blob.getBlobName(),
-                blobContentExtractor.getContentToUpload(rawBlob, targetStorageAccount),
+                blob,
                 containerConfig.getTargetContainer(),
                 targetStorageAccount
             );

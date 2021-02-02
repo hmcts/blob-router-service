@@ -9,22 +9,30 @@ import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.ENVELOPE;
 
 @Service
 public class BlobContainerClientProxy {
@@ -67,6 +75,63 @@ public class BlobContainerClientProxy {
                     String.format("Client requested for an unknown storage account: %s", targetStorageAccount)
                 );
         }
+    }
+
+    public void streamContentToDestination(
+        BlobClient sourceBlob,
+        String destinationContainer,
+        TargetStorageAccount targetStorageAccount
+    ) {
+        try {
+            streamContent(sourceBlob.getBlockBlobClient(), destinationContainer, targetStorageAccount);
+        } catch (HttpResponseException ex) {
+            logger.info(
+                "Uploading failed for blob {} to Container: {},  error code: {}",
+                sourceBlob.getBlobName(),
+                destinationContainer,
+                ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
+            );
+            if ((targetStorageAccount == TargetStorageAccount.CFT
+                || targetStorageAccount == TargetStorageAccount.PCQ)
+                && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
+                sasTokenCache.removeFromCache(destinationContainer);
+            }
+            throw ex;
+        }
+    }
+
+    private void streamContent(
+        BlockBlobClient sourceBlob,
+        String destinationContainer,
+        TargetStorageAccount targetStorageAccount
+    ) {
+        var blobName = sourceBlob.getBlobName();
+
+        try (var zipStream = new ZipInputStream(sourceBlob.openInputStream())) {
+            ZipEntry entry;
+
+            while ((entry = zipStream.getNextEntry()) != null) {
+                if (Objects.equals(entry.getName(), ENVELOPE)) {
+                    final BlockBlobClient blockBlobClient =
+                        get(targetStorageAccount, destinationContainer)
+                            .getBlobClient(blobName)
+                            .getBlockBlobClient();
+
+                    InputStream zipContent = ByteStreams.limit(zipStream, entry.getSize());
+
+                    blockBlobClient
+                        .upload(zipContent, entry.getSize());
+                    return;
+                }
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+
+        throw new InvalidZipArchiveException(
+            String.format("ZIP file doesn't contain the required %s entry", ENVELOPE)
+        );
+
     }
 
     public void upload(

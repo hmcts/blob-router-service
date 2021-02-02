@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
@@ -97,7 +98,7 @@ class BlobProcessorTest {
             "<html><head><title>Oh no!</title></head><body><h2>You failed</h2></body</html>"
         ))
             .given(blobDispatcher)
-            .dispatch(any(), any(), any(), any());
+            .dispatch(any(), anyString(), any());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -106,7 +107,7 @@ class BlobProcessorTest {
         verifyNewEnvelopeHasBeenCreated();
 
         // dispatcher has been called
-        verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(CRIME));
+        verify(blobDispatcher).dispatch(eq(blobClient), eq(TARGET_CONTAINER), eq(CRIME));
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
@@ -133,8 +134,8 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         willThrow(new BlobStorageException("test", errorResponse, null))
-            .given(blobClient)
-            .download(any());
+            .given(blobDispatcher)
+            .dispatch(any(), anyString(), any());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -142,13 +143,11 @@ class BlobProcessorTest {
         // then
         verifyNewEnvelopeHasBeenCreated();
 
-        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
-
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
 
         // and error event has been created
-        verify(envelopeService).saveEvent(id, EventType.ERROR, BlobProcessor.ErrorMessages.DOWNLOAD_ERROR_BAD_GATEWAY);
+        verify(envelopeService).saveEvent(id, EventType.ERROR,  "test");
     }
 
     @Test
