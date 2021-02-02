@@ -23,7 +23,6 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.UUID;
 
-import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -36,6 +35,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
@@ -55,7 +56,7 @@ class BlobProcessorTest {
     @Mock BlobContentExtractor blobContentExtractor;
 
     @Test
-    void should_not_update_envelope_status_when_upload_failed() {
+    void should_not_update_envelope_status_when_move_failed() {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
@@ -65,7 +66,7 @@ class BlobProcessorTest {
 
         willThrow(new RuntimeException("Exception message"))
             .given(blobDispatcher)
-            .dispatch(any(), any(), any(), any());
+            .moveBlob(any(), any(), any());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -74,7 +75,7 @@ class BlobProcessorTest {
         verifyNewEnvelopeHasBeenCreated();
 
         // dispatcher has been called
-        verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
+        verify(blobDispatcher).moveBlob(eq(blobClient), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
@@ -89,7 +90,7 @@ class BlobProcessorTest {
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
-        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CRIME);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         willThrow(new RuntimeException(
@@ -105,7 +106,7 @@ class BlobProcessorTest {
         verifyNewEnvelopeHasBeenCreated();
 
         // dispatcher has been called
-        verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
+        verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(CRIME));
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
@@ -125,7 +126,7 @@ class BlobProcessorTest {
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
-        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
+        setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, PCQ);
 
         HttpResponse errorResponse = mock(HttpResponse.class);
         given(errorResponse.getStatusCode()).willReturn(BAD_GATEWAY.value());
@@ -151,7 +152,7 @@ class BlobProcessorTest {
     }
 
     @Test
-    void should_not_update_envelope_status_when_blob_download_fails_for_unknown_reason() {
+    void should_not_update_envelope_status_when_blob_move_fails_for_unknown_reason() {
         // given
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
@@ -159,7 +160,7 @@ class BlobProcessorTest {
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
-        willThrow(new RuntimeException("test")).given(blobClient).download(any());
+        willThrow(new RuntimeException("test")).given(blobDispatcher).moveBlob(any(), any(), any());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -167,13 +168,12 @@ class BlobProcessorTest {
         // then
         verifyNewEnvelopeHasBeenCreated();
 
-        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
 
         // and error event has been created
-        verify(envelopeService).saveEvent(id, EventType.ERROR, BlobProcessor.ErrorMessages.DOWNLOAD_ERROR_GENERIC);
+        verify(envelopeService).saveEvent(id, EventType.ERROR, "test");
     }
 
     @Test
@@ -193,7 +193,7 @@ class BlobProcessorTest {
         newBlobProcessor().process(blobClient);
 
         // then
-        verify(blobDispatcher, times(1)).dispatch(any(), any(), any(), any());
+        verify(blobDispatcher, times(1)).moveBlob(any(), any(), any());
         verifyNewEnvelopeHasBeenCreated();
         verify(envelopeService).markAsDispatched(id);
     }
@@ -222,16 +222,14 @@ class BlobProcessorTest {
     }
 
     @Test
-    void should_upload_the_downloaded_blob_when_target_account_is_bulk_scan() throws Exception {
+    void should_upload_the_downloaded_blob_when_target_account_is_bulk_scan() {
         // given
         var fileName = "envelope1.zip";
         var sourceContainerName = "sourceContainer1";
         var targetContainerName = "targetContainer1";
-        var content = "some zip file content".getBytes();
 
         setupContainerConfig(sourceContainerName, targetContainerName, CFT);
         blobExists(fileName, sourceContainerName);
-        given(blobContentExtractor.getContentToUpload(any(), any())).willReturn(content);
 
         var id = UUID.randomUUID();
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
@@ -245,7 +243,7 @@ class BlobProcessorTest {
         // then
         verifyNewEnvelopeHasBeenCreated();
         verify(blobDispatcher, times(1))
-            .dispatch(eq(fileName), aryEq(content), eq(targetContainerName), eq(CFT));
+            .moveBlob(eq(blobClient), eq(targetContainerName), eq(CFT));
         verify(envelopeService).markAsDispatched(id);
     }
 
