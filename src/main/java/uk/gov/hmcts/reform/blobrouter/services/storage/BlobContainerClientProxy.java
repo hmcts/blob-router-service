@@ -106,7 +106,8 @@ public class BlobContainerClientProxy {
         TargetStorageAccount targetStorageAccount
     ) {
         var blobName = sourceBlob.getBlobName();
-
+        logger.info("Start uploading from blob {} to Container: {}", sourceBlob.getBlobUrl(), destinationContainer);
+        long startTime = System.nanoTime();
         try (var zipStream = new ZipInputStream(sourceBlob.openInputStream());) {
             ZipEntry entry;
 
@@ -126,6 +127,13 @@ public class BlobContainerClientProxy {
                         blobOutputStream.write(envelopeData, 0, numBytesRead);
                     }
                     blobOutputStream.close();
+                    logger.info(
+                        "Uploading finished for  blob {} to Container: {}, Upload Duration: {}",
+                        sourceBlob.getBlobUrl(),
+                        destinationContainer,
+                        TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime)
+                    );
+
                     return;
                 }
             }
