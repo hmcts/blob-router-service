@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.ENVELOPE;
@@ -42,16 +41,19 @@ public class BlobContainerClientProxy {
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
     private final SasTokenCache sasTokenCache;
+    private final ZipInputStreamCreator zipInputStreamCreator;
     public static final Map<String, String> META_DATA_MAP = Map.of("waitingCopy", "true");
 
     public BlobContainerClientProxy(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
         BlobContainerClientBuilderProvider blobContainerClientBuilderProvider,
-        SasTokenCache sasTokenCache
+        SasTokenCache sasTokenCache,
+        ZipInputStreamCreator zipInputStreamCreator
     ) {
         this.crimeClient = crimeClient;
         this.blobContainerClientBuilderProvider = blobContainerClientBuilderProvider;
         this.sasTokenCache = sasTokenCache;
+        this.zipInputStreamCreator = zipInputStreamCreator;
     }
 
     private BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
@@ -107,7 +109,7 @@ public class BlobContainerClientProxy {
     ) {
         var blobName = sourceBlob.getBlobName();
 
-        try (var zipStream = new ZipInputStream(sourceBlob.openInputStream())) {
+        try (var zipStream = zipInputStreamCreator.getZipInputStream(sourceBlob)) {
             ZipEntry entry;
 
             while ((entry = zipStream.getNextEntry()) != null) {
@@ -131,7 +133,6 @@ public class BlobContainerClientProxy {
         throw new InvalidZipArchiveException(
             String.format("ZIP file doesn't contain the required %s entry", ENVELOPE)
         );
-
     }
 
     public void upload(
