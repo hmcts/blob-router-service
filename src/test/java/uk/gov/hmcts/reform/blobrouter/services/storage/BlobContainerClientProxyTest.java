@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
@@ -444,4 +445,47 @@ public class BlobContainerClientProxyTest {
         verify(sasTokenCache, never()).getSasToken(containerName);
     }
 
+    @ParameterizedTest
+    @EnumSource(
+        value = TargetStorageAccount.class,
+        names = {"CFT", "PCQ"}
+    )
+    void should_invalidate_cache_when_streamBlob_returns_error_response_40x(TargetStorageAccount storageAccount)
+        throws IOException {
+        // given
+        HttpResponse mockHttpResponse = mock(HttpResponse.class);
+        given(mockHttpResponse.getStatusCode()).willReturn(401);
+
+        if (storageAccount == TargetStorageAccount.PCQ) {
+            given(blobContainerClientBuilderProvider.getPcqBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        } else if (storageAccount == TargetStorageAccount.CFT) {
+            given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        }
+
+        willThrow(new BlobStorageException("Sas invalid 401", mockHttpResponse, null))
+            .given(blobContainerClientBuilder)
+            .sasToken(any());
+
+        var zipInputStream = mock(ZipInputStream.class);
+        given(zipInputStreamCreator.getZipInputStream(sourceBlockBlobClient)).willReturn(zipInputStream);
+        ZipEntry zipEntry = new ZipEntry(ENVELOPE);
+        given(zipInputStream.getNextEntry()).willReturn(zipEntry);
+
+        given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
+        given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
+        // then
+        assertThrows(
+            BlobStorageException.class,
+            () -> blobContainerClientProxy.streamContentToDestination(
+                sourceBlobClient,
+                containerName,
+                storageAccount
+            )
+        );
+
+        verify(sasTokenCache).removeFromCache(containerName);
+
+    }
 }
