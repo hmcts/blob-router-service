@@ -37,7 +37,7 @@ import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.E
 public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
-    public static final int BUFFER_SIZE = 8024;
+    public static final int BUFFER_SIZE = 2048;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -121,7 +121,9 @@ public class BlobContainerClientProxy {
                     BlobOutputStream blobOutputStream = blockBlobClient.getBlobOutputStream();
 
                     byte[] envelopeData = new byte[BUFFER_SIZE];
+                    int i = 0;
                     while (zipStream.available() != 0) {
+                        logger.info("Read number: {}", i++);
 
                         int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
                         blobOutputStream.write(envelopeData, 0, numBytesRead);
