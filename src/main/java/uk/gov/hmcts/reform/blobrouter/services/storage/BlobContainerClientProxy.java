@@ -8,8 +8,8 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import com.azure.storage.blob.specialized.BlobOutputStream;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,6 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -29,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.ENVELOPE;
@@ -37,23 +37,21 @@ import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.E
 public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
+    public static final int BUFFER_SIZE = 8024;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
     private final SasTokenCache sasTokenCache;
-    private final ZipInputStreamCreator zipInputStreamCreator;
     public static final Map<String, String> META_DATA_MAP = Map.of("waitingCopy", "true");
 
     public BlobContainerClientProxy(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
         BlobContainerClientBuilderProvider blobContainerClientBuilderProvider,
-        SasTokenCache sasTokenCache,
-        ZipInputStreamCreator zipInputStreamCreator
+        SasTokenCache sasTokenCache
     ) {
         this.crimeClient = crimeClient;
         this.blobContainerClientBuilderProvider = blobContainerClientBuilderProvider;
         this.sasTokenCache = sasTokenCache;
-        this.zipInputStreamCreator = zipInputStreamCreator;
     }
 
     private BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
@@ -109,7 +107,7 @@ public class BlobContainerClientProxy {
     ) {
         var blobName = sourceBlob.getBlobName();
 
-        try (var zipStream = zipInputStreamCreator.getZipInputStream(sourceBlob)) {
+        try (var zipStream = new ZipInputStream(sourceBlob.openInputStream());) {
             ZipEntry entry;
 
             while ((entry = zipStream.getNextEntry()) != null) {
@@ -119,10 +117,15 @@ public class BlobContainerClientProxy {
                             .getBlobClient(blobName)
                             .getBlockBlobClient();
 
-                    InputStream zipContent = ByteStreams.limit(zipStream, entry.getSize());
+                    BlobOutputStream blobOutputStream = blockBlobClient.getBlobOutputStream();
 
-                    blockBlobClient
-                        .upload(zipContent, entry.getSize());
+                    byte[] envelopeData = new byte[BUFFER_SIZE];
+                    while (zipStream.available() != 0) {
+
+                        int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
+                        blobOutputStream.write(envelopeData, 0, numBytesRead);
+                    }
+                    blobOutputStream.close();
                     return;
                 }
             }

@@ -22,7 +22,6 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientBuilde
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 import uk.gov.hmcts.reform.blobrouter.services.storage.SasTokenCache;
-import uk.gov.hmcts.reform.blobrouter.services.storage.ZipInputStreamCreator;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
 import java.io.ByteArrayInputStream;
@@ -55,8 +54,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
         containerClientProvider = new BlobContainerClientProxy(
             mock(BlobContainerClient.class),
             blobContainerClientBuilderProvider,
-            mock(SasTokenCache.class),
-            mock(ZipInputStreamCreator.class)
+            mock(SasTokenCache.class)
         );
         dbHelper.deleteAll();
     }
