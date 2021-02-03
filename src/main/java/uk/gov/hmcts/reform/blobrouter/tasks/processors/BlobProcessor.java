@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ZipFileLoadException;
-import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -36,20 +35,17 @@ public class BlobProcessor {
     private final BlobDispatcher dispatcher;
     private final EnvelopeService envelopeService;
     private final BlobVerifier blobVerifier;
-    private final BlobContentExtractor blobContentExtractor;
     private final Map<String, StorageConfigItem> storageConfig; // container-specific configuration, by container name
 
     public BlobProcessor(
         BlobDispatcher dispatcher,
         EnvelopeService envelopeService,
         BlobVerifier blobVerifier,
-        BlobContentExtractor blobContentExtractor,
         ServiceConfiguration serviceConfiguration
     ) {
         this.dispatcher = dispatcher;
         this.envelopeService = envelopeService;
         this.blobVerifier = blobVerifier;
-        this.blobContentExtractor = blobContentExtractor;
         this.storageConfig = serviceConfiguration.getStorageConfig();
     }
 

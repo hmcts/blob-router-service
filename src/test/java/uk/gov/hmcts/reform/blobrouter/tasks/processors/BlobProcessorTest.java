@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
-import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -54,7 +53,6 @@ class BlobProcessorTest {
     @Mock EnvelopeService envelopeService;
     @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
-    @Mock BlobContentExtractor blobContentExtractor;
 
     @Test
     void should_not_update_envelope_status_when_move_failed() {
@@ -107,7 +105,7 @@ class BlobProcessorTest {
         verifyNewEnvelopeHasBeenCreated();
 
         // dispatcher has been called
-        verify(blobDispatcher).dispatch(eq(blobClient), eq(TARGET_CONTAINER), eq(CRIME));
+        verify(blobDispatcher).dispatch(blobClient, TARGET_CONTAINER, CRIME);
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
@@ -297,7 +295,6 @@ class BlobProcessorTest {
             this.blobDispatcher,
             this.envelopeService,
             this.verifier,
-            this.blobContentExtractor,
             this.serviceConfiguration
         );
     }

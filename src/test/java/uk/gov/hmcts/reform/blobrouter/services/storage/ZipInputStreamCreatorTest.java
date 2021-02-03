@@ -4,6 +4,7 @@ import com.azure.storage.blob.specialized.BlobInputStream;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
@@ -20,7 +21,7 @@ class ZipInputStreamCreatorTest {
 
         given(blobClient.openInputStream()).willReturn(blobInputStream);
 
-        zipInputStreamCreator.getZipInputStream(blobClient);
-
+        var stream = zipInputStreamCreator.getZipInputStream(blobClient);
+        assertThat(stream).isNotNull();
     }
 }
