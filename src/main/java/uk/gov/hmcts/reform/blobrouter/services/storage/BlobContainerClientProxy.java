@@ -8,7 +8,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
-import com.azure.storage.blob.specialized.BlobOutputStream;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -120,17 +119,19 @@ public class BlobContainerClientProxy {
                             .getBlobClient(blobName)
                             .getBlockBlobClient();
 
-                    BlobOutputStream blobOutputStream = blockBlobClient.getBlobOutputStream();
+                    try (var blobOutputStream = blockBlobClient.getBlobOutputStream()) {
 
-                    byte[] envelopeData = new byte[BUFFER_SIZE];
-                    int i = 0;
-                    while (zipStream.available() != 0) {
-                        logger.info("Read number: {}", i++);
+                        byte[] envelopeData = new byte[BUFFER_SIZE];
+                        int i = 0;
+                        while (zipStream.available() != 0) {
+                            logger.info("Read number: {}", i++);
 
-                        int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
-                        blobOutputStream.write(envelopeData, 0, numBytesRead);
+                            int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
+                            blobOutputStream.write(envelopeData, 0, numBytesRead);
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Streaming got error ", ex);
                     }
-                    blobOutputStream.close();
                     logger.info(
                         "Uploading finished for  blob {} to Container: {}, Upload Duration: {}",
                         sourceBlob.getBlobUrl(),

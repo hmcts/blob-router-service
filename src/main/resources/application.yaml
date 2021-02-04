@@ -162,4 +162,6 @@ idam:
 
 logging:
   level:
-    root: DEBUG
+    com:
+        azure: DEBUG
+    reactor: DEBUG
