@@ -6,6 +6,7 @@ import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobCopyInfo;
+import com.azure.storage.blob.models.ParallelTransferOptions;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -36,7 +37,7 @@ import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.E
 public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
-    public static final int BUFFER_SIZE = 2048;
+    public static final int BUFFER_SIZE = 10240;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -119,7 +120,16 @@ public class BlobContainerClientProxy {
                             .getBlobClient(blobName)
                             .getBlockBlobClient();
 
-                    try (var blobOutputStream = blockBlobClient.getBlobOutputStream()) {
+                    ParallelTransferOptions parallelTransferOptions =
+                        new ParallelTransferOptions()
+                            .setBlockSizeLong(1024 * 10L)
+                            .setMaxConcurrency(8)
+                            .setMaxSingleUploadSizeLong(30 * 1024L);
+
+                    try (var blobOutputStream =
+                        blockBlobClient.getBlobOutputStream(
+                            parallelTransferOptions, null,null,null,null
+                        )) {
 
                         byte[] envelopeData = new byte[BUFFER_SIZE];
                         int i = 0;

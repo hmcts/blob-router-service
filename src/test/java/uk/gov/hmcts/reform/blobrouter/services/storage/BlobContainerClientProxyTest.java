@@ -396,7 +396,8 @@ public class BlobContainerClientProxyTest {
         given(crimeClient.getBlobClient(blobName)).willReturn(blobClient);
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
         var blobOutputStream = mock(BlobOutputStream.class);
-        given(blockBlobClient.getBlobOutputStream()).willReturn(blobOutputStream);
+        given(blockBlobClient.getBlobOutputStream(any(), eq(null), eq(null), eq(null), eq(null)))
+            .willReturn(blobOutputStream);
 
         given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
         given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
