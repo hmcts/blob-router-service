@@ -131,6 +131,7 @@ public class BlobContainerClientProxy {
                         }
                     } catch (Exception ex) {
                         logger.error("Streaming got error ", ex);
+                        throw ex;
                     }
                     logger.info(
                         "Uploading finished for  blob {} to Container: {}, Upload Duration: {}",
