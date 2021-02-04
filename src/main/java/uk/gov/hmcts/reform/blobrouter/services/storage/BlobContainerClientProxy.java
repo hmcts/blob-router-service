@@ -38,7 +38,7 @@ public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
     public static final int BUFFER_SIZE = 10240;
-    public static final long BLOCK_SIZE = 1024  * 1024 * 2;
+    public static final long BLOCK_SIZE = 1024L  * 1024L * 2L;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
