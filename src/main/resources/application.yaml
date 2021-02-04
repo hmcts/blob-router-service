@@ -159,9 +159,3 @@ idam:
     url: ${S2S_URL:http://localhost:4552}
     secret: ${S2S_SECRET:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME:reform_scan_blob_router}
-
-logging:
-  level:
-    com:
-        azure: DEBUG
-    reactor: DEBUG

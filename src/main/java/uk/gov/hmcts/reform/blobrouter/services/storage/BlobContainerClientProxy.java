@@ -38,6 +38,7 @@ public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
     public static final int BUFFER_SIZE = 10240;
+    public static final long BLOCK_SIZE = 1024  * 1024 * 2;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -122,9 +123,8 @@ public class BlobContainerClientProxy {
 
                     ParallelTransferOptions parallelTransferOptions =
                         new ParallelTransferOptions()
-                            .setBlockSizeLong(1024 * 10L)
-                            .setMaxConcurrency(8)
-                            .setMaxSingleUploadSizeLong(30 * 1024L);
+                            .setBlockSizeLong(BLOCK_SIZE)
+                            .setMaxConcurrency(8);
 
                     try (var blobOutputStream =
                         blockBlobClient.getBlobOutputStream(
@@ -144,7 +144,7 @@ public class BlobContainerClientProxy {
                         throw ex;
                     }
                     logger.info(
-                        "Uploading finished for  blob {} to Container: {}, Upload Duration: {}",
+                        "Uploading finished for  blob {} to Container: {}, Upload Duration: {} sec",
                         sourceBlob.getBlobUrl(),
                         destinationContainer,
                         TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime)
