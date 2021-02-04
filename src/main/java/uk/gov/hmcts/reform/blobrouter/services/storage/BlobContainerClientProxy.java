@@ -131,15 +131,16 @@ public class BlobContainerClientProxy {
                         )) {
 
                         byte[] envelopeData = new byte[BUFFER_SIZE];
-                        int i = 0;
                         while (zipStream.available() != 0) {
-                            logger.info("Read number: {}", i++);
-
                             int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
                             blobOutputStream.write(envelopeData, 0, numBytesRead);
                         }
                     } catch (Exception ex) {
-                        logger.error("Streaming got error ", ex);
+                        logger.error("Streaming got error from {} to {}",
+                            sourceBlob.getBlobUrl(),
+                            destinationContainer,
+                            ex
+                        );
                         throw ex;
                     }
                     logger.info(

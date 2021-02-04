@@ -162,4 +162,4 @@ idam:
 
 logging:
   level:
-    root: DEBUG
+    reactor: DEBUG
