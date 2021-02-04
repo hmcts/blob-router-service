@@ -38,7 +38,7 @@ public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
     public static final int BUFFER_SIZE = 10240;
-    public static final long BLOCK_SIZE = 1024L  * 1024L * 2L;
+    public static final long BLOCK_SIZE = 1024L * 50L;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -53,8 +53,6 @@ public class BlobContainerClientProxy {
         this.crimeClient = crimeClient;
         this.blobContainerClientBuilderProvider = blobContainerClientBuilderProvider;
         this.sasTokenCache = sasTokenCache;
-        System.setProperty("reactor.bufferSize.small", "5"); // limit concurrency
-        System.setProperty("reactor.bufferSize.x", "5");       // limit prfetch
     }
 
     private BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
