@@ -122,8 +122,7 @@ public class BlobContainerClientProxy {
                     ParallelTransferOptions parallelTransferOptions =
                         new ParallelTransferOptions()
                             .setBlockSizeLong(BLOCK_SIZE)
-                            .setMaxConcurrency(8)
-                            .setMaxSingleUploadSizeLong(30 * 1024L);
+                            .setMaxConcurrency(8);
 
                     try (var blobOutputStream =
                         blockBlobClient.getBlobOutputStream(
@@ -131,14 +130,12 @@ public class BlobContainerClientProxy {
                         )) {
 
                         byte[] envelopeData = new byte[BUFFER_SIZE];
-                        int i = 0;
                         while (zipStream.available() != 0) {
                             int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
-                            logger.info("write to output, count: {} , added byte {}", ++i, numBytesRead);
                             blobOutputStream.write(envelopeData, 0, numBytesRead);
                         }
                     } catch (Exception ex) {
-                        logger.error("Streaming got error from {} to {}",
+                        logger.error("Uploading got error. Stream from {} to {}",
                             sourceBlob.getBlobUrl(),
                             destinationContainer,
                             ex
