@@ -4,6 +4,9 @@ import com.azure.core.http.HttpClient;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import feign.Client;
 import feign.httpclient.ApacheHttpClient;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -32,7 +35,16 @@ public class HttpConfiguration {
 
     @Bean
     public HttpClient azureHttpClient() {
-        return new NettyAsyncHttpClientBuilder().build();
+        // Creates a reactor-netty client with netty logging enabled.
+        reactor.netty.http.client.HttpClient baseHttpClient = reactor.netty.http.client.HttpClient
+            .create()
+            .tcpConfiguration(
+                tcp -> tcp.bootstrap(b -> b.handler(new LoggingHandler(LogLevel.DEBUG))));
+        // Create an HttpClient based on above reactor-netty client and configure EventLoop count.
+        HttpClient client = new NettyAsyncHttpClientBuilder(baseHttpClient)
+            .eventLoopGroup(new NioEventLoopGroup(5))
+            .build();
+        return client;
     }
 
     private CloseableHttpClient getHttpClient() {

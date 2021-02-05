@@ -135,6 +135,7 @@ public class BlobContainerClientProxy {
                             int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
                             blobOutputStream.write(envelopeData, 0, numBytesRead);
                         }
+                        blobOutputStream.flush();
                     } catch (Exception ex) {
                         logger.error("Uploading got error. Stream from {} to {}",
                             sourceBlob.getBlobUrl(),
@@ -143,7 +144,6 @@ public class BlobContainerClientProxy {
                         );
                         throw ex;
                     }
-                    System.gc();
                     logger.info(
                         "Uploading finished for  blob {} to Container: {}, Upload Duration: {} sec",
                         sourceBlob.getBlobUrl(),
