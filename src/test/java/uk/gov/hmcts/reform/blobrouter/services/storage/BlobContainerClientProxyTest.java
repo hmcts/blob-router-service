@@ -426,6 +426,7 @@ public class BlobContainerClientProxyTest {
         // then
         verify(blobOutputStream).write(any(), eq(0), eq(envelopeContent.length));
         verify(blobOutputStream).close();
+        verify(blobOutputStream).flush();
         verifyNoMoreInteractions(blobOutputStream);
         verify(sasTokenCache, never()).getSasToken(containerName);
     }
