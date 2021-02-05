@@ -127,8 +127,8 @@ public class BlobContainerClientProxy {
 
                     try (var blobOutputStream =
                         blockBlobClient.getBlobOutputStream(
-                            parallelTransferOptions, null,null,null,null
-                        )) {
+                            parallelTransferOptions, null, null, null, null)
+                    ) {
 
                         byte[] envelopeData = new byte[BUFFER_SIZE];
                         while (zipStream.available() != 0) {
@@ -143,6 +143,7 @@ public class BlobContainerClientProxy {
                         );
                         throw ex;
                     }
+                    System.gc();
                     logger.info(
                         "Uploading finished for  blob {} to Container: {}, Upload Duration: {} sec",
                         sourceBlob.getBlobUrl(),
