@@ -42,7 +42,7 @@ public class HttpConfiguration {
                 tcp -> tcp.bootstrap(b -> b.handler(new LoggingHandler(LogLevel.DEBUG))));
         // Create an HttpClient based on above reactor-netty client and configure EventLoop count.
         HttpClient client = new NettyAsyncHttpClientBuilder(baseHttpClient)
-            .eventLoopGroup(new NioEventLoopGroup(5))
+            .eventLoopGroup(new NioEventLoopGroup(15))
             .disableBufferCopy(true)
             .build();
         return client;
