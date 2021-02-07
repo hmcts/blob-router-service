@@ -107,7 +107,7 @@ public class BlobContainerClientProxy {
         TargetStorageAccount targetStorageAccount
     ) {
         var blobName = sourceBlob.getBlobName();
-        logger.info("Start uploading from blob {} to Container: {}", sourceBlob.getBlobUrl(), destinationContainer);
+        logger.info("Start streaming from blob {} to Container: {}", sourceBlob.getBlobUrl(), destinationContainer);
         long startTime = System.nanoTime();
         try (var zipStream = new ZipInputStream(sourceBlob.openInputStream());) {
             ZipEntry entry;
