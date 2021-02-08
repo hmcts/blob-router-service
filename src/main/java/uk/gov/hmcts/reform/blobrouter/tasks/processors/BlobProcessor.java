@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.models.BlobStorageException;
 import org.slf4j.Logger;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -10,19 +9,16 @@ import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
-import uk.gov.hmcts.reform.blobrouter.exceptions.ZipFileLoadException;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 
@@ -131,22 +127,6 @@ public class BlobProcessor {
             id,
             errorDescription
         );
-    }
-
-    private byte[] downloadBlob(BlobClient blobClient) {
-        try (var outputStream = new ByteArrayOutputStream()) {
-            blobClient.download(outputStream);
-
-            return outputStream.toByteArray();
-        } catch (BlobStorageException exc) {
-            String errorMessage = exc.getStatusCode() == BAD_GATEWAY.value()
-                ? ErrorMessages.DOWNLOAD_ERROR_BAD_GATEWAY
-                : ErrorMessages.DOWNLOAD_ERROR_GENERIC;
-
-            throw new ZipFileLoadException(errorMessage, exc);
-        } catch (Exception exc) {
-            throw new ZipFileLoadException(ErrorMessages.DOWNLOAD_ERROR_GENERIC, exc);
-        }
     }
 
     private void handleError(UUID envelopeId, BlobClient blob, Exception exc) {
