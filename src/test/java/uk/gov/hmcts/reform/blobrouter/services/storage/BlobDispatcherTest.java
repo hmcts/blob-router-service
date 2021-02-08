@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
@@ -37,17 +38,16 @@ class BlobDispatcherTest {
     void should_use_blob_client_to_dispatch_file() {
         // given
         final String blobName = "hello.zip";
-        final byte[] blobContent = "some data".getBytes();
         final String container = "container";
 
-        doNothing().when(blobContainerClientProxy).upload(blobName, blobContent, container, CFT);
+        doNothing().when(blobContainerClientProxy).streamContentToDestination(blobClient, container, CFT);
 
         // when
-        dispatcher.dispatch(blobName, blobContent, container, CFT);
+        dispatcher.dispatch(blobClient, container, CFT);
 
         // then
         verify(blobContainerClientProxy)
-            .upload(blobName, blobContent, container, CFT);
+            .streamContentToDestination(blobClient, container, CFT);
 
     }
 
@@ -56,11 +56,11 @@ class BlobDispatcherTest {
         // given
         willThrow(new BlobStorageException("test exception", null, null))
             .given(blobContainerClientProxy)
-            .upload(any(), any(), any(), any());
+            .streamContentToDestination(any(), anyString(), any());
 
         // when
         Throwable exc = catchThrowable(
-            () -> dispatcher.dispatch("foo.zip", "data".getBytes(), "some_container", CFT)
+            () -> dispatcher.dispatch(blobClient, "some_container", CFT)
         );
 
         // then
