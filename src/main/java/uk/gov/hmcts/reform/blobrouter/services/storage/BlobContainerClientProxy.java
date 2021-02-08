@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.exceptions.BlobStreamingException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
 import java.io.ByteArrayInputStream;
@@ -37,7 +38,9 @@ import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.E
 public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
-    public static final int BUFFER_SIZE = 10240;
+    //buffer size in byte, 10 KB
+    public static final int BUFFER_SIZE = 1024 * 10;
+    // streaming block size in byte, 50 KB
     public static final long BLOCK_SIZE = 1024L * 50L;
 
     private final BlobContainerClient crimeClient;
@@ -136,13 +139,15 @@ public class BlobContainerClientProxy {
                             blobOutputStream.write(envelopeData, 0, numBytesRead);
                         }
                         blobOutputStream.flush();
-                    } catch (Exception ex) {
+                    } catch (IOException ex) {
                         logger.error("Uploading got error. Stream from {} to {}",
                             sourceBlob.getBlobUrl(),
                             destinationContainer,
                             ex
                         );
-                        throw ex;
+                        throw new BlobStreamingException(
+                            "Blob upload, destination blob outputstream error.", ex
+                        );
                     }
                     logger.info(
                         "Uploading finished for  blob {} to Container: {}, Upload Duration: {} sec",
@@ -155,7 +160,9 @@ public class BlobContainerClientProxy {
                 }
             }
         } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            throw new BlobStreamingException(
+                "Blob upload, source blob inputstream error.", ex
+            );
         }
 
         throw new InvalidZipArchiveException(
