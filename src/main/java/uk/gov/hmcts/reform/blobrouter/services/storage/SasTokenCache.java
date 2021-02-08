@@ -67,7 +67,7 @@ public class SasTokenCache {
 
         final String sasToken = tokenCache.get(containerName, this::createPcqSasToken);
 
-        logger.info("PCQ; Finished getting sas token for Container: {}, token : {}", containerName, sasToken);
+        logger.info("Finished getting sas token for Container: {}", containerName);
 
         return sasToken;
     }
