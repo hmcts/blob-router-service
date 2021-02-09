@@ -19,8 +19,6 @@ import java.util.function.Supplier;
 
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
-import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 
 @Component
 @EnableConfigurationProperties(ServiceConfiguration.class)
@@ -93,19 +91,11 @@ public class BlobProcessor {
         StorageConfigItem containerConfig = storageConfig.get(blob.getContainerName());
         TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
 
-        if (targetStorageAccount == CRIME || targetStorageAccount == PCQ) {
-            dispatcher.dispatch(
-                blob,
-                containerConfig.getTargetContainer(),
-                targetStorageAccount
-            );
-        } else {
-            dispatcher.moveBlob(
-                blob,
-                containerConfig.getTargetContainer(),
-                targetStorageAccount
-            );
-        }
+        dispatcher.dispatch(
+            blob,
+            containerConfig.getTargetContainer(),
+            targetStorageAccount
+        );
 
         envelopeService.markAsDispatched(id);
 
@@ -138,14 +128,5 @@ public class BlobProcessor {
             exc
         );
         envelopeService.saveEvent(envelopeId, EventType.ERROR, escapeHtml4(exc.getMessage()));
-    }
-
-    public static class ErrorMessages {
-
-        public static final String DOWNLOAD_ERROR_GENERIC =
-            "Failed to download blob";
-
-        public static final String DOWNLOAD_ERROR_BAD_GATEWAY =
-            "Failed to download blob. It looks like antivirus software may be blocking the file.";
     }
 }
