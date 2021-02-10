@@ -140,7 +140,7 @@ public class BlobContainerClientProxy {
                         }
                         blobOutputStream.flush();
                     } catch (IOException ex) {
-                        logger.error("Uploading got error. Stream from {} to {}",
+                        logger.error("Streaming  got error. Stream from {} to {}",
                             sourceBlob.getBlobUrl(),
                             destinationContainer,
                             ex
@@ -150,7 +150,7 @@ public class BlobContainerClientProxy {
                         );
                     }
                     logger.info(
-                        "Uploading finished for  blob {} to Container: {}, Upload Duration: {} sec",
+                        "Streaming finished for  blob {} to Container: {}, Upload Duration: {} sec",
                         sourceBlob.getBlobUrl(),
                         destinationContainer,
                         TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime)
