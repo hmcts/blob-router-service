@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
-import com.azure.core.http.HttpClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.BlobServiceClient;
@@ -34,8 +33,7 @@ public class StorageConfiguration {
     public BlobServiceClient getStorageClient(
         @Value("${storage.account-name}") String accountName,
         @Value("${storage.account-key}") String accountKey,
-        @Value("${storage.url}") String storageUrl,
-        HttpClient azureHttpClient
+        @Value("${storage.url}") String storageUrl
     ) {
         String connectionString = String.format(
             "DefaultEndpointsProtocol=https;BlobEndpoint=%s;AccountName=%s;AccountKey=%s",
@@ -46,7 +44,6 @@ public class StorageConfiguration {
 
         return new BlobServiceClientBuilder()
             .connectionString(connectionString)
-            .httpClient(azureHttpClient)
             .buildClient();
     }
 
