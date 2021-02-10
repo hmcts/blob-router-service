@@ -72,14 +72,14 @@ class BlobDispatcherTest {
         // given
         final String container = "container";
 
-        doNothing().when(blobContainerClientProxy).moveBlob(blobClient, container, CFT);
+        doNothing().when(blobContainerClientProxy).streamContentToDestination(blobClient, container, CFT);
 
         // when
-        dispatcher.moveBlob(blobClient, container, CFT);
+        dispatcher.dispatch(blobClient, container, CFT);
 
         // then
         verify(blobContainerClientProxy)
-            .moveBlob(blobClient, container, CFT);
+            .streamContentToDestination(blobClient, container, CFT);
 
     }
 }
