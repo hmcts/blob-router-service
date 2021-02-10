@@ -6,7 +6,6 @@ import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobCopyInfo;
-import com.azure.storage.blob.models.ParallelTransferOptions;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -122,15 +121,9 @@ public class BlobContainerClientProxy {
                             .getBlobClient(blobName)
                             .getBlockBlobClient();
 
-                    ParallelTransferOptions parallelTransferOptions =
-                        new ParallelTransferOptions()
-                            .setBlockSizeLong(BLOCK_SIZE)
-                            .setMaxConcurrency(8)
-                            .setMaxSingleUploadSizeLong(BLOCK_SIZE);
-
                     try (var blobOutputStream =
                         blockBlobClient.getBlobOutputStream(
-                            parallelTransferOptions, null, null, null, null)
+                            null, null, null, null, null)
                     ) {
 
                         byte[] envelopeData = new byte[BUFFER_SIZE];
