@@ -19,23 +19,22 @@ public class BlobDispatcher {
     }
 
     public void dispatch(
-        String blobName,
-        byte[] blobContents,
+        BlobClient sourceBlob,
         String destinationContainer,
         TargetStorageAccount targetStorageAccount
     ) {
         logger.info(
             "Uploading file. Blob name: {}. Container: {}. Storage: {}",
-            blobName,
+            sourceBlob.getBlobName(),
             destinationContainer,
             targetStorageAccount
         );
 
-        blobContainerClientProxy.upload(blobName, blobContents, destinationContainer, targetStorageAccount);
+        blobContainerClientProxy.streamContentToDestination(sourceBlob, destinationContainer, targetStorageAccount);
 
         logger.info(
             "Finished uploading file. Blob name: {}. Container: {}. Storage: {}",
-            blobName,
+            sourceBlob.getBlobName(),
             destinationContainer,
             targetStorageAccount
         );

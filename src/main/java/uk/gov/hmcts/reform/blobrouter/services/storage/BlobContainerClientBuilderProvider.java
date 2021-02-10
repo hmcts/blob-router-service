@@ -30,6 +30,7 @@ public class BlobContainerClientBuilderProvider {
 
     public BlobContainerClientBuilder getPcqBlobContainerClientBuilder() {
         return new BlobContainerClientBuilder()
+            .httpClient(httpClient)
             .endpoint(pcqStorageUrl);
     }
 }

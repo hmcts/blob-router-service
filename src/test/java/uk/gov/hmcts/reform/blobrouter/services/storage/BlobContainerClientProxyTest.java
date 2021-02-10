@@ -8,23 +8,33 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.specialized.BlobInputStream;
+import com.azure.storage.blob.specialized.BlobOutputStream;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.AdditionalAnswers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.Duration;
+import java.util.Map;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -34,6 +44,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy.META_DATA_MAP;
+import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.ENVELOPE;
+import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.SIGNATURE;
 
 @SuppressWarnings("unchecked")
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +60,9 @@ public class BlobContainerClientProxyTest {
 
     @Mock BlobContainerClient blobContainerClient;
     @Mock BlobClient blobClient;
+    @Mock BlobClient sourceBlobClient;
+    @Mock BlockBlobClient sourceBlockBlobClient;
+
     @Mock BlockBlobClient blockBlobClient;
 
     final String containerName = "container123";
@@ -376,4 +391,143 @@ public class BlobContainerClientProxyTest {
 
     }
 
+    @Test
+    void should_stream_to_crime_storage_when_target_storage_crime() throws Exception {
+        given(crimeClient.getBlobClient(blobName)).willReturn(blobClient);
+        given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
+        var blobOutputStream = mock(BlobOutputStream.class);
+        given(blockBlobClient.getBlobOutputStream(any(), eq(null), eq(null), eq(null), eq(null)))
+            .willReturn(blobOutputStream);
+
+        given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
+        given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
+
+        var envelopeContent = "internal".getBytes();
+        var content = getBlobContent(
+            Map.of(
+                ENVELOPE, envelopeContent,
+                SIGNATURE, "sig".getBytes()
+            )
+        );
+
+        BlobInputStream blobInputStream = mock(
+            BlobInputStream.class,
+            AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
+        );
+
+        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream);
+
+        blobContainerClientProxy.streamContentToDestination(
+            sourceBlobClient,
+            containerName,
+            TargetStorageAccount.CRIME
+        );
+
+        // then
+        verify(blobOutputStream).write(any(), eq(0), eq(envelopeContent.length));
+        verify(blobOutputStream).close();
+        verify(blobOutputStream).flush();
+        verifyNoMoreInteractions(blobOutputStream);
+        verify(sasTokenCache, never()).getSasToken(containerName);
+    }
+
+
+    @Test
+    void should_throw_exception_when_envelope_zip_not_found() throws Exception {
+        given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
+        given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
+
+        var content = getBlobContent(
+            Map.of(
+                SIGNATURE, "sig".getBytes()
+            )
+        );
+
+        BlobInputStream blobInputStream = mock(
+            BlobInputStream.class,
+            AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
+        );
+
+        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream);
+
+        assertThrows(
+            InvalidZipArchiveException.class,
+            () -> blobContainerClientProxy.streamContentToDestination(
+                sourceBlobClient,
+                containerName,
+                TargetStorageAccount.CRIME
+            )
+        );
+        // then
+        verify(sasTokenCache, never()).getSasToken(containerName);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = TargetStorageAccount.class,
+        names = {"CFT", "PCQ"}
+    )
+    void should_invalidate_cache_when_streamBlob_returns_error_response_40x(TargetStorageAccount storageAccount)
+        throws IOException {
+        // given
+        HttpResponse mockHttpResponse = mock(HttpResponse.class);
+        given(mockHttpResponse.getStatusCode()).willReturn(401);
+
+        if (storageAccount == TargetStorageAccount.PCQ) {
+            given(blobContainerClientBuilderProvider.getPcqBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        } else if (storageAccount == TargetStorageAccount.CFT) {
+            given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        }
+
+        willThrow(new BlobStorageException("Sas invalid 401", mockHttpResponse, null))
+            .given(blobContainerClientBuilder)
+            .sasToken(any());
+
+
+        given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
+        var content = getBlobContent(
+            Map.of(
+                ENVELOPE, "envelopeContent".getBytes(),
+                SIGNATURE, "sig".getBytes()
+            )
+        );
+
+        BlobInputStream blobInputStream = mock(
+            BlobInputStream.class,
+            AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
+        );
+
+        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream);
+
+        given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
+        // then
+        assertThrows(
+            BlobStorageException.class,
+            () -> blobContainerClientProxy.streamContentToDestination(
+                sourceBlobClient,
+                containerName,
+                storageAccount
+            )
+        );
+
+        verify(sasTokenCache).removeFromCache(containerName);
+
+    }
+
+    private static byte[] getBlobContent(Map<String, byte[]> zipEntries) throws IOException {
+        try (
+            var outputStream = new ByteArrayOutputStream();
+            var zipOutputStream = new ZipOutputStream(outputStream)
+        ) {
+            for (var entry : zipEntries.entrySet()) {
+                zipOutputStream.putNextEntry(new ZipEntry(entry.getKey()));
+                zipOutputStream.write(entry.getValue());
+                zipOutputStream.closeEntry();
+            }
+
+            return outputStream.toByteArray();
+        }
+    }
 }
