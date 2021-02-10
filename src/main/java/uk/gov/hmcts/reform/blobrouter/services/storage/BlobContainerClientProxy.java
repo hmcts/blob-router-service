@@ -6,7 +6,6 @@ import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobCopyInfo;
-import com.azure.storage.blob.models.ParallelTransferOptions;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -15,33 +14,22 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.exceptions.BlobStreamingException;
-import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.ENVELOPE;
 
 @Service
 public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
-    //buffer size in byte, 10 KB
-    public static final int BUFFER_SIZE = 1024 * 10;
-    // streaming block size in byte, 50 KB
-    public static final long BLOCK_SIZE = 1024L * 50L;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -79,95 +67,6 @@ public class BlobContainerClientProxy {
                     String.format("Client requested for an unknown storage account: %s", targetStorageAccount)
                 );
         }
-    }
-
-    public void streamContentToDestination(
-        BlobClient sourceBlob,
-        String destinationContainer,
-        TargetStorageAccount targetStorageAccount
-    ) {
-        try {
-            streamContent(sourceBlob.getBlockBlobClient(), destinationContainer, targetStorageAccount);
-        } catch (HttpResponseException ex) {
-            logger.info(
-                "Uploading failed for blob {} to Container: {},  error code: {}",
-                sourceBlob.getBlobName(),
-                destinationContainer,
-                ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
-            );
-            if ((targetStorageAccount == TargetStorageAccount.CFT
-                || targetStorageAccount == TargetStorageAccount.PCQ)
-                && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
-                sasTokenCache.removeFromCache(destinationContainer);
-            }
-            throw ex;
-        }
-    }
-
-    private void streamContent(
-        BlockBlobClient sourceBlob,
-        String destinationContainer,
-        TargetStorageAccount targetStorageAccount
-    ) {
-        var blobName = sourceBlob.getBlobName();
-        logger.info("Start streaming from blob {} to Container: {}", sourceBlob.getBlobUrl(), destinationContainer);
-        long startTime = System.nanoTime();
-        try (var zipStream = new ZipInputStream(sourceBlob.openInputStream());) {
-            ZipEntry entry;
-
-            while ((entry = zipStream.getNextEntry()) != null) {
-                if (Objects.equals(entry.getName(), ENVELOPE)) {
-                    final BlockBlobClient blockBlobClient =
-                        get(targetStorageAccount, destinationContainer)
-                            .getBlobClient(blobName)
-                            .getBlockBlobClient();
-
-                    ParallelTransferOptions parallelTransferOptions =
-                        new ParallelTransferOptions()
-                            .setBlockSizeLong(BLOCK_SIZE)
-                            .setMaxConcurrency(8)
-                            .setMaxSingleUploadSizeLong(BLOCK_SIZE);
-
-                    try (var blobOutputStream =
-                        blockBlobClient.getBlobOutputStream(
-                            parallelTransferOptions, null, null, null, null)
-                    ) {
-
-                        byte[] envelopeData = new byte[BUFFER_SIZE];
-                        while (zipStream.available() != 0) {
-                            int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
-                            blobOutputStream.write(envelopeData, 0, numBytesRead);
-                        }
-                        blobOutputStream.flush();
-                    } catch (IOException ex) {
-                        logger.error("Uploading got error. Stream from {} to {}",
-                            sourceBlob.getBlobUrl(),
-                            destinationContainer,
-                            ex
-                        );
-                        throw new BlobStreamingException(
-                            "Blob upload, destination blob outputstream error.", ex
-                        );
-                    }
-                    logger.info(
-                        "Uploading finished for  blob {} to Container: {}, Upload Duration: {} sec",
-                        sourceBlob.getBlobUrl(),
-                        destinationContainer,
-                        TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime)
-                    );
-
-                    return;
-                }
-            }
-        } catch (IOException ex) {
-            throw new BlobStreamingException(
-                "Blob upload, source blob inputstream error.", ex
-            );
-        }
-
-        throw new InvalidZipArchiveException(
-            String.format("ZIP file doesn't contain the required %s entry", ENVELOPE)
-        );
     }
 
     public void upload(
