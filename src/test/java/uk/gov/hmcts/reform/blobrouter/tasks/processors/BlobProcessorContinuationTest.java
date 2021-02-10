@@ -76,7 +76,7 @@ public class BlobProcessorContinuationTest {
         // then
         verify(envelopeService, never()).createNewEnvelope(any(), any(), any());
         verify(envelopeService).markAsDispatched(id);
-        verify(blobDispatcher).dispatch(blobClient,"t1", CFT);
+        verify(blobDispatcher).moveBlob(blobClient,"t1", CFT);
     }
 
     @Test
