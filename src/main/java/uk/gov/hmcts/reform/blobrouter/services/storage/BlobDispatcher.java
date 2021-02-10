@@ -39,4 +39,26 @@ public class BlobDispatcher {
             targetStorageAccount
         );
     }
+
+    public void moveBlob(
+        BlobClient blob,
+        String destinationContainer,
+        TargetStorageAccount targetStorageAccount
+    ) {
+        logger.info(
+            "Move file from: {} to Container: {}. Storage: {}",
+            blob.getBlobUrl(),
+            destinationContainer,
+            targetStorageAccount
+        );
+
+        blobContainerClientProxy.moveBlob(blob, destinationContainer, targetStorageAccount);
+
+        logger.info(
+            "Finished moving blob: {} to Container: {}. Storage: {}",
+            blob.getBlobUrl(),
+            destinationContainer,
+            targetStorageAccount
+        );
+    }
 }
