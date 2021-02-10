@@ -18,7 +18,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 @EnableConfigurationProperties(ServiceConfiguration.class)
 public class BlobDispatcherTask {
 
-    static final String TASK_NAME = "blob-streaming";
+    static final String TASK_NAME = "blob-dispatcher";
 
     private static final Logger logger = getLogger(BlobDispatcherTask.class);
 
