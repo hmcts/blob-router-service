@@ -410,12 +410,16 @@ public class BlobContainerClientProxyTest {
             )
         );
 
-        BlobInputStream blobInputStream = mock(
+        BlobInputStream blobInputStream1 = mock(
             BlobInputStream.class,
             AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
         );
 
-        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream);
+        BlobInputStream blobInputStream2 = mock(
+            BlobInputStream.class,
+            AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
+        );
+        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream1, blobInputStream2);
 
         blobContainerClientProxy.streamContentToDestination(
             sourceBlobClient,
@@ -493,12 +497,16 @@ public class BlobContainerClientProxyTest {
             )
         );
 
-        BlobInputStream blobInputStream = mock(
+        BlobInputStream blobInputStream1 = mock(
             BlobInputStream.class,
             AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
         );
 
-        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream);
+        BlobInputStream blobInputStream2 = mock(
+            BlobInputStream.class,
+            AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
+        );
+        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream1, blobInputStream2);
 
         given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
         // then

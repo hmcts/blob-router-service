@@ -110,7 +110,14 @@ public class BlobContainerClientProxy {
         TargetStorageAccount targetStorageAccount
     ) {
         var blobName = sourceBlob.getBlobName();
-        logger.info("Start streaming from blob {} to Container: {}", sourceBlob.getBlobUrl(), destinationContainer);
+        long envelopeSize = getEnvelopeSize(sourceBlob);
+        logger.info(
+            "Start streaming from blob {} to Container: {}, inner envelope size: {}",
+            sourceBlob.getBlobUrl(),
+            destinationContainer,
+            envelopeSize
+        );
+
         long startTime = System.nanoTime();
         try (var zipStream = new ZipInputStream(sourceBlob.openInputStream());) {
             ZipEntry entry;
@@ -126,6 +133,7 @@ public class BlobContainerClientProxy {
                         new ParallelTransferOptions()
                             .setBlockSizeLong(BLOCK_SIZE)
                             .setMaxConcurrency(2)
+                            .setMaxSingleUploadSizeLong(BLOCK_SIZE)
                             .setProgressReceiver(bytesTransferred -> logger.info("uploaded:" + bytesTransferred));
 
                     try (var blobOutputStream =
@@ -164,10 +172,6 @@ public class BlobContainerClientProxy {
                 "Blob upload, source blob inputstream error.", ex
             );
         }
-
-        throw new InvalidZipArchiveException(
-            String.format("ZIP file doesn't contain the required %s entry", ENVELOPE)
-        );
     }
 
     public void upload(
@@ -293,5 +297,30 @@ public class BlobContainerClientProxy {
             throw ex;
         }
     }
+
+
+    private long getEnvelopeSize(BlockBlobClient sourceBlob) {
+
+        try (var zipStream = new ZipInputStream(sourceBlob.openInputStream());) {
+            ZipEntry entry;
+            ZipEntry envelopeEntry = null;
+            while ((entry = zipStream.getNextEntry()) != null) {
+                if (Objects.equals(entry.getName(), ENVELOPE)) {
+                    envelopeEntry = entry;
+                }
+            }
+            if (envelopeEntry == null) {
+                throw new InvalidZipArchiveException(
+                    String.format("ZIP file doesn't contain the required %s entry", ENVELOPE)
+                );
+            } else {
+                return envelopeEntry.getSize();
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
 }
