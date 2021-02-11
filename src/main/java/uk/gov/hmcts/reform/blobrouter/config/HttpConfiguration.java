@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+
 @Configuration
 public class HttpConfiguration {
 
@@ -32,7 +34,10 @@ public class HttpConfiguration {
 
     @Bean
     public HttpClient azureHttpClient() {
-        return new NettyAsyncHttpClientBuilder().build();
+        return new NettyAsyncHttpClientBuilder()
+            .writeTimeout(Duration.ofMinutes(3))
+            .readTimeout(Duration.ofMinutes(3))
+            .build();
     }
 
     private CloseableHttpClient getHttpClient() {
