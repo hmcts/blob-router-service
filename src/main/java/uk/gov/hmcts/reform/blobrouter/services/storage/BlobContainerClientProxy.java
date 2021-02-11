@@ -125,7 +125,7 @@ public class BlobContainerClientProxy {
                     ParallelTransferOptions parallelTransferOptions =
                         new ParallelTransferOptions()
                             .setBlockSizeLong(BLOCK_SIZE)
-                            .setMaxConcurrency(8)
+                            .setMaxConcurrency(2)
                             .setProgressReceiver(bytesTransferred -> logger.info("uploaded:" + bytesTransferred));
 
                     try (var blobOutputStream =
