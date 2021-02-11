@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.exceptions.BlobStreamingException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -128,7 +129,7 @@ public class BlobContainerClientProxy {
 
                     InputStream zipContentStream = ByteStreams.limit(zipStream, envelopeSize);
 
-                    blockBlobClient.upload(zipContentStream, envelopeSize);
+                    blockBlobClient.upload(new BufferedInputStream(zipContentStream), envelopeSize);
 
                     logger.info(
                         "Streaming finished for  blob {} to Container: {}, Upload Duration: {} sec",
