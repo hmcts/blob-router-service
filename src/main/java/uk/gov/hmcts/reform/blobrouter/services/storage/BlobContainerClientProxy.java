@@ -9,6 +9,7 @@ import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -280,8 +282,17 @@ public class BlobContainerClientProxy {
             blockNumber++;
             String base64BlockId = Base64.getEncoder().encodeToString(String.format("%07d", blockNumber).getBytes());
             int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
+
+            InputStream limitedStream;
+            if (numBytesRead == BUFFER_SIZE) {
+                limitedStream = new ByteArrayInputStream(envelopeData);
+            } else {
+                limitedStream = ByteStreams
+                    .limit(new ByteArrayInputStream(envelopeData), numBytesRead);
+            }
+
             blockBlobClient
-                .stageBlock(base64BlockId, new ByteArrayInputStream(envelopeData), numBytesRead);
+                .stageBlock(base64BlockId, limitedStream, numBytesRead);
             blockList.add(base64BlockId);
         }
         blockBlobClient.commitBlockList(blockList);
