@@ -42,10 +42,8 @@ import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.E
 public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
-    //buffer size in byte, 10 KB
-    public static final int BUFFER_SIZE = 1024 * 10;
-    // streaming block size in byte, 50 KB
-    public static final long BLOCK_SIZE = 1024L * 50L;
+    // streaming block size in byte, 4 MB
+    public static final int BLOCK_SIZE = 1024 * 1024 *  4;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -274,17 +272,17 @@ public class BlobContainerClientProxy {
 
     private List uploadWithChunks(BlockBlobClient blockBlobClient, ZipInputStream zipStream)
         throws IOException {
-        byte[] envelopeData = new byte[BUFFER_SIZE];
+        byte[] envelopeData = new byte[BLOCK_SIZE];
         int blockNumber = 0;
         List<String> blockList = new ArrayList<String>();
 
         while (zipStream.available() != 0) {
             blockNumber++;
             String base64BlockId = Base64.getEncoder().encodeToString(String.format("%07d", blockNumber).getBytes());
-            int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
+            int numBytesRead = zipStream.readNBytes(envelopeData, 0, BLOCK_SIZE);
 
             InputStream limitedStream;
-            if (numBytesRead == BUFFER_SIZE) {
+            if (numBytesRead == BLOCK_SIZE) {
                 limitedStream = new ByteArrayInputStream(envelopeData);
             } else {
                 limitedStream = ByteStreams
