@@ -8,8 +8,8 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.BlockBlobItem;
 import com.azure.storage.blob.specialized.BlobInputStream;
-import com.azure.storage.blob.specialized.BlobOutputStream;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -395,9 +396,9 @@ public class BlobContainerClientProxyTest {
     void should_stream_to_crime_storage_when_target_storage_crime() throws Exception {
         given(crimeClient.getBlobClient(blobName)).willReturn(blobClient);
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
-        var blobOutputStream = mock(BlobOutputStream.class);
-        given(blockBlobClient.getBlobOutputStream(any(), eq(null), eq(null), eq(null), eq(null)))
-            .willReturn(blobOutputStream);
+
+        given(blockBlobClient.upload(any(), anyLong()))
+            .willReturn(mock(BlockBlobItem.class));
 
         given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
         given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
@@ -428,9 +429,9 @@ public class BlobContainerClientProxyTest {
         );
 
         // then
-        verify(blobOutputStream).write(any(), eq(0), eq(envelopeContent.length));
-        verify(blobOutputStream).close();
-        verifyNoMoreInteractions(blobOutputStream);
+
+        verify(blockBlobClient).upload(any(), eq(8L));
+        verifyNoMoreInteractions(blockBlobClient);
         verify(sasTokenCache, never()).getSasToken(containerName);
     }
 
