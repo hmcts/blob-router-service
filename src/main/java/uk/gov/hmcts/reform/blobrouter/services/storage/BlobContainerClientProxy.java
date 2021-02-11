@@ -41,7 +41,7 @@ public class BlobContainerClientProxy {
     //buffer size in byte, 10 KB
     public static final int BUFFER_SIZE = 1024 * 10;
     // streaming block size in byte, 50 KB
-    public static final long BLOCK_SIZE = 1024L * 50L;
+    public static final long BLOCK_SIZE = 1024L *1024L *  2L;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -126,7 +126,7 @@ public class BlobContainerClientProxy {
                         new ParallelTransferOptions()
                             .setBlockSizeLong(BLOCK_SIZE)
                             .setMaxConcurrency(8)
-                            .setMaxSingleUploadSizeLong(BLOCK_SIZE);
+                            .setProgressReceiver(bytesTransferred -> logger.info("uploaded:" + bytesTransferred));
 
                     try (var blobOutputStream =
                         blockBlobClient.getBlobOutputStream(
