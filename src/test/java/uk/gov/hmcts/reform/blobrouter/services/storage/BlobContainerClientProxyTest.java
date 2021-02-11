@@ -36,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -397,7 +396,8 @@ public class BlobContainerClientProxyTest {
         given(crimeClient.getBlobClient(blobName)).willReturn(blobClient);
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
 
-        given(blockBlobClient.upload(any(), anyLong()))
+
+        given(blockBlobClient.commitBlockList(any()))
             .willReturn(mock(BlockBlobItem.class));
 
         given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
@@ -411,16 +411,12 @@ public class BlobContainerClientProxyTest {
             )
         );
 
-        BlobInputStream blobInputStream1 = mock(
+        BlobInputStream blobInputStream = mock(
             BlobInputStream.class,
             AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
         );
 
-        BlobInputStream blobInputStream2 = mock(
-            BlobInputStream.class,
-            AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
-        );
-        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream1, blobInputStream2);
+        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream);
 
         blobContainerClientProxy.streamContentToDestination(
             sourceBlobClient,
@@ -430,7 +426,8 @@ public class BlobContainerClientProxyTest {
 
         // then
 
-        verify(blockBlobClient).upload(any(), eq(8L));
+        verify(blockBlobClient).stageBlock(any(), any(), eq(8L));
+        verify(blockBlobClient).commitBlockList(any());
         verifyNoMoreInteractions(blockBlobClient);
         verify(sasTokenCache, never()).getSasToken(containerName);
     }
