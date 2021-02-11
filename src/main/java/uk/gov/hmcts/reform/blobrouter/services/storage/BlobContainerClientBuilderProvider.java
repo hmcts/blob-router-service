@@ -31,6 +31,7 @@ public class BlobContainerClientBuilderProvider {
 
     public BlobContainerClientBuilder getPcqBlobContainerClientBuilder() {
         return new BlobContainerClientBuilder()
+            .httpClient(httpClient)
             .retryOptions(new RequestRetryOptions(null, null, 180, null, null, null))
             .endpoint(pcqStorageUrl);
     }
