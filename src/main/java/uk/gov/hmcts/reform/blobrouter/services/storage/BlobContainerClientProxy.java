@@ -137,7 +137,6 @@ public class BlobContainerClientProxy {
                         while (zipStream.available() != 0) {
                             int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
                             blobOutputStream.write(envelopeData, 0, numBytesRead);
-                            blobOutputStream.flush();
                         }
 
                     } catch (IOException ex) {
