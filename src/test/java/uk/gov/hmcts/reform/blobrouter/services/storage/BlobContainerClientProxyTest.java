@@ -428,6 +428,7 @@ public class BlobContainerClientProxyTest {
 
         verify(blockBlobClient).stageBlock(any(), any(), eq(8L));
         verify(blockBlobClient).commitBlockList(any());
+        verify(blockBlobClient).getBlobUrl();
         verifyNoMoreInteractions(blockBlobClient);
         verify(sasTokenCache, never()).getSasToken(containerName);
     }

@@ -294,7 +294,11 @@ public class BlobContainerClientProxy {
             blockList.add(base64BlockId);
         }
         blockBlobClient.commitBlockList(blockList);
-        logger.info("Committed block list {} ", blockList);
+        logger.info(
+            "For streaming upload target  {}, committed block num {}",
+            blockBlobClient.getBlobUrl(),
+            blockList.size()
+        );
         return blockList;
     }
 
