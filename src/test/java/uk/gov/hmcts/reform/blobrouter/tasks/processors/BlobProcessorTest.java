@@ -312,7 +312,7 @@ class BlobProcessorTest {
         // then
         verifyNewEnvelopeHasBeenCreated();
         verify(blobDispatcher, times(1))
-            .dispatch(eq(blobClient), eq(targetContainerName), eq(CFT));
+            .dispatch(blobClient, targetContainerName, CFT);
         verify(envelopeService).markAsDispatched(id);
     }
 
