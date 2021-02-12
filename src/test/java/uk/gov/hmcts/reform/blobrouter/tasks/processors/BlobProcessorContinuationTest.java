@@ -55,7 +55,8 @@ public class BlobProcessorContinuationTest {
             blobDispatcher,
             envelopeService,
             verifier,
-            serviceConfiguration
+            serviceConfiguration,
+            false
         );
     }
 

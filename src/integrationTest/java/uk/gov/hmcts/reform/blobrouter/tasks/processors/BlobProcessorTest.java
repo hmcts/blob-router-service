@@ -82,7 +82,8 @@ class BlobProcessorTest extends BlobStorageBaseTest {
                 dispatcher,
                 envelopeService,
                 new BlobVerifier("signing/test_public_key.der"),
-                serviceConfiguration
+                serviceConfiguration,
+                false
             );
 
         var blobName = "hello.zip";
