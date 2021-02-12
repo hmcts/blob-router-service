@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
-import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -40,7 +39,6 @@ public class BlobProcessorContinuationTest {
     @Mock BlobDispatcher blobDispatcher;
     @Mock EnvelopeService envelopeService;
     @Mock BlobVerifier verifier;
-    @Mock BlobContentExtractor contentExtractor;
     @Mock ServiceConfiguration serviceConfiguration;
     @Mock(lenient = true) BlobClient blobClient;
 
@@ -57,7 +55,6 @@ public class BlobProcessorContinuationTest {
             blobDispatcher,
             envelopeService,
             verifier,
-            contentExtractor,
             serviceConfiguration
         );
     }

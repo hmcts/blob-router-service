@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
-import uk.gov.hmcts.reform.blobrouter.services.BlobContentExtractor;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
@@ -24,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
@@ -53,7 +53,6 @@ class BlobProcessorTest {
     @Mock EnvelopeService envelopeService;
     @Mock BlobVerifier verifier;
     @Mock ServiceConfiguration serviceConfiguration;
-    @Mock BlobContentExtractor blobContentExtractor;
 
     @Test
     void should_not_update_envelope_status_when_move_failed() {
@@ -97,7 +96,7 @@ class BlobProcessorTest {
             "<html><head><title>Oh no!</title></head><body><h2>You failed</h2></body</html>"
         ))
             .given(blobDispatcher)
-            .dispatch(any(), any(), any(), any());
+            .dispatch(any(), anyString(), any());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -106,7 +105,7 @@ class BlobProcessorTest {
         verifyNewEnvelopeHasBeenCreated();
 
         // dispatcher has been called
-        verify(blobDispatcher).dispatch(eq("envelope1.zip"), any(), eq(TARGET_CONTAINER), eq(CRIME));
+        verify(blobDispatcher).dispatch(blobClient, TARGET_CONTAINER, CRIME);
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
@@ -133,8 +132,8 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
         willThrow(new BlobStorageException("test", errorResponse, null))
-            .given(blobClient)
-            .download(any());
+            .given(blobDispatcher)
+            .dispatch(any(), anyString(), any());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -142,13 +141,11 @@ class BlobProcessorTest {
         // then
         verifyNewEnvelopeHasBeenCreated();
 
-        verify(blobDispatcher, never()).dispatch(any(), any(), any(), any());
-
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
 
         // and error event has been created
-        verify(envelopeService).saveEvent(id, EventType.ERROR, BlobProcessor.ErrorMessages.DOWNLOAD_ERROR_BAD_GATEWAY);
+        verify(envelopeService).saveEvent(id, EventType.ERROR,  "test");
     }
 
     @Test
@@ -298,7 +295,6 @@ class BlobProcessorTest {
             this.blobDispatcher,
             this.envelopeService,
             this.verifier,
-            this.blobContentExtractor,
             this.serviceConfiguration
         );
     }
