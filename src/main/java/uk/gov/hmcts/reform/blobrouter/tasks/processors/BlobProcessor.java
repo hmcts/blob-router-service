@@ -41,7 +41,7 @@ public class BlobProcessor {
         EnvelopeService envelopeService,
         BlobVerifier blobVerifier,
         ServiceConfiguration serviceConfiguration,
-        @Value("${extract-envelope-for-cft") boolean extractEnvelopeForCft
+        @Value("${extract-envelope-for-cft}") boolean extractEnvelopeForCft
     ) {
         this.dispatcher = dispatcher;
         this.envelopeService = envelopeService;
