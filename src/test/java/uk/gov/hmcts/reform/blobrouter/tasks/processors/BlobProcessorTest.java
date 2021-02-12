@@ -290,12 +290,43 @@ class BlobProcessorTest {
         );
     }
 
+    @Test
+    void should_stream_content_when_extract_is_enabled_and_target_account_is_cft() {
+        // given
+        var fileName = "envelope1.zip";
+        var sourceContainerName = "sourceContainer1";
+        var targetContainerName = "targetContainer1";
+
+        setupContainerConfig(sourceContainerName, targetContainerName, CFT);
+        blobExists(fileName, sourceContainerName);
+
+        var id = UUID.randomUUID();
+        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+
+        // valid file
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
+
+        // when
+        newBlobProcessor(true).process(blobClient);
+
+        // then
+        verifyNewEnvelopeHasBeenCreated();
+        verify(blobDispatcher, times(1))
+            .dispatch(eq(blobClient), eq(targetContainerName), eq(CFT));
+        verify(envelopeService).markAsDispatched(id);
+    }
+
     private BlobProcessor newBlobProcessor() {
+        return newBlobProcessor(false);
+    }
+
+    private BlobProcessor newBlobProcessor(boolean extractEnvelopeForCft) {
         return new BlobProcessor(
             this.blobDispatcher,
             this.envelopeService,
             this.verifier,
-            this.serviceConfiguration
+            this.serviceConfiguration,
+            extractEnvelopeForCft
         );
     }
 }
