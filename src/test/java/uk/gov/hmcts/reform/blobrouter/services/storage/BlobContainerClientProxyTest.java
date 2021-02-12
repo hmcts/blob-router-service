@@ -8,8 +8,8 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.BlockBlobItem;
 import com.azure.storage.blob.specialized.BlobInputStream;
-import com.azure.storage.blob.specialized.BlobOutputStream;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -395,9 +395,10 @@ public class BlobContainerClientProxyTest {
     void should_stream_to_crime_storage_when_target_storage_crime() throws Exception {
         given(crimeClient.getBlobClient(blobName)).willReturn(blobClient);
         given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
-        var blobOutputStream = mock(BlobOutputStream.class);
-        given(blockBlobClient.getBlobOutputStream(any(), eq(null), eq(null), eq(null), eq(null)))
-            .willReturn(blobOutputStream);
+
+
+        given(blockBlobClient.commitBlockList(any()))
+            .willReturn(mock(BlockBlobItem.class));
 
         given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
         given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
@@ -424,10 +425,11 @@ public class BlobContainerClientProxyTest {
         );
 
         // then
-        verify(blobOutputStream).write(any(), eq(0), eq(envelopeContent.length));
-        verify(blobOutputStream).close();
-        verify(blobOutputStream).flush();
-        verifyNoMoreInteractions(blobOutputStream);
+
+        verify(blockBlobClient).stageBlock(any(), any(), eq(8L));
+        verify(blockBlobClient).commitBlockList(any());
+        verify(blockBlobClient).getBlobUrl();
+        verifyNoMoreInteractions(blockBlobClient);
         verify(sasTokenCache, never()).getSasToken(containerName);
     }
 
@@ -494,12 +496,16 @@ public class BlobContainerClientProxyTest {
             )
         );
 
-        BlobInputStream blobInputStream = mock(
+        BlobInputStream blobInputStream1 = mock(
             BlobInputStream.class,
             AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
         );
 
-        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream);
+        BlobInputStream blobInputStream2 = mock(
+            BlobInputStream.class,
+            AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
+        );
+        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream1, blobInputStream2);
 
         given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
         // then

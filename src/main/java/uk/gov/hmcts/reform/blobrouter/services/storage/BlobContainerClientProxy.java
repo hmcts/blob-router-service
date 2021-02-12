@@ -6,10 +6,10 @@ import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobCopyInfo;
-import com.azure.storage.blob.models.ParallelTransferOptions;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
+import com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -20,11 +20,15 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -38,10 +42,8 @@ import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.E
 public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
-    //buffer size in byte, 10 KB
-    public static final int BUFFER_SIZE = 1024 * 10;
-    // streaming block size in byte, 50 KB
-    public static final long BLOCK_SIZE = 1024L * 50L;
+    // streaming block size in byte, 4 MB
+    public static final int BLOCK_SIZE = 1024 * 1024 *  4;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -122,40 +124,14 @@ public class BlobContainerClientProxy {
                             .getBlobClient(blobName)
                             .getBlockBlobClient();
 
-                    ParallelTransferOptions parallelTransferOptions =
-                        new ParallelTransferOptions()
-                            .setBlockSizeLong(BLOCK_SIZE)
-                            .setMaxConcurrency(8)
-                            .setMaxSingleUploadSizeLong(BLOCK_SIZE);
+                    uploadWithChunks(blockBlobClient, zipStream);
 
-                    try (var blobOutputStream =
-                        blockBlobClient.getBlobOutputStream(
-                            parallelTransferOptions, null, null, null, null)
-                    ) {
-
-                        byte[] envelopeData = new byte[BUFFER_SIZE];
-                        while (zipStream.available() != 0) {
-                            int numBytesRead = zipStream.readNBytes(envelopeData, 0, BUFFER_SIZE);
-                            blobOutputStream.write(envelopeData, 0, numBytesRead);
-                        }
-                        blobOutputStream.flush();
-                    } catch (IOException ex) {
-                        logger.error("Uploading got error. Stream from {} to {}",
-                            sourceBlob.getBlobUrl(),
-                            destinationContainer,
-                            ex
-                        );
-                        throw new BlobStreamingException(
-                            "Blob upload, destination blob outputstream error.", ex
-                        );
-                    }
                     logger.info(
-                        "Uploading finished for  blob {} to Container: {}, Upload Duration: {} sec",
+                        "Streaming finished for  blob {} to Container: {}, Upload Duration: {} sec",
                         sourceBlob.getBlobUrl(),
                         destinationContainer,
                         TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime)
                     );
-
                     return;
                 }
             }
@@ -292,6 +268,38 @@ public class BlobContainerClientProxy {
             }
             throw ex;
         }
+    }
+
+    private List uploadWithChunks(BlockBlobClient blockBlobClient, ZipInputStream zipStream)
+        throws IOException {
+        byte[] envelopeData = new byte[BLOCK_SIZE];
+        int blockNumber = 0;
+        List<String> blockList = new ArrayList<String>();
+
+        while (zipStream.available() != 0) {
+            blockNumber++;
+            String base64BlockId = Base64.getEncoder().encodeToString(String.format("%07d", blockNumber).getBytes());
+            int numBytesRead = zipStream.readNBytes(envelopeData, 0, BLOCK_SIZE);
+
+            InputStream limitedStream;
+            if (numBytesRead == BLOCK_SIZE) {
+                limitedStream = new ByteArrayInputStream(envelopeData);
+            } else {
+                limitedStream = ByteStreams
+                    .limit(new ByteArrayInputStream(envelopeData), numBytesRead);
+            }
+
+            blockBlobClient
+                .stageBlock(base64BlockId, limitedStream, numBytesRead);
+            blockList.add(base64BlockId);
+        }
+        blockBlobClient.commitBlockList(blockList);
+        logger.info(
+            "For streaming upload target  {}, committed block num {}",
+            blockBlobClient.getBlobUrl(),
+            blockList.size()
+        );
+        return blockList;
     }
 
 }
