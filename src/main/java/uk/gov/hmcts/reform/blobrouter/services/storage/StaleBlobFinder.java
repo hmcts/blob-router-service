@@ -55,7 +55,7 @@ public class StaleBlobFinder {
                     .getProperties()
                     .getCreationTime()
                     .toInstant()
-                    .plus(staleTime, ChronoUnit.HOURS)
+                    .plus(staleTime, ChronoUnit.MINUTES)
             );
     }
 
