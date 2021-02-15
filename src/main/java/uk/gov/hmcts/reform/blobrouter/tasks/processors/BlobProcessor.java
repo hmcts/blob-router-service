@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
@@ -19,6 +20,7 @@ import java.util.function.Supplier;
 
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 
@@ -32,17 +34,20 @@ public class BlobProcessor {
     private final EnvelopeService envelopeService;
     private final BlobVerifier blobVerifier;
     private final Map<String, StorageConfigItem> storageConfig; // container-specific configuration, by container name
+    private final boolean extractEnvelopeForCft;
 
     public BlobProcessor(
         BlobDispatcher dispatcher,
         EnvelopeService envelopeService,
         BlobVerifier blobVerifier,
-        ServiceConfiguration serviceConfiguration
+        ServiceConfiguration serviceConfiguration,
+        @Value("${extract-envelope-for-cft}") boolean extractEnvelopeForCft
     ) {
         this.dispatcher = dispatcher;
         this.envelopeService = envelopeService;
         this.blobVerifier = blobVerifier;
         this.storageConfig = serviceConfiguration.getStorageConfig();
+        this.extractEnvelopeForCft = extractEnvelopeForCft;
     }
 
     public void process(BlobClient blobClient) {
@@ -93,7 +98,8 @@ public class BlobProcessor {
         StorageConfigItem containerConfig = storageConfig.get(blob.getContainerName());
         TargetStorageAccount targetStorageAccount = containerConfig.getTargetStorageAccount();
 
-        if (targetStorageAccount == CRIME || targetStorageAccount == PCQ) {
+        if ((targetStorageAccount == CRIME || targetStorageAccount == PCQ)
+            || (targetStorageAccount == CFT && extractEnvelopeForCft)) {
             dispatcher.dispatch(
                 blob,
                 containerConfig.getTargetContainer(),
