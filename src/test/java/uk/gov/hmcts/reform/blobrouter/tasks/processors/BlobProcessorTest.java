@@ -65,7 +65,7 @@ class BlobProcessorTest {
 
         willThrow(new RuntimeException("Exception message"))
             .given(blobDispatcher)
-            .moveBlob(any(), any(), any());
+            .dispatch(any(), any(), any());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -74,7 +74,7 @@ class BlobProcessorTest {
         verifyNewEnvelopeHasBeenCreated();
 
         // dispatcher has been called
-        verify(blobDispatcher).moveBlob(eq(blobClient), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
+        verify(blobDispatcher).dispatch(eq(blobClient), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
@@ -157,7 +157,7 @@ class BlobProcessorTest {
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
-        willThrow(new RuntimeException("test")).given(blobDispatcher).moveBlob(any(), any(), any());
+        willThrow(new RuntimeException("test")).given(blobDispatcher).dispatch(any(), any(), any());
 
         // when
         newBlobProcessor().process(blobClient);
@@ -190,7 +190,7 @@ class BlobProcessorTest {
         newBlobProcessor().process(blobClient);
 
         // then
-        verify(blobDispatcher, times(1)).moveBlob(any(), any(), any());
+        verify(blobDispatcher, times(1)).dispatch(any(), any(), any());
         verifyNewEnvelopeHasBeenCreated();
         verify(envelopeService).markAsDispatched(id);
     }
@@ -240,7 +240,7 @@ class BlobProcessorTest {
         // then
         verifyNewEnvelopeHasBeenCreated();
         verify(blobDispatcher, times(1))
-            .moveBlob(eq(blobClient), eq(targetContainerName), eq(CFT));
+            .dispatch(eq(blobClient), eq(targetContainerName), eq(CFT));
         verify(envelopeService).markAsDispatched(id);
     }
 
@@ -325,8 +325,7 @@ class BlobProcessorTest {
             this.blobDispatcher,
             this.envelopeService,
             this.verifier,
-            this.serviceConfiguration,
-            extractEnvelopeForCft
+            this.serviceConfiguration
         );
     }
 }
