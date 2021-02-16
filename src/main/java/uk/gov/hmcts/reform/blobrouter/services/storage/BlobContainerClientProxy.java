@@ -10,6 +10,7 @@ import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.google.common.io.ByteStreams;
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -275,12 +276,12 @@ public class BlobContainerClientProxy {
         byte[] envelopeData = new byte[BLOCK_SIZE];
         int blockNumber = 0;
         List<String> blockList = new ArrayList<String>();
-
+        long totalSize = 0l;
         while (zipStream.available() != 0) {
             blockNumber++;
             String base64BlockId = Base64.getEncoder().encodeToString(String.format("%07d", blockNumber).getBytes());
             int numBytesRead = zipStream.readNBytes(envelopeData, 0, BLOCK_SIZE);
-
+            totalSize += numBytesRead;
             InputStream limitedStream;
             if (numBytesRead == BLOCK_SIZE) {
                 limitedStream = new ByteArrayInputStream(envelopeData);
@@ -295,9 +296,10 @@ public class BlobContainerClientProxy {
         }
         blockBlobClient.commitBlockList(blockList);
         logger.info(
-            "For streaming upload target  {}, committed block num {}",
+            "Upload committed  to {}, num of  block {}, total size {}",
             blockBlobClient.getBlobUrl(),
-            blockList.size()
+            blockList.size(),
+            FileUtils.byteCountToDisplaySize(totalSize)
         );
         return blockList;
     }
