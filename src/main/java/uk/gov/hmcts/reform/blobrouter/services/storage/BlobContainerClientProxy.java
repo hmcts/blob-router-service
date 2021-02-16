@@ -276,7 +276,7 @@ public class BlobContainerClientProxy {
         byte[] envelopeData = new byte[BLOCK_SIZE];
         int blockNumber = 0;
         List<String> blockList = new ArrayList<String>();
-        long totalSize = 0l;
+        long totalSize = 0L;
         while (zipStream.available() != 0) {
             blockNumber++;
             String base64BlockId = Base64.getEncoder().encodeToString(String.format("%07d", blockNumber).getBytes());
