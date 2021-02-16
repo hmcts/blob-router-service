@@ -36,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -462,6 +463,88 @@ public class BlobContainerClientProxyTest {
         );
         // then
         verify(sasTokenCache, never()).getSasToken(containerName);
+    }
+
+    @Test
+    void should_throw_exception_when_chunk_upload_fails() throws Exception {
+        given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
+        given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
+
+        var content = getBlobContent(
+            Map.of(
+                ENVELOPE, "envelopeContent".getBytes(),
+                SIGNATURE, "sig".getBytes()
+            )
+        );
+
+        BlobInputStream blobInputStream = mock(
+            BlobInputStream.class,
+            AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
+        );
+        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream);
+
+        given(crimeClient.getBlobClient(blobName)).willReturn(blobClient);
+        given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
+
+        HttpResponse mockHttpResponse = mock(HttpResponse.class);
+        willThrow(new BlobStorageException("Stage upload failed", mockHttpResponse, null))
+            .given(blockBlobClient)
+            .stageBlock(any(), any(), anyLong());
+
+        assertThrows(
+            BlobStorageException.class,
+            () -> blobContainerClientProxy.streamContentToDestination(
+                sourceBlobClient,
+                containerName,
+                TargetStorageAccount.CRIME
+            )
+        );
+
+        verify(blockBlobClient).delete();
+    }
+
+    @Test
+    void should_not_throw_exception_when_chunk_upload_delete_fails() throws Exception {
+        given(sourceBlobClient.getBlockBlobClient()).willReturn(sourceBlockBlobClient);
+        given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
+
+        var content = getBlobContent(
+            Map.of(
+                ENVELOPE, "envelopeContent".getBytes(),
+                SIGNATURE, "sig".getBytes()
+            )
+        );
+
+        BlobInputStream blobInputStream = mock(
+            BlobInputStream.class,
+            AdditionalAnswers.delegatesTo(new ByteArrayInputStream(content))
+        );
+        given(sourceBlockBlobClient.openInputStream()).willReturn(blobInputStream);
+
+        given(crimeClient.getBlobClient(blobName)).willReturn(blobClient);
+        given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
+
+
+        HttpResponse mockHttpResponse = mock(HttpResponse.class);
+        willThrow(new BlobStorageException("Stage upload failed", mockHttpResponse, null))
+            .given(blockBlobClient)
+            .stageBlock(any(), any(), anyLong());
+
+
+        willThrow(new RuntimeException("Delete error"))
+            .given(blockBlobClient)
+            .delete();
+
+        assertThrows(
+            BlobStorageException.class,
+            () -> blobContainerClientProxy.streamContentToDestination(
+                sourceBlobClient,
+                containerName,
+                TargetStorageAccount.CRIME
+            )
+        );
+
+        verify(blockBlobClient).delete();
     }
 
     @ParameterizedTest
