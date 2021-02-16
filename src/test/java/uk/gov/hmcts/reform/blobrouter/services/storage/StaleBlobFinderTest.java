@@ -69,7 +69,7 @@ class StaleBlobFinderTest {
 
         mockStorageList(sscsBlobClient, Stream.empty());
 
-        List<BlobInfo> blobInfos = staleBlobFinder.findStaleBlobs(2);
+        List<BlobInfo> blobInfos = staleBlobFinder.findStaleBlobs(120);
 
         assertThat(blobInfos.size()).isEqualTo(1);
         assertThat(blobInfos.get(0).container).isEqualTo("bulkscan");
