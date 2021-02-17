@@ -66,20 +66,4 @@ class BlobDispatcherTest {
         // then
         assertThat(exc).isInstanceOf(BlobStorageException.class);
     }
-
-    @Test
-    void should_use_blob_client_to_move_file() {
-        // given
-        final String container = "container";
-
-        doNothing().when(blobContainerClientProxy).moveBlob(blobClient, container, CFT);
-
-        // when
-        dispatcher.moveBlob(blobClient, container, CFT);
-
-        // then
-        verify(blobContainerClientProxy)
-            .moveBlob(blobClient, container, CFT);
-
-    }
 }
