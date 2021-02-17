@@ -43,8 +43,8 @@ import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.E
 public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
-    // streaming block size in byte, 4 MB
-    public static final int BLOCK_SIZE = 1024 * 1024 *  4;
+    // streaming block size in byte, 6 MB
+    public static final int BLOCK_SIZE = 1024 * 1024 *  6;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
