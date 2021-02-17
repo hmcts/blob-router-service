@@ -159,3 +159,5 @@ idam:
     url: ${S2S_URL:http://localhost:4552}
     secret: ${S2S_SECRET:AAAAAAAAAAAAAAAA}
     name: ${S2S_NAME:reform_scan_blob_router}
+
+envelope-stale-timeout-hr: ${ENVELOPE_STALE_TIMEOUT_HR}
