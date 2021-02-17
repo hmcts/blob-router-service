@@ -277,31 +277,52 @@ public class BlobContainerClientProxy {
         int blockNumber = 0;
         List<String> blockList = new ArrayList<String>();
         long totalSize = 0L;
-        while (zipStream.available() != 0) {
-            blockNumber++;
-            String base64BlockId = Base64.getEncoder().encodeToString(String.format("%07d", blockNumber).getBytes());
-            int numBytesRead = zipStream.readNBytes(envelopeData, 0, BLOCK_SIZE);
-            totalSize += numBytesRead;
-            InputStream limitedStream;
-            if (numBytesRead == BLOCK_SIZE) {
-                limitedStream = new ByteArrayInputStream(envelopeData);
-            } else {
-                limitedStream = ByteStreams
-                    .limit(new ByteArrayInputStream(envelopeData), numBytesRead);
-            }
+        try {
+            while (zipStream.available() != 0) {
+                blockNumber++;
+                String base64BlockId = Base64.getEncoder()
+                    .encodeToString(String.format("%07d", blockNumber).getBytes());
+                int numBytesRead = zipStream.readNBytes(envelopeData, 0, BLOCK_SIZE);
+                totalSize += numBytesRead;
+                InputStream limitedStream;
+                if (numBytesRead == BLOCK_SIZE) {
+                    limitedStream = new ByteArrayInputStream(envelopeData);
+                } else {
+                    limitedStream = ByteStreams
+                        .limit(new ByteArrayInputStream(envelopeData), numBytesRead);
+                }
 
-            blockBlobClient
-                .stageBlock(base64BlockId, limitedStream, numBytesRead);
-            blockList.add(base64BlockId);
+                blockBlobClient
+                    .stageBlock(base64BlockId, limitedStream, numBytesRead);
+                blockList.add(base64BlockId);
+            }
+            blockBlobClient.commitBlockList(blockList);
+            logger.info(
+                "Upload committed  to {}, num of  block {}, total size {}",
+                blockBlobClient.getBlobUrl(),
+                blockList.size(),
+                FileUtils.byteCountToDisplaySize(totalSize)
+            );
+        } catch (Exception ex) {
+            logger.info("Upload  to {}. FAILED", blockBlobClient.getBlobUrl());
+            //try to clear uncommitted blocks
+            tryToDelete(blockBlobClient);
+            throw ex;
         }
-        blockBlobClient.commitBlockList(blockList);
-        logger.info(
-            "Upload committed  to {}, num of  block {}, total size {}",
-            blockBlobClient.getBlobUrl(),
-            blockList.size(),
-            FileUtils.byteCountToDisplaySize(totalSize)
-        );
+
         return blockList;
+    }
+
+    private void tryToDelete(BlockBlobClient blockBlobClient) {
+        try {
+            blockBlobClient.delete();
+        } catch (Exception exc) {
+            logger.error(
+                "Deleting uncommitted blocks from {} failed",
+                blockBlobClient.getBlobUrl(),
+                exc
+            );
+        }
     }
 
 }
