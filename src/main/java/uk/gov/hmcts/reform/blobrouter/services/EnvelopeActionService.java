@@ -27,16 +27,16 @@ public class EnvelopeActionService {
 
     private final EnvelopeRepository envelopeRepository;
     private final EnvelopeEventRepository envelopeEventRepository;
-    private final long creationTimeoutHr;
+    private final long envelopeStaleTimeoutHr;
 
     public EnvelopeActionService(
         EnvelopeRepository envelopeRepository,
         EnvelopeEventRepository envelopeEventRepository,
-        @Value("${creation-stale-timeout-hr}") long creationTimeoutHr
+        @Value("${envelope-stale-timeout-hr}") long envelopeStaleTimeoutHr
     ) {
         this.envelopeRepository = envelopeRepository;
         this.envelopeEventRepository = envelopeEventRepository;
-        this.creationTimeoutHr = creationTimeoutHr;
+        this.envelopeStaleTimeoutHr = envelopeStaleTimeoutHr;
     }
 
     @Transactional
@@ -82,6 +82,6 @@ public class EnvelopeActionService {
             .map(event -> event.createdAt)
             .max(naturalOrder())
             .orElseThrow(); // no events for the envelope is normally impossible
-        return between(lastEventTimeStamp, now()).toHours() > creationTimeoutHr;
+        return between(lastEventTimeStamp, now()).toHours() > envelopeStaleTimeoutHr;
     }
 }
