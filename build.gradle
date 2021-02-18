@@ -176,6 +176,24 @@ dependencyManagement {
     dependency group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.40'
     //avoid   CVE-2020-13943 and CVE-2020-17527
     dependency group: 'org.apache.tomcat.embed', name: 'tomcat-embed-websocket', version: '10.0.2'
+    //avoid   CVE-2021-21290
+    dependencies {
+      dependencySet(group: 'io.netty', version: '4.1.59.Final') {
+        entry 'netty-buffer'
+        entry 'netty-codec'
+        entry 'netty-codec-http'
+        entry 'netty-codec-http2'
+        entry 'netty-codec-socks'
+        entry 'netty-common'
+        entry 'netty-handler'
+        entry 'netty-handler-proxy'
+        entry 'netty-resolver'
+        entry 'netty-transport'
+        entry 'netty-transport-native-epoll'
+        entry 'netty-transport-native-kqueue'
+        entry 'netty-transport-native-unix-common'
+      }
+    }
   }
 }
 
