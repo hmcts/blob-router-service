@@ -2,29 +2,28 @@ package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEventRepository;
-import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
+import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
+import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeCompletedOrNotStaleException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.UUID;
 
 import static java.time.Duration.between;
 import static java.time.Instant.now;
-import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.Comparator.naturalOrder;
-import static java.util.stream.Collectors.toList;
-import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
+import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.REJECTED;
+import static uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode.ERR_STALE_ENVELOPE;
+import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.MANUALLY_REJECTED;
 
 @Service
 public class EnvelopeActionService {
-
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     private final EnvelopeRepository envelopeRepository;
     private final EnvelopeEventRepository envelopeEventRepository;
@@ -40,23 +39,37 @@ public class EnvelopeActionService {
         this.creationTimeoutHr = creationTimeoutHr;
     }
 
-    public List<BlobInfo> rejectStaleEnvelope(UUID envelopeId, int staleTimeHr) {
-        return envelopeRepository
-            .getIncompleteEnvelopesBefore(now().minus(staleTimeHr, HOURS))
-            .stream()
-            .map(envelope -> new BlobInfo(
-                     envelope.container,
-                     envelope.fileName,
-                     toLocalTimeZone(envelope.createdAt)
-                 )
-            )
-            .collect(toList());
+    @Transactional
+    public void rejectStaleEnvelope(UUID envelopeId) {
+        Envelope envelope = envelopeRepository.find(envelopeId)
+            .orElseThrow(
+                () -> new EnvelopeNotFoundException("Envelope with id " + envelopeId + " not found")
+            );
+        validateEnvelopeState(envelope);
+
+        createEvent(envelope);
+
+        envelopeRepository.updateStatus(envelopeId, REJECTED);
     }
 
-    private static String toLocalTimeZone(Instant instant) {
-        return dateTimeFormatter.format(ZonedDateTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID));
+    private void createEvent(Envelope envelope) {
+        NewEnvelopeEvent event = new NewEnvelopeEvent(
+            envelope.id,
+            MANUALLY_REJECTED,
+            ERR_STALE_ENVELOPE,
+            "Manually rejected due to stale state"
+        );
+        envelopeEventRepository.insert(event);
     }
 
+    private void validateEnvelopeState(Envelope envelope) {
+        if (envelope.status == DISPATCHED || envelope.status == REJECTED
+            || !isStale(envelope)) {
+            throw new EnvelopeCompletedOrNotStaleException(
+                "Envelope with id " + envelope.id + " is completed or not stale"
+            );
+        }
+    }
 
     private boolean isStale(Envelope envelope) {
         if (envelope.status != Status.CREATED) {

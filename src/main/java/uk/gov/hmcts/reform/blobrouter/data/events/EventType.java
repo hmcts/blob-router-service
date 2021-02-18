@@ -9,4 +9,5 @@ public enum EventType {
     DUPLICATE_REJECTED,
     ERROR,
     NOTIFICATION_SENT,
+    MANUALLY_REJECTED
 }
