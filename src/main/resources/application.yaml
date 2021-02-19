@@ -110,7 +110,7 @@ public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY} # public key file in der format
 sas-token-cache:
     refresh-before-expire-in-sec: 30
 
-upload-chunk-size-in-bytes:  6_291_456 #6 MB
+upload-chunk-size-in-bytes:  6291456 #6 MB
 
 scheduling:
   lock_at_most_for: PT10M # 10 minutes in ISO-8601
