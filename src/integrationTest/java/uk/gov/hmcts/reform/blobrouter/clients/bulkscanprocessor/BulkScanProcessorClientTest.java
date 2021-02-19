@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.clients.response.SasTokenResponse;
+import uk.gov.hmcts.reform.blobrouter.clients.response.ZipFileResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.DiscrepancyItem;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.ReconciliationReportResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.ReconciliationStatement;
@@ -166,4 +167,81 @@ public class BulkScanProcessorClientTest {
 
     }
 
+    @Test
+    public void should_return_known_zip_file() throws IOException {
+
+        String responseBody = Resources.toString(
+            getResource("zipfile/zip-file-known.json"),
+            UTF_8
+        );
+
+        var zipFileName = "1919704010023_16-07-2019-10-38-20.zip";
+
+        // given
+        stubFor(get("/zip-files?name=" + zipFileName)
+                    .withHeader("Accept", equalTo("application/json"))
+                    .willReturn(okJson(responseBody))
+        );
+
+        // when
+        ZipFileResponse response = client.getZipFile(zipFileName);
+
+        // then
+        assertThat(response.fileName).isEqualTo(zipFileName);
+        assertThat(response.envelopes).isNotEmpty();
+        assertThat(response.events).isNotEmpty();
+
+    }
+
+    @Test
+    public void should_return_known_zip_file_with_no_envelopes() throws IOException {
+
+        String responseBody = Resources.toString(
+            getResource("zipfile/zip-file-no-envelope.json"),
+            UTF_8
+        );
+
+        var zipFileName = "1919704010023_16-07-2019-10-38-20.zip";
+
+        // given
+        stubFor(get("/zip-files?name=" + zipFileName)
+                    .withHeader("Accept", equalTo("application/json"))
+                    .willReturn(okJson(responseBody))
+        );
+
+        // when
+        ZipFileResponse response = client.getZipFile(zipFileName);
+
+        // then
+        assertThat(response.fileName).isEqualTo(zipFileName);
+        assertThat(response.envelopes).isEmpty();
+        assertThat(response.events).isNotEmpty();
+
+    }
+
+    @Test
+    public void should_return_unknown_zip_file() throws IOException {
+
+        String responseBody = Resources.toString(
+            getResource("zipfile/zip-file-unknown.json"),
+            UTF_8
+        );
+
+        var zipFileName = "1919704010023_16-07-2019-10-38-20.zip";
+
+        // given
+        stubFor(get("/zip-files?name=" + zipFileName)
+                    .withHeader("Accept", equalTo("application/json"))
+                    .willReturn(okJson(responseBody))
+        );
+
+        // when
+        ZipFileResponse response = client.getZipFile(zipFileName);
+
+        // then
+        assertThat(response.fileName).isEqualTo(zipFileName);
+        assertThat(response.envelopes).isEmpty();
+        assertThat(response.events).isEmpty();
+
+    }
 }
