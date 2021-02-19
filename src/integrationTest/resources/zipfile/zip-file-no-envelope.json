@@ -1,0 +1,30 @@
+{
+  "file_name": "1919704010023_16-07-2019-10-38-20.zip",
+  "envelopes": [],
+  "events": [
+    {
+      "type": "COMPLETED",
+      "container": "sscs",
+      "created_at": "2019-07-16T11:10:23.719Z",
+      "reason": null
+    },
+    {
+      "type": "DOC_PROCESSED_NOTIFICATION_SENT",
+      "container": "sscs",
+      "created_at": "2019-07-16T11:10:09.172Z",
+      "reason": null
+    },
+    {
+      "type": "DOC_UPLOADED",
+      "container": "sscs",
+      "created_at": "2019-07-16T11:10:04.609Z",
+      "reason": null
+    },
+    {
+      "type": "ZIPFILE_PROCESSING_STARTED",
+      "container": "sscs",
+      "created_at": "2019-07-16T11:10:04.343Z",
+      "reason": null
+    }
+  ]
+}
