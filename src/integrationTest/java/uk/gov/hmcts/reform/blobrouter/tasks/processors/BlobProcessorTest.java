@@ -21,6 +21,7 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientBuilderProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobMover;
 import uk.gov.hmcts.reform.blobrouter.services.storage.SasTokenCache;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
@@ -48,6 +49,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
     @Autowired EnvelopeRepository envelopeRepo;
     @Autowired ServiceConfiguration serviceConfiguration;
     @Autowired DbHelper dbHelper;
+    @Autowired BlobMover blobMover;
 
     @BeforeEach
     void setUp() {
@@ -75,7 +77,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
         given(blobContainerClientBuilder.containerName(any())).willReturn(blobContainerClientBuilder);
         given(blobContainerClientBuilder.buildClient()).willReturn(targetContainerClient);
 
-        var dispatcher = new BlobDispatcher(containerClientProvider);
+        var dispatcher = new BlobDispatcher(containerClientProvider, blobMover);
 
         var blobProcessor =
             new BlobProcessor(

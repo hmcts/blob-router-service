@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -603,6 +604,112 @@ public class BlobContainerClientProxyTest {
 
         verify(sasTokenCache).removeFromCache(containerName);
 
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = TargetStorageAccount.class
+    )
+    void should_run_provided_action_if_target_blob_client_created(TargetStorageAccount storageAccount) {
+        // given
+        given(sourceBlockBlobClient.getBlobName()).willReturn(blobName);
+
+        if (storageAccount == TargetStorageAccount.PCQ) {
+            given(blobContainerClientBuilderProvider.getPcqBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+            given(sasTokenCache.getPcqSasToken(any())).willReturn("token1");
+        } else if (storageAccount == TargetStorageAccount.CFT) {
+            given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+            given(sasTokenCache.getSasToken(any())).willReturn("token1");
+        }
+
+        if (storageAccount == TargetStorageAccount.CRIME) {
+            blobContainerClient = crimeClient;
+        } else {
+            given(blobContainerClientBuilder.sasToken("token1"))
+                .willReturn(blobContainerClientBuilder);
+            given(blobContainerClientBuilder.containerName(containerName))
+                .willReturn(blobContainerClientBuilder);
+            given(blobContainerClientBuilder.buildClient()).willReturn(blobContainerClient);
+        }
+
+        given(blobContainerClient.getBlobClient(blobName)).willReturn(blobClient);
+        given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
+        var uploadMethod = mock(Consumer.class);
+
+        // when
+        blobContainerClientProxy.runUpload(
+            sourceBlockBlobClient,
+            containerName,
+            storageAccount,
+            uploadMethod
+        );
+        // then
+        verify(uploadMethod).accept(blockBlobClient);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = TargetStorageAccount.class
+    )
+    void should_not_run_provided_action_if_there_is_error(TargetStorageAccount storageAccount) {
+        // given
+        willThrow(new RuntimeException("Get Name error"))
+            .given(sourceBlockBlobClient)
+            .getBlobName();
+        var uploadMethod = mock(Consumer.class);
+        // when
+        assertThrows(
+            RuntimeException.class,
+            () -> blobContainerClientProxy.runUpload(
+                sourceBlockBlobClient,
+                containerName,
+                storageAccount,
+                uploadMethod
+            )
+        );
+        // then
+        verify(uploadMethod, never()).accept(blockBlobClient);
+        verify(sasTokenCache, never()).removeFromCache(any());
+
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+        value = TargetStorageAccount.class,
+        names = {"CFT", "PCQ"}
+    )
+    void should_invalidate_cache_when_runUpload_fails_with_40x(TargetStorageAccount storageAccount) {
+        // given
+        HttpResponse mockHttpResponse = mock(HttpResponse.class);
+        given(mockHttpResponse.getStatusCode()).willReturn(401);
+
+        if (storageAccount == TargetStorageAccount.PCQ) {
+            given(blobContainerClientBuilderProvider.getPcqBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        } else if (storageAccount == TargetStorageAccount.CFT) {
+            given(blobContainerClientBuilderProvider.getBlobContainerClientBuilder())
+                .willReturn(blobContainerClientBuilder);
+        }
+
+        willThrow(new BlobStorageException("Sas invalid 401", mockHttpResponse, null))
+            .given(blobContainerClientBuilder)
+            .sasToken(any());
+        var uploadMethod = mock(Consumer.class);
+        // when
+        assertThrows(
+            BlobStorageException.class,
+            () -> blobContainerClientProxy.runUpload(
+                sourceBlockBlobClient,
+                containerName,
+                storageAccount,
+                uploadMethod
+            )
+        );
+        // then
+        verify(uploadMethod, never()).accept(blockBlobClient);
+        verify(sasTokenCache).removeFromCache(any());
     }
 
     private static byte[] getBlobContent(Map<String, byte[]> zipEntries) throws IOException {

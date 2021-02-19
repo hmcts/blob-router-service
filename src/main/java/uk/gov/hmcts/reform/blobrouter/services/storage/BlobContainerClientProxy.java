@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -325,4 +326,38 @@ public class BlobContainerClientProxy {
         }
     }
 
+    public void runUpload(
+        BlockBlobClient sourceBlob,
+        String destinationContainer,
+        TargetStorageAccount targetStorageAccount,
+        Consumer<BlockBlobClient> upload
+    ) {
+        try {
+            var blobName = sourceBlob.getBlobName();
+            logger.info(
+                "Start streaming from blob {} to Container: {}",
+                sourceBlob.getBlobUrl(),
+                destinationContainer
+            );
+
+            final BlockBlobClient blockBlobClient =
+                get(targetStorageAccount, destinationContainer)
+                    .getBlobClient(blobName)
+                    .getBlockBlobClient();
+            upload.accept(blockBlobClient);
+        } catch (HttpResponseException ex) {
+            logger.info(
+                "Uploading failed for blob {} to Container: {},  error code: {}",
+                sourceBlob.getBlobName(),
+                destinationContainer,
+                ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
+            );
+            if ((targetStorageAccount == TargetStorageAccount.CFT
+                || targetStorageAccount == TargetStorageAccount.PCQ)
+                && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
+                sasTokenCache.removeFromCache(destinationContainer);
+            }
+            throw ex;
+        }
+    }
 }
