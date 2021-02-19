@@ -93,11 +93,11 @@ class BlobMoverTest {
             .stageBlock(anyString(), any(), anyLong());
 
         // when
-
+        var contentStream = new ByteArrayInputStream(content);
         assertThrows(
             BlobStreamingException.class,
             () -> mover
-                .uploadWithChunks(targetBlockBlobClient, new ByteArrayInputStream(content))
+                .uploadWithChunks(targetBlockBlobClient, contentStream)
         );
 
         verify(targetBlockBlobClient).delete();
@@ -119,11 +119,11 @@ class BlobMoverTest {
             .delete();
 
         // when
-
+        var contentStream = new ByteArrayInputStream(content);
         assertThrows(
             BlobStreamingException.class,
             () -> mover
-                .uploadWithChunks(targetBlockBlobClient, new ByteArrayInputStream(content))
+                .uploadWithChunks(targetBlockBlobClient, contentStream)
         );
 
         verify(targetBlockBlobClient).delete();
