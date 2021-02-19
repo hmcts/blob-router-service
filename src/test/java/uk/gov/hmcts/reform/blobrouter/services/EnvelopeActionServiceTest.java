@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
+import uk.gov.hmcts.reform.blobrouter.clients.response.ZipFileResponse;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
@@ -24,6 +26,8 @@ import java.util.UUID;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -34,7 +38,8 @@ import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode.ERR_STALE_ENVELOPE;
 import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.DELETED;
 import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.FILE_PROCESSING_STARTED;
-import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.MANUALLY_REJECTED;
+import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.MANUALLY_MARKED_AS_DISPATCHED;
+import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.MANUALLY_MARKED_AS_REJECTED;
 
 @ExtendWith(MockitoExtension.class)
 class EnvelopeActionServiceTest {
@@ -46,11 +51,15 @@ class EnvelopeActionServiceTest {
     @Mock
     private EnvelopeEventRepository envelopeEventRepository;
 
+    @Mock
+    private BulkScanProcessorClient bulkScanProcessorClient;
+
     @BeforeEach
     void setUp() {
         envelopeActionService = new EnvelopeActionService(
             envelopeRepository,
             envelopeEventRepository,
+            bulkScanProcessorClient,
             1
         );
     }
@@ -72,7 +81,7 @@ class EnvelopeActionServiceTest {
     }
 
     @Test
-    void should_save_envelope_and_event_if_envelope_is_stale() {
+    void should_manually_dispatch_if_envelope_is_stale_but_has_envelope_and_events_in_processor() {
         // given
         var uuid = UUID.randomUUID();
         var envelope = envelope(uuid, CREATED);
@@ -85,6 +94,12 @@ class EnvelopeActionServiceTest {
         given(envelopeRepository.find(uuid)).willReturn(Optional.of(envelope));
         given(envelopeEventRepository.findForEnvelope(uuid))
             .willReturn(asList(event1, event2));
+        given(bulkScanProcessorClient.getZipFile(envelope.fileName))
+            .willReturn(new ZipFileResponse(
+                envelope.fileName,
+                singletonList(new Object()),
+                singletonList(new Object())
+            ));
 
         // when
         envelopeActionService.rejectStaleEnvelope(uuid);
@@ -93,10 +108,90 @@ class EnvelopeActionServiceTest {
         var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
         verify(envelopeEventRepository).insert(envelopeEventCaptor.capture());
         assertThat(envelopeEventCaptor.getValue().envelopeId).isEqualTo(uuid);
-        assertThat(envelopeEventCaptor.getValue().type).isEqualTo(MANUALLY_REJECTED);
+        assertThat(envelopeEventCaptor.getValue().type).isEqualTo(MANUALLY_MARKED_AS_DISPATCHED);
         assertThat(envelopeEventCaptor.getValue().errorCode).isEqualTo(ERR_STALE_ENVELOPE);
         assertThat(envelopeEventCaptor.getValue().notes)
-            .isEqualTo("Manually rejected due to stale state");
+            .isEqualTo("Manually marked as dispatched due to stale state");
+
+        var idCaptor = ArgumentCaptor.forClass(UUID.class);
+        var statusCaptor = ArgumentCaptor.forClass(Status.class);
+        verify(envelopeRepository).updateStatus(idCaptor.capture(), statusCaptor.capture());
+        assertThat(idCaptor.getValue()).isEqualTo(uuid);
+        assertThat(statusCaptor.getValue()).isEqualTo(DISPATCHED);
+    }
+
+    @Test
+    void should_manually_dispatch_if_envelope_is_stale_but_has_events_in_processor() {
+        // given
+        var uuid = UUID.randomUUID();
+        var envelope = envelope(uuid, CREATED);
+
+        Instant twoHoursAgo = Instant.now().minus(2, HOURS);
+        Instant threeHoursAgo = Instant.now().minus(3, HOURS);
+        EnvelopeEvent event1 = event(uuid, threeHoursAgo, 2L, FILE_PROCESSING_STARTED);
+        EnvelopeEvent event2 = event(uuid, twoHoursAgo, 1L, DELETED);
+
+        given(envelopeRepository.find(uuid)).willReturn(Optional.of(envelope));
+        given(envelopeEventRepository.findForEnvelope(uuid))
+            .willReturn(asList(event1, event2));
+        given(bulkScanProcessorClient.getZipFile(envelope.fileName))
+            .willReturn(new ZipFileResponse(
+                envelope.fileName,
+                emptyList(),
+                singletonList(new Object())
+            ));
+
+        // when
+        envelopeActionService.rejectStaleEnvelope(uuid);
+
+        // then
+        var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(envelopeEventRepository).insert(envelopeEventCaptor.capture());
+        assertThat(envelopeEventCaptor.getValue().envelopeId).isEqualTo(uuid);
+        assertThat(envelopeEventCaptor.getValue().type).isEqualTo(MANUALLY_MARKED_AS_DISPATCHED);
+        assertThat(envelopeEventCaptor.getValue().errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(envelopeEventCaptor.getValue().notes)
+            .isEqualTo("Manually marked as dispatched due to stale state");
+
+        var idCaptor = ArgumentCaptor.forClass(UUID.class);
+        var statusCaptor = ArgumentCaptor.forClass(Status.class);
+        verify(envelopeRepository).updateStatus(idCaptor.capture(), statusCaptor.capture());
+        assertThat(idCaptor.getValue()).isEqualTo(uuid);
+        assertThat(statusCaptor.getValue()).isEqualTo(DISPATCHED);
+    }
+
+    @Test
+    void should_manually_reject_if_envelope_is_stale_and_unknown_processor() {
+        // given
+        var uuid = UUID.randomUUID();
+        var envelope = envelope(uuid, CREATED);
+
+        Instant twoHoursAgo = Instant.now().minus(2, HOURS);
+        Instant threeHoursAgo = Instant.now().minus(3, HOURS);
+        EnvelopeEvent event1 = event(uuid, threeHoursAgo, 2L, FILE_PROCESSING_STARTED);
+        EnvelopeEvent event2 = event(uuid, twoHoursAgo, 1L, DELETED);
+
+        given(envelopeRepository.find(uuid)).willReturn(Optional.of(envelope));
+        given(envelopeEventRepository.findForEnvelope(uuid))
+            .willReturn(asList(event1, event2));
+        given(bulkScanProcessorClient.getZipFile(envelope.fileName))
+            .willReturn(new ZipFileResponse(
+                envelope.fileName,
+                emptyList(),
+                emptyList()
+            ));
+
+        // when
+        envelopeActionService.rejectStaleEnvelope(uuid);
+
+        // then
+        var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(envelopeEventRepository).insert(envelopeEventCaptor.capture());
+        assertThat(envelopeEventCaptor.getValue().envelopeId).isEqualTo(uuid);
+        assertThat(envelopeEventCaptor.getValue().type).isEqualTo(MANUALLY_MARKED_AS_REJECTED);
+        assertThat(envelopeEventCaptor.getValue().errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(envelopeEventCaptor.getValue().notes)
+            .isEqualTo("Manually marked as rejected due to stale state");
 
         var idCaptor = ArgumentCaptor.forClass(UUID.class);
         var statusCaptor = ArgumentCaptor.forClass(Status.class);
