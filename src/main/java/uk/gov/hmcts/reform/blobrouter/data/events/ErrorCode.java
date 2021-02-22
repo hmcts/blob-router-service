@@ -8,4 +8,5 @@ public enum ErrorCode {
     ERR_SIG_VERIFY_FAILED, // signature does not match the zip content
     ERR_RESCAN_REQUIRED,
     ERR_ZIP_PROCESSING_FAILED, // invalid zip file content
+    ERR_STALE_ENVELOPE
 }
