@@ -36,7 +36,7 @@ public class BlobDispatcher {
         TargetStorageAccount targetStorageAccount
     ) {
         logger.info(
-            "Uploading file. Blob name: {}. Container: {}. Storage: {}",
+            "Dispatching file. Blob name: {}. Container: {}. Storage: {}",
             sourceBlob.getBlobName(),
             destinationContainer,
             targetStorageAccount
@@ -45,7 +45,7 @@ public class BlobDispatcher {
         uploadEnvelope(sourceBlob.getBlockBlobClient(), destinationContainer, targetStorageAccount);
 
         logger.info(
-            "Finished uploading file. Blob name: {}. Container: {}. Storage: {}",
+            "File Dispatched. Blob name: {}. Container: {}. Storage: {}",
             sourceBlob.getBlobName(),
             destinationContainer,
             targetStorageAccount
@@ -90,7 +90,7 @@ public class BlobDispatcher {
                 );
 
                 logger.info(
-                    "Streaming finished for  blob {} to Container: {}, Upload Duration: {} sec",
+                    "Inner Zip uploaded for blob {} to Container: {}, Upload Duration: {} sec",
                     sourceBlob.getBlobUrl(),
                     destinationContainer,
                     TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime)
