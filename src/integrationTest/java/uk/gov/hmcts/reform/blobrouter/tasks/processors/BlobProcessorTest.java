@@ -5,7 +5,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -36,7 +35,6 @@ import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSig
 @ActiveProfiles("db-test")
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-@Disabled
 class BlobProcessorTest extends BlobStorageBaseTest {
 
     BlobContainerClientProxy containerClientProvider;
