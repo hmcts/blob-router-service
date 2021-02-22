@@ -42,7 +42,7 @@ public class BlobDispatcher {
             targetStorageAccount
         );
 
-        uploadContent(sourceBlob.getBlockBlobClient(), destinationContainer, targetStorageAccount);
+        uploadEnvelope(sourceBlob.getBlockBlobClient(), destinationContainer, targetStorageAccount);
 
         logger.info(
             "Finished uploading file. Blob name: {}. Container: {}. Storage: {}",
@@ -52,38 +52,51 @@ public class BlobDispatcher {
         );
     }
 
-    private void uploadContent(
+    private void uploadEnvelope(
         BlockBlobClient sourceBlob,
         String destinationContainer,
         TargetStorageAccount targetStorageAccount
     ) {
-        logger.info("Upload inner zip  from blob {} to Container: {}", sourceBlob.getBlobUrl(), destinationContainer);
-        long startTime = System.nanoTime();
+        logger.info(
+            "Upload inner zip  from blob {} to Container: {}",
+            sourceBlob.getBlobUrl(),
+            destinationContainer
+        );
         try (var zipStream = new ZipInputStream(sourceBlob.openInputStream());) {
-            ZipEntry entry;
-
-            while ((entry = zipStream.getNextEntry()) != null) {
-                if (Objects.equals(entry.getName(), ENVELOPE)) {
-
-                    blobContainerClientProxy.runUpload(
-                        sourceBlob, destinationContainer,
-                        targetStorageAccount,
-                        target -> blobMover.uploadWithChunks(target, zipStream)
-                    );
-
-                    logger.info(
-                        "Streaming finished for  blob {} to Container: {}, Upload Duration: {} sec",
-                        sourceBlob.getBlobUrl(),
-                        destinationContainer,
-                        TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime)
-                    );
-                    return;
-                }
-            }
+            uploadContent(sourceBlob, destinationContainer, targetStorageAccount, zipStream);
         } catch (IOException ex) {
             throw new BlobStreamingException(
-                "Blob upload, source blob inputstream error.", ex
+                "Blob upload, source blob InputStream error.", ex
             );
+        }
+    }
+
+    private void uploadContent(
+        BlockBlobClient sourceBlob,
+        String destinationContainer,
+        TargetStorageAccount targetStorageAccount,
+        ZipInputStream zipStream
+    ) throws IOException {
+
+        long startTime = System.nanoTime();
+        ZipEntry entry;
+        while ((entry = zipStream.getNextEntry()) != null) {
+            if (Objects.equals(entry.getName(), ENVELOPE)) {
+                blobContainerClientProxy.runUpload(
+                    sourceBlob,
+                    destinationContainer,
+                    targetStorageAccount,
+                    target -> blobMover.uploadWithChunks(target, zipStream)
+                );
+
+                logger.info(
+                    "Streaming finished for  blob {} to Container: {}, Upload Duration: {} sec",
+                    sourceBlob.getBlobUrl(),
+                    destinationContainer,
+                    TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime)
+                );
+                return;
+            }
         }
 
         throw new InvalidZipArchiveException(
