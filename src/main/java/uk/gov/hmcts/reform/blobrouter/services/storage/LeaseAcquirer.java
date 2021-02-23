@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
-import com.azure.storage.blob.specialized.BlobLeaseClient;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
@@ -17,7 +16,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 @Component
 public class LeaseAcquirer {
 
-    public static final int LEASE_DURATION_IN_SECONDS = 60;
     private static final Logger logger = getLogger(LeaseAcquirer.class);
 
     private final BlobMetaDataHandler blobMetaDataHandler;
@@ -27,9 +25,9 @@ public class LeaseAcquirer {
     }
 
     /**
-     * Main wrapper for blobs to be leased by {@link BlobLeaseClient}.
+     * Main wrapper for blobs to be leased  by custom blobMetaDataHandler.
      * @param blobClient Represents blob
-     * @param onSuccess Consumer which takes in {@code leaseId} acquired with {@link BlobLeaseClient}
+     * @param onSuccess Consumer
      * @param onFailure Extra step to execute in case an error occurred
      * @param releaseLease Flag weather to release the lease or not
      */

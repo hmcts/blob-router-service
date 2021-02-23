@@ -54,7 +54,7 @@ public class BlobMover {
         );
 
         if (!sourceBlob.exists()) {
-            logger.error("File already deleted. " + loggingContext);
+            logger.error("File already deleted. {}", loggingContext);
         } else {
             String sasToken = sourceBlob
                 .generateSas(
@@ -80,7 +80,7 @@ public class BlobMover {
     public List<String> uploadWithChunks(BlockBlobClient blockBlobClient, InputStream inStream) {
         byte[] envelopeData = new byte[uploadChunkSize];
         int blockNumber = 0;
-        List<String> blockList = new ArrayList<String>();
+        List<String> blockList = new ArrayList<>();
         long totalSize = 0L;
         try {
             while (inStream.available() != 0) {
