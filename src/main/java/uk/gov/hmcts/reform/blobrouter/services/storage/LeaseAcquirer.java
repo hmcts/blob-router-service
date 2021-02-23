@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.function.Consumer;
 
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
+import static com.azure.storage.blob.models.BlobErrorCode.CONDITION_NOT_MET;
 import static com.azure.storage.blob.models.BlobErrorCode.LEASE_ALREADY_PRESENT;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -43,14 +44,25 @@ public class LeaseAcquirer {
             try {
                 isReady = blobMetaDataHandler.isBlobReadyToUse(blobClient);
             } catch (Exception ex) {
-                logger.warn(
-                    "Could not check meta data for lease expiration on file {} in container {}",
-                    blobClient.getBlobName(),
-                    blobClient.getContainerName(),
-                    ex
-                );
                 if (ex instanceof BlobStorageException) {
                     errorCode = getErrorCode(blobClient, (BlobStorageException) ex);
+                }
+
+                if (errorCode == CONDITION_NOT_MET) {
+                    var blobStorageException = (BlobStorageException) ex;
+                    logger.info(
+                        "Blob already leased for {}, Error message:  {}, Status code: {}",
+                        blobClient.getBlobUrl(),
+                        blobStorageException.getMessage(),
+                        blobStorageException.getStatusCode()
+                    );
+                } else {
+                    logger.error(
+                        "Could not check meta data for lease expiration on file {} in container {}",
+                        blobClient.getBlobName(),
+                        blobClient.getContainerName(),
+                        ex
+                    );
                 }
             }
 
