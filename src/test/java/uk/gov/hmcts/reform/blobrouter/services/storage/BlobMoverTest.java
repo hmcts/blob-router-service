@@ -1,7 +1,12 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.http.HttpResponse;
+import com.azure.core.util.polling.PollResponse;
+import com.azure.core.util.polling.SyncPoller;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.azure.storage.blob.models.BlockBlobItem;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -16,11 +21,14 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.BlobStreamingException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 import static com.google.common.io.Resources.getResource;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -29,8 +37,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("unchecked")
@@ -43,6 +53,10 @@ class BlobMoverTest {
 
     @Mock
     BlockBlobClient targetBlockBlobClient;
+
+    private static final String CONTAINER_NAME = "testcontainer";
+    private static final String REJECTED_CONTAINER_NAME = "testcontainer-rejected";
+    private static final String BLOB_NAME = "testFile.zip";
 
     @BeforeEach
     void setUp() {
@@ -127,5 +141,129 @@ class BlobMoverTest {
         );
 
         verify(targetBlockBlobClient).delete();
+    }
+
+    @Test
+    void should_skip_moving_if_blob_does_not_exist() {
+        //given
+        var sourceBlob = mockBlobClient(CONTAINER_NAME, BLOB_NAME);
+        given(sourceBlob.exists()).willReturn(false);
+        var targetBlob = mockBlobClient(REJECTED_CONTAINER_NAME, BLOB_NAME);
+        // when
+        mover.moveToRejectedContainer(BLOB_NAME, CONTAINER_NAME);
+        // then
+        verify(targetBlob).getContainerName();
+        verify(sourceBlob).getContainerName();
+        verify(sourceBlob).exists();
+        verifyNoMoreInteractions(targetBlob);
+        verifyNoMoreInteractions(sourceBlob);
+    }
+
+    @Test
+    void should_move_to_rejected_and_delete_from_source_if_blob_exist() {
+        // given
+        var sourceBlob = mockBlobClient(CONTAINER_NAME, BLOB_NAME);
+        var targetBlob = mockBlobClient(REJECTED_CONTAINER_NAME, BLOB_NAME);
+        given(sourceBlob.exists()).willReturn(true);
+
+        String sasToken = "sas_token_01-03-2021";
+        given(sourceBlob.generateSas(any())).willReturn(sasToken);
+        String blobUrl = "http://bloburl";
+        given(sourceBlob.getBlobUrl()).willReturn(blobUrl);
+        given(targetBlob.exists()).willReturn(true);
+
+        SyncPoller syncPoller = mock(SyncPoller.class);
+        given(targetBlob
+            .beginCopy(blobUrl + "?" + sasToken, null, null, null, null, null, Duration.ofSeconds(2)))
+            .willReturn(syncPoller);
+
+        var pollResponse = mock(PollResponse.class);
+        given(syncPoller.waitForCompletion(Duration.ofMinutes(5))).willReturn(pollResponse);
+        given(pollResponse.getValue()).willReturn(mock(BlobCopyInfo.class));
+
+        // when
+        mover.moveToRejectedContainer(BLOB_NAME, CONTAINER_NAME);
+
+        // then
+        verify(sourceBlob).delete();
+        verify(targetBlob).getContainerName();
+        verify(targetBlob).exists();
+        verify(targetBlob).createSnapshot();
+        verifyNoMoreInteractions(targetBlob);
+    }
+
+    @Test
+    void should_abort_copy_to_rejected_container_when_there_is_exception() {
+        // given
+        var sourceBlob = mockBlobClient(CONTAINER_NAME, BLOB_NAME);
+        var targetBlob = mockBlobClient(REJECTED_CONTAINER_NAME, BLOB_NAME);
+        given(sourceBlob.exists()).willReturn(true);
+
+        given(sourceBlob.generateSas(any())).willReturn("sasToken");
+        given(sourceBlob.getBlobUrl()).willReturn("blobUrl");
+
+        SyncPoller syncPoller = mock(SyncPoller.class);
+        given(targetBlob.beginCopy(any(), any(), any(), any(), any(), any(), any()))
+            .willReturn(syncPoller);
+
+        var pollResponse = mock(PollResponse.class);
+        willThrow(new BlobStorageException("Copy Failed", mock(HttpResponse.class), null))
+            .given(syncPoller).waitForCompletion(Duration.ofMinutes(5));
+
+        var blobCopyInfo = mock(BlobCopyInfo.class);
+        given(syncPoller.poll()).willReturn(pollResponse);
+        given(pollResponse.getValue()).willReturn(blobCopyInfo);
+        String copyId = UUID.randomUUID().toString();
+        given(blobCopyInfo.getCopyId()).willReturn(copyId);
+
+        // when
+        assertThatThrownBy(
+            () -> mover.moveToRejectedContainer(BLOB_NAME, CONTAINER_NAME)
+        ).isInstanceOf(BlobStorageException.class);
+
+        // then
+        verify(sourceBlob, never()).delete();
+        verify(targetBlob).abortCopyFromUrl(copyId);
+    }
+
+    @Test
+    void should_omit_abort_copy_error_when_abortCopy_fails() {
+        // given
+        var sourceBlob = mockBlobClient(CONTAINER_NAME, BLOB_NAME);
+        var targetBlob = mockBlobClient(REJECTED_CONTAINER_NAME, BLOB_NAME);
+        given(sourceBlob.exists()).willReturn(true);
+
+        given(sourceBlob.generateSas(any())).willReturn("sasToken");
+        given(sourceBlob.getBlobUrl()).willReturn("blobUrl");
+
+        SyncPoller syncPoller = mock(SyncPoller.class);
+        given(targetBlob.beginCopy(any(), any(), any(), any(), any(), any(), any()))
+            .willReturn(syncPoller);
+
+        var pollResponse = mock(PollResponse.class);
+        willThrow(new BlobStorageException("Copy Failed", mock(HttpResponse.class), null))
+            .given(syncPoller).waitForCompletion(Duration.ofMinutes(5));
+
+        willThrow(new RuntimeException("Polling failed"))
+            .given(syncPoller).poll();
+
+        // when
+        assertThatThrownBy(
+            () -> mover.moveToRejectedContainer(BLOB_NAME, CONTAINER_NAME)
+        ).isInstanceOf(BlobStorageException.class);
+
+        // then
+        verify(sourceBlob, never()).delete();
+        verify(targetBlob, never()).abortCopyFromUrl(any());
+    }
+
+    private BlockBlobClient mockBlobClient(String containerName, String blobName) {
+        var blobContainerClient = mock(BlobContainerClient.class);
+        given(storageClient.getBlobContainerClient(containerName)).willReturn(blobContainerClient);
+        var blobClient = mock(BlobClient.class);
+        given(blobContainerClient.getBlobClient(blobName)).willReturn(blobClient);
+        var blockBlobClient = mock(BlockBlobClient.class);
+        given(blobClient.getBlockBlobClient()).willReturn(blockBlobClient);
+        return blockBlobClient;
     }
 }
