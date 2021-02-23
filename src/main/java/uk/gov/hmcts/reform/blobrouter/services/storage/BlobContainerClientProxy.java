@@ -9,43 +9,27 @@ import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
-import com.google.common.io.ByteStreams;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
-import uk.gov.hmcts.reform.blobrouter.exceptions.BlobStreamingException;
-import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers.ENVELOPE;
 
 @Service
 public class BlobContainerClientProxy {
 
     private static final Logger logger = getLogger(BlobContainerClientProxy.class);
-    // streaming block size in byte, 6 MB
-    public static final int BLOCK_SIZE = 1024 * 1024 *  6;
 
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
@@ -82,108 +66,6 @@ public class BlobContainerClientProxy {
                 throw new UnknownStorageAccountException(
                     String.format("Client requested for an unknown storage account: %s", targetStorageAccount)
                 );
-        }
-    }
-
-    public void streamContentToDestination(
-        BlobClient sourceBlob,
-        String destinationContainer,
-        TargetStorageAccount targetStorageAccount
-    ) {
-        try {
-            streamContent(sourceBlob.getBlockBlobClient(), destinationContainer, targetStorageAccount);
-        } catch (HttpResponseException ex) {
-            logger.info(
-                "Uploading failed for blob {} to Container: {},  error code: {}",
-                sourceBlob.getBlobName(),
-                destinationContainer,
-                ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
-            );
-            if ((targetStorageAccount == TargetStorageAccount.CFT
-                || targetStorageAccount == TargetStorageAccount.PCQ)
-                && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
-                sasTokenCache.removeFromCache(destinationContainer);
-            }
-            throw ex;
-        }
-    }
-
-    private void streamContent(
-        BlockBlobClient sourceBlob,
-        String destinationContainer,
-        TargetStorageAccount targetStorageAccount
-    ) {
-        var blobName = sourceBlob.getBlobName();
-        logger.info("Start streaming from blob {} to Container: {}", sourceBlob.getBlobUrl(), destinationContainer);
-        long startTime = System.nanoTime();
-        try (var zipStream = new ZipInputStream(sourceBlob.openInputStream());) {
-            ZipEntry entry;
-
-            while ((entry = zipStream.getNextEntry()) != null) {
-                if (Objects.equals(entry.getName(), ENVELOPE)) {
-                    final BlockBlobClient blockBlobClient =
-                        get(targetStorageAccount, destinationContainer)
-                            .getBlobClient(blobName)
-                            .getBlockBlobClient();
-
-                    uploadWithChunks(blockBlobClient, zipStream);
-
-                    logger.info(
-                        "Streaming finished for  blob {} to Container: {}, Upload Duration: {} sec",
-                        sourceBlob.getBlobUrl(),
-                        destinationContainer,
-                        TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - startTime)
-                    );
-                    return;
-                }
-            }
-        } catch (IOException ex) {
-            throw new BlobStreamingException(
-                "Blob upload, source blob inputstream error.", ex
-            );
-        }
-
-        throw new InvalidZipArchiveException(
-            String.format("ZIP file doesn't contain the required %s entry", ENVELOPE)
-        );
-    }
-
-    public void upload(
-        String blobName,
-        byte[] blobContents,
-        String destinationContainer,
-        TargetStorageAccount targetStorageAccount
-    ) {
-        long uploadStartTime = 0;
-        try {
-            final BlockBlobClient blockBlobClient =
-                get(targetStorageAccount, destinationContainer)
-                    .getBlobClient(blobName)
-                    .getBlockBlobClient();
-
-            logger.info("Uploading content of blob {} to Container: {}", blobName, destinationContainer);
-            uploadStartTime = System.currentTimeMillis();
-            blockBlobClient
-                .upload(
-                    new ByteArrayInputStream(blobContents),
-                    blobContents.length
-            );
-
-            logger.info("Finished uploading content of blob {} to Container: {}", blobName, destinationContainer);
-        } catch (HttpResponseException ex) {
-            logger.info(
-                "Uploading failed for blob {} to Container: {}, upload duration in Ms: {}, error code: {}",
-                blobName,
-                destinationContainer,
-                (System.currentTimeMillis() - uploadStartTime),
-                ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
-            );
-            if ((targetStorageAccount == TargetStorageAccount.CFT
-                || targetStorageAccount == TargetStorageAccount.PCQ)
-                && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
-                sasTokenCache.removeFromCache(destinationContainer);
-            }
-            throw ex;
         }
     }
 
@@ -269,60 +151,6 @@ public class BlobContainerClientProxy {
                 sasTokenCache.removeFromCache(destinationContainer);
             }
             throw ex;
-        }
-    }
-
-    private List uploadWithChunks(BlockBlobClient blockBlobClient, ZipInputStream zipStream)
-        throws IOException {
-        byte[] envelopeData = new byte[BLOCK_SIZE];
-        int blockNumber = 0;
-        List<String> blockList = new ArrayList<String>();
-        long totalSize = 0L;
-        try {
-            while (zipStream.available() != 0) {
-                blockNumber++;
-                String base64BlockId = Base64.getEncoder()
-                    .encodeToString(String.format("%07d", blockNumber).getBytes());
-                int numBytesRead = zipStream.readNBytes(envelopeData, 0, BLOCK_SIZE);
-                totalSize += numBytesRead;
-                InputStream limitedStream;
-                if (numBytesRead == BLOCK_SIZE) {
-                    limitedStream = new ByteArrayInputStream(envelopeData);
-                } else {
-                    limitedStream = ByteStreams
-                        .limit(new ByteArrayInputStream(envelopeData), numBytesRead);
-                }
-
-                blockBlobClient
-                    .stageBlock(base64BlockId, limitedStream, numBytesRead);
-                blockList.add(base64BlockId);
-            }
-            blockBlobClient.commitBlockList(blockList);
-            logger.info(
-                "Upload committed  to {}, num of  block {}, total size {}",
-                blockBlobClient.getBlobUrl(),
-                blockList.size(),
-                FileUtils.byteCountToDisplaySize(totalSize)
-            );
-        } catch (Exception ex) {
-            logger.info("Upload  to {}. FAILED", blockBlobClient.getBlobUrl());
-            //try to clear uncommitted blocks
-            tryToDelete(blockBlobClient);
-            throw ex;
-        }
-
-        return blockList;
-    }
-
-    private void tryToDelete(BlockBlobClient blockBlobClient) {
-        try {
-            blockBlobClient.delete();
-        } catch (Exception exc) {
-            logger.error(
-                "Deleting uncommitted blocks from {} failed",
-                blockBlobClient.getBlobUrl(),
-                exc
-            );
         }
     }
 
