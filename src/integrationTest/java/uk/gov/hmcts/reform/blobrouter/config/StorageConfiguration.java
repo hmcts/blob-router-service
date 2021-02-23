@@ -3,12 +3,10 @@ package uk.gov.hmcts.reform.blobrouter.config;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 
 import static org.mockito.Mockito.mock;
 
@@ -37,8 +35,4 @@ public class StorageConfiguration {
         return mock(BlobContainerClient.class);
     }
 
-    @Bean
-    public LeaseClientProvider getLeaseClientProvider() {
-        return blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();
-    }
 }
