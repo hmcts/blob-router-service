@@ -1,13 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
 import com.azure.core.exception.HttpResponseException;
-import com.azure.core.util.polling.PollResponse;
-import com.azure.core.util.polling.SyncPoller;
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.models.BlobCopyInfo;
-import com.azure.storage.blob.sas.BlobContainerSasPermission;
-import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,13 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -34,7 +21,6 @@ public class BlobContainerClientProxy {
     private final BlobContainerClient crimeClient;
     private final BlobContainerClientBuilderProvider blobContainerClientBuilderProvider;
     private final SasTokenCache sasTokenCache;
-    public static final Map<String, String> META_DATA_MAP = Map.of("waitingCopy", "true");
 
     public BlobContainerClientProxy(
         @Qualifier("crime-storage-client") BlobContainerClient crimeClient,
@@ -66,91 +52,6 @@ public class BlobContainerClientProxy {
                 throw new UnknownStorageAccountException(
                     String.format("Client requested for an unknown storage account: %s", targetStorageAccount)
                 );
-        }
-    }
-
-    public void moveBlob(
-        BlobClient sourceBlob,
-        String destinationContainer,
-        TargetStorageAccount targetStorageAccount
-    ) {
-        try {
-            var blobName = sourceBlob.getBlobName();
-            logger.info("Move from {}   to Container: {}", sourceBlob.getBlobUrl(),
-                destinationContainer);
-
-            String sasToken = sourceBlob
-                .generateSas(
-                    new BlobServiceSasSignatureValues(
-                        OffsetDateTime
-                            .of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
-                        new BlobContainerSasPermission().setReadPermission(true)
-                    )
-                );
-            final BlockBlobClient targetBlob =
-                get(targetStorageAccount, destinationContainer)
-                    .getBlobClient(blobName)
-                    .getBlockBlobClient();
-
-            var start = System.nanoTime();
-            SyncPoller<BlobCopyInfo, Void> poller = null;
-            try {
-                poller = targetBlob
-                    .beginCopy(
-                        sourceBlob.getBlobUrl() + "?" + sasToken,
-                        META_DATA_MAP,
-                        null,
-                        null,
-                        null,
-                        null,
-                        Duration.ofSeconds(2)
-                    );
-
-                PollResponse<BlobCopyInfo> pollResponse = poller
-                    .waitForCompletion(Duration.ofMinutes(5));
-                targetBlob.setMetadata(null);
-                logger.info("Move done from {}   to Container: {} Poll response: {}, Copy status: {} ,Takes {} second",
-                    sourceBlob.getBlobUrl(),
-                    destinationContainer,
-                    pollResponse.getStatus(),
-                    pollResponse.getValue().getCopyStatus(),
-                    TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - start)
-                );
-
-            } catch (Exception ex) {
-                logger.error("Copy Error, for {}  to Container: {} ",
-                    sourceBlob.getBlobUrl(),
-                    destinationContainer,
-                    ex
-                );
-
-                if (poller != null) {
-                    try {
-                        targetBlob.abortCopyFromUrl(poller.poll().getValue().getCopyId());
-                    } catch (Exception exc) {
-                        logger.error("Abort Copy From Url got Error,  for {}  to Container: {} ",
-                            sourceBlob.getBlobUrl(),
-                            destinationContainer,
-                            exc
-                        );
-                    }
-                }
-                throw ex;
-            }
-
-        } catch (HttpResponseException ex) {
-            logger.info(
-                "Uploading failed for  url {} to Container: {}, error code: {}",
-                sourceBlob.getBlobUrl(),
-                destinationContainer,
-                ex.getResponse() == null ? ex.getMessage() : ex.getResponse().getStatusCode()
-            );
-            if ((targetStorageAccount == TargetStorageAccount.CFT
-                || targetStorageAccount == TargetStorageAccount.PCQ)
-                && HttpStatus.valueOf(ex.getResponse().getStatusCode()).is4xxClientError()) {
-                sasTokenCache.removeFromCache(destinationContainer);
-            }
-            throw ex;
         }
     }
 
