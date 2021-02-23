@@ -86,13 +86,13 @@ public class BlobMover {
                 PollResponse<BlobCopyInfo> pollResponse = poller
                     .waitForCompletion(Duration.ofMinutes(5));
                 logger.info(
-                    "Move to rejected  container  done from {}, Poll response: {}, Copy status: {} ,Takes {} second",
+                    "Moved to rejected  container  done from {}, Poll response: {}, Copy status: {}",
                     sourceBlob.getBlobUrl(),
                     pollResponse.getStatus(),
                     pollResponse.getValue().getCopyStatus()
                 );
                 sourceBlob.delete();
-                logger.info("File successfully moved to rejected container. " + loggingContext);
+                logger.info("File successfully moved to rejected container. {}", loggingContext);
             } catch (Exception ex) {
                 logger.error(
                     "Copy Error to rejected container, for {}",

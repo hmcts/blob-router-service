@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.doNothing;
@@ -175,16 +174,8 @@ class BlobMoverTest {
 
         SyncPoller syncPoller = mock(SyncPoller.class);
         given(targetBlob
-            .beginCopy(
-                eq(blobUrl + "?" + sasToken),
-                eq(null),
-                eq(null),
-                eq(null),
-                eq(null),
-                eq(null),
-                eq(Duration.ofSeconds(2))
-            )
-        ).willReturn(syncPoller);
+            .beginCopy(blobUrl + "?" + sasToken, null, null, null, null, null, Duration.ofSeconds(2)))
+            .willReturn(syncPoller);
 
         var pollResponse = mock(PollResponse.class);
         given(syncPoller.waitForCompletion(Duration.ofMinutes(5))).willReturn(pollResponse);
