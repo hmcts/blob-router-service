@@ -54,7 +54,7 @@ public class BlobMover {
         );
 
         if (!sourceBlob.exists()) {
-            logger.error("File already deleted. {} ", loggingContext);
+            logger.error("File already deleted. {}", loggingContext);
         } else {
             String sasToken = sourceBlob
                 .generateSas(
