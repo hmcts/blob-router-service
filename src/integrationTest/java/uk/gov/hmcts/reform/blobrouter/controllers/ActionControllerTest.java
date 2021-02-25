@@ -228,6 +228,23 @@ class ActionControllerTest {
         verifyNoInteractions(envelopeEventRepository);
     }
 
+    @Test
+    void should_respond_not_found_if_envelope_does_not_exist() throws Exception {
+
+        UUID envelopeId = UUID.randomUUID();
+
+        Optional<Envelope> envelopeOpt = Optional.empty();
+        given(envelopeRepository.find(envelopeId)).willReturn(envelopeOpt);
+
+        mockMvc
+            .perform(
+                put("/actions/complete/" + envelopeId)
+            )
+            .andExpect(status().isNotFound());
+
+        verifyNoInteractions(envelopeEventRepository);
+    }
+
     private Envelope envelope(UUID id, Status status) {
         return new Envelope(
             id,
