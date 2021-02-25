@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeCompletedOrNotStaleException;
+import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidApiKeyException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSupplierStatementException;
@@ -61,6 +62,13 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EnvelopeCompletedOrNotStaleException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     protected ErrorResponse handleEnvelopeCompletedOrNotStaleException(EnvelopeCompletedOrNotStaleException exception) {
+        log.error(exception.getMessage(), exception);
+        return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(EnvelopeNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    protected ErrorResponse handleEnvelopeNotFoundException(EnvelopeNotFoundException exception) {
         log.error(exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
     }
