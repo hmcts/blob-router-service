@@ -5,7 +5,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -21,6 +20,7 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientBuilderProvider;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobContainerClientProxy;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
+import uk.gov.hmcts.reform.blobrouter.services.storage.BlobMover;
 import uk.gov.hmcts.reform.blobrouter.services.storage.SasTokenCache;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
@@ -36,7 +36,6 @@ import static uk.gov.hmcts.reform.blobrouter.testutils.DirectoryZipper.zipAndSig
 @ActiveProfiles("db-test")
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-@Disabled
 class BlobProcessorTest extends BlobStorageBaseTest {
 
     BlobContainerClientProxy containerClientProvider;
@@ -48,6 +47,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
     @Autowired EnvelopeRepository envelopeRepo;
     @Autowired ServiceConfiguration serviceConfiguration;
     @Autowired DbHelper dbHelper;
+    @Autowired BlobMover blobMover;
 
     @BeforeEach
     void setUp() {
@@ -75,7 +75,7 @@ class BlobProcessorTest extends BlobStorageBaseTest {
         given(blobContainerClientBuilder.containerName(any())).willReturn(blobContainerClientBuilder);
         given(blobContainerClientBuilder.buildClient()).willReturn(targetContainerClient);
 
-        var dispatcher = new BlobDispatcher(containerClientProvider);
+        var dispatcher = new BlobDispatcher(containerClientProvider, blobMover);
 
         var blobProcessor =
             new BlobProcessor(

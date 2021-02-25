@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
-import com.azure.storage.blob.BlobClient;
+import com.azure.core.util.polling.PollResponse;
+import com.azure.core.util.polling.SyncPoller;
 import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.models.BlobCopyInfo;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -14,6 +16,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.BlobStreamingException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -43,8 +46,8 @@ public class BlobMover {
 
     public void moveToRejectedContainer(String blobName, String containerName) {
 
-        BlobClient sourceBlob = getBlobClient(containerName, blobName);
-        BlobClient targetBlob = getBlobClient(containerName + REJECTED_CONTAINER_SUFFIX, blobName);
+        BlockBlobClient sourceBlob = getBlobClient(containerName, blobName);
+        BlockBlobClient targetBlob = getBlobClient(containerName + REJECTED_CONTAINER_SUFFIX, blobName);
 
         String loggingContext = String.format(
             "File name: %s. Source Container: %s. Target Container: %s",
@@ -54,7 +57,7 @@ public class BlobMover {
         );
 
         if (!sourceBlob.exists()) {
-            logger.error("File already deleted. " + loggingContext);
+            logger.error("File already deleted. {}", loggingContext);
         } else {
             String sasToken = sourceBlob
                 .generateSas(
@@ -67,20 +70,56 @@ public class BlobMover {
             if (targetBlob.exists()) {
                 targetBlob.createSnapshot();
             }
+            SyncPoller<BlobCopyInfo, Void> poller = null;
 
-            targetBlob
-                .getBlockBlobClient()
-                .copyFromUrl(sourceBlob.getBlockBlobClient().getBlobUrl() + "?" + sasToken);
+            try {
+                poller = targetBlob
+                    .beginCopy(
+                        sourceBlob.getBlobUrl() + "?" + sasToken,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        Duration.ofSeconds(2)
+                    );
+                PollResponse<BlobCopyInfo> pollResponse = poller
+                    .waitForCompletion(Duration.ofMinutes(5));
+                logger.info(
+                    "Moved to rejected  container  done from {}, Poll response: {}, Copy status: {}",
+                    sourceBlob.getBlobUrl(),
+                    pollResponse.getStatus(),
+                    pollResponse.getValue().getCopyStatus()
+                );
+                sourceBlob.delete();
+                logger.info("File successfully moved to rejected container. {}", loggingContext);
+            } catch (Exception ex) {
+                logger.error(
+                    "Copy Error to rejected container, for {}",
+                    sourceBlob.getBlobUrl(),
+                    ex
+                );
 
-            sourceBlob.delete();
-            logger.info("File successfully moved to rejected container. " + loggingContext);
+                if (poller != null) {
+                    try {
+                        targetBlob.abortCopyFromUrl(poller.poll().getValue().getCopyId());
+                    } catch (Exception exc) {
+                        logger.error(
+                            "Abort Copy From Url got Error,  for {}  to rejected container",
+                            sourceBlob.getBlobUrl(),
+                            exc
+                        );
+                    }
+                }
+                throw ex;
+            }
         }
     }
 
     public List<String> uploadWithChunks(BlockBlobClient blockBlobClient, InputStream inStream) {
         byte[] envelopeData = new byte[uploadChunkSize];
         int blockNumber = 0;
-        List<String> blockList = new ArrayList<String>();
+        List<String> blockList = new ArrayList<>();
         long totalSize = 0L;
         try {
             while (inStream.available() != 0) {
@@ -126,7 +165,7 @@ public class BlobMover {
         }
     }
 
-    private BlobClient getBlobClient(String containerName, String blobName) {
-        return storageClient.getBlobContainerClient(containerName).getBlobClient(blobName);
+    private BlockBlobClient getBlobClient(String containerName, String blobName) {
+        return storageClient.getBlobContainerClient(containerName).getBlobClient(blobName).getBlockBlobClient();
     }
 }

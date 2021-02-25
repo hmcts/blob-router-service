@@ -5,13 +5,11 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.azure.storage.blob.specialized.BlobLeaseClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseClientProvider;
 
 @Profile({"!integration-test"})
 @Configuration
@@ -23,11 +21,6 @@ public class StorageConfiguration {
         @Value("${storage.account-key}") String accountKey
     ) {
         return new StorageSharedKeyCredential(accountName, accountKey);
-    }
-
-    @Bean
-    public LeaseClientProvider getLeaseClientProvider() {
-        return blobClient -> new BlobLeaseClientBuilder().blobClient(blobClient).buildClient();
     }
 
     @Bean

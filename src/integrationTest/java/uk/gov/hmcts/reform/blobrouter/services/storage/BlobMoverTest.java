@@ -125,7 +125,7 @@ class BlobMoverTest extends BlobStorageBaseTest {
 
         var blockBlobClient = targetContainer.getBlobClient(targetBlobName).getBlockBlobClient();
 
-        List blockIdList = mover
+        List<String> blockIdList = mover
             .uploadWithChunks(blockBlobClient, new ByteArrayInputStream(content));
 
         // then
