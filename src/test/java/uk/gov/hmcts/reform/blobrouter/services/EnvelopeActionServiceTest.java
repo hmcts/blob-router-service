@@ -74,7 +74,7 @@ class EnvelopeActionServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-                               envelopeActionService.rejectStaleEnvelope(uuid)
+                               envelopeActionService.completeStaleEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeNotFoundException.class)
             .hasMessageContaining("Envelope with id " + uuid + " not found");
@@ -102,7 +102,7 @@ class EnvelopeActionServiceTest {
             ));
 
         // when
-        envelopeActionService.rejectStaleEnvelope(uuid);
+        envelopeActionService.completeStaleEnvelope(uuid);
 
         // then
         var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
@@ -142,7 +142,7 @@ class EnvelopeActionServiceTest {
             ));
 
         // when
-        envelopeActionService.rejectStaleEnvelope(uuid);
+        envelopeActionService.completeStaleEnvelope(uuid);
 
         // then
         var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
@@ -182,7 +182,7 @@ class EnvelopeActionServiceTest {
             ));
 
         // when
-        envelopeActionService.rejectStaleEnvelope(uuid);
+        envelopeActionService.completeStaleEnvelope(uuid);
 
         // then
         var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
@@ -218,7 +218,7 @@ class EnvelopeActionServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-                               envelopeActionService.rejectStaleEnvelope(uuid)
+                               envelopeActionService.completeStaleEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeCompletedOrNotStaleException.class)
             .hasMessageMatching("^(Envelope with id )[\\S]+( is completed or not stale)$");
@@ -235,7 +235,7 @@ class EnvelopeActionServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-                               envelopeActionService.rejectStaleEnvelope(uuid)
+                               envelopeActionService.completeStaleEnvelope(uuid)
         )
             .isInstanceOf(NoSuchElementException.class);
     }
@@ -251,7 +251,7 @@ class EnvelopeActionServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-                               envelopeActionService.rejectStaleEnvelope(uuid)
+                               envelopeActionService.completeStaleEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeCompletedOrNotStaleException.class)
             .hasMessageMatching("^(Envelope with id )[\\S]+( is completed or not stale)$");
@@ -268,7 +268,7 @@ class EnvelopeActionServiceTest {
         // when
         // then
         assertThatThrownBy(() ->
-                               envelopeActionService.rejectStaleEnvelope(uuid)
+                               envelopeActionService.completeStaleEnvelope(uuid)
         )
             .isInstanceOf(EnvelopeCompletedOrNotStaleException.class)
             .hasMessageMatching("^(Envelope with id )[\\S]+( is completed or not stale)$");

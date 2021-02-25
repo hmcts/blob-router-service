@@ -47,7 +47,7 @@ public class EnvelopeActionService {
     }
 
     @Transactional
-    public void rejectStaleEnvelope(UUID envelopeId) {
+    public void completeStaleEnvelope(UUID envelopeId) {
         Envelope envelope = envelopeRepository.find(envelopeId)
             .orElseThrow(
                 () -> new EnvelopeNotFoundException("Envelope with id " + envelopeId + " not found")
