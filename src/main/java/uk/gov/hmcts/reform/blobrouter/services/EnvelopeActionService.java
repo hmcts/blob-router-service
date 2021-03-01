@@ -23,6 +23,7 @@ import static java.util.Comparator.naturalOrder;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.DISPATCHED;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode.ERR_STALE_ENVELOPE;
+import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.DELETED;
 import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.MANUALLY_MARKED_AS_DISPATCHED;
 import static uk.gov.hmcts.reform.blobrouter.data.events.EventType.MANUALLY_MARKED_AS_REJECTED;
 
@@ -86,12 +87,18 @@ public class EnvelopeActionService {
         EventType eventType,
         String message
     ) {
+        envelopeRepository.updateStatus(envelopeId, status);
         createEvent(
             envelopeId,
             eventType,
             message
         );
-        envelopeRepository.updateStatus(envelopeId, status);
+        envelopeRepository.markAsDeleted(envelopeId);
+        createEvent(
+            envelopeId,
+            DELETED,
+            "Manually marked as deleted due to stale state"
+        );
     }
 
     private boolean isZipFileUnknownToProcessor(ZipFileResponse response) {

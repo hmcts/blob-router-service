@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.data.events.NewEnvelopeEvent;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -91,12 +93,18 @@ class ActionControllerTest {
             .andExpect(status().isOk());
 
         var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
-        verify(envelopeEventRepository).insert(envelopeEventCaptor.capture());
-        assertThat(envelopeEventCaptor.getValue().envelopeId).isEqualTo(envelopeId);
-        assertThat(envelopeEventCaptor.getValue().errorCode).isEqualTo(ERR_STALE_ENVELOPE);
-        assertThat(envelopeEventCaptor.getValue().type).isEqualTo(MANUALLY_MARKED_AS_DISPATCHED);
-        assertThat(envelopeEventCaptor.getValue().notes)
+        verify(envelopeEventRepository, times(2)).insert(envelopeEventCaptor.capture());
+        List<NewEnvelopeEvent> capturedEnvelopeEvents = envelopeEventCaptor.getAllValues();
+        assertThat(capturedEnvelopeEvents.get(0).envelopeId).isEqualTo(envelopeId);
+        assertThat(capturedEnvelopeEvents.get(0).type).isEqualTo(MANUALLY_MARKED_AS_DISPATCHED);
+        assertThat(capturedEnvelopeEvents.get(0).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(0).notes)
             .isEqualTo("Manually marked as dispatched due to stale state");
+        assertThat(capturedEnvelopeEvents.get(1).envelopeId).isEqualTo(envelopeId);
+        assertThat(capturedEnvelopeEvents.get(1).type).isEqualTo(DELETED);
+        assertThat(capturedEnvelopeEvents.get(1).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(1).notes)
+            .isEqualTo("Manually marked as deleted due to stale state");
     }
 
     @Test
@@ -132,12 +140,18 @@ class ActionControllerTest {
             .andExpect(status().isOk());
 
         var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
-        verify(envelopeEventRepository).insert(envelopeEventCaptor.capture());
-        assertThat(envelopeEventCaptor.getValue().envelopeId).isEqualTo(envelopeId);
-        assertThat(envelopeEventCaptor.getValue().errorCode).isEqualTo(ERR_STALE_ENVELOPE);
-        assertThat(envelopeEventCaptor.getValue().type).isEqualTo(MANUALLY_MARKED_AS_REJECTED);
-        assertThat(envelopeEventCaptor.getValue().notes)
+        verify(envelopeEventRepository, times(2)).insert(envelopeEventCaptor.capture());
+        List<NewEnvelopeEvent> capturedEnvelopeEvents = envelopeEventCaptor.getAllValues();
+        assertThat(capturedEnvelopeEvents.get(0).envelopeId).isEqualTo(envelopeId);
+        assertThat(capturedEnvelopeEvents.get(0).type).isEqualTo(MANUALLY_MARKED_AS_REJECTED);
+        assertThat(capturedEnvelopeEvents.get(0).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(0).notes)
             .isEqualTo("Manually marked as rejected due to stale state");
+        assertThat(capturedEnvelopeEvents.get(1).envelopeId).isEqualTo(envelopeId);
+        assertThat(capturedEnvelopeEvents.get(1).type).isEqualTo(DELETED);
+        assertThat(capturedEnvelopeEvents.get(1).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(1).notes)
+            .isEqualTo("Manually marked as deleted due to stale state");
     }
 
     @Test

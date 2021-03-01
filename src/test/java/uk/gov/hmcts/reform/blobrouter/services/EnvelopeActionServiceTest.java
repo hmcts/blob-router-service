@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeCompletedOrNotStaleExce
 import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.CREATED;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.DISPATCHED;
@@ -105,19 +107,29 @@ class EnvelopeActionServiceTest {
         envelopeActionService.completeStaleEnvelope(uuid);
 
         // then
-        var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
-        verify(envelopeEventRepository).insert(envelopeEventCaptor.capture());
-        assertThat(envelopeEventCaptor.getValue().envelopeId).isEqualTo(uuid);
-        assertThat(envelopeEventCaptor.getValue().type).isEqualTo(MANUALLY_MARKED_AS_DISPATCHED);
-        assertThat(envelopeEventCaptor.getValue().errorCode).isEqualTo(ERR_STALE_ENVELOPE);
-        assertThat(envelopeEventCaptor.getValue().notes)
-            .isEqualTo("Manually marked as dispatched due to stale state");
-
-        var idCaptor = ArgumentCaptor.forClass(UUID.class);
+        var idUpdateStatusCaptor = ArgumentCaptor.forClass(UUID.class);
         var statusCaptor = ArgumentCaptor.forClass(Status.class);
-        verify(envelopeRepository).updateStatus(idCaptor.capture(), statusCaptor.capture());
-        assertThat(idCaptor.getValue()).isEqualTo(uuid);
+        verify(envelopeRepository).updateStatus(idUpdateStatusCaptor.capture(), statusCaptor.capture());
+        assertThat(idUpdateStatusCaptor.getValue()).isEqualTo(uuid);
         assertThat(statusCaptor.getValue()).isEqualTo(DISPATCHED);
+
+        var idDeleteCaptor = ArgumentCaptor.forClass(UUID.class);
+        verify(envelopeRepository).markAsDeleted(idDeleteCaptor.capture());
+        assertThat(idDeleteCaptor.getValue()).isEqualTo(uuid);
+
+        var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(envelopeEventRepository, times(2)).insert(envelopeEventCaptor.capture());
+        List<NewEnvelopeEvent> capturedEnvelopeEvents = envelopeEventCaptor.getAllValues();
+        assertThat(capturedEnvelopeEvents.get(0).envelopeId).isEqualTo(uuid);
+        assertThat(capturedEnvelopeEvents.get(0).type).isEqualTo(MANUALLY_MARKED_AS_DISPATCHED);
+        assertThat(capturedEnvelopeEvents.get(0).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(0).notes)
+            .isEqualTo("Manually marked as dispatched due to stale state");
+        assertThat(capturedEnvelopeEvents.get(1).envelopeId).isEqualTo(uuid);
+        assertThat(capturedEnvelopeEvents.get(1).type).isEqualTo(DELETED);
+        assertThat(capturedEnvelopeEvents.get(1).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(1).notes)
+            .isEqualTo("Manually marked as deleted due to stale state");
     }
 
     @Test
@@ -145,19 +157,29 @@ class EnvelopeActionServiceTest {
         envelopeActionService.completeStaleEnvelope(uuid);
 
         // then
-        var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
-        verify(envelopeEventRepository).insert(envelopeEventCaptor.capture());
-        assertThat(envelopeEventCaptor.getValue().envelopeId).isEqualTo(uuid);
-        assertThat(envelopeEventCaptor.getValue().type).isEqualTo(MANUALLY_MARKED_AS_DISPATCHED);
-        assertThat(envelopeEventCaptor.getValue().errorCode).isEqualTo(ERR_STALE_ENVELOPE);
-        assertThat(envelopeEventCaptor.getValue().notes)
-            .isEqualTo("Manually marked as dispatched due to stale state");
-
-        var idCaptor = ArgumentCaptor.forClass(UUID.class);
+        var idUpdateStatusCaptor = ArgumentCaptor.forClass(UUID.class);
         var statusCaptor = ArgumentCaptor.forClass(Status.class);
-        verify(envelopeRepository).updateStatus(idCaptor.capture(), statusCaptor.capture());
-        assertThat(idCaptor.getValue()).isEqualTo(uuid);
+        verify(envelopeRepository).updateStatus(idUpdateStatusCaptor.capture(), statusCaptor.capture());
+        assertThat(idUpdateStatusCaptor.getValue()).isEqualTo(uuid);
         assertThat(statusCaptor.getValue()).isEqualTo(DISPATCHED);
+
+        var idDeleteCaptor = ArgumentCaptor.forClass(UUID.class);
+        verify(envelopeRepository).markAsDeleted(idDeleteCaptor.capture());
+        assertThat(idDeleteCaptor.getValue()).isEqualTo(uuid);
+
+        var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(envelopeEventRepository, times(2)).insert(envelopeEventCaptor.capture());
+        List<NewEnvelopeEvent> capturedEnvelopeEvents = envelopeEventCaptor.getAllValues();
+        assertThat(capturedEnvelopeEvents.get(0).envelopeId).isEqualTo(uuid);
+        assertThat(capturedEnvelopeEvents.get(0).type).isEqualTo(MANUALLY_MARKED_AS_DISPATCHED);
+        assertThat(capturedEnvelopeEvents.get(0).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(0).notes)
+            .isEqualTo("Manually marked as dispatched due to stale state");
+        assertThat(capturedEnvelopeEvents.get(1).envelopeId).isEqualTo(uuid);
+        assertThat(capturedEnvelopeEvents.get(1).type).isEqualTo(DELETED);
+        assertThat(capturedEnvelopeEvents.get(1).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(1).notes)
+            .isEqualTo("Manually marked as deleted due to stale state");
     }
 
     @Test
@@ -185,19 +207,29 @@ class EnvelopeActionServiceTest {
         envelopeActionService.completeStaleEnvelope(uuid);
 
         // then
-        var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
-        verify(envelopeEventRepository).insert(envelopeEventCaptor.capture());
-        assertThat(envelopeEventCaptor.getValue().envelopeId).isEqualTo(uuid);
-        assertThat(envelopeEventCaptor.getValue().type).isEqualTo(MANUALLY_MARKED_AS_REJECTED);
-        assertThat(envelopeEventCaptor.getValue().errorCode).isEqualTo(ERR_STALE_ENVELOPE);
-        assertThat(envelopeEventCaptor.getValue().notes)
-            .isEqualTo("Manually marked as rejected due to stale state");
-
-        var idCaptor = ArgumentCaptor.forClass(UUID.class);
+        var idUpdateStatusCaptor = ArgumentCaptor.forClass(UUID.class);
         var statusCaptor = ArgumentCaptor.forClass(Status.class);
-        verify(envelopeRepository).updateStatus(idCaptor.capture(), statusCaptor.capture());
-        assertThat(idCaptor.getValue()).isEqualTo(uuid);
+        verify(envelopeRepository).updateStatus(idUpdateStatusCaptor.capture(), statusCaptor.capture());
+        assertThat(idUpdateStatusCaptor.getValue()).isEqualTo(uuid);
         assertThat(statusCaptor.getValue()).isEqualTo(REJECTED);
+
+        var idDeleteCaptor = ArgumentCaptor.forClass(UUID.class);
+        verify(envelopeRepository).markAsDeleted(idDeleteCaptor.capture());
+        assertThat(idDeleteCaptor.getValue()).isEqualTo(uuid);
+
+        var envelopeEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
+        verify(envelopeEventRepository, times(2)).insert(envelopeEventCaptor.capture());
+        List<NewEnvelopeEvent> capturedEnvelopeEvents = envelopeEventCaptor.getAllValues();
+        assertThat(capturedEnvelopeEvents.get(0).envelopeId).isEqualTo(uuid);
+        assertThat(capturedEnvelopeEvents.get(0).type).isEqualTo(MANUALLY_MARKED_AS_REJECTED);
+        assertThat(capturedEnvelopeEvents.get(0).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(0).notes)
+            .isEqualTo("Manually marked as rejected due to stale state");
+        assertThat(capturedEnvelopeEvents.get(1).envelopeId).isEqualTo(uuid);
+        assertThat(capturedEnvelopeEvents.get(1).type).isEqualTo(DELETED);
+        assertThat(capturedEnvelopeEvents.get(1).errorCode).isEqualTo(ERR_STALE_ENVELOPE);
+        assertThat(capturedEnvelopeEvents.get(1).notes)
+            .isEqualTo("Manually marked as deleted due to stale state");
     }
 
     @Test
