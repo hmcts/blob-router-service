@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.StaleBlobFinder;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.UUID;
 
 import static java.time.Instant.now;
 import static org.hamcrest.Matchers.hasSize;
@@ -41,8 +42,19 @@ public class StaleBlobControllerTest {
 
         given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
-                new BlobInfo("container1", "file_name_1", createdAt),
-                new BlobInfo("container2", "file_name_2", createdAt))
+                new BlobInfo(
+                    "container1",
+                    "file_name_1",
+                             UUID.fromString("690d4100-7ffe-11eb-9439-0242ac130002"),
+                             createdAt
+                            ),
+                new BlobInfo(
+                    "container2",
+                    "file_name_2",
+                             UUID.fromString("77cf250a-7ffe-11eb-9439-0242ac130002"),
+                             createdAt
+                            )
+                )
             );
         mockMvc
             .perform(
@@ -55,9 +67,13 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data", hasSize(2)))
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
+            .andExpect(jsonPath("$.data.[0].envelope_id").value(
+                UUID.fromString("690d4100-7ffe-11eb-9439-0242ac130002")))
             .andExpect(jsonPath("$.data.[0].created_at").value(createdAt))
             .andExpect(jsonPath("$.data.[1].container").value("container2"))
             .andExpect(jsonPath("$.data.[1].file_name").value("file_name_2"))
+            .andExpect(jsonPath("$.data.[1].envelope_id").value(
+                UUID.fromString("77cf250a-7ffe-11eb-9439-0242ac130002")))
             .andExpect(jsonPath("$.data.[1].created_at").value(createdAt));
 
         verify(staleBlobFinder).findStaleBlobs(60);
@@ -70,7 +86,11 @@ public class StaleBlobControllerTest {
         String createdAt = toLocalTimeZone(now());
 
         given(staleBlobFinder.findStaleBlobs(120))
-            .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
+            .willReturn(Arrays.asList(new BlobInfo(
+                "container1",
+                "file_name_1",
+                UUID.fromString("c067e094-7fff-11eb-9439-0242ac130002"),
+                createdAt)));
         mockMvc
             .perform(get("/stale-blobs"))
             .andDo(print())
@@ -79,6 +99,8 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data", hasSize(1)))
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
+            .andExpect(jsonPath("$.data.[0].envelope_id").value(
+                UUID.fromString("c067e094-7fff-11eb-9439-0242ac130002")))
             .andExpect(jsonPath("$.data.[0].created_at").value(createdAt));
 
         verify(staleBlobFinder).findStaleBlobs(120);
@@ -107,6 +129,6 @@ public class StaleBlobControllerTest {
             .andDo(print())
             .andExpect(status().isBadRequest());
         verifyNoMoreInteractions(staleBlobFinder);
+        
     }
-
 }
