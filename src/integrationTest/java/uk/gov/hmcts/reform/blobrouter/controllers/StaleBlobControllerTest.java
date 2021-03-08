@@ -39,19 +39,21 @@ public class StaleBlobControllerTest {
     void should_return_list_of_stale_blobs_when_there_is_with_request_param() throws Exception {
 
         String createdAt = toLocalTimeZone(now());
+        var envelopeId1 = UUID.fromString("690d4100-7ffe-11eb-9439-0242ac130002");
+        var envelopeId2 = UUID.fromString("77cf250a-7ffe-11eb-9439-0242ac130002");
 
         given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
                 new BlobInfo(
                     "container1",
                     "file_name_1",
-                             UUID.fromString("690d4100-7ffe-11eb-9439-0242ac130002"),
+                             envelopeId1,
                              createdAt
                             ),
                 new BlobInfo(
                     "container2",
                     "file_name_2",
-                             UUID.fromString("77cf250a-7ffe-11eb-9439-0242ac130002"),
+                             envelopeId2,
                              createdAt
                             )
                 )
@@ -68,12 +70,14 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
             .andExpect(jsonPath("$.data.[0].envelope_id").value(
-                UUID.fromString("690d4100-7ffe-11eb-9439-0242ac130002")))
+                "690d4100-7ffe-11eb-9439-0242ac130002"
+            ))
             .andExpect(jsonPath("$.data.[0].created_at").value(createdAt))
             .andExpect(jsonPath("$.data.[1].container").value("container2"))
             .andExpect(jsonPath("$.data.[1].file_name").value("file_name_2"))
             .andExpect(jsonPath("$.data.[1].envelope_id").value(
-                UUID.fromString("77cf250a-7ffe-11eb-9439-0242ac130002")))
+                "77cf250a-7ffe-11eb-9439-0242ac130002"
+            ))
             .andExpect(jsonPath("$.data.[1].created_at").value(createdAt));
 
         verify(staleBlobFinder).findStaleBlobs(60);
@@ -84,13 +88,10 @@ public class StaleBlobControllerTest {
     void should_return_list_of_stale_blobs_when_there_is_by_default_param_value() throws Exception {
 
         String createdAt = toLocalTimeZone(now());
+        var envelopId = UUID.fromString("c067e094-7fff-11eb-9439-0242ac130002");
 
         given(staleBlobFinder.findStaleBlobs(120))
-            .willReturn(Arrays.asList(new BlobInfo(
-                "container1",
-                "file_name_1",
-                UUID.fromString("c067e094-7fff-11eb-9439-0242ac130002"),
-                createdAt)));
+            .willReturn(Arrays.asList(new BlobInfo("container1","file_name_1", envelopId, createdAt)));
         mockMvc
             .perform(get("/stale-blobs"))
             .andDo(print())
@@ -100,7 +101,8 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
             .andExpect(jsonPath("$.data.[0].envelope_id").value(
-                UUID.fromString("c067e094-7fff-11eb-9439-0242ac130002")))
+                "c067e094-7fff-11eb-9439-0242ac130002"
+            ))
             .andExpect(jsonPath("$.data.[0].created_at").value(createdAt));
 
         verify(staleBlobFinder).findStaleBlobs(120);
@@ -129,6 +131,6 @@ public class StaleBlobControllerTest {
             .andDo(print())
             .andExpect(status().isBadRequest());
         verifyNoMoreInteractions(staleBlobFinder);
-        
+
     }
 }

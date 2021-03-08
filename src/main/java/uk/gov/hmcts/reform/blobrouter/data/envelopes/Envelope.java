@@ -14,7 +14,6 @@ public class Envelope {
     public final Status status;
     public final boolean isDeleted;
     public final boolean pendingNotification;
-    public UUID envelopeId;
 
     public Envelope(
         UUID id,
