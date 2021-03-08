@@ -4,7 +4,7 @@
     <notes><![CDATA[ Hard dependency from azure-storage library ]]></notes>
     <cpe regex="true">cpe:\/a:apache:sling:(0\.1\.0)</cpe>
   </suppress>
-  <suppress until="2021-03-07">
+  <suppress until="2021-06-07">
     <notes><![CDATA[ No fix available ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.springframework\.security/spring\-security\-crypto@.*$</packageUrl>
     <cve>CVE-2018-1258</cve>
@@ -16,15 +16,5 @@
    ]]></notes>
     <packageUrl regex="true">^pkg:maven/org\.apache\.httpcomponents/httpclient@.*$</packageUrl>
     <cve>CVE-2020-13956</cve>
-  </suppress>
-  <suppress until="2021-03-01">
-    <notes><![CDATA[
-   file name: lang-tag-1.4.4.jar
-   ]]></notes>
-    <packageUrl regex="true">^pkg:maven/com\.nimbusds/lang\-tag@.*$</packageUrl>
-    <cve>CVE-2020-29242</cve>
-    <cve>CVE-2020-29243</cve>
-    <cve>CVE-2020-29244</cve>
-    <cve>CVE-2020-29245</cve>
   </suppress>
 </suppressions>
