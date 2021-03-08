@@ -242,11 +242,11 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("data[0].container").value("cmc"))
             .andExpect(jsonPath("data[0].file_name").value("file1.zip"))
-            .andExpect(jsonPath("data[0].envelope_id").value(UUID.fromString("212750a2-7ffd-11eb-9439-0242ac130002")))
+            .andExpect(jsonPath("data[0].envelope_id").value("212750a2-7ffd-11eb-9439-0242ac130002"))
             .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27"))
             .andExpect(jsonPath("data[1].container").value("sscs"))
             .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
-            .andExpect(jsonPath("data[1].envelope_id").value(UUID.fromString("696e1bc0-7ffd-11eb-9439-0242ac130002")))
+            .andExpect(jsonPath("data[1].envelope_id").value("696e1bc0-7ffd-11eb-9439-0242ac130002"))
             .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28"));
     }
 
