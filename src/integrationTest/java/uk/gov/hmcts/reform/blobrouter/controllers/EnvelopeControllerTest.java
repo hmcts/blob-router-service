@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
-import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
+import uk.gov.hmcts.reform.blobrouter.model.out.IncompleteEnvelopeInfo;
 import uk.gov.hmcts.reform.blobrouter.services.IncompleteEnvelopesService;
 
 import java.time.Instant;
@@ -228,8 +228,8 @@ public class EnvelopeControllerTest extends ControllerTestBase {
 
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
-                new BlobInfo("cmc","file1.zip", envelopIdOne,"2021-01-15T10:39:27"),
-                new BlobInfo("sscs","file2.zip",envelopIdTwo,"2021-01-14T11:38:28")
+                new IncompleteEnvelopeInfo("cmc", "file1.zip", envelopIdOne, "2021-01-15T10:39:27"),
+                new IncompleteEnvelopeInfo("sscs","file2.zip",envelopIdTwo,"2021-01-14T11:38:28")
             ));
 
         mockMvc.perform(get("/envelopes/stale-incomplete-blobs")
