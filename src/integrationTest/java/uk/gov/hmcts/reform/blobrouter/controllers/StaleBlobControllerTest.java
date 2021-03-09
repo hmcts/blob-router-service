@@ -12,7 +12,6 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.StaleBlobFinder;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.UUID;
 
 import static java.time.Instant.now;
 import static org.hamcrest.Matchers.hasSize;
@@ -39,8 +38,8 @@ public class StaleBlobControllerTest {
     void should_return_list_of_stale_blobs_when_there_is_with_request_param() throws Exception {
 
         String createdAt = toLocalTimeZone(now());
-        var envelopeId1 = UUID.fromString("690d4100-7ffe-11eb-9439-0242ac130002");
-        var envelopeId2 = UUID.fromString("77cf250a-7ffe-11eb-9439-0242ac130002");
+        var envelopeId1 = "690d4100-7ffe-11eb-9439-0242ac130002";
+        var envelopeId2 = "77cf250a-7ffe-11eb-9439-0242ac130002";
 
         given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
@@ -88,7 +87,7 @@ public class StaleBlobControllerTest {
     void should_return_list_of_stale_blobs_when_there_is_by_default_param_value() throws Exception {
 
         String createdAt = toLocalTimeZone(now());
-        var envelopId = UUID.fromString("c067e094-7fff-11eb-9439-0242ac130002");
+        var envelopId = "c067e094-7fff-11eb-9439-0242ac130002";
 
         given(staleBlobFinder.findStaleBlobs(120))
             .willReturn(Arrays.asList(new BlobInfo("container1","file_name_1", envelopId, createdAt)));

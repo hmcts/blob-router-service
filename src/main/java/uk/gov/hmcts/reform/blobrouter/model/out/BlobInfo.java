@@ -2,8 +2,6 @@ package uk.gov.hmcts.reform.blobrouter.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.UUID;
-
 public class BlobInfo {
 
     @JsonProperty("container")
@@ -13,7 +11,7 @@ public class BlobInfo {
     public final String fileName;
 
     @JsonProperty("envelope_id")
-    public final UUID envelopeId;
+    public final String envelopeId;
 
     @JsonProperty("created_at")
     public final String createdAt;
@@ -21,7 +19,7 @@ public class BlobInfo {
     public BlobInfo(
         String container,
         String fileName,
-        UUID envelopeId,
+        String envelopeId,
         String createdAt
     ) {
         this.container = container;

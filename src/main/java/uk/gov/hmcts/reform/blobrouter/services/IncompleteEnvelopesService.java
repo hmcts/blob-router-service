@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -33,7 +32,7 @@ public class IncompleteEnvelopesService {
             .map(envelope -> new BlobInfo(
                      envelope.container,
                      envelope.fileName,
-                     UUID.randomUUID(),
+                     envelope.id.toString(),
                      toLocalTimeZone(envelope.createdAt)
                  )
             )
