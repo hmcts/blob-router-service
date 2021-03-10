@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -44,7 +43,6 @@ public class StaleBlobFinder {
             .map(blob -> new BlobInfo(
                     containerName,
                     blob.getName(),
-                    UUID.randomUUID().toString(),
                     toLocalTimeZone(blob.getProperties().getCreationTime().toInstant())
                 )
             );
