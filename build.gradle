@@ -285,6 +285,7 @@ dependencies {
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
   }
+  compile 'org.springframework.data:spring-data-jpa:2.4.5'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.blobrouter.Application'

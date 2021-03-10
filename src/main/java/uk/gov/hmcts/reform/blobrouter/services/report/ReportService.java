@@ -1,10 +1,13 @@
 package uk.gov.hmcts.reform.blobrouter.services.report;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.blobrouter.data.reports.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.blobrouter.data.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
-import uk.gov.hmcts.reform.blobrouter.services.report.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
+import uk.gov.hmcts.reform.blobrouter.services.report.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.blobrouter.services.report.utils.ZeroRowFiller;
 
 import java.time.Instant;
@@ -19,9 +22,12 @@ import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_I
 
 @Service
 public class ReportService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReportService.class);
     private final ReportRepository reportRepository;
     private final EnvelopeCountSummaryRepository repo;
     private final ZeroRowFiller zeroRowFiller;
+    public static final String TEST_CONTAINER = "bulkscan";
 
     public ReportService(
         ReportRepository reportRepository,
@@ -68,6 +74,16 @@ public class ReportService {
         }
         return null;
     }
+
+    private EnvelopeCountSummary fromDb(EnvelopeCountSummaryItem dbItem) {
+        return new EnvelopeCountSummary(
+            dbItem.getReceived(),
+            dbItem.getRejected(),
+            dbItem.getContainer(),
+            dbItem.getDate()
+        );
+    }
+
     public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestContainer) {
         long start = System.currentTimeMillis();
         final List<EnvelopeCountSummary> reportResult = zeroRowFiller
