@@ -2,7 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.services;
 
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
+import uk.gov.hmcts.reform.blobrouter.model.out.IncompleteEnvelopeInfo;
 
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -25,13 +25,14 @@ public class IncompleteEnvelopesService {
         this.envelopeRepository = envelopeRepository;
     }
 
-    public List<BlobInfo> getIncompleteEnvelopes(int staleTimeHr) {
+    public List<IncompleteEnvelopeInfo> getIncompleteEnvelopes(int staleTimeHr) {
         return envelopeRepository
             .getIncompleteEnvelopesBefore(now().minus(staleTimeHr, HOURS))
             .stream()
-            .map(envelope -> new BlobInfo(
+            .map(envelope -> new IncompleteEnvelopeInfo(
                      envelope.container,
                      envelope.fileName,
+                     envelope.id,
                      toLocalTimeZone(envelope.createdAt)
                  )
             )
