@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.blobrouter.services.report;
 
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeCountSummary;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeCountSummaryItem;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
 
 import java.time.Instant;
@@ -9,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
@@ -16,6 +19,8 @@ import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_I
 @Service
 public class ReportService {
     private final ReportRepository reportRepository;
+    private final EnvelopeCountSummaryRepository repo;
+    private final ZeroRowFiller zeroRowFiller;
 
     public ReportService(ReportRepository reportRepository) {
         this.reportRepository = reportRepository;
@@ -54,5 +59,15 @@ public class ReportService {
             return LocalTime.ofInstant(instant, EUROPE_LONDON_ZONE_ID);
         }
         return null;
+    }
+    public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestContainer) {
+        long start = System.currentTimeMillis();
+        final List<EnvelopeCountSummary> reportResult = zeroRowFiller
+            .fill(repo.getReportFor(date).stream().map(this::fromDb).collect(toList()), date)
+            .stream()
+            .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
+            .collect(toList());
+        log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
+        return reportResult;
     }
 }
