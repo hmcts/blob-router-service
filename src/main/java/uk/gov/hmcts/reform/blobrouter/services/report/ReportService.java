@@ -33,8 +33,7 @@ public class ReportService {
         ReportRepository reportRepository,
         EnvelopeCountSummaryRepository envelopeCountSummaryRepository,
         ZeroRowFiller zeroRowFiller
-    )
-    {
+    ) {
         this.reportRepository = reportRepository;
         this.envelopeCountSummaryRepository = envelopeCountSummaryRepository;
         this.zeroRowFiller = zeroRowFiller;
