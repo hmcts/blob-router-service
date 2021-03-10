@@ -4,8 +4,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeCountSummary;
-import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeCountSummaryItem;
+import uk.gov.hmcts.reform.blobrouter.model.out.reports.EnvelopeCountSummaryReportItem;
+import uk.gov.hmcts.reform.blobrouter.services.report.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.blobrouter.model.out.reports.EnvelopeCountSummaryReportListResponse;
 import uk.gov.hmcts.reform.blobrouter.services.report.ReportService;
 
@@ -18,8 +18,6 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 @RestController
 @CrossOrigin
 @RequestMapping(path = "/reports")
-
-
 public class ReportsController {
 
     private final ReportService reportService;
@@ -37,14 +35,16 @@ public class ReportsController {
         @RequestParam(name = "include-test", defaultValue = "false", required = false) boolean includeTestContainer
     ) {
         List<EnvelopeCountSummary> result = this.reportService.getCountFor(date, includeTestContainer);
-        return new EnvelopeCountSummaryReportListResponse(result
-                                                              .stream()
-                                                              .map(item -> new EnvelopeCountSummary(
-                                                                  item.received,
-                                                                  item.rejected,
-                                                                  item.container,
-                                                                  item.date
-                                                              ))
-                                                              .collect(toList()));
+        return new EnvelopeCountSummaryReportListResponse(
+            result
+                  .stream()
+                  .map(item -> new EnvelopeCountSummaryReportItem(
+                      item.received,
+                      item.rejected,
+                      item.container,
+                      item.date
+                  ))
+                  .collect(toList())
+        );
     }
 }

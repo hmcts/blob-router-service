@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.model.out;
+package uk.gov.hmcts.reform.blobrouter.services.report.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

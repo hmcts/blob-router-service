@@ -1,10 +1,11 @@
 package uk.gov.hmcts.reform.blobrouter.services.report;
 
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.blobrouter.data.reports.EnvelopeCountSummaryRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
-import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeCountSummary;
-import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeCountSummaryItem;
+import uk.gov.hmcts.reform.blobrouter.services.report.models.EnvelopeCountSummary;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
+import uk.gov.hmcts.reform.blobrouter.services.report.utils.ZeroRowFiller;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -22,8 +23,15 @@ public class ReportService {
     private final EnvelopeCountSummaryRepository repo;
     private final ZeroRowFiller zeroRowFiller;
 
-    public ReportService(ReportRepository reportRepository) {
+    public ReportService(
+        ReportRepository reportRepository,
+        EnvelopeCountSummaryRepository repo,
+        ZeroRowFiller zeroRowFiller
+    )
+    {
         this.reportRepository = reportRepository;
+        this.repo = repo;
+        this.zeroRowFiller = zeroRowFiller;
     }
 
     public List<EnvelopeSummaryItem> getDailyReport(LocalDate date) {
