@@ -41,17 +41,8 @@ public class StaleBlobControllerTest {
 
         given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
-                new BlobInfo(
-                    "container1",
-                    "file_name_1",
-                             createdAt
-                            ),
-                new BlobInfo(
-                    "container2",
-                    "file_name_2",
-                             createdAt
-                            )
-                )
+                new BlobInfo("container1", "file_name_1", createdAt),
+                new BlobInfo("container2", "file_name_2", createdAt))
             );
         mockMvc
             .perform(
@@ -79,7 +70,7 @@ public class StaleBlobControllerTest {
         String createdAt = toLocalTimeZone(now());
 
         given(staleBlobFinder.findStaleBlobs(120))
-            .willReturn(Arrays.asList(new BlobInfo("container1","file_name_1", createdAt)));
+            .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
         mockMvc
             .perform(get("/stale-blobs"))
             .andDo(print())
@@ -116,6 +107,6 @@ public class StaleBlobControllerTest {
             .andDo(print())
             .andExpect(status().isBadRequest());
         verifyNoMoreInteractions(staleBlobFinder);
-
     }
+
 }
