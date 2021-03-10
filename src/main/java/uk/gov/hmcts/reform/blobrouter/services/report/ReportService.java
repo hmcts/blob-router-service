@@ -25,18 +25,18 @@ public class ReportService {
 
     private static final Logger log = LoggerFactory.getLogger(ReportService.class);
     private final ReportRepository reportRepository;
-    private final EnvelopeCountSummaryRepository repo;
+    private final EnvelopeCountSummaryRepository envelopeCountSummaryRepository;
     private final ZeroRowFiller zeroRowFiller;
     public static final String TEST_CONTAINER = "bulkscan";
 
     public ReportService(
         ReportRepository reportRepository,
-        EnvelopeCountSummaryRepository repo,
+        EnvelopeCountSummaryRepository envelopeCountSummaryRepository,
         ZeroRowFiller zeroRowFiller
     )
     {
         this.reportRepository = reportRepository;
-        this.repo = repo;
+        this.envelopeCountSummaryRepository = envelopeCountSummaryRepository;
         this.zeroRowFiller = zeroRowFiller;
     }
 
@@ -87,7 +87,7 @@ public class ReportService {
     public List<EnvelopeCountSummary> getCountFor(LocalDate date, boolean includeTestContainer) {
         long start = System.currentTimeMillis();
         final List<EnvelopeCountSummary> reportResult = zeroRowFiller
-            .fill(repo.getReportFor(date).stream().map(this::fromDb).collect(toList()), date)
+            .fill(envelopeCountSummaryRepository.getReportFor(date).stream().map(this::fromDb).collect(toList()), date)
             .stream()
             .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
             .collect(toList());
