@@ -229,7 +229,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
                 new IncompleteEnvelopeInfo("cmc", "file1.zip", envelopeId1, "2021-01-15T10:39:27"),
-                new IncompleteEnvelopeInfo("sscs","file2.zip", envelopeId2,"2021-01-14T11:38:28")
+                new IncompleteEnvelopeInfo("sscs", "file2.zip", envelopeId2, "2021-01-14T11:38:28")
             ));
 
         mockMvc.perform(get("/envelopes/stale-incomplete-blobs")
