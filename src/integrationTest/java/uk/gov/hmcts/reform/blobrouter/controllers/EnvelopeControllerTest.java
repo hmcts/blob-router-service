@@ -223,13 +223,13 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     @Test
     public void should_return_incomplete_stale_envelopes() throws Exception {
 
-        String envelopIdOne = "212750a2-7ffd-11eb-9439-0242ac130002";
-        String envelopIdTwo = "212750a2-7ffd-11eb-9439-0242ac130002";
+        String envelopeIdOne = "212750a2-7ffd-11eb-9439-0242ac130002";
+        String envelopeIdTwo = "212750a2-7ffd-11eb-9439-0242ac130002";
 
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
-                new IncompleteEnvelopeInfo("cmc", "file1.zip", envelopIdOne, "2021-01-15T10:39:27"),
-                new IncompleteEnvelopeInfo("sscs","file2.zip",envelopIdTwo,"2021-01-14T11:38:28")
+                new IncompleteEnvelopeInfo("cmc", "file1.zip", envelopeIdOne, "2021-01-15T10:39:27"),
+                new IncompleteEnvelopeInfo("sscs","file2.zip",envelopeIdTwo,"2021-01-14T11:38:28")
             ));
 
         mockMvc.perform(get("/envelopes/stale-incomplete-blobs")
@@ -239,11 +239,11 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("data[0].container").value("cmc"))
             .andExpect(jsonPath("data[0].file_name").value("file1.zip"))
-            .andExpect(jsonPath("data[0].envelope_id").value(envelopIdOne))
+            .andExpect(jsonPath("data[0].envelope_id").value(envelopeIdOne))
             .andExpect(jsonPath("data[0].created_at").value("2021-01-15T10:39:27"))
             .andExpect(jsonPath("data[1].container").value("sscs"))
             .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
-            .andExpect(jsonPath("data[1].envelope_id").value(envelopIdTwo))
+            .andExpect(jsonPath("data[1].envelope_id").value(envelopeIdTwo))
             .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28"));
     }
 
