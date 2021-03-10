@@ -2,6 +2,8 @@ package uk.gov.hmcts.reform.blobrouter.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.UUID;
+
 public class IncompleteEnvelopeInfo {
 
     @JsonProperty("container")
@@ -11,7 +13,7 @@ public class IncompleteEnvelopeInfo {
     public final String fileName;
 
     @JsonProperty("envelope_id")
-    public final String envelopeId;
+    public final UUID envelopeId;
 
     @JsonProperty("created_at")
     public final String createdAt;
@@ -19,7 +21,7 @@ public class IncompleteEnvelopeInfo {
     public IncompleteEnvelopeInfo(
         String container,
         String fileName,
-        String envelopeId,
+        UUID envelopeId,
         String createdAt
     ) {
         this.container = container;

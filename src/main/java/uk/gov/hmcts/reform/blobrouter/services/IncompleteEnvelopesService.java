@@ -32,7 +32,7 @@ public class IncompleteEnvelopesService {
             .map(envelope -> new IncompleteEnvelopeInfo(
                      envelope.container,
                      envelope.fileName,
-                     envelope.id.toString(),
+                     envelope.id,
                      toLocalTimeZone(envelope.createdAt)
                  )
             )
