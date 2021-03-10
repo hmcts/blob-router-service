@@ -223,8 +223,8 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     @Test
     public void should_return_incomplete_stale_envelopes() throws Exception {
 
-        UUID envelopeId1 = UUID.fromString("212750a2-7ffd-11eb-9439-0242ac130002");
-        UUID envelopeId2 = UUID.fromString("212750a2-7ffd-11eb-9439-0242ac130002");
+        UUID envelopeId1 = UUID.randomUUID();
+        UUID envelopeId2 = UUID.randomUUID();
 
         given(incompleteEnvelopesService.getIncompleteEnvelopes(2))
             .willReturn(asList(
