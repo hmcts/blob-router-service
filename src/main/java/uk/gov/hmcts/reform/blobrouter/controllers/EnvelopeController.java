@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
-import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeEventResponse;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
+import uk.gov.hmcts.reform.blobrouter.model.out.IncompleteEnvelopeInfo;
 import uk.gov.hmcts.reform.blobrouter.model.out.SearchResult;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.IncompleteEnvelopesService;
@@ -67,7 +67,7 @@ public class EnvelopeController {
         @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_HOURS)
             int staleTime
     ) {
-        List<BlobInfo> envelopes = incompleteEnvelopesService.getIncompleteEnvelopes(2);
+        List<IncompleteEnvelopeInfo> envelopes = incompleteEnvelopesService.getIncompleteEnvelopes(2);
 
         return new SearchResult(envelopes);
     }
@@ -93,5 +93,4 @@ public class EnvelopeController {
                 .collect(toList())
         );
     }
-
 }
