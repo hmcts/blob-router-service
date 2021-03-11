@@ -105,6 +105,6 @@ class BlobProcessorTest extends BlobStorageBaseTest {
 
         assertThat(envelopeRepo.findLast(blobName, sourceContainer))
             .as("Envelope in the DB has been created")
-            .hasValueSatisfying(envelope -> assertThat(envelope.status).isEqualTo(DISPATCHED));
+            .hasValueSatisfying(envelope -> assertThat(envelope.getStatus()).isEqualTo(DISPATCHED));
     }
 }

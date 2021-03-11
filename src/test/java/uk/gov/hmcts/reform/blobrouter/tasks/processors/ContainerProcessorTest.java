@@ -64,15 +64,15 @@ class ContainerProcessorTest {
     void should_continue_processing_blob_for_which_envelope_in_created_status_exists() {
         // given
         var envelope = envelope(Status.CREATED);
-        storageHasBlob(envelope.fileName, envelope.container);
+        storageHasBlob(envelope.getFileName(), envelope.getContainer());
         leaseCanBeAcquired();
         dbHas(envelope);
 
         // when
-        containerProcessor.process(envelope.container);
+        containerProcessor.process(envelope.getContainer());
 
         // then
-        verify(blobProcessor).continueProcessing(envelope.id, blobClient);
+        verify(blobProcessor).continueProcessing(envelope.getId(), blobClient);
         verifyNoMoreInteractions(blobProcessor);
     }
 
@@ -80,11 +80,11 @@ class ContainerProcessorTest {
     void should_skip_blob_if_corresponding_envelope_is_not_in_created_status() {
         // given
         var envelope = envelope(Status.DISPATCHED);
-        storageHasBlob(envelope.fileName, envelope.container);
+        storageHasBlob(envelope.getFileName(), envelope.getContainer());
         dbHas(envelope);
 
         // when
-        containerProcessor.process(envelope.container);
+        containerProcessor.process(envelope.getContainer());
 
         // then
         verifyNoInteractions(leaseAcquirer);
@@ -95,12 +95,12 @@ class ContainerProcessorTest {
     void should_skip_blob_if_status_has_been_changed() {
         // given
         var envelope = envelope(Status.CREATED);
-        storageHasBlob(envelope.fileName, envelope.container);
+        storageHasBlob(envelope.getFileName(), envelope.getContainer());
         leaseCanBeAcquired();
         envelopeStatusChangedInDb(envelope, Status.DISPATCHED);
 
         // when
-        containerProcessor.process(envelope.container);
+        containerProcessor.process(envelope.getContainer());
 
         // then
         verify(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
@@ -111,12 +111,12 @@ class ContainerProcessorTest {
     void should_skip_blob_if_envelope_has_been_deleted() {
         // given
         var envelope = envelope(Status.CREATED);
-        storageHasBlob(envelope.fileName, envelope.container);
+        storageHasBlob(envelope.getFileName(), envelope.getContainer());
         leaseCanBeAcquired();
         envelopeDeletedFromDb(envelope);
 
         // when
-        containerProcessor.process(envelope.container);
+        containerProcessor.process(envelope.getContainer());
 
         // then
         verify(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
@@ -127,11 +127,11 @@ class ContainerProcessorTest {
     void should_skip_blob_if_lease_cannot_be_acquired() {
         // given
         var envelope = envelope(Status.CREATED);
-        storageHasBlob(envelope.fileName, envelope.container);
+        storageHasBlob(envelope.getFileName(), envelope.getContainer());
         leaseCannotBeAcquired();
 
         // when
-        containerProcessor.process(envelope.container);
+        containerProcessor.process(envelope.getContainer());
 
         // then
         verifyNoInteractions(blobProcessor);
@@ -165,18 +165,18 @@ class ContainerProcessorTest {
     }
 
     private void dbHas(Envelope envelope) {
-        given(envelopeService.findLastEnvelope(envelope.fileName, envelope.container))
+        given(envelopeService.findLastEnvelope(envelope.getFileName(), envelope.getContainer()))
             .willReturn(Optional.of(envelope));
     }
 
     private void envelopeStatusChangedInDb(Envelope envelope, Status status) {
-        Envelope envelopeInNewStatus = envelope(envelope.id, status);
-        given(envelopeService.findLastEnvelope(envelope.fileName, envelope.container))
+        Envelope envelopeInNewStatus = envelope(envelope.getId(), status);
+        given(envelopeService.findLastEnvelope(envelope.getFileName(), envelope.getContainer()))
             .willReturn(Optional.of(envelope)).willReturn(Optional.of(envelopeInNewStatus));
     }
 
     private void envelopeDeletedFromDb(Envelope envelope) {
-        given(envelopeService.findLastEnvelope(envelope.fileName, envelope.container))
+        given(envelopeService.findLastEnvelope(envelope.getFileName(), envelope.getContainer()))
             .willReturn(Optional.of(envelope)).willReturn(Optional.empty());
     }
 

@@ -36,7 +36,7 @@ public class DuplicateFinder {
     private boolean isDuplicate(String fileName, String container) {
         return envelopeService
             .findLastEnvelope(fileName, container)
-            .filter(envelope -> envelope.isDeleted)
+            .filter(envelope -> envelope.getIsDeleted())
             .isPresent();
     }
 

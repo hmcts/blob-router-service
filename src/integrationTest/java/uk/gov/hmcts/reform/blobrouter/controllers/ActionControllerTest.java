@@ -71,11 +71,11 @@ class ActionControllerTest {
         given(envelopeRepository.find(envelopeId)).willReturn(envelopeOpt);
 
         ZipFileResponse response = new ZipFileResponse(
-            envelope.fileName,
+            envelope.getFileName(),
             singletonList(new Object()),
             emptyList()
         );
-        given(bulkScanProcessorClient.getZipFile(envelope.fileName)).willReturn(response);
+        given(bulkScanProcessorClient.getZipFile(envelope.getFileName())).willReturn(response);
 
         Instant threeHoursAgo = Instant.now().minus(3, HOURS);
         Instant fourHoursAgo = Instant.now().minus(4, HOURS);
@@ -118,11 +118,11 @@ class ActionControllerTest {
         given(envelopeRepository.find(envelopeId)).willReturn(envelopeOpt);
 
         ZipFileResponse response = new ZipFileResponse(
-            envelope.fileName,
+            envelope.getFileName(),
             emptyList(),
             emptyList()
         );
-        given(bulkScanProcessorClient.getZipFile(envelope.fileName)).willReturn(response);
+        given(bulkScanProcessorClient.getZipFile(envelope.getFileName())).willReturn(response);
 
         Instant threeHoursAgo = Instant.now().minus(3, HOURS);
         Instant fourHoursAgo = Instant.now().minus(4, HOURS);
@@ -165,11 +165,11 @@ class ActionControllerTest {
         given(envelopeRepository.find(envelopeId)).willReturn(envelopeOpt);
 
         ZipFileResponse response = new ZipFileResponse(
-            envelope.fileName,
+            envelope.getFileName(),
             emptyList(),
             emptyList()
         );
-        given(bulkScanProcessorClient.getZipFile(envelope.fileName)).willReturn(response);
+        given(bulkScanProcessorClient.getZipFile(envelope.getFileName())).willReturn(response);
 
         Instant oneHourAgo = Instant.now().minus(1, HOURS);
         Instant fourHoursAgo = Instant.now().minus(4, HOURS);

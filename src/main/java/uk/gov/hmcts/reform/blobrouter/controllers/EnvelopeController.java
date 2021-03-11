@@ -74,15 +74,15 @@ public class EnvelopeController {
 
     private EnvelopeInfo toResponse(Envelope dbEnvelope, List<EnvelopeEvent> dbEventRecords) {
         return new EnvelopeInfo(
-            dbEnvelope.id,
-            dbEnvelope.container,
-            dbEnvelope.fileName,
-            toLocalTimeZone(dbEnvelope.createdAt),
-            toLocalTimeZone(dbEnvelope.fileCreatedAt),
-            toLocalTimeZone(dbEnvelope.dispatchedAt),
-            dbEnvelope.status,
-            dbEnvelope.isDeleted,
-            dbEnvelope.pendingNotification,
+            dbEnvelope.getId(),
+            dbEnvelope.getContainer(),
+            dbEnvelope.getFileName(),
+            toLocalTimeZone(dbEnvelope.getCreatedAt()),
+            toLocalTimeZone(dbEnvelope.getFileCreatedAt()),
+            toLocalTimeZone(dbEnvelope.getDispatchedAt()),
+            dbEnvelope.getStatus(),
+            dbEnvelope.getIsDeleted(),
+            dbEnvelope.getPendingNotification(),
             dbEventRecords
                 .stream()
                 .map(

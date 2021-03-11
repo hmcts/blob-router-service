@@ -51,7 +51,7 @@ public class ContainerCleaner {
     }
 
     private void deleteBlob(Envelope envelope, BlobContainerClient containerClient) {
-        BlobClient blobClient = containerClient.getBlobClient(envelope.fileName);
+        BlobClient blobClient = containerClient.getBlobClient(envelope.getFileName());
 
         leaseAcquirer.ifAcquiredOrElse(
             blobClient,
@@ -61,14 +61,14 @@ public class ContainerCleaner {
                     envelopeService.markEnvelopeAsDeleted(envelope);
                     logger.info(
                         "Marked blob as deleted. File name: {}, container: {}, original error code: {}",
-                        envelope.fileName,
+                        envelope.getFileName(),
                         blobClient.getContainerName(),
                         errorCode
                     );
                 } else {
                     logger.error(
                         "Blob delete error,File name: {}, container: {}, original error code: {}",
-                        envelope.fileName,
+                        envelope.getFileName(),
                         blobClient.getContainerName(),
                         errorCode
                     );
@@ -93,14 +93,14 @@ public class ContainerCleaner {
             envelopeService.markEnvelopeAsDeleted(envelope);
             logger.info(
                 "Deleted dispatched blob {} from container {}, leaseId: {}",
-                envelope.fileName,
+                envelope.getFileName(),
                 blobClient.getContainerName(),
                 leaseId
             );
         } catch (Exception ex) {
             logger.error(
                 "Error deleting dispatched blob {} from container {}",
-                envelope.fileName,
+                envelope.getFileName(),
                 blobClient.getContainerName(),
                 ex
             );

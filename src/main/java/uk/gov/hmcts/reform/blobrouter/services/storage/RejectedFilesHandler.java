@@ -41,18 +41,18 @@ public class RejectedFilesHandler {
 
         rejectedEnvelopes
             .stream()
-            .collect(groupingBy(e -> e.container))
+            .collect(groupingBy(e -> e.getContainer()))
             .forEach((container, envelopes) -> {
                 logger.info("Started moving rejected files from container {}", container);
 
                 envelopes.forEach(envelope -> {
                     try {
-                        blobMover.moveToRejectedContainer(envelope.fileName, container);
+                        blobMover.moveToRejectedContainer(envelope.getFileName(), container);
                         envelopeService.markEnvelopeAsDeleted(envelope);
                     } catch (Exception exc) {
                         logger.error(
                             "Error handling rejected file. File name: {}. container: {}",
-                            envelope.fileName,
+                            envelope.getFileName(),
                             container,
                             exc
                         );

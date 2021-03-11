@@ -2,18 +2,67 @@ package uk.gov.hmcts.reform.blobrouter.data.envelopes;
 
 import java.time.Instant;
 import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
+@Entity
+@Table(name = "envelopes")
 public class Envelope {
 
-    public final UUID id;
-    public final String container;
-    public final String fileName;
-    public final Instant createdAt;
-    public final Instant fileCreatedAt;
-    public final Instant dispatchedAt;
-    public final Status status;
-    public final boolean isDeleted;
-    public final boolean pendingNotification;
+    @Id
+    @GeneratedValue
+    private UUID id;
+
+    private String container;
+    private String fileName;
+    private Instant createdAt;
+    private Instant fileCreatedAt;
+    private Instant dispatchedAt;
+    private Status status;
+    private boolean isDeleted;
+    private boolean pendingNotification;
+
+    public Envelope() {
+
+    }
+
+    public boolean getPendingNotification() {
+        return pendingNotification;
+    }
+
+    public Instant getFileCreatedAt() {
+        return fileCreatedAt;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public Instant getDispatchedAt() {
+        return dispatchedAt;
+    }
+
+    public String getContainer() {
+        return container;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public boolean getIsDeleted() {
+        return isDeleted;
+    }
 
     public Envelope(
         UUID id,
@@ -36,6 +85,8 @@ public class Envelope {
         this.isDeleted = isDeleted;
         this.pendingNotification = pendingNotification;
     }
+
+
 
     public String getBasicInfo() {
         return String.format(

@@ -116,8 +116,8 @@ public class EnvelopeService {
 
     @Transactional
     public void markEnvelopeAsDeleted(Envelope envelope) {
-        envelopeRepository.markAsDeleted(envelope.id);
-        eventRepository.insert(new NewEnvelopeEvent(envelope.id, EventType.DELETED, null, null));
+        envelopeRepository.markAsDeleted(envelope.getId());
+        eventRepository.insert(new NewEnvelopeEvent(envelope.getId(), EventType.DELETED, null, null));
     }
 
     @Transactional
@@ -146,7 +146,7 @@ public class EnvelopeService {
         if (envelopes.isEmpty()) {
             return emptyList();
         } else {
-            List<UUID> envelopeIds = envelopes.stream().map(e -> e.id).collect(toList());
+            List<UUID> envelopeIds = envelopes.stream().map(e -> e.getId()).collect(toList());
 
             List<EnvelopeEvent> envelopeEvents = eventRepository.findForEnvelopes(envelopeIds);
 
@@ -174,7 +174,7 @@ public class EnvelopeService {
         Map<UUID, List<EnvelopeEvent>> eventsByEnvelopeIds,
         Envelope envelope
     ) {
-        List<EnvelopeEvent> envelopeEvents = eventsByEnvelopeIds.get(envelope.id);
+        List<EnvelopeEvent> envelopeEvents = eventsByEnvelopeIds.get(envelope.getId());
         return envelopeEvents == null ? emptyList() : envelopeEvents;
     }
 }

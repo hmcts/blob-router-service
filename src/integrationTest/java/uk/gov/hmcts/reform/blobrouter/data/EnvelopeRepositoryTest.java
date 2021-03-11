@@ -55,13 +55,13 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(envelopeInDb).hasValueSatisfying(env -> {
-            assertThat(env.container).isEqualTo(newEnvelope.container);
-            assertThat(env.fileName).isEqualTo(newEnvelope.fileName);
-            assertThat(env.dispatchedAt).isEqualTo(newEnvelope.dispatchedAt);
-            assertThat(env.fileCreatedAt).isEqualTo(newEnvelope.fileCreatedAt);
-            assertThat(env.status).isEqualTo(newEnvelope.status);
-            assertThat(env.isDeleted).isEqualTo(false);
-            assertThat(env.createdAt).isNotNull();
+            assertThat(env.getContainer()).isEqualTo(newEnvelope.container);
+            assertThat(env.getFileName()).isEqualTo(newEnvelope.fileName);
+            assertThat(env.getDispatchedAt()).isEqualTo(newEnvelope.dispatchedAt);
+            assertThat(env.getFileCreatedAt()).isEqualTo(newEnvelope.fileCreatedAt);
+            assertThat(env.getStatus()).isEqualTo(newEnvelope.status);
+            assertThat(env.getIsDeleted()).isEqualTo(false);
+            assertThat(env.getCreatedAt()).isNotNull();
         });
     }
 
@@ -84,13 +84,13 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(envelopeInDb).hasValueSatisfying(env -> {
-            assertThat(env.container).isEqualTo(newEnvelope.container);
-            assertThat(env.fileName).isEqualTo(newEnvelope.fileName);
-            assertThat(env.dispatchedAt).isNull();
-            assertThat(env.fileCreatedAt).isEqualTo(newEnvelope.fileCreatedAt);
-            assertThat(env.status).isEqualTo(newEnvelope.status);
-            assertThat(env.isDeleted).isEqualTo(false);
-            assertThat(env.createdAt).isNotNull();
+            assertThat(env.getContainer()).isEqualTo(newEnvelope.container);
+            assertThat(env.getFileName()).isEqualTo(newEnvelope.fileName);
+            assertThat(env.getDispatchedAt()).isNull();
+            assertThat(env.getFileCreatedAt()).isEqualTo(newEnvelope.fileCreatedAt);
+            assertThat(env.getStatus()).isEqualTo(newEnvelope.status);
+            assertThat(env.getIsDeleted()).isEqualTo(false);
+            assertThat(env.getCreatedAt()).isNotNull();
         });
     }
 
@@ -113,7 +113,8 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(updateCount).isEqualTo(1);
-        assertThat(envelopeAfterUpdate).hasValueSatisfying(env -> assertThat(env.isDeleted).isEqualTo(true));
+        assertThat(envelopeAfterUpdate).hasValueSatisfying(
+            env -> assertThat(env.getIsDeleted()).isEqualTo(true));
     }
 
     @Test
@@ -135,7 +136,8 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(updateCount).isEqualTo(1);
-        assertThat(envelopeAfterUpdate).hasValueSatisfying(env -> assertThat(env.pendingNotification).isEqualTo(false));
+        assertThat(envelopeAfterUpdate).hasValueSatisfying(
+            env -> assertThat(env.getPendingNotification()).isEqualTo(false));
     }
 
     @Test
@@ -151,7 +153,7 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(repo.find(id))
-            .hasValueSatisfying(env -> assertThat(env.status).isEqualTo(newStatus));
+            .hasValueSatisfying(env -> assertThat(env.getStatus()).isEqualTo(newStatus));
     }
 
     @Test
@@ -165,7 +167,7 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(repo.find(id))
-            .hasValueSatisfying(env -> assertThat(env.dispatchedAt).isEqualTo(newDispatchTime));
+            .hasValueSatisfying(env -> assertThat(env.getDispatchedAt()).isEqualTo(newDispatchTime));
     }
 
     @Test
@@ -210,7 +212,7 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(found).hasSize(1);
-        assertThat(found.get(0).container).isEqualTo(containerName);
+        assertThat(found.get(0).getContainer()).isEqualTo(containerName);
     }
 
     @Test
@@ -230,14 +232,14 @@ public class EnvelopeRepositoryTest {
         assertThat(notDeleted).hasSize(0);
 
         assertThat(deleted).hasOnlyOneElementSatisfying(env -> {
-            assertThat(env.id).isEqualTo(id);
-            assertThat(env.container).isEqualTo(envelope.container);
-            assertThat(env.fileName).isEqualTo(envelope.fileName);
-            assertThat(env.dispatchedAt).isEqualTo(envelope.dispatchedAt);
-            assertThat(env.fileCreatedAt).isEqualTo(envelope.fileCreatedAt);
-            assertThat(env.status).isEqualTo(envelope.status);
-            assertThat(env.isDeleted).isEqualTo(true);
-            assertThat(env.createdAt).isNotNull();
+            assertThat(env.getId()).isEqualTo(id);
+            assertThat(env.getContainer()).isEqualTo(envelope.container);
+            assertThat(env.getFileName()).isEqualTo(envelope.fileName);
+            assertThat(env.getDispatchedAt()).isEqualTo(envelope.dispatchedAt);
+            assertThat(env.getFileCreatedAt()).isEqualTo(envelope.fileCreatedAt);
+            assertThat(env.getStatus()).isEqualTo(envelope.status);
+            assertThat(env.getIsDeleted()).isEqualTo(true);
+            assertThat(env.getCreatedAt()).isNotNull();
         });
     }
 
@@ -256,9 +258,9 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(result).hasValueSatisfying(envelope -> {
-            assertThat(envelope.fileName).isEqualTo(fileName);
-            assertThat(envelope.container).isEqualTo(container);
-            assertThat(envelope.status).isEqualTo(REJECTED);
+            assertThat(envelope.getFileName()).isEqualTo(fileName);
+            assertThat(envelope.getContainer()).isEqualTo(container);
+            assertThat(envelope.getStatus()).isEqualTo(REJECTED);
         });
     }
 
@@ -289,16 +291,16 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(repo.find(DISPATCHED, false))
-            .extracting(env -> env.fileName)
+            .extracting(env -> env.getFileName())
             .containsExactlyInAnyOrder("f1", "f5");
         assertThat(repo.find(DISPATCHED, true))
-            .extracting(env -> env.fileName)
+            .extracting(env -> env.getFileName())
             .containsExactlyInAnyOrder("f3", "f7");
         assertThat(repo.find(REJECTED, false))
-            .extracting(env -> env.fileName)
+            .extracting(env -> env.getFileName())
             .containsExactlyInAnyOrder("f2", "f6");
         assertThat(repo.find(REJECTED, true))
-            .extracting(env -> env.fileName)
+            .extracting(env -> env.getFileName())
             .containsExactlyInAnyOrder("f4", "f8");
     }
 
@@ -311,9 +313,9 @@ public class EnvelopeRepositoryTest {
         var id4 = addEnvelope("xxx", "C2");
 
         // then
-        assertThat(repo.find("xxx", "C1")).extracting(env -> env.id).containsExactlyInAnyOrder(id1, id2);
-        assertThat(repo.find("yyy", "C1")).extracting(env -> env.id).containsExactly(id3);
-        assertThat(repo.find("xxx", "C2")).extracting(env -> env.id).containsExactly(id4);
+        assertThat(repo.find("xxx", "C1")).extracting(env -> env.getId()).containsExactlyInAnyOrder(id1, id2);
+        assertThat(repo.find("yyy", "C1")).extracting(env -> env.getId()).containsExactly(id3);
+        assertThat(repo.find("xxx", "C2")).extracting(env -> env.getId()).containsExactly(id4);
         assertThat(repo.find("aaa", "C1")).isEmpty();
     }
 
@@ -343,7 +345,7 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(envelopes).isNotEmpty().hasSize(3);
-        assertThat(envelopes).extracting(env -> env.id).containsExactly(id3, id2, id1); // ordered by created_at
+        assertThat(envelopes).extracting(env -> env.getId()).containsExactly(id3, id2, id1); // ordered by created_at
     }
 
     @Test
@@ -358,8 +360,8 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(envelopes).isNotEmpty().hasSize(1);
-        assertThat(envelopes.get(0).container).isEqualTo("C2");
-        assertThat(envelopes.get(0).fileName).isEqualTo("f3");
+        assertThat(envelopes.get(0).getContainer()).isEqualTo("C2");
+        assertThat(envelopes.get(0).getFileName()).isEqualTo("f3");
     }
 
     @Test
@@ -374,8 +376,8 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(envelopes).isNotEmpty().hasSize(1);
-        assertThat(envelopes.get(0).container).isEqualTo("C1");
-        assertThat(envelopes.get(0).fileName).isEqualTo("f1");
+        assertThat(envelopes.get(0).getContainer()).isEqualTo("C1");
+        assertThat(envelopes.get(0).getFileName()).isEqualTo("f1");
     }
 
     @Test
@@ -390,7 +392,7 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(envelopes).isNotEmpty().hasSize(3);
-        assertThat(envelopes).extracting(env -> env.id).containsExactly(id3, id2, id1); // ordered by created_at
+        assertThat(envelopes).extracting(env -> env.getId()).containsExactly(id3, id2, id1); // ordered by created_at
     }
 
     @Test
@@ -427,7 +429,7 @@ public class EnvelopeRepositoryTest {
 
         // then
         assertThat(result)
-            .extracting(envelope -> envelope.fileName)
+            .extracting(envelope -> envelope.getFileName())
             .containsExactlyInAnyOrder("A.zip", "D.zip");
     }
 

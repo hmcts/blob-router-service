@@ -98,16 +98,16 @@ class ContainerCleanerTest {
                 ENVELOPE_1,
                 ENVELOPE_2
             ));
-        given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
-        given(containerClient.getBlobClient(ENVELOPE_2.fileName)).willReturn(blobClient2);
+        given(containerClient.getBlobClient(ENVELOPE_1.getFileName())).willReturn(blobClient1);
+        given(containerClient.getBlobClient(ENVELOPE_2.getFileName())).willReturn(blobClient2);
         given(blobMetaDataHandler.isBlobReadyToUse(blobClient1)).willReturn(true);
         given(blobMetaDataHandler.isBlobReadyToUse(blobClient2)).willReturn(true);
         // when
         containerCleaner.process(CONTAINER_NAME);
 
         // then
-        verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
-        verify(containerClient).getBlobClient(ENVELOPE_2.fileName);
+        verify(containerClient).getBlobClient(ENVELOPE_1.getFileName());
+        verify(containerClient).getBlobClient(ENVELOPE_2.getFileName());
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).getContainerName();
         verify(blobClient2).getContainerName();
@@ -140,7 +140,7 @@ class ContainerCleanerTest {
             .willReturn(singletonList(
                 ENVELOPE_1
             ));
-        given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
+        given(containerClient.getBlobClient(ENVELOPE_1.getFileName())).willReturn(blobClient1);
         given(blobMetaDataHandler.isBlobReadyToUse(blobClient1)).willReturn(true);
 
         given(blobMetaDataHandler.isBlobReadyToUse(blobClient1)).willReturn(true);
@@ -152,7 +152,7 @@ class ContainerCleanerTest {
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
 
         // then
-        verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
+        verify(containerClient).getBlobClient(ENVELOPE_1.getFileName());
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1).getContainerName();
         verify(blobClient1).deleteWithResponse(any(), eq(null), eq(null), eq(Context.NONE));
@@ -166,11 +166,11 @@ class ContainerCleanerTest {
             .willReturn(singletonList(
                 ENVELOPE_1
             ));
-        given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
+        given(containerClient.getBlobClient(ENVELOPE_1.getFileName())).willReturn(blobClient1);
         BlobStorageException mockException = mock(BlobStorageException.class);
         given(mockException.getErrorCode()).willReturn(null);
         given(mockException.getStatusCode()).willReturn(404);
-        
+
         doThrow(mockException)
             .when(blobMetaDataHandler).isBlobReadyToUse(blobClient1);
 
@@ -178,7 +178,7 @@ class ContainerCleanerTest {
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
 
         // then
-        verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
+        verify(containerClient).getBlobClient(ENVELOPE_1.getFileName());
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1,never()).deleteWithResponse(any(), any(), any(), any());
         verify(envelopeService).markEnvelopeAsDeleted(ENVELOPE_1);
@@ -192,7 +192,7 @@ class ContainerCleanerTest {
             .willReturn(singletonList(
                 ENVELOPE_1
             ));
-        given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
+        given(containerClient.getBlobClient(ENVELOPE_1.getFileName())).willReturn(blobClient1);
         String leaseId = UUID.randomUUID().toString();
         BlobStorageException mockException = mock(BlobStorageException.class);
         given(mockException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
@@ -203,7 +203,7 @@ class ContainerCleanerTest {
         assertThatCode(() -> containerCleaner.process(CONTAINER_NAME)).doesNotThrowAnyException();
 
         // then
-        verify(containerClient).getBlobClient(ENVELOPE_1.fileName);
+        verify(containerClient).getBlobClient(ENVELOPE_1.getFileName());
         verifyNoMoreInteractions(containerClient);
         verify(blobClient1,never()).deleteWithResponse(any(), any(), any(), any());
         verify(envelopeService,never()).markEnvelopeAsDeleted(ENVELOPE_1);

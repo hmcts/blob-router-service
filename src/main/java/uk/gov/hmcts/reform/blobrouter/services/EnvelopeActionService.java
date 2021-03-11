@@ -55,7 +55,7 @@ public class EnvelopeActionService {
             );
         validateEnvelopeState(envelope);
 
-        ZipFileResponse response = bulkScanProcessorClient.getZipFile(envelope.fileName);
+        ZipFileResponse response = bulkScanProcessorClient.getZipFile(envelope.getFileName());
         if (isZipFileUnknownToProcessor(response)) {
             moveEnvelopeToRejected(envelopeId);
         } else {
@@ -120,21 +120,21 @@ public class EnvelopeActionService {
     }
 
     private void validateEnvelopeState(Envelope envelope) {
-        if (envelope.status == DISPATCHED || envelope.status == REJECTED
+        if (envelope.getStatus() == DISPATCHED || envelope.getStatus() == REJECTED
             || !isStale(envelope)) {
             throw new EnvelopeCompletedOrNotStaleException(
-                "Envelope with id " + envelope.id + " is completed or not stale"
+                "Envelope with id " + envelope.getId() + " is completed or not stale"
             );
         }
     }
 
     private boolean isStale(Envelope envelope) {
-        if (envelope.status != Status.CREATED) {
+        if (envelope.getStatus() != Status.CREATED) {
             return false;
         }
 
         Instant lastEventTimeStamp = envelopeEventRepository
-            .findForEnvelope(envelope.id)
+            .findForEnvelope(envelope.getId())
             .stream()
             .map(event -> event.createdAt)
             .max(naturalOrder())

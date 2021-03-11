@@ -30,9 +30,9 @@ public class IncompleteEnvelopesService {
             .getIncompleteEnvelopesBefore(now().minus(staleTimeHr, HOURS))
             .stream()
             .map(envelope -> new BlobInfo(
-                     envelope.container,
-                     envelope.fileName,
-                     toLocalTimeZone(envelope.createdAt)
+                     envelope.getContainer(),
+                     envelope.getFileName(),
+                     toLocalTimeZone(envelope.getCreatedAt())
                  )
             )
             .collect(toList());

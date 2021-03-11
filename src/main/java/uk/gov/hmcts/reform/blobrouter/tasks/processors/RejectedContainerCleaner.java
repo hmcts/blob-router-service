@@ -92,7 +92,7 @@ public class RejectedContainerCleaner {
             envelopeService
                 .findLastEnvelope(blobName, containerName)
                 .ifPresentOrElse(
-                    e -> envelopeService.saveEvent(e.id, EventType.DELETED_FROM_REJECTED),
+                    e -> envelopeService.saveEvent(e.getId(), EventType.DELETED_FROM_REJECTED),
                     () -> logger.warn("Envelope not found. {}", blobInfo)
                 );
             logger.info("Deleted rejected file. {}, leaseId {}", blobInfo, leaseId);

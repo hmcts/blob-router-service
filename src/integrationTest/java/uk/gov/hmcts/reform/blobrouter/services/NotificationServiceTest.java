@@ -93,12 +93,12 @@ class NotificationServiceTest {
         verify(notificationsPublisher, times(2)).publish(any(), any());
 
         Optional<Envelope> envelope1 = envelopeService.findEnvelope(envelopeId1);
-        assertThat(envelope1).hasValueSatisfying(env -> assertThat(env.pendingNotification).isFalse());
+        assertThat(envelope1).hasValueSatisfying(env -> assertThat(env.getPendingNotification()).isFalse());
         List<EnvelopeEvent> envelope1Events = envelopeEventRepository.findForEnvelope(envelopeId1);
         assertThat(envelope1Events).extracting(e -> e.type).contains(EventType.NOTIFICATION_SENT);
 
         Optional<Envelope> envelope3 = envelopeService.findEnvelope(envelopeId3);
-        assertThat(envelope3).hasValueSatisfying(env -> assertThat(env.pendingNotification).isFalse());
+        assertThat(envelope3).hasValueSatisfying(env -> assertThat(env.getPendingNotification()).isFalse());
         List<EnvelopeEvent> envelope3Events = envelopeEventRepository.findForEnvelope(envelopeId3);
         assertThat(envelope3Events).extracting(e -> e.type).contains(EventType.NOTIFICATION_SENT);
     }
@@ -136,7 +136,7 @@ class NotificationServiceTest {
         assertThat(messageId).isEqualTo(envelopeId3.toString());
 
         Optional<Envelope> envelope3 = envelopeService.findEnvelope(envelopeId3);
-        assertThat(envelope3).hasValueSatisfying(env -> assertThat(env.pendingNotification).isFalse());
+        assertThat(envelope3).hasValueSatisfying(env -> assertThat(env.getPendingNotification()).isFalse());
         List<EnvelopeEvent> envelope3Events = envelopeEventRepository.findForEnvelope(envelopeId3);
         assertThat(envelope3Events).extracting(e -> e.type).contains(EventType.NOTIFICATION_SENT);
     }

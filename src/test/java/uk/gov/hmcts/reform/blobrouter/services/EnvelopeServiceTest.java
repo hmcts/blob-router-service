@@ -135,7 +135,7 @@ class EnvelopeServiceTest {
         envelopeService.markEnvelopeAsDeleted(envelope);
 
         // then
-        verify(envelopeRepository).markAsDeleted(envelope.id);
+        verify(envelopeRepository).markAsDeleted(envelope.getId());
 
         // and (will be enabled once events recorded)
         var newEventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
@@ -189,20 +189,20 @@ class EnvelopeServiceTest {
         var existingEnvelope = new Envelope(
             UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false, false
         );
-        given(envelopeRepository.find(existingEnvelope.id))
+        given(envelopeRepository.find(existingEnvelope.getId()))
             .willReturn(Optional.of(existingEnvelope));
 
         // when
-        envelopeService.markAsDispatched(existingEnvelope.id);
+        envelopeService.markAsDispatched(existingEnvelope.getId());
 
         // then
-        verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.DISPATCHED);
-        verify(envelopeRepository).updateDispatchDateTime(eq(existingEnvelope.id), any());
+        verify(envelopeRepository).updateStatus(existingEnvelope.getId(), Status.DISPATCHED);
+        verify(envelopeRepository).updateDispatchDateTime(eq(existingEnvelope.getId()), any());
 
         var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
         verify(eventRepository).insert(eventCaptor.capture());
 
-        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
+        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.getId());
         assertThat(eventCaptor.getValue().type).isEqualTo(EventType.DISPATCHED);
     }
 
@@ -228,20 +228,20 @@ class EnvelopeServiceTest {
         var existingEnvelope = new Envelope(
             UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false, false
         );
-        given(envelopeRepository.find(existingEnvelope.id))
+        given(envelopeRepository.find(existingEnvelope.getId()))
             .willReturn(Optional.of(existingEnvelope));
 
         // when
-        envelopeService.markAsRejected(existingEnvelope.id, ErrorCode.ERR_METAFILE_INVALID, "some reason");
+        envelopeService.markAsRejected(existingEnvelope.getId(), ErrorCode.ERR_METAFILE_INVALID, "some reason");
 
         // then
-        verify(envelopeRepository).updateStatus(existingEnvelope.id, Status.REJECTED);
-        verify(envelopeRepository).updatePendingNotification(existingEnvelope.id, true);
+        verify(envelopeRepository).updateStatus(existingEnvelope.getId(), Status.REJECTED);
+        verify(envelopeRepository).updatePendingNotification(existingEnvelope.getId(), true);
 
         var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
         verify(eventRepository).insert(eventCaptor.capture());
 
-        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
+        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.getId());
         assertThat(eventCaptor.getValue().type).isEqualTo(EventType.REJECTED);
         assertThat(eventCaptor.getValue().errorCode).isEqualTo(ErrorCode.ERR_METAFILE_INVALID);
         assertThat(eventCaptor.getValue().notes).isEqualTo("some reason");
@@ -271,15 +271,15 @@ class EnvelopeServiceTest {
         );
 
         // when
-        envelopeService.markPendingNotificationAsSent(existingEnvelope.id);
+        envelopeService.markPendingNotificationAsSent(existingEnvelope.getId());
 
         // then
-        verify(envelopeRepository).updatePendingNotification(existingEnvelope.id, false);
+        verify(envelopeRepository).updatePendingNotification(existingEnvelope.getId(), false);
 
         var eventCaptor = ArgumentCaptor.forClass(NewEnvelopeEvent.class);
         verify(eventRepository).insert(eventCaptor.capture());
 
-        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.id);
+        assertThat(eventCaptor.getValue().envelopeId).isEqualTo(existingEnvelope.getId());
         assertThat(eventCaptor.getValue().type).isEqualTo(EventType.NOTIFICATION_SENT);
     }
 
@@ -289,21 +289,24 @@ class EnvelopeServiceTest {
         var envelope1 = new Envelope(
             UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false
         );
-        var event1a = new EnvelopeEvent(1L, envelope1.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
-        var event1b = new EnvelopeEvent(2L, envelope1.id, EventType.DISPATCHED, null, null, now().plusMillis(10));
+        var event1a = new EnvelopeEvent(1L, envelope1.getId(), EventType.FILE_PROCESSING_STARTED, null, null, now());
+        var event1b = new EnvelopeEvent(2L, envelope1.getId(), EventType.DISPATCHED, null, null, now().plusMillis(10));
 
         var envelope2 = new Envelope(
             UUID.randomUUID(), "c1", "file2", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
         );
-        var event2a = new EnvelopeEvent(3L, envelope2.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
+        var event2a = new EnvelopeEvent(3L, envelope2.getId(), EventType.FILE_PROCESSING_STARTED, null, null, now());
 
         var envelope3 = new Envelope(
             UUID.randomUUID(), "c1", "file3", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
         );
 
         LocalDate date = LocalDate.now();
-        given(envelopeRepository.findEnvelopes("", "c1", date)).willReturn(asList(envelope3, envelope2, envelope1));
-        given(eventRepository.findForEnvelopes(asList(envelope3.id, envelope2.id, envelope1.id))).willReturn(
+        given(envelopeRepository.findEnvelopes("", "c1", date))
+            .willReturn(asList(envelope3, envelope2, envelope1));
+        given(eventRepository.findForEnvelopes(asList(envelope3
+                                                          .getId(), envelope2.getId(),
+                                                      envelope1.getId()))).willReturn(
             asList(event2a, event1b, event1a) // should be ordered by event id
         );
 

@@ -96,9 +96,9 @@ class EnvelopeActionServiceTest {
         given(envelopeRepository.find(uuid)).willReturn(Optional.of(envelope));
         given(envelopeEventRepository.findForEnvelope(uuid))
             .willReturn(asList(event1, event2));
-        given(bulkScanProcessorClient.getZipFile(envelope.fileName))
+        given(bulkScanProcessorClient.getZipFile(envelope.getFileName()))
             .willReturn(new ZipFileResponse(
-                envelope.fileName,
+                envelope.getFileName(),
                 singletonList(new Object()),
                 singletonList(new Object())
             ));
@@ -146,9 +146,9 @@ class EnvelopeActionServiceTest {
         given(envelopeRepository.find(uuid)).willReturn(Optional.of(envelope));
         given(envelopeEventRepository.findForEnvelope(uuid))
             .willReturn(asList(event1, event2));
-        given(bulkScanProcessorClient.getZipFile(envelope.fileName))
+        given(bulkScanProcessorClient.getZipFile(envelope.getFileName()))
             .willReturn(new ZipFileResponse(
-                envelope.fileName,
+                envelope.getFileName(),
                 emptyList(),
                 singletonList(new Object())
             ));
@@ -196,9 +196,9 @@ class EnvelopeActionServiceTest {
         given(envelopeRepository.find(uuid)).willReturn(Optional.of(envelope));
         given(envelopeEventRepository.findForEnvelope(uuid))
             .willReturn(asList(event1, event2));
-        given(bulkScanProcessorClient.getZipFile(envelope.fileName))
+        given(bulkScanProcessorClient.getZipFile(envelope.getFileName()))
             .willReturn(new ZipFileResponse(
-                envelope.fileName,
+                envelope.getFileName(),
                 emptyList(),
                 emptyList()
             ));

@@ -44,8 +44,8 @@ class RejectedFilesHandlerTest {
         mover.handle();
 
         // then
-        verify(blobMover).moveToRejectedContainer(envelope1.fileName, envelope1.container);
-        verify(blobMover).moveToRejectedContainer(envelope2.fileName, envelope2.container);
+        verify(blobMover).moveToRejectedContainer(envelope1.getFileName(), envelope1.getContainer());
+        verify(blobMover).moveToRejectedContainer(envelope2.getFileName(), envelope2.getContainer());
 
         verify(envelopeService).markEnvelopeAsDeleted(envelope1);
         verify(envelopeService).markEnvelopeAsDeleted(envelope2);
@@ -59,13 +59,13 @@ class RejectedFilesHandlerTest {
 
         doThrow(RuntimeException.class)
             .when(blobMover)
-            .moveToRejectedContainer(envelope1.fileName, envelope1.container);
+            .moveToRejectedContainer(envelope1.getFileName(), envelope1.getContainer());
 
         // when
         mover.handle();
 
         // then second files should get processed anyway...
-        verify(blobMover).moveToRejectedContainer(envelope2.fileName, envelope2.container);
+        verify(blobMover).moveToRejectedContainer(envelope2.getFileName(), envelope2.getContainer());
         verify(envelopeService).markEnvelopeAsDeleted(envelope2);
 
         verify(envelopeService, never()).markEnvelopeAsDeleted(envelope1);

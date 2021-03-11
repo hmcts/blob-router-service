@@ -55,8 +55,8 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         Instant createdDate = LocalDateTime.of(2020, 5, 20, 10, 15, 10)
             .atZone(EUROPE_LONDON_ZONE_ID).toInstant();
         Envelope envelopeInDb = envelope(fileName, container, Instant.from(createdDate));
-        var eventRecordInDb1 = envelopeEvent(envelopeInDb.id, 1, EventType.FILE_PROCESSING_STARTED);
-        var eventRecordInDb2 = envelopeEvent(envelopeInDb.id, 2, EventType.DISPATCHED);
+        var eventRecordInDb1 = envelopeEvent(envelopeInDb.getId(), 1, EventType.FILE_PROCESSING_STARTED);
+        var eventRecordInDb2 = envelopeEvent(envelopeInDb.getId(), 2, EventType.DISPATCHED);
 
         given(envelopeService.getEnvelopes(fileName, container, null))
             .willReturn(singletonList(Tuples.of(
@@ -77,15 +77,15 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(1))
             .andExpect(jsonPath("$.data", hasSize(1)))
-            .andExpect(jsonPath("$.data[0].id").value(envelopeInDb.id.toString()))
+            .andExpect(jsonPath("$.data[0].id").value(envelopeInDb.getId().toString()))
             .andExpect(jsonPath("$.data[0].created_at").value("2020-05-20T10:15:10"))
             .andExpect(jsonPath("$.data[0].file_created_at").value(
-                toLocalTimeZone(envelopeInDb.fileCreatedAt))
+                toLocalTimeZone(envelopeInDb.getFileCreatedAt()))
             )
             .andExpect(jsonPath("$.data[0].dispatched_at").value(
-                toLocalTimeZone(envelopeInDb.dispatchedAt))
+                toLocalTimeZone(envelopeInDb.getDispatchedAt()))
             )
-            .andExpect(jsonPath("$.data[0].pending_notification").value(envelopeInDb.pendingNotification))
+            .andExpect(jsonPath("$.data[0].pending_notification").value(envelopeInDb.getPendingNotification()))
             .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
                 EventType.FILE_PROCESSING_STARTED.name(),
                 EventType.DISPATCHED.name()
@@ -120,12 +120,12 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         String container = "container1";
 
         Envelope envelope1InDb = envelope("file1.zip", container, instant("2020-05-10 12:10:00"));
-        envelopeEvent(envelope1InDb.id, 1, EventType.FILE_PROCESSING_STARTED);
-        envelopeEvent(envelope1InDb.id, 2, EventType.DISPATCHED);
+        envelopeEvent(envelope1InDb.getId(), 1, EventType.FILE_PROCESSING_STARTED);
+        envelopeEvent(envelope1InDb.getId(), 2, EventType.DISPATCHED);
 
         Envelope envelope2InDb = envelope("file2.zip", container, instant("2020-05-11 08:10:00"));
-        var envelope2Event1InDb = envelopeEvent(envelope2InDb.id, 3, EventType.FILE_PROCESSING_STARTED);
-        var envelope2Event2InDb = envelopeEvent(envelope2InDb.id, 4, EventType.REJECTED);
+        var envelope2Event1InDb = envelopeEvent(envelope2InDb.getId(), 3, EventType.FILE_PROCESSING_STARTED);
+        var envelope2Event2InDb = envelopeEvent(envelope2InDb.getId(), 4, EventType.REJECTED);
 
         given(envelopeService.getEnvelopes("file2.zip", container, LocalDate.of(2020, 5, 11)))
             .willReturn(singletonList(Tuples.of(
@@ -147,8 +147,8 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(1))
             .andExpect(jsonPath("$.data", hasSize(1)))
-            .andExpect(jsonPath("$.data[0].id").value(envelope2InDb.id.toString()))
-            .andExpect(jsonPath("$.data[0].container").value(envelope2InDb.container))
+            .andExpect(jsonPath("$.data[0].id").value(envelope2InDb.getId().toString()))
+            .andExpect(jsonPath("$.data[0].container").value(envelope2InDb.getContainer()))
             .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
                 EventType.FILE_PROCESSING_STARTED.name(),
                 EventType.REJECTED.name()
@@ -158,12 +158,12 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     @Test
     void should_return_envelopes_for_the_requested_date() throws Exception {
         Envelope envelope1InDb = envelope("file1.zip", "container1", instant("2020-05-10 12:10:00"));
-        envelopeEvent(envelope1InDb.id, 1, EventType.FILE_PROCESSING_STARTED);
-        envelopeEvent(envelope1InDb.id, 2, EventType.DISPATCHED);
+        envelopeEvent(envelope1InDb.getId(), 1, EventType.FILE_PROCESSING_STARTED);
+        envelopeEvent(envelope1InDb.getId(), 2, EventType.DISPATCHED);
 
         Envelope envelope2InDb = envelope("file2.zip", "container2", instant("2020-05-11 08:10:00"));
-        var envelope2Event1InDb = envelopeEvent(envelope2InDb.id, 3, EventType.FILE_PROCESSING_STARTED);
-        var envelope2Event2InDb = envelopeEvent(envelope2InDb.id, 4, EventType.REJECTED);
+        var envelope2Event1InDb = envelopeEvent(envelope2InDb.getId(), 3, EventType.FILE_PROCESSING_STARTED);
+        var envelope2Event2InDb = envelopeEvent(envelope2InDb.getId(), 4, EventType.REJECTED);
 
         Envelope envelope3InDb = envelope("file3.zip", "container3", instant("2020-05-11 10:10:00"));
 
@@ -186,14 +186,14 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(2))
             .andExpect(jsonPath("$.data", hasSize(2)))
-            .andExpect(jsonPath("$.data[0].id").value(envelope2InDb.id.toString()))
-            .andExpect(jsonPath("$.data[0].container").value(envelope2InDb.container))
+            .andExpect(jsonPath("$.data[0].id").value(envelope2InDb.getId().toString()))
+            .andExpect(jsonPath("$.data[0].container").value(envelope2InDb.getContainer()))
             .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
                 EventType.FILE_PROCESSING_STARTED.name(),
                 EventType.REJECTED.name()
             )))
-            .andExpect(jsonPath("$.data[1].id").value(envelope3InDb.id.toString()))
-            .andExpect(jsonPath("$.data[1].container").value(envelope3InDb.container))
+            .andExpect(jsonPath("$.data[1].id").value(envelope3InDb.getId().toString()))
+            .andExpect(jsonPath("$.data[1].container").value(envelope3InDb.getContainer()))
             .andExpect(jsonPath("$.data[1].events", empty()));
     }
 

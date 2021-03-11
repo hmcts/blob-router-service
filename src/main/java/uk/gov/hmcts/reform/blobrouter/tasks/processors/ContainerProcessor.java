@@ -79,7 +79,7 @@ public class ContainerProcessor {
         getLastEnvelope(blobClient)
             .ifPresentOrElse(
                 envelope -> {
-                    if (envelope.status == Status.CREATED) {
+                    if (envelope.getStatus() == Status.CREATED) {
                         leaseAndThen(blobClient, () ->
                             continueProcessingEnvelopeIfEligible(
                                 blobClient,
@@ -111,8 +111,8 @@ public class ContainerProcessor {
     }
 
     private void continueProcessingIfPossible(BlobClient blobClient, Envelope envelope) {
-        if (envelope.status == Status.CREATED) {
-            blobProcessor.continueProcessing(envelope.id, blobClient);
+        if (envelope.getStatus() == Status.CREATED) {
+            blobProcessor.continueProcessing(envelope.getId(), blobClient);
         } else {
             logEnvelopeAlreadyProcessed(envelope);
         }
