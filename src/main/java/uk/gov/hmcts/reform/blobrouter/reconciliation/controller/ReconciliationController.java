@@ -71,6 +71,7 @@ public class ReconciliationController {
         @PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
         @Valid @RequestBody SupplierStatement supplierStatement
     ) {
+        logger.info("Supplier statement received for {}", date);
         validateAuthorization(authHeader);
         UUID uuid = service.saveSupplierStatement(date, supplierStatement);
 
