@@ -77,6 +77,7 @@ public class ReconciliationController {
 
         ZonedDateTime now = ZonedDateTime.now(clockProvider.getClock());
         if (statementRelevancyChecker.isTimeRelevant(now, date)) {
+            logger.info("Supplier statement saved with Id: {}", uuid);
             return new SuccessfulResponse(uuid.toString());
         } else {
             logger.warn("Submitted statement with ID: {} for date {} was submitted after the report was generated",
@@ -97,7 +98,6 @@ public class ReconciliationController {
         if (StringUtils.isEmpty(authorizationKey)) {
             throw new InvalidApiKeyException("API Key is missing");
         } else if (!authorizationKey.equals("Bearer " + apiKey)) {
-            logger.info(apiKey);
             throw new InvalidApiKeyException("Invalid API Key");
         }
 
