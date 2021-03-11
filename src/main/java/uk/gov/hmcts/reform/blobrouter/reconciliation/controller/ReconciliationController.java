@@ -77,6 +77,7 @@ public class ReconciliationController {
 
         ZonedDateTime now = ZonedDateTime.now(clockProvider.getClock());
         if (statementRelevancyChecker.isTimeRelevant(now, date)) {
+            logger.info("Supplier statement saved with Id: {}", uuid);
             return new SuccessfulResponse(uuid.toString());
         } else {
             logger.warn("Submitted statement with ID: {} for date {} was submitted after the report was generated",
