@@ -30,10 +30,10 @@ public class IncompleteEnvelopesService {
             .getIncompleteEnvelopesBefore(now().minus(staleTimeHr, HOURS))
             .stream()
             .map(envelope -> new IncompleteEnvelopeInfo(
-                     envelope.container,
-                     envelope.fileName,
-                     envelope.id,
-                     toLocalTimeZone(envelope.createdAt)
+                     envelope.getContainer(),
+                     envelope.getFileName(),
+                     envelope.getId(),
+                     toLocalTimeZone(envelope.getCreatedAt())
                  )
             )
             .collect(toList());
