@@ -73,6 +73,7 @@ public class ReconciliationService {
 
 
             if (!unrecognizedContainers.isEmpty()) {
+                logger.error("Invalid statement. Unrecognized Containers :{}", unrecognizedContainers);
                 throw new InvalidSupplierStatementException(
                     "Invalid statement. Unrecognized Containers : "
                         + unrecognizedContainers.toString());

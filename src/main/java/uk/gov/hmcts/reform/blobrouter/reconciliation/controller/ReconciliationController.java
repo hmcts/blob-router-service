@@ -96,8 +96,10 @@ public class ReconciliationController {
     private void validateAuthorization(String authorizationKey) {
 
         if (StringUtils.isEmpty(authorizationKey)) {
+            logger.error("API Key is missing");
             throw new InvalidApiKeyException("API Key is missing");
         } else if (!authorizationKey.equals("Bearer " + apiKey)) {
+            logger.error("Invalid API Key");
             throw new InvalidApiKeyException("Invalid API Key");
         }
 
