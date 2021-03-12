@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data.reconciliation.statements;
 
+import org.slf4j.Logger;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -15,10 +16,12 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.validation.ClockProvider;
 
+import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.data.Utils.toJson;
 
 @Repository
 public class SupplierStatementRepository {
+    private static final Logger logger = getLogger(SupplierStatementRepository.class);
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeSupplierStatementRowMapper rowMapper;
@@ -48,6 +51,7 @@ public class SupplierStatementRepository {
                 .addValue("contentTypeVersion", statement.contentTypeVersion)
                 .addValue("createdAt", LocalDateTime.now(clock))
         );
+        logger.info("Supplier statement saved with id {}", id);
         return id;
     }
 

@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
@@ -20,10 +21,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.stream.Collectors.toList;
+import static org.slf4j.LoggerFactory.getLogger;
 
 @Service
 public class ReconciliationService {
 
+    private static final Logger logger = getLogger(ReconciliationService.class);
     private final SupplierStatementRepository statementRepo;
     private final ReconciliationReportRepository reportRepo;
     private final ObjectMapper objectMapper;
@@ -51,6 +54,7 @@ public class ReconciliationService {
                 supplierStatement,
                 "1.0" //TODO: should save different versions
             );
+            logger.info("Save supplier statement for date: {}", statement.date);
             return statementRepo.save(statement);
         } catch (JsonProcessingException | SQLException e) {
             throw new InvalidSupplierStatementException("Failed to process Supplier statement", e);
@@ -69,6 +73,7 @@ public class ReconciliationService {
 
 
             if (!unrecognizedContainers.isEmpty()) {
+                logger.error("Invalid statement. Unrecognized Containers :{}", unrecognizedContainers);
                 throw new InvalidSupplierStatementException(
                     "Invalid statement. Unrecognized Containers : "
                         + unrecognizedContainers.toString());
