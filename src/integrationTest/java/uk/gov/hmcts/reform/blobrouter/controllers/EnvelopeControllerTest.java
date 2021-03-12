@@ -232,7 +232,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
                 new IncompleteEnvelopeInfo("sscs", "file2.zip", envelopeId2, "2021-01-14T11:38:28")
             ));
 
-        mockMvc.perform(get("/envelopes/stale-incomplete-blobs")
+        mockMvc.perform(get("/envelopes/stale-incomplete-envelopes")
                             .header("ServiceAuthorization", "testServiceAuthHeader"))
             .andDo(print())
             .andExpect(status().isOk())

@@ -57,7 +57,7 @@ public class EnvelopeController {
 
     }
 
-    @GetMapping(path = "/stale-incomplete-blobs")
+    @GetMapping(path = "/stale-incomplete-envelopes")
     @ApiOperation(
         value = "Retrieves incomplete stale envelopes",
         notes = "Returns an empty list when no incomplete stale envelopes were found"
