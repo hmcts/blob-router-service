@@ -10,8 +10,10 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.reports.EnvelopeSummary;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
+import uk.gov.hmcts.reform.blobrouter.model.out.reports.EnvelopeCountSummaryReportItem;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +28,8 @@ public class EnvelopeSummaryRepositoryTest {
 
     private static final String CONTAINER_1 = "container1";
     private static final String CONTAINER_2 = "container2";
+    private static final String CONTAINER_3 = "container3";
+    private static final String CONTAINER_4 = "container4";
     private static final String BULKSCAN_CONTAINER = "bulkscan";
     private static final String FILE_1_1 = "file_name_1_1";
     private static final String FILE_1_2 = "file_name_1_2";
@@ -163,4 +167,32 @@ public class EnvelopeSummaryRepositoryTest {
                 )
             );
     }
+
+    @Test
+    void should_return_envelopes_received_and_status_summary_by_selected_date_created() {
+
+        Instant createdAt1 = instant("2021-03-17 11:32:26");
+        Instant createdAt2 = instant("2021-03-17 12:33:27");
+        Instant createdAt3 = instant("2021-03-17 12:35:27");
+        Instant createdAt4 = instant("2021-03-17 12:39:27");
+        Instant createdAt5 = instant("2021-03-17 12:49:27");
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_1, createdAt1, null, Status.DISPATCHED));
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_1_2, createdAt2, null, Status.REJECTED));
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_2_1, createdAt3, null, Status.REJECTED));
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_2, createdAt4, null, Status.CREATED));
+        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_2, createdAt5, null, Status.CREATED));
+        List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(LocalDate.now());
+        assertThat(result)
+             .usingFieldByFieldElementComparator().extracting(env -> env.received).containsExactlyInAnyOrder(2, 3);
+        assertThat(result)
+             .usingFieldByFieldElementComparator()
+             .extracting(env -> env.rejected)
+             .containsExactlyInAnyOrder(1,1);
+        assertThat(result)
+             .usingFieldByFieldElementComparator()
+             .extracting(env -> env.container)
+             .containsExactlyInAnyOrder(CONTAINER_1,CONTAINER_2);
+
+    }
+
 }
