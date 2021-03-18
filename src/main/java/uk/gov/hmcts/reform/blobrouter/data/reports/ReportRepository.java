@@ -46,14 +46,14 @@ public class ReportRepository {
 
     public List<EnvelopeCountSummaryReportItem> getReportFor(LocalDate date) {
         return jdbcTemplate.query(
-            "SELECT\n"
-                + "  container AS Container,\n"
-                + "  date(created_at) AS date,\n"
-                + "  count(*) AS received,\n"
-                + "  SUM(CASE WHEN Envelopes.status = 'REJECTED' THEN 1 ELSE 0 END) AS rejected\n"
-                + "  FROM\n"
-                + "  Envelopes\n"
-                + "  GROUP BY container, date(created_at)\n"
+            "SELECT"
+                + "  container AS Container,"
+                + "  date(created_at) AS date,"
+                + "  count(*) AS received,"
+                + "  SUM(CASE WHEN Envelopes.status = 'REJECTED' THEN 1 ELSE 0 END) AS rejected"
+                + "  FROM"
+                + "  Envelopes"
+                + "  GROUP BY container, date(created_at)"
                 + "  HAVING date(created_at) = :date",
             new MapSqlParameterSource()
                 .addValue("date", date),
