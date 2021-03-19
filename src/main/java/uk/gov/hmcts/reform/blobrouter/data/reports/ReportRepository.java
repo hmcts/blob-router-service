@@ -3,30 +3,33 @@ package uk.gov.hmcts.reform.blobrouter.data.reports;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.model.out.reports.EnvelopeCountSummaryReportItem;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
 public class ReportRepository {
-
     private static final String EXCLUDED_CONTAINER = "bulkscan";
-
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeSummaryMapper mapper;
     private final EnvelopeCountSummaryMapper summaryMapper;
+    private final ServiceConfiguration serviceConfiguration;
 
     public ReportRepository(
         NamedParameterJdbcTemplate jdbcTemplate,
         EnvelopeSummaryMapper mapper,
-        EnvelopeCountSummaryMapper summaryMapper
+        EnvelopeCountSummaryMapper summaryMapper,
+        ServiceConfiguration serviceConfiguration
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         this.summaryMapper = summaryMapper;
+        this.serviceConfiguration = serviceConfiguration;
     }
 
     public List<EnvelopeSummary> getEnvelopeSummary(Instant from, Instant to) {
@@ -45,7 +48,7 @@ public class ReportRepository {
     }
 
     public List<EnvelopeCountSummaryReportItem> getReportFor(LocalDate date) {
-        return jdbcTemplate.query(
+        var envelopeCountSummaryReportItemsList = jdbcTemplate.query(
             "SELECT"
                 + "  container AS Container,"
                 + "  date(created_at) AS date,"
@@ -59,6 +62,29 @@ public class ReportRepository {
                 .addValue("date", date),
             this.summaryMapper
         );
+        //extract container names
+        var containerNames = extractContainerNames(envelopeCountSummaryReportItemsList);
+        //add EnvelopeCountSummaryReportItems for containers with no envelopes
+        updateEnvelopeCountSummaryReportItemsList(containerNames, envelopeCountSummaryReportItemsList, date);
+        return envelopeCountSummaryReportItemsList;
     }
 
+    private List<String> extractContainerNames(List<EnvelopeCountSummaryReportItem> items) {
+        List<String> containerNames = new ArrayList<>();
+        items.stream().forEach(i -> containerNames.add(i.container));
+        return containerNames;
+    }
+
+    private void updateEnvelopeCountSummaryReportItemsList(
+        List<String> containerNames,
+        List<EnvelopeCountSummaryReportItem> items,
+        LocalDate date
+    ) {
+        var zeroEnvelopeContainers = serviceConfiguration.getSourceContainers();
+        for (var cont : zeroEnvelopeContainers) {
+            if (!containerNames.contains(cont)) {
+                items.add(new EnvelopeCountSummaryReportItem(0, 0, cont, date));
+            }
+        }
+    }
 }
