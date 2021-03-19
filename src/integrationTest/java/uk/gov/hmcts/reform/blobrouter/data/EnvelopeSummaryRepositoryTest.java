@@ -275,10 +275,12 @@ public class EnvelopeSummaryRepositoryTest {
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR);
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .extracting(env -> env.received).containsExactly(2);
+            .extracting(env -> env.received).containsExactly(2,0);
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .extracting(env -> env.rejected).containsExactly(0);
+            .extracting(env -> env.rejected).containsExactly(0,0);
+        assertThat(result)
+            .extracting(env -> env.container).containsExactly(CONTAINER_1,"bulkscan");
     }
 
 }
