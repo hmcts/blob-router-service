@@ -52,13 +52,12 @@ public class ReportRepository {
         StringBuilder containers = new StringBuilder("(");
         StringBuilder values = new StringBuilder("");
         for (String c : containersList) {
-            containers.append("'" + c + "'");
-            values = values.append("('" + c + "', date(:date),0,0)");
             if (!c.equals(containersList.get(containersList.size() - 1))) {
-                values.append(", ");
-                containers.append(",");
+                values.append("('" + c + "', date(:date),0,0), ");
+                containers.append("'" + c + "',");
             } else {
-                containers.append(")");
+                values.append("('" + c + "', date(:date),0,0)");
+                containers.append("'" + c + "')");
             }
         }
         return jdbcTemplate.query(
