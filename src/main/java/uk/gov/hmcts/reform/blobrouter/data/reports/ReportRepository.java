@@ -49,19 +49,19 @@ public class ReportRepository {
     public List<EnvelopeCountSummaryReportItem> getReportFor(LocalDate date) {
 
         List<String> containersList = serviceConfiguration.getSourceContainers();
-        String containers = "(";
-        String values = "";
+        StringBuilder containers = new StringBuilder("(");
+        StringBuilder values = new StringBuilder("");
         for (String c : containersList) {
-            containers = containers + "'" + c + "'";
-            values = values + "('" + c + "', date(:date),0,0)";
-            if (c != containersList.get(containersList.size() - 1)) {
-                values = values + ", ";
-                containers = containers + ",";
+            containers.append("'" + c + "'");
+            values = values.append("('" + c + "', date(:date),0,0)");
+            if (!c.equals(containersList.get(containersList.size() - 1))) {
+                values.append(", ");
+                containers.append(",");
             } else {
-                containers = containers + ")";
+                containers.append(")");
             }
         }
-        var envelopeCountSummaryReportItemsList = jdbcTemplate.query(
+        return jdbcTemplate.query(
                   "SELECT * FROM (VALUES " + values + ") t1 (container, date, received, rejected)"
                       + "  UNION "
                       + "  SELECT"
@@ -78,8 +78,6 @@ public class ReportRepository {
                 .addValue("date", date),
             this.summaryMapper
         );
-
-        return envelopeCountSummaryReportItemsList;
     }
 
 }
