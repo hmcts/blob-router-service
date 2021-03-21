@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.blobrouter.model.out.reports.EnvelopeCountSummaryRepo
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -48,43 +47,39 @@ public class ReportRepository {
     }
 
     public List<EnvelopeCountSummaryReportItem> getReportFor(LocalDate date) {
+
+        List<String> containersList = serviceConfiguration.getSourceContainers();
+        String containers = "(";
+        String values = "";
+        for (String c : containersList) {
+            containers = containers + "'" + c + "'";
+            values = values + "('" + c + "', date(:date),0,0)";
+            if (c != containersList.get(containersList.size() - 1)) {
+                values = values + ", ";
+                containers = containers + ",";
+            } else {
+                containers = containers + ")";
+            }
+        }
         var envelopeCountSummaryReportItemsList = jdbcTemplate.query(
-            "SELECT"
-                + "  container AS Container,"
-                + "  date(created_at) AS date,"
-                + "  count(*) AS received,"
-                + "  SUM(CASE WHEN Envelopes.status = 'REJECTED' THEN 1 ELSE 0 END) AS rejected"
-                + "  FROM"
-                + "  Envelopes"
-                + "  GROUP BY container, date(created_at)"
-                + "  HAVING date(created_at) = :date",
+                  "SELECT * FROM (VALUES " + values + ") t1 (container, date, received, rejected)"
+                      + "  UNION "
+                      + "  SELECT"
+                      + "  container AS Container,"
+                      + "  date(created_at) AS date,"
+                      + "  count(*) AS received,"
+                      + "  SUM(CASE WHEN Envelopes.status = 'REJECTED' THEN 1 ELSE 0 END) AS rejected"
+                      + "  FROM"
+                      + "  Envelopes"
+                      + "  WHERE Container not in" + containers
+                      + "  GROUP BY container, date(created_at)"
+                      + "  HAVING date(created_at) = :date",
             new MapSqlParameterSource()
                 .addValue("date", date),
             this.summaryMapper
         );
-        //extract container names
-        var containerNames = extractContainerNames(envelopeCountSummaryReportItemsList);
-        //add EnvelopeCountSummaryReportItems for containers with no envelopes
-        updateEnvelopeCountSummaryReportItemsList(containerNames, envelopeCountSummaryReportItemsList, date);
+
         return envelopeCountSummaryReportItemsList;
     }
 
-    private List<String> extractContainerNames(List<EnvelopeCountSummaryReportItem> items) {
-        List<String> containerNames = new ArrayList<>();
-        items.stream().forEach(i -> containerNames.add(i.container));
-        return containerNames;
-    }
-
-    private void updateEnvelopeCountSummaryReportItemsList(
-        List<String> containerNames,
-        List<EnvelopeCountSummaryReportItem> items,
-        LocalDate date
-    ) {
-        var zeroEnvelopeContainers = serviceConfiguration.getSourceContainers();
-        for (var cont : zeroEnvelopeContainers) {
-            if (!containerNames.contains(cont)) {
-                items.add(new EnvelopeCountSummaryReportItem(0, 0, cont, date));
-            }
-        }
-    }
 }
