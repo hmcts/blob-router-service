@@ -8,6 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelopeWithCreateDate;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.reports.EnvelopeSummary;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
@@ -27,11 +28,14 @@ public class EnvelopeSummaryRepositoryTest {
     @Autowired private ReportRepository reportRepository;
     @Autowired private DbHelper dbHelper;
     @Autowired private ServiceConfiguration serviceConfiguration;
-    private static final String CONTAINER_1 = "container1";
-    private static final String CONTAINER_2 = "container2";
-    private static final String CONTAINER_3 = "container3";
-    private static final String CONTAINER_4 = "container4";
-    private static final String BULKSCAN_CONTAINER = "bulkscan";
+    private static final String CONTAINER_1 = "bulkscanauto";
+    private static final String CONTAINER_2 = "cmc";
+    private static final String CONTAINER_3 = "sscs";
+    private static final String CONTAINER_4 = "crime";
+    private static final String CONTAINER_5 = "bulkscan";
+    private static final String CONTAINER_6 = "pcq";
+    private static final String CONTAINER_7 = "finrem";
+    private static final String CONTAINER_8 = "probate";
     private static final String FILE_1_1 = "file_name_1_1";
     private static final String FILE_1_2 = "file_name_1_2";
     private static final String FILE_2_1 = "file_name_2_1";
@@ -152,7 +156,7 @@ public class EnvelopeSummaryRepositoryTest {
         envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_1, createdAt1, dispatchedAt, Status.DISPATCHED));
 
         envelopeRepository.insert(
-            new NewEnvelope(BULKSCAN_CONTAINER, FILE_BULKSCAN_1, createdAt2, dispatchedAt, Status.DISPATCHED)
+            new NewEnvelope(CONTAINER_5, FILE_BULKSCAN_1, createdAt2, dispatchedAt, Status.DISPATCHED)
         );
 
         // when
@@ -177,43 +181,44 @@ public class EnvelopeSummaryRepositoryTest {
     }
 
     @Test
-    void should_return_envelopes_received_and_status_summary_by_requested_date_created() {
-        Instant createdAt1 = instant("2021-03-17 11:32:26");
-        Instant createdAt2 = instant("2021-03-17 12:33:27");
-        Instant createdAt3 = instant("2021-03-17 12:35:27");
-        Instant createdAt4 = instant("2021-03-17 12:39:27");
-        Instant createdAt5 = instant("2021-03-17 12:49:27");
-        Instant dispatchedAt = instant("2021-03-17 12:32:26");
-        //for envelopes received at different date
-        Instant createdAt6 = instant("2021-03-24 10:09:11");
-        Instant dispatchedAt2 = instant("2021-03-25 12:32:26");
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_1, createdAt1, dispatchedAt, Status.DISPATCHED));
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_1_2, createdAt2, null, Status.REJECTED));
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_2_1, createdAt3, null, Status.REJECTED));
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_2, createdAt4, null, Status.CREATED));
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_2, FILE_2_2, createdAt5, null, Status.CREATED));
-        List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR);
-        var testStop = LocalDate.now();
+    void should_return_envelopes_received_and_status_summary_by_requested_Multiple_dates_created() {
+        LocalDate dateReportedFor = LocalDate.of(2021,3,19);
+        Instant fileCreatedAt1 = instant("2021-03-17 12:33:27");
+        Instant fileCreatedAt2 = instant("2021-03-17 12:49:27");
+        Instant fileCreatedAt3 = instant("2021-03-18 12:49:27");
+        Instant createdAt1 = instant("2021-03-19 12:13:47");
+        Instant createdAt2 = instant("2021-03-19 12:42:28");
+        Instant createdAt3 = instant("2021-03-24 10:09:11");
+        Instant dispatchedAt3 = instant("2021-03-25 12:32:26");
+        envelopeRepository.insertWithCreatedAt(new NewEnvelopeWithCreateDate(
+                                                   CONTAINER_1, FILE_1_2, fileCreatedAt1,
+                                                    null, Status.REJECTED, createdAt1));
+        envelopeRepository.insertWithCreatedAt(new NewEnvelopeWithCreateDate(
+                                                   CONTAINER_2, FILE_2_2, fileCreatedAt2,
+                                                    null, Status.CREATED, createdAt2));
+        envelopeRepository.insertWithCreatedAt(new NewEnvelopeWithCreateDate(
+                                                   CONTAINER_1, FILE_2_1, fileCreatedAt3,
+                                                    dispatchedAt3, Status.CREATED, createdAt3));
+        List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(dateReportedFor);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.received)
-            .containsExactlyInAnyOrder(2, 3, 0);
+            .containsExactlyInAnyOrder(1,1,0,0,0,0,0,0);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.rejected)
-            .containsExactlyInAnyOrder(1,1,0);
+            .containsExactlyInAnyOrder(1,0,0,0,0,0,0,0);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.date)
-            .containsOnly(DATE_REPORTED_FOR);
-        /*
+            .containsOnly(dateReportedFor);
         assertThat(result)
              .usingFieldByFieldElementComparator()
              .extracting(env -> env.container)
-             .containsExactlyInAnyOrder(CONTAINER_1, CONTAINER_2, "bulkscan");
-         */
+             .containsExactlyInAnyOrder(CONTAINER_1, CONTAINER_2, CONTAINER_3,
+                                        CONTAINER_4,CONTAINER_5,CONTAINER_6,CONTAINER_7,CONTAINER_8);
+
     }
-    //envelopes received at multiple dates and zero received.
 
     @Test
     void should_return_envelopes_received_and_status_summary_Only_by_requested_date_created() {
@@ -224,10 +229,13 @@ public class EnvelopeSummaryRepositoryTest {
         Instant createdAtDay3 = instant("2020-06-24 10:09:11");
         Instant dispatchedAt5 = instant("2020-06-25 12:32:26");
         envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_3, FILE_3_1, createdAtDay1, dispatchedAt4, Status.DISPATCHED)
+            CONTAINER_2, FILE_3_1, createdAtDay1, dispatchedAt4, Status.DISPATCHED)
         );
         envelopeRepository.insert(new NewEnvelope(
             CONTAINER_3, FILE_4_1, createdAtDay1, null, Status.REJECTED)
+        );
+        envelopeRepository.insert(new NewEnvelope(
+            CONTAINER_3, FILE_3_3, createdAtDay3, null, Status.REJECTED)
         );
         envelopeRepository.insert(new NewEnvelope(
             CONTAINER_4, FILE_3_2, createdAtDay2, null, Status.REJECTED)
@@ -235,9 +243,7 @@ public class EnvelopeSummaryRepositoryTest {
         envelopeRepository.insert(new NewEnvelope(
             CONTAINER_4, FILE_4_2, createdAtDay2, dispatchedAt4, Status.DISPATCHED)
         );
-        envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_3, FILE_3_3, createdAtDay3, null, Status.REJECTED)
-        );
+
         envelopeRepository.insert(new NewEnvelope(
             CONTAINER_4, FILE_4_3, dispatchedAt5, null, Status.REJECTED)
         );
@@ -246,15 +252,15 @@ public class EnvelopeSummaryRepositoryTest {
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.received)
-            .containsExactlyInAnyOrder(3, 3,0);
+            .containsExactlyInAnyOrder(1, 2,3,0,0,0,0,0);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.rejected)
-            .containsExactlyInAnyOrder(2,2,0);
+            .containsExactlyInAnyOrder(0,2,2,0,0,0,0,0);
         assertThat(result)
             .extracting(env -> env.container)
-            //bulkscan is the one which doesn't have envelopes
-            .containsExactlyInAnyOrder(CONTAINER_3,CONTAINER_4,"bulkscan");
+            .containsExactlyInAnyOrder(CONTAINER_1,CONTAINER_2, CONTAINER_3,
+                                       CONTAINER_4,CONTAINER_5,CONTAINER_6,CONTAINER_7,CONTAINER_8);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.date)
@@ -264,7 +270,7 @@ public class EnvelopeSummaryRepositoryTest {
     //containers have no rejected envelopes for the date
     @Test
     void should_return_zero_rejected_envelopes_if_no_rejected_envelope_is_there() {
-        Instant createdAtDay1 = instant("2020-05-17 11:32:26");
+        Instant createdAtDay1 = instant("2021-03-17 11:32:26");
 
         envelopeRepository.insert(new NewEnvelope(
             CONTAINER_1, FILE_1_1, createdAtDay1, null, Status.CREATED)
@@ -275,12 +281,16 @@ public class EnvelopeSummaryRepositoryTest {
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR);
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .extracting(env -> env.received).containsExactly(0,2);
+            .extracting(env -> env.received).containsExactlyInAnyOrder(0,2,0,0,0,0,0,0);
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .extracting(env -> env.rejected).containsExactly(0,0);
+            .extracting(env -> env.rejected).containsExactlyInAnyOrder(0,0,0,0,0,0,0,0);
         assertThat(result)
-            .extracting(env -> env.container).containsExactly("bulkscan",CONTAINER_1);
+            .extracting(env -> env.container).containsExactlyInAnyOrder(CONTAINER_1,CONTAINER_2,
+                                                              CONTAINER_3,CONTAINER_4,
+                                                              CONTAINER_5, CONTAINER_6, CONTAINER_7,
+                                                              CONTAINER_8);
+
     }
 
 }
