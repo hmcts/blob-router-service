@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.StringJoiner;
 
 @Repository
 public class ReportRepository {
@@ -49,17 +50,10 @@ public class ReportRepository {
     public List<EnvelopeCountSummaryReportItem> getReportFor(LocalDate date) {
 
         List<String> containersList = serviceConfiguration.getSourceContainers();
-        StringBuilder containers = new StringBuilder("(");
-        StringBuilder values = new StringBuilder("");
-        for (String c : containersList) {
-            if (!c.equals(containersList.get(containersList.size() - 1))) {
-                values.append("('" + c + "', date(:date),0,0), ");
-                containers.append("'" + c + "',");
-            } else {
-                values.append("('" + c + "', date(:date),0,0)");
-                containers.append("'" + c + "')");
-            }
-        }
+        StringJoiner values = new StringJoiner(", ('", "('", "");
+        containersList.forEach(configContainer -> values.add(configContainer+"', date(:date),0,0)"));
+        StringJoiner containers = new StringJoiner("', '", "('", "')");
+        containersList.forEach(containerName -> containers.add(containerName));
         return jdbcTemplate.query(
                   "SELECT * FROM (VALUES " + values + ") t1 (container, date, received, rejected)"
                       + "  UNION "
