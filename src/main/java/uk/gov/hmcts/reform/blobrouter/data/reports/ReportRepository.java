@@ -51,7 +51,7 @@ public class ReportRepository {
 
         List<String> containersList = serviceConfiguration.getSourceContainers();
         StringJoiner values = new StringJoiner(", ('", "('", "");
-        containersList.forEach(configContainer -> values.add(configContainer+"', date(:date),0,0)"));
+        containersList.forEach(configContainer -> values.add(configContainer + "', date(:date),0,0)"));
         StringJoiner containers = new StringJoiner("', '", "('", "')");
         containersList.forEach(containerName -> containers.add(containerName));
         return jdbcTemplate.query(
