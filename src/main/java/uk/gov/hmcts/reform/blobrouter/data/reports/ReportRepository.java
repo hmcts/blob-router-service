@@ -56,7 +56,7 @@ public class ReportRepository {
         containersList.forEach(containerName -> containers.add(containerName));
         return jdbcTemplate.query(
                   "SELECT * FROM (VALUES " + values + ") t1 (container, date, received, rejected)"
-                      + "WHERE container NOT IN (SELECT container FROM Envelopes WHERE created_at = date(:date))"
+                      + "WHERE container NOT IN (SELECT DISTINCT container FROM Envelopes WHERE date(created_at) = :date)"
                       + "  UNION "
                       + "  SELECT"
                       + "  container AS Container,"
