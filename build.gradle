@@ -160,7 +160,7 @@ dependencyCheck {
 
 dependencyManagement {
   dependencies {
-    dependencySet(group: 'com.google.guava', version: '30.1-jre') {
+    dependencySet(group: 'com.google.guava', version: '30.1.1-jre') {
       entry 'guava'
     }
     // this should not be used, ideally.
