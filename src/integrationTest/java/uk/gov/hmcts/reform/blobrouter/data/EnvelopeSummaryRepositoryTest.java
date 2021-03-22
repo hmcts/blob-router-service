@@ -32,10 +32,10 @@ public class EnvelopeSummaryRepositoryTest {
     private static final String CONTAINER_2 = "cmc";
     private static final String CONTAINER_3 = "sscs";
     private static final String CONTAINER_4 = "crime";
-    private static final String CONTAINER_5 = "bulkscan";
-    private static final String CONTAINER_6 = "pcq";
-    private static final String CONTAINER_7 = "finrem";
-    private static final String CONTAINER_8 = "probate";
+    private static final String EXCLUDED_CONTAINER = "bulkscan";
+    private static final String CONTAINER_5 = "pcq";
+    private static final String CONTAINER_6 = "finrem";
+    private static final String CONTAINER_7 = "probate";
     private static final String FILE_1_1 = "file_name_1_1";
     private static final String FILE_1_2 = "file_name_1_2";
     private static final String FILE_2_1 = "file_name_2_1";
@@ -156,7 +156,7 @@ public class EnvelopeSummaryRepositoryTest {
         envelopeRepository.insert(new NewEnvelope(CONTAINER_1, FILE_1_1, createdAt1, dispatchedAt, Status.DISPATCHED));
 
         envelopeRepository.insert(
-            new NewEnvelope(CONTAINER_5, FILE_BULKSCAN_1, createdAt2, dispatchedAt, Status.DISPATCHED)
+            new NewEnvelope(EXCLUDED_CONTAINER, FILE_BULKSCAN_1, createdAt2, dispatchedAt, Status.DISPATCHED)
         );
 
         // when
@@ -216,7 +216,7 @@ public class EnvelopeSummaryRepositoryTest {
              .usingFieldByFieldElementComparator()
              .extracting(env -> env.container)
              .containsExactlyInAnyOrder(CONTAINER_1, CONTAINER_2, CONTAINER_3,
-                                        CONTAINER_4,CONTAINER_5,CONTAINER_6,CONTAINER_7,CONTAINER_8);
+                                        CONTAINER_4,CONTAINER_5,CONTAINER_6,CONTAINER_7);
 
     }
 
@@ -260,7 +260,7 @@ public class EnvelopeSummaryRepositoryTest {
         assertThat(result)
             .extracting(env -> env.container)
             .containsExactlyInAnyOrder(CONTAINER_1,CONTAINER_2, CONTAINER_3,
-                                       CONTAINER_4,CONTAINER_5,CONTAINER_6,CONTAINER_7,CONTAINER_8);
+                                       CONTAINER_4,CONTAINER_6,CONTAINER_7);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.date)
@@ -288,8 +288,7 @@ public class EnvelopeSummaryRepositoryTest {
         assertThat(result)
             .extracting(env -> env.container).containsExactlyInAnyOrder(CONTAINER_1,CONTAINER_2,
                                                               CONTAINER_3,CONTAINER_4,
-                                                              CONTAINER_5, CONTAINER_6, CONTAINER_7,
-                                                              CONTAINER_8);
+                                                              CONTAINER_5, CONTAINER_6, CONTAINER_7);
 
     }
 
