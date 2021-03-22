@@ -50,23 +50,20 @@ public class ReportRepository {
     public List<EnvelopeCountSummaryReportItem> getReportFor(LocalDate date) {
 
         List<String> containersList = serviceConfiguration.getSourceContainers();
-        StringJoiner values = new StringJoiner(", ('", "('", "");
-        containersList.forEach(configContainer -> values.add(configContainer + "', date(:date),0,0)"));
-        StringJoiner containers = new StringJoiner("', '", "('", "')");
-        containersList.forEach(containerName -> containers.add(containerName));
+        StringJoiner containers = new StringJoiner(", ");
+        containersList.forEach(containerName -> containers.add("('" + containerName + "')"));
         return jdbcTemplate.query(
-                  "SELECT * FROM (VALUES " + values + ") t1 (container, date, received, rejected)"
-                      + "WHERE container NOT IN (SELECT DISTINCT container FROM Envelopes WHERE date(created_at) = :date)"
-                      + "  UNION "
-                      + "  SELECT"
-                      + "  container AS Container,"
-                      + "  date(created_at) AS date,"
-                      + "  count(*) AS received,"
-                      + "  SUM(CASE WHEN Envelopes.status = 'REJECTED' THEN 1 ELSE 0 END) AS rejected"
-                      + "  FROM"
-                      + "  Envelopes"
+                  "SELECT A.container, (CASE WHEN G.received IS NULL THEN 0 ELSE G.received END) AS received,"
+                      + " (CASE WHEN G.rejected IS NULL THEN 0 ELSE G.rejected END) AS rejected,:date as date"
+                      + "  FROM(VALUES" + containers + ") AS A (container)"
+                      + "  LEFT JOIN"
+                      + "  (SELECT container as Container, date (created_at) AS date,"
+                      + "  count(*) as received,"
+                      + "  SUM (CASE WHEN Envelopes.status = 'REJECTED' THEN 1 ELSE 0 END) AS rejected"
+                      + "  FROM Envelopes"
                       + "  GROUP BY container, date(created_at)"
-                      + "  HAVING date(created_at) = :date",
+                      + "  HAVING date(created_at) = :date)"
+                      + "  AS G on A.container = G.container",
             new MapSqlParameterSource()
                 .addValue("date", date),
             this.summaryMapper
