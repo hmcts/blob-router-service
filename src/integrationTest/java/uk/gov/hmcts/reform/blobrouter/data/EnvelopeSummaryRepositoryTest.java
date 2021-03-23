@@ -65,17 +65,44 @@ public class EnvelopeSummaryRepositoryTest {
 
         // before the request date
         envelopeRepository.insert(
-            new NewEnvelope(CONTAINER_CRIME, CRIME_CREATED_1, createdAt1, dispatchedAt, Status.DISPATCHED)
+            new NewEnvelope(
+                CONTAINER_CRIME,
+                CRIME_CREATED_1,
+                createdAt1,
+                dispatchedAt,
+                Status.DISPATCHED
+            )
         );
         // 2 envelopes are on the request date
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_CRIME, CRIME_DISPATCHED_3,
-                                                  createdAt2, dispatchedAt, Status.DISPATCHED));
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_SSCS, SSCS_REJECTED_2,
-                                                  createdAt3, null, Status.REJECTED));
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_CRIME,
+                CRIME_DISPATCHED_3,
+                createdAt2,
+                dispatchedAt,
+                Status.DISPATCHED
+            )
+        );
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_SSCS,
+                SSCS_REJECTED_2,
+                createdAt3,
+                null,
+                Status.REJECTED
+            )
+        );
 
         // after the request date
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_SSCS, SSCS_REJECTED_2,
-                                                  createdAt4, dispatchedAt, Status.REJECTED));
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_SSCS,
+                SSCS_REJECTED_2,
+                createdAt4,
+                dispatchedAt,
+                Status.REJECTED
+            )
+        );
 
         // when
         List<EnvelopeSummary> result = reportRepository.getEnvelopeSummary(
@@ -115,10 +142,24 @@ public class EnvelopeSummaryRepositoryTest {
         Instant dispatchedAt = instant("2019-12-22 13:39:33");
 
         // 2 envelopes are on the request date, wrong order
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_SSCS, SSCS_REJECTED_2,
-                                                  createdAt2, null, Status.REJECTED));
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_CRIME, CRIME_DISPATCHED_3,
-                                                  createdAt1, dispatchedAt, Status.DISPATCHED));
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_SSCS,
+                SSCS_REJECTED_2,
+                createdAt2,
+                null,
+                Status.REJECTED
+            )
+        );
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_CRIME,
+                CRIME_DISPATCHED_3,
+                createdAt1,
+                dispatchedAt,
+                Status.DISPATCHED
+            )
+        );
 
         // when
         List<EnvelopeSummary> result = reportRepository.getEnvelopeSummary(
@@ -157,12 +198,24 @@ public class EnvelopeSummaryRepositoryTest {
         Instant createdAt2 = instant("2019-12-20 12:33:27");
         Instant dispatchedAt = instant("2019-12-22 13:39:33");
 
-        envelopeRepository.insert(new NewEnvelope(CONTAINER_CRIME, CRIME_DISPATCHED_3,
-                                                  createdAt1, dispatchedAt, Status.DISPATCHED));
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_CRIME,
+                CRIME_DISPATCHED_3,
+                createdAt1,
+                dispatchedAt,
+                Status.DISPATCHED
+            )
+        );
 
         envelopeRepository.insert(
-            new NewEnvelope(EXCLUDED_CONTAINER, BULKSCAN_DISPATCHED_1,
-                            createdAt2, dispatchedAt, Status.DISPATCHED)
+            new NewEnvelope(
+                EXCLUDED_CONTAINER,
+                BULKSCAN_DISPATCHED_1,
+                createdAt2,
+                dispatchedAt,
+                Status.DISPATCHED
+            )
         );
 
         // when
@@ -196,15 +249,36 @@ public class EnvelopeSummaryRepositoryTest {
         Instant createdAt2 = instant("2021-03-19 12:42:28");
         Instant createdAt3 = instant("2021-03-24 10:09:11");
         Instant dispatchedAt3 = instant("2021-03-25 12:32:26");
-        dbHelper.insertWithCreatedAt(new NewEnvelope(
-                                                   CONTAINER_CRIME, CRIME_REJECTED_2, fileCreatedAt1,
-                                                    null, Status.REJECTED),createdAt1);
-        dbHelper.insertWithCreatedAt(new NewEnvelope(
-                                                   CONTAINER_SSCS, SSCS_CREATED_1, fileCreatedAt2,
-                                                    null, Status.CREATED), createdAt2);
-        dbHelper.insertWithCreatedAt(new NewEnvelope(
-                                                   CONTAINER_PMQ, PMQ_CREATED_1, fileCreatedAt3,
-                                                    dispatchedAt3, Status.CREATED), createdAt3);
+        dbHelper.insertWithCreatedAt(
+            new NewEnvelope(
+                CONTAINER_CRIME,
+                CRIME_REJECTED_2,
+                fileCreatedAt1,
+                null,
+                Status.REJECTED
+            ),
+            createdAt1
+        );
+        dbHelper.insertWithCreatedAt(
+            new NewEnvelope(
+                CONTAINER_SSCS,
+                SSCS_CREATED_1,
+                fileCreatedAt2,
+                null,
+                Status.CREATED
+            ),
+            createdAt2
+        );
+        dbHelper.insertWithCreatedAt(
+            new NewEnvelope(
+                CONTAINER_PMQ,
+                PMQ_CREATED_1,
+                fileCreatedAt3,
+                dispatchedAt3,
+                Status.CREATED
+            ),
+            createdAt3
+        );
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(dateReportedFor);
         assertThat(result)
             .usingFieldByFieldElementComparator()
@@ -221,8 +295,7 @@ public class EnvelopeSummaryRepositoryTest {
         assertThat(result)
              .usingFieldByFieldElementComparator()
              .extracting(env -> env.container)
-             .containsExactlyInAnyOrder(CONTAINER_CRIME, CONTAINER_SSCS, CONTAINER_PROBATE,
-                                        CONTAINER_PMQ);
+             .containsExactlyInAnyOrder(CONTAINER_CRIME, CONTAINER_SSCS, CONTAINER_PROBATE, CONTAINER_PMQ);
 
     }
 
@@ -234,23 +307,59 @@ public class EnvelopeSummaryRepositoryTest {
         //for envelopes received at different date
         Instant createdAtDay3 = instant("2020-06-24 10:09:11");
         Instant dispatchedAt5 = instant("2020-06-25 12:32:26");
-        envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_SSCS, SSCS_DISPATCHED_3, createdAtDay1, dispatchedAt4, Status.DISPATCHED)
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_SSCS,
+                SSCS_DISPATCHED_3,
+                createdAtDay1,
+                dispatchedAt4,
+                Status.DISPATCHED
+            )
         );
-        envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_PMQ, PMQ_REJECTED_2, createdAtDay1, null, Status.REJECTED)
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_PMQ,
+                PMQ_REJECTED_2,
+                createdAtDay1,
+                null,
+                Status.REJECTED
+            )
         );
-        envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_PMQ, PMQ_REJECTED_2, createdAtDay3, null, Status.REJECTED)
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_PMQ,
+                PMQ_REJECTED_2,
+                createdAtDay3,
+                null,
+                Status.REJECTED
+            )
         );
-        envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_PROBATE, PROBATE_CREATED_1, createdAtDay2, null, Status.CREATED)
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_PROBATE,
+                PROBATE_CREATED_1,
+                createdAtDay2,
+                null,
+                Status.CREATED
+            )
         );
-        envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_PROBATE, PROBATE_DISPATCHED_3, createdAtDay2, dispatchedAt4, Status.DISPATCHED)
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_PROBATE,
+                PROBATE_DISPATCHED_3,
+                createdAtDay2,
+                dispatchedAt4,
+                Status.DISPATCHED
+            )
         );
-        envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_PROBATE, PROBATE_REJECTED_2, dispatchedAt5, null, Status.REJECTED)
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_PROBATE,
+                PROBATE_REJECTED_2,
+                dispatchedAt5,
+                null,
+                Status.REJECTED
+            )
         );
 
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR);
@@ -264,8 +373,7 @@ public class EnvelopeSummaryRepositoryTest {
             .containsExactlyInAnyOrder(0,1,2,0);
         assertThat(result)
             .extracting(env -> env.container)
-            .containsExactlyInAnyOrder(CONTAINER_CRIME,CONTAINER_PMQ, CONTAINER_SSCS,
-                                       CONTAINER_PROBATE);
+            .containsExactlyInAnyOrder(CONTAINER_CRIME, CONTAINER_PMQ, CONTAINER_SSCS, CONTAINER_PROBATE);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.date)
@@ -276,24 +384,39 @@ public class EnvelopeSummaryRepositoryTest {
     @Test
     void should_return_zero_rejected_envelopes_if_no_rejected_envelope_is_there() {
         Instant createdAtDay1 = instant("2021-03-17 11:32:26");
-
-        envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_CRIME, CRIME_CREATED_1, createdAtDay1, null, Status.CREATED)
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_CRIME,
+                CRIME_CREATED_1,
+                createdAtDay1,
+                null,
+                Status.CREATED
+            )
         );
-        envelopeRepository.insert(new NewEnvelope(
-            CONTAINER_PMQ, PMQ_DISPATCHED_3, createdAtDay1, null, Status.DISPATCHED)
+        envelopeRepository.insert(
+            new NewEnvelope(
+                CONTAINER_PMQ,
+                PMQ_DISPATCHED_3,
+                createdAtDay1,
+                null,
+                Status.DISPATCHED
+            )
         );
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR);
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .extracting(env -> env.received).containsExactlyInAnyOrder(1,1,0,0);
+            .extracting(env -> env.received).containsExactlyInAnyOrder(1, 1, 0, 0);
         assertThat(result)
             .usingFieldByFieldElementComparator()
-            .extracting(env -> env.rejected).containsExactlyInAnyOrder(0,0,0,0);
+            .extracting(env -> env.rejected).containsExactlyInAnyOrder(0, 0, 0, 0);
         assertThat(result)
-            .extracting(env -> env.container).containsExactlyInAnyOrder(CONTAINER_CRIME,CONTAINER_SSCS,
-                                                              CONTAINER_PMQ,CONTAINER_PROBATE);
-
+            .extracting(env -> env.container)
+            .containsExactlyInAnyOrder(
+                CONTAINER_CRIME,
+                CONTAINER_SSCS,
+                CONTAINER_PMQ,
+                CONTAINER_PROBATE
+            );
     }
 
 }

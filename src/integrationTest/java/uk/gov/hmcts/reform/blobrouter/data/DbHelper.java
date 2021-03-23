@@ -38,8 +38,10 @@ public class DbHelper {
                 .addValue("fileName", envelope.fileName)
                 .addValue("fileCreatedAt", Timestamp.from(envelope.fileCreatedAt))
                 .addValue("status", envelope.status.name())
-                .addValue("dispatchedAt",
-                          envelope.dispatchedAt == null ? null : Timestamp.from(envelope.dispatchedAt))
+                .addValue(
+                    "dispatchedAt",
+                    envelope.dispatchedAt == null ? null : Timestamp.from(envelope.dispatchedAt)
+                )
                 .addValue("createdAt", Timestamp.from(createdAt))
         );
         return id;
