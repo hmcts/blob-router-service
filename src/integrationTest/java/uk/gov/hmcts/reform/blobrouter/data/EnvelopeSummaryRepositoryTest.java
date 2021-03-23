@@ -8,7 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelope;
-import uk.gov.hmcts.reform.blobrouter.data.envelopes.NewEnvelopeWithCreateDate;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.reports.EnvelopeSummary;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
@@ -181,7 +180,7 @@ public class EnvelopeSummaryRepositoryTest {
     }
 
     @Test
-    void should_return_envelopes_received_and_status_summary_by_requested_Multiple_dates_created() {
+     void should_return_envelopes_received_and_status_summary_by_requested_Multiple_dates_created() {
         LocalDate dateReportedFor = LocalDate.of(2021,3,19);
         Instant fileCreatedAt1 = instant("2021-03-17 12:33:27");
         Instant fileCreatedAt2 = instant("2021-03-17 12:49:27");
@@ -190,15 +189,15 @@ public class EnvelopeSummaryRepositoryTest {
         Instant createdAt2 = instant("2021-03-19 12:42:28");
         Instant createdAt3 = instant("2021-03-24 10:09:11");
         Instant dispatchedAt3 = instant("2021-03-25 12:32:26");
-        envelopeRepository.insertWithCreatedAt(new NewEnvelopeWithCreateDate(
+        dbHelper.insertWithCreatedAt(new NewEnvelope(
                                                    CONTAINER_1, FILE_1_2, fileCreatedAt1,
-                                                    null, Status.REJECTED, createdAt1));
-        envelopeRepository.insertWithCreatedAt(new NewEnvelopeWithCreateDate(
+                                                    null, Status.REJECTED),createdAt1);
+        dbHelper.insertWithCreatedAt(new NewEnvelope(
                                                    CONTAINER_2, FILE_2_2, fileCreatedAt2,
-                                                    null, Status.CREATED, createdAt2));
-        envelopeRepository.insertWithCreatedAt(new NewEnvelopeWithCreateDate(
+                                                    null, Status.CREATED), createdAt2);
+        dbHelper.insertWithCreatedAt(new NewEnvelope(
                                                    CONTAINER_1, FILE_2_1, fileCreatedAt3,
-                                                    dispatchedAt3, Status.CREATED, createdAt3));
+                                                    dispatchedAt3, Status.CREATED), createdAt3);
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(dateReportedFor);
         assertThat(result)
             .usingFieldByFieldElementComparator()
@@ -216,7 +215,7 @@ public class EnvelopeSummaryRepositoryTest {
              .usingFieldByFieldElementComparator()
              .extracting(env -> env.container)
              .containsExactlyInAnyOrder(CONTAINER_1, CONTAINER_2, CONTAINER_3,
-                                        CONTAINER_4,CONTAINER_5,CONTAINER_6,CONTAINER_7);
+                                        CONTAINER_4,CONTAINER_5,CONTAINER_6,CONTAINER_7,EXCLUDED_CONTAINER);
 
     }
 
@@ -260,7 +259,7 @@ public class EnvelopeSummaryRepositoryTest {
         assertThat(result)
             .extracting(env -> env.container)
             .containsExactlyInAnyOrder(CONTAINER_1,CONTAINER_2, CONTAINER_3,
-                                       CONTAINER_4,CONTAINER_6,CONTAINER_7);
+                                       CONTAINER_4,CONTAINER_6,CONTAINER_7,EXCLUDED_CONTAINER);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.date)
@@ -288,7 +287,7 @@ public class EnvelopeSummaryRepositoryTest {
         assertThat(result)
             .extracting(env -> env.container).containsExactlyInAnyOrder(CONTAINER_1,CONTAINER_2,
                                                               CONTAINER_3,CONTAINER_4,
-                                                              CONTAINER_5, CONTAINER_6, CONTAINER_7);
+                                                              CONTAINER_5, CONTAINER_6, CONTAINER_7,EXCLUDED_CONTAINER);
 
     }
 

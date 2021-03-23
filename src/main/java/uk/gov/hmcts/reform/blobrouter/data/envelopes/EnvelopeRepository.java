@@ -109,24 +109,6 @@ public class EnvelopeRepository {
         return id;
     }
 
-    public UUID insertWithCreatedAt(NewEnvelopeWithCreateDate envelope) {
-        UUID id = UUID.randomUUID();
-        jdbcTemplate.update(
-            "INSERT INTO envelopes (id, container, file_name, file_created_at, status, dispatched_at, created_at) "
-                + "VALUES (:id, :container, :fileName, :fileCreatedAt, :status, :dispatchedAt, :createdAt)",
-            new MapSqlParameterSource()
-                .addValue("id", id)
-                .addValue("container", envelope.container)
-                .addValue("fileName", envelope.fileName)
-                .addValue("fileCreatedAt", Timestamp.from(envelope.fileCreatedAt))
-                .addValue("status", envelope.status.name())
-                .addValue("dispatchedAt",
-                          envelope.dispatchedAt == null ? null : Timestamp.from(envelope.dispatchedAt))
-                .addValue("createdAt", Timestamp.from(envelope.createdAt))
-        );
-        return id;
-    }
-
     public void updateStatus(UUID id, Status newStatus) {
         jdbcTemplate.update(
             "UPDATE envelopes "
