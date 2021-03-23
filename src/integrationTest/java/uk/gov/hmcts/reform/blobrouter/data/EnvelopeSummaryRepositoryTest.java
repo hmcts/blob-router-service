@@ -22,7 +22,7 @@ import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
 @ActiveProfiles({"integration-test", "db-test"})
 @SpringBootTest(properties = { "service.storage-config[0].source-container=crime",
     "service.storage-config[1].source-container=sscs",
-    "service.storage-config[2].source-container=pmq",
+    "service.storage-config[2].source-container=pcq",
     "service.storage-config[3].source-container=probate"})
 public class EnvelopeSummaryRepositoryTest {
     @Autowired private EnvelopeRepository envelopeRepository;
@@ -30,7 +30,7 @@ public class EnvelopeSummaryRepositoryTest {
     @Autowired private DbHelper dbHelper;
     private static final String CONTAINER_CRIME = "crime";
     private static final String CONTAINER_SSCS = "sscs";
-    private static final String CONTAINER_PMQ = "pmq";
+    private static final String CONTAINER_PCQ = "pcq";
     private static final String CONTAINER_PROBATE = "probate";
     private static final String EXCLUDED_CONTAINER = "bulkscan";
     private static final String CRIME_CREATED_1 = "crime_created_1";
@@ -39,9 +39,9 @@ public class EnvelopeSummaryRepositoryTest {
     private static final String SSCS_CREATED_1 = "sscs_created_1";
     private static final String SSCS_REJECTED_2 = "sscs_rejected_2";
     private static final String SSCS_DISPATCHED_3 = "sscs_dispatched_3";
-    private static final String PMQ_CREATED_1 = "pmq_created_1";
-    private static final String PMQ_REJECTED_2 = "pmq_rejected_2";
-    private static final String PMQ_DISPATCHED_3 = "pmq_dispatched_3";
+    private static final String PCQ_CREATED_1 = "pcq_created_1";
+    private static final String PCQ_REJECTED_2 = "pcq_rejected_2";
+    private static final String PCQ_DISPATCHED_3 = "pcq_dispatched_3";
     private static final String PROBATE_CREATED_1 = "probate_created_1";
     private static final String PROBATE_REJECTED_2 = "probate_rejected_2";
     private static final String PROBATE_DISPATCHED_3 = "probate_dispatched_3";
@@ -240,7 +240,7 @@ public class EnvelopeSummaryRepositoryTest {
     }
 
     @Test
-     void should_return_envelopes_received_and_status_summary_by_requested_Multiple_dates_created() {
+     void should_return_envelopes_summary_received_and_rejected_multiple_dates_created() {
         LocalDate dateReportedFor = LocalDate.of(2021,3,19);
         Instant fileCreatedAt1 = instant("2021-03-17 12:33:27");
         Instant fileCreatedAt2 = instant("2021-03-17 12:49:27");
@@ -271,8 +271,8 @@ public class EnvelopeSummaryRepositoryTest {
         );
         dbHelper.insertWithCreatedAt(
             new NewEnvelope(
-                CONTAINER_PMQ,
-                PMQ_CREATED_1,
+                CONTAINER_PCQ,
+                PCQ_CREATED_1,
                 fileCreatedAt3,
                 dispatchedAt3,
                 Status.CREATED
@@ -295,12 +295,12 @@ public class EnvelopeSummaryRepositoryTest {
         assertThat(result)
              .usingFieldByFieldElementComparator()
              .extracting(env -> env.container)
-             .containsExactlyInAnyOrder(CONTAINER_CRIME, CONTAINER_SSCS, CONTAINER_PROBATE, CONTAINER_PMQ);
+             .containsExactlyInAnyOrder(CONTAINER_CRIME, CONTAINER_SSCS, CONTAINER_PROBATE, CONTAINER_PCQ);
 
     }
 
     @Test
-    void should_return_envelopes_received_and_status_summary_Only_by_requested_date_created() {
+    void should_return_envelopes_summary_received_and_rejected_by_date() {
         Instant createdAtDay1 = instant("2020-05-17 11:32:26");
         Instant createdAtDay2 = instant("2020-05-17 12:33:27");
         Instant dispatchedAt4 = instant("2020-05-17 12:56:26");
@@ -318,8 +318,8 @@ public class EnvelopeSummaryRepositoryTest {
         );
         envelopeRepository.insert(
             new NewEnvelope(
-                CONTAINER_PMQ,
-                PMQ_REJECTED_2,
+                CONTAINER_PCQ,
+                PCQ_REJECTED_2,
                 createdAtDay1,
                 null,
                 Status.REJECTED
@@ -327,8 +327,8 @@ public class EnvelopeSummaryRepositoryTest {
         );
         envelopeRepository.insert(
             new NewEnvelope(
-                CONTAINER_PMQ,
-                PMQ_REJECTED_2,
+                CONTAINER_PCQ,
+                PCQ_REJECTED_2,
                 createdAtDay3,
                 null,
                 Status.REJECTED
@@ -373,7 +373,7 @@ public class EnvelopeSummaryRepositoryTest {
             .containsExactlyInAnyOrder(0,1,2,0);
         assertThat(result)
             .extracting(env -> env.container)
-            .containsExactlyInAnyOrder(CONTAINER_CRIME, CONTAINER_PMQ, CONTAINER_SSCS, CONTAINER_PROBATE);
+            .containsExactlyInAnyOrder(CONTAINER_CRIME, CONTAINER_PCQ, CONTAINER_SSCS, CONTAINER_PROBATE);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.date)
@@ -395,8 +395,8 @@ public class EnvelopeSummaryRepositoryTest {
         );
         envelopeRepository.insert(
             new NewEnvelope(
-                CONTAINER_PMQ,
-                PMQ_DISPATCHED_3,
+                CONTAINER_PCQ,
+                PCQ_DISPATCHED_3,
                 createdAtDay1,
                 null,
                 Status.DISPATCHED
@@ -414,7 +414,7 @@ public class EnvelopeSummaryRepositoryTest {
             .containsExactlyInAnyOrder(
                 CONTAINER_CRIME,
                 CONTAINER_SSCS,
-                CONTAINER_PMQ,
+                CONTAINER_PCQ,
                 CONTAINER_PROBATE
             );
     }
