@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.reports.EnvelopeSummary;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
@@ -32,9 +33,11 @@ class ReportServiceTest {
     @Mock
     private ReportRepository reportRepository;
 
+    @Mock ServiceConfiguration serviceConfiguration;
+
     @BeforeEach
     void setUp() {
-        reportService = new ReportService(reportRepository);
+        reportService = new ReportService(reportRepository, serviceConfiguration);
     }
 
     @Test
