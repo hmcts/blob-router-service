@@ -21,10 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
 
 @ActiveProfiles({"integration-test", "db-test"})
-@SpringBootTest(properties = { "service.storage-config[0].source-container=crime",
-    "service.storage-config[1].source-container=sscs",
-    "service.storage-config[2].source-container=pcq",
-    "service.storage-config[3].source-container=probate"})
+@SpringBootTest
 public class EnvelopeSummaryRepositoryTest {
     @Autowired private EnvelopeRepository envelopeRepository;
     @Autowired private ReportRepository reportRepository;
