@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.model.out.reports.EnvelopeCountSummaryRepo
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +48,7 @@ public class EnvelopeSummaryRepositoryTest {
     private static final String PROBATE_DISPATCHED_3 = "probate_dispatched_3";
     private static final String BULKSCAN_DISPATCHED_1 = "bulkscan_dispatched_1";
     private static final LocalDate DATE_REPORTED_FOR = LocalDate.now();
+    private static final List<String> containerNames = Arrays.asList("crime", "sscs", "pcq", "probate");
 
     @BeforeEach
     void setUp() {
@@ -279,7 +281,7 @@ public class EnvelopeSummaryRepositoryTest {
             ),
             createdAt3
         );
-        List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(dateReportedFor);
+        List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(dateReportedFor, containerNames);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.received)
@@ -362,7 +364,7 @@ public class EnvelopeSummaryRepositoryTest {
             )
         );
 
-        List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR);
+        List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR, containerNames);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.received)
@@ -402,7 +404,7 @@ public class EnvelopeSummaryRepositoryTest {
                 Status.DISPATCHED
             )
         );
-        List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR);
+        List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR, containerNames);
         assertThat(result)
             .usingFieldByFieldElementComparator()
             .extracting(env -> env.received).containsExactlyInAnyOrder(1, 1, 0, 0);
