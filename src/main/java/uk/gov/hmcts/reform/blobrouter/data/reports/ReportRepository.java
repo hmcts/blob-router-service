@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.blobrouter.data.reports;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.model.out.reports.EnvelopeCountSummaryReportItem;
 
 import java.sql.Timestamp;
@@ -18,18 +17,15 @@ public class ReportRepository {
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeSummaryMapper mapper;
     private final EnvelopeCountSummaryMapper summaryMapper;
-    private final ServiceConfiguration serviceConfiguration;
 
     public ReportRepository(
         NamedParameterJdbcTemplate jdbcTemplate,
         EnvelopeSummaryMapper mapper,
-        EnvelopeCountSummaryMapper summaryMapper,
-        ServiceConfiguration serviceConfiguration
+        EnvelopeCountSummaryMapper summaryMapper
     ) {
         this.jdbcTemplate = jdbcTemplate;
         this.mapper = mapper;
         this.summaryMapper = summaryMapper;
-        this.serviceConfiguration = serviceConfiguration;
     }
 
     public List<EnvelopeSummary> getEnvelopeSummary(Instant from, Instant to) {
@@ -47,9 +43,7 @@ public class ReportRepository {
         );
     }
 
-    public List<EnvelopeCountSummaryReportItem> getReportFor(LocalDate date) {
-
-        List<String> containersList = serviceConfiguration.getSourceContainers();
+    public List<EnvelopeCountSummaryReportItem> getReportFor(LocalDate date, List<String> containersList) {
         StringJoiner containers = new StringJoiner(", ");
         containersList.forEach(containerName -> containers.add("('" + containerName + "')"));
         return jdbcTemplate.query(
