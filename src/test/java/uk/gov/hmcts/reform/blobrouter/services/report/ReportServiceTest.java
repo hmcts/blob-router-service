@@ -126,7 +126,12 @@ class ReportServiceTest {
     void should_return_envelope_count_summary_list_for_matching_date() {
         //given
         LocalDate dateCountedFor = LocalDate.of(2020, 5, 22);
-        List<String> containerNames = Arrays.asList("crime", "pcq", "probate", "bulkscan");
+        List<String> containerNames = Arrays.asList(
+            CRIME_CONTAINER,
+            PCQ_CONTAINER,
+            PROBATE_CONTAINER,
+            BULKSCAN_CONTAINER
+        );
 
         given(serviceConfiguration.getSourceContainers())
             .willReturn(containerNames);
