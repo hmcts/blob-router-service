@@ -19,10 +19,9 @@ import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_I
 
 @Service
 public class ReportService {
-    private final ReportRepository reportRepository;
-    public static final String TEST_CONTAINER = "bulkscan";
-
     private static final Logger log = LoggerFactory.getLogger(ReportService.class);
+
+    private final ReportRepository reportRepository;
     private final ServiceConfiguration serviceConfiguration;
 
     public ReportService(ReportRepository reportRepository, ServiceConfiguration serviceConfiguration) {
