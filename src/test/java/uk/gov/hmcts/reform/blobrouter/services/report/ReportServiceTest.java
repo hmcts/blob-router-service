@@ -30,7 +30,7 @@ import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.localTime;
 
 @ExtendWith(MockitoExtension.class)
 class ReportServiceTest {
-    private static final String TEST_CONTAINER = "bulkscan";
+    private static final String BULKSCAN_CONTAINER = "bulkscan";
     private static final String CRIME_CONTAINER = "crime";
     private static final String PCQ_CONTAINER = "pcq";
     private static final String PROBATE_CONTAINER = "probate";
@@ -135,7 +135,8 @@ class ReportServiceTest {
             .willReturn(asList(
                 new EnvelopeCountSummaryReportItem(5, 2, CRIME_CONTAINER, dateCountedFor),
                 new EnvelopeCountSummaryReportItem(54, 12, PCQ_CONTAINER, dateCountedFor),
-                new EnvelopeCountSummaryReportItem(25, 8, PROBATE_CONTAINER, dateCountedFor)
+                new EnvelopeCountSummaryReportItem(25, 8, PROBATE_CONTAINER, dateCountedFor),
+                new EnvelopeCountSummaryReportItem(22, 11, BULKSCAN_CONTAINER, dateCountedFor)
             ));
         boolean includeTestContainer = false;
 
@@ -151,7 +152,8 @@ class ReportServiceTest {
             .containsExactly(
                 new EnvelopeCountSummaryReportItem(5, 2, CRIME_CONTAINER, dateCountedFor),
                 new EnvelopeCountSummaryReportItem(54, 12, PCQ_CONTAINER, dateCountedFor),
-                new EnvelopeCountSummaryReportItem(25, 8, PROBATE_CONTAINER, dateCountedFor)
+                new EnvelopeCountSummaryReportItem(25, 8, PROBATE_CONTAINER, dateCountedFor),
+                new EnvelopeCountSummaryReportItem(22, 11, BULKSCAN_CONTAINER, dateCountedFor)
             );
     }
 
