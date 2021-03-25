@@ -51,7 +51,7 @@ public class ReportService {
             .collect(toList());
     }
 
-    public List<EnvelopeCountSummaryReportItem> getCountFor(LocalDate date, boolean includeTestContainer) {
+    public List<EnvelopeCountSummaryReportItem> getCountFor(LocalDate date) {
         List<String> containersList = serviceConfiguration.getSourceContainers();
         long start = System.currentTimeMillis();
         final List<EnvelopeCountSummaryReportItem> reportResult = reportRepository.getReportFor(
