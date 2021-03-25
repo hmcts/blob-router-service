@@ -56,9 +56,7 @@ public class ReportService {
         List<String> containersList = serviceConfiguration.getSourceContainers();
         long start = System.currentTimeMillis();
         final List<EnvelopeCountSummaryReportItem> reportResult = reportRepository.getReportFor(
-            date, containersList).stream()
-            .filter(it -> includeTestContainer || !Objects.equals(it.container, TEST_CONTAINER))
-            .collect(toList());
+            date, containersList);
         log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
         return reportResult;
     }
