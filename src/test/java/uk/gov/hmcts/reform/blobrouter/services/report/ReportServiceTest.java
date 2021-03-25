@@ -40,7 +40,8 @@ class ReportServiceTest {
     @Mock
     private ReportRepository reportRepository;
 
-    @Mock ServiceConfiguration serviceConfiguration;
+    @Mock
+    private ServiceConfiguration serviceConfiguration;
 
     @BeforeEach
     void setUp() {
