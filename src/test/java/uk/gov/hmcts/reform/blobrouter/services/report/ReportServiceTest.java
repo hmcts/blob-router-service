@@ -143,8 +143,6 @@ class ReportServiceTest {
                 new EnvelopeCountSummaryReportItem(25, 8, PROBATE_CONTAINER, dateCountedFor),
                 new EnvelopeCountSummaryReportItem(22, 11, BULKSCAN_CONTAINER, dateCountedFor)
             ));
-        boolean includeTestContainer = false;
-
         //when
         List<EnvelopeCountSummaryReportItem> result = reportService.getCountFor(
             dateCountedFor
