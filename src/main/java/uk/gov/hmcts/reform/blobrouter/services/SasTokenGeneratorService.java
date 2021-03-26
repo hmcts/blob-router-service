@@ -48,7 +48,7 @@ public class SasTokenGeneratorService {
         StorageConfigItem config = getConfigForService(serviceName);
 
         var permissions = new BlobContainerSasPermission()
-            .setAddPermission(true)
+            .setReadPermission(true)
             .setListPermission(true)
             .setCreatePermission(true);
 
