@@ -54,7 +54,7 @@ class SasTokenGeneratorServiceTest {
         assertThat(queryParams.get("sv")).contains("2020-04-08"); //azure api version is latest
         OffsetDateTime expiresAt = OffsetDateTime.parse(queryParams.get("se")[0]); //expiry datetime for the signature
         assertThat(expiresAt).isBetween(now, now.plusSeconds(300));
-        assertThat(queryParams.get("sp")).containsExactly("acl"); //access permissions(create-c,list-l)
+        assertThat(queryParams.get("sp")).containsExactly("rcl"); //access permissions(create-c,list-l)
         assertThat(queryParams.get("spr")).containsExactlyInAnyOrder("https", "http");
     }
 
