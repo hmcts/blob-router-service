@@ -1,8 +1,12 @@
 package uk.gov.hmcts.reform.blobrouter.services.report;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.reports.ReportRepository;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeSummaryItem;
+import uk.gov.hmcts.reform.blobrouter.model.out.reports.EnvelopeCountSummaryReportItem;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,10 +19,14 @@ import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_I
 
 @Service
 public class ReportService {
-    private final ReportRepository reportRepository;
+    private static final Logger log = LoggerFactory.getLogger(ReportService.class);
 
-    public ReportService(ReportRepository reportRepository) {
+    private final ReportRepository reportRepository;
+    private final ServiceConfiguration serviceConfiguration;
+
+    public ReportService(ReportRepository reportRepository, ServiceConfiguration serviceConfiguration) {
         this.reportRepository = reportRepository;
+        this.serviceConfiguration = serviceConfiguration;
     }
 
     public List<EnvelopeSummaryItem> getDailyReport(LocalDate date) {
@@ -40,6 +48,14 @@ public class ReportService {
                 s.isDeleted
             ))
             .collect(toList());
+    }
+
+    public List<EnvelopeCountSummaryReportItem> getCountFor(LocalDate date) {
+        List<String> containersList = serviceConfiguration.getSourceContainers();
+        long start = System.currentTimeMillis();
+        final List<EnvelopeCountSummaryReportItem> reportResult = reportRepository.getReportFor(date, containersList);
+        log.info("Count summary report took {} ms", System.currentTimeMillis() - start);
+        return reportResult;
     }
 
     private LocalDate toLocalDate(Instant instant) {
