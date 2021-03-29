@@ -49,29 +49,18 @@ public class ReportsControllerTest {
         given(reportService.getCountFor(LocalDate.of(2021, 3, 28)))
             .willReturn(envelopeCountSummaryList);
 
-        EnvelopeCountSummaryReportListResponse response = new EnvelopeCountSummaryReportListResponse(
-            envelopeCountSummaryList.stream()
-                .map(item -> new EnvelopeCountSummaryReportItem(
-                    item.received,
-                    item.rejected,
-                    item.container,
-                    item.date
-                ))
-                .collect(toList())
-        );
-
         mockMvc
             .perform(get("/reports/count-summary?date=2021-03-28"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.total_received").value(response.totalReceived))
-            .andExpect(jsonPath("$.total_rejected").value(response.totalRejected))
-            .andExpect(jsonPath("$.time_stamp").value(response.timeStamp.format(
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+            .andExpect(jsonPath("$.total_received").value(553))
+            .andExpect(jsonPath("$.total_rejected").value(40))
             .andExpect(jsonPath("$.data.length()").value(2))
-            .andExpect(jsonPath("$.data[0].received").value(response.items.get(0).received))
-            .andExpect(jsonPath("$.data[0].rejected").value(response.items.get(0).rejected))
-            .andExpect(jsonPath("$.data[0].container").value(response.items.get(0).container))
-            .andExpect(jsonPath("$.data[0].date").value(response.items.get(0).date.toString()));
+            .andExpect(jsonPath("$.data[0].received").value(321))
+            .andExpect(jsonPath("$.data[0].rejected").value(21))
+            .andExpect(jsonPath("$.data[0].container").value(CRIME_CONTAINER))
+            .andExpect(jsonPath("$.data[1].received").value(232))
+            .andExpect(jsonPath("$.data[1].rejected").value(19))
+            .andExpect(jsonPath("$.data[1].container").value(PCQ_CONTAINER));
     }
 
     @Test
