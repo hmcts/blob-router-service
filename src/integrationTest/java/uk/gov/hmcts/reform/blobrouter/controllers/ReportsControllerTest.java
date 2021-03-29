@@ -1,20 +1,22 @@
 package uk.gov.hmcts.reform.blobrouter.controllers;
 
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.hmcts.reform.blobrouter.data.reports.EnvelopeCountSummaryReportListResponse;
+import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.blobrouter.model.out.reports.EnvelopeCountSummaryReportItem;
 import uk.gov.hmcts.reform.blobrouter.services.report.ReportService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,8 +50,8 @@ public class ReportsControllerTest {
         envelopeCountSummaryList.add(countSummaryTwo);
         given(reportService.getCountFor(LocalDate.of(2021, 3, 28)))
             .willReturn(envelopeCountSummaryList);
-
-        mockMvc
+        LocalDateTime startTime = LocalDateTime.now().minusSeconds(1);
+        MvcResult result =   mockMvc
             .perform(get("/reports/count-summary?date=2021-03-28"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.total_received").value(553))
@@ -60,7 +62,17 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[0].container").value(CRIME_CONTAINER))
             .andExpect(jsonPath("$.data[1].received").value(232))
             .andExpect(jsonPath("$.data[1].rejected").value(19))
-            .andExpect(jsonPath("$.data[1].container").value(PCQ_CONTAINER));
+            .andExpect(jsonPath("$.data[1].container").value(PCQ_CONTAINER))
+            .andReturn();
+        LocalDateTime endTime = LocalDateTime.now();
+        LocalDateTime jsonTimeStamp =
+            LocalDateTime.parse(
+                JsonPath.read(
+                    result.getResponse().getContentAsString(),
+                    "$.time_stamp"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        assertThat(jsonTimeStamp)
+            .isAfter(startTime)
+            .isBefore(endTime);
     }
 
     @Test

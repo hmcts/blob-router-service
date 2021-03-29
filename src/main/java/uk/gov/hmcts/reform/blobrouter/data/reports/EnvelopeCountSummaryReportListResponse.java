@@ -36,6 +36,6 @@ public class EnvelopeCountSummaryReportListResponse {
 
         this.totalReceived = totalReceivedEnvelopes;
         this.totalRejected = totalRejectedEnvelopes;
-        timeStamp = LocalDateTime.now().withNano(0);
+        timeStamp = LocalDateTime.now();
     }
 }
