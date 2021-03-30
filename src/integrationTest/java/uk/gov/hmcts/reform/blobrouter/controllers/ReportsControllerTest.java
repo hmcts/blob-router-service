@@ -65,11 +65,9 @@ public class ReportsControllerTest {
             .andExpect(jsonPath("$.data[1].container").value(PCQ_CONTAINER))
             .andReturn();
         LocalDateTime endTime = LocalDateTime.now();
-        LocalDateTime jsonTimeStamp =
-            LocalDateTime.parse(
-                JsonPath.read(
-                    result.getResponse().getContentAsString(),
-                    "$.time_stamp"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String jsonGetTimeStampStr = JsonPath.read(result.getResponse().getContentAsString(), "$.time_stamp");
+        DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime jsonTimeStamp = LocalDateTime.parse(jsonGetTimeStampStr, df);
         assertThat(jsonTimeStamp)
             .isAfter(startTime)
             .isBefore(endTime);
