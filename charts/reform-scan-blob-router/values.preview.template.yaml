@@ -25,12 +25,18 @@ java:
     reform-scan:
       resourceGroup: reform-scan
       secrets:
-        - reports-email-username
-        - reports-email-password
-        - reports-recipients
-        - reconciliation-api-key
-        - s2s-secret-blob-router
-        - reconciliation-report-recipients
+        - name: reports-email-username
+          alias: SMTP_USERNAME
+        - name: reports-email-password
+          alias: SMTP_PASSWORD
+        - name: reports-recipients
+          alias: REPORTS_RECIPIENTS
+        - name: reconciliation-api-key
+          alias: RECONCILIATION_API_KEY
+        - name: s2s-secret-blob-router
+          alias: S2S_SECRET
+        - name: reconciliation-report-recipients
+          alias: RECONCILIATION_REPORT_RECIPIENTS
   environment:
     DB_HOST: "{{ .Release.Name }}-postgresql"
     DB_NAME: "{{ .Values.postgresql.postgresqlDatabase}}"

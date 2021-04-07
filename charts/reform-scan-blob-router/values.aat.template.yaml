@@ -16,20 +16,37 @@ java:
     reform-scan:
       resourceGroup: reform-scan
       secrets:
-        - app-insights-instrumentation-key
-        - reports-email-username
-        - reports-email-password
-        - reports-recipients
-        - storage-account-staging-name
-        - storage-account-staging-primary-key
-        - storage-account-staging-secondary-key
-        - crime-storage-connection-string
-        - blob-router-staging-db-password
-        - blob-router-staging-db-user
-        - blob-router-staging-db-host
-        - blob-router-staging-db-port
-        - blob-router-staging-db-name
-        - notification-staging-queue-send-shared-access-key
-        - reconciliation-api-key
-        - s2s-secret-blob-router
-        - reconciliation-report-recipients
+        - name: app-insights-instrumentation-key
+          alias: azure.application-insights.instrumentation-key
+        - name: reports-email-username
+          alias: SMTP_USERNAME
+        - name: reports-email-password
+          alias: SMTP_PASSWORD
+        - name: reports-recipients
+          alias: REPORTS_RECIPIENTS
+        - name: reconciliation-api-key
+          alias: RECONCILIATION_API_KEY
+        - name: s2s-secret-blob-router
+          alias: S2S_SECRET
+        - name: reconciliation-report-recipients
+          alias: RECONCILIATION_REPORT_RECIPIENTS
+        - name: storage-account-staging-name
+          alias: storage.account-name
+        - name: storage-account-staging-primary-key
+          alias: storage.account-key
+        - name: storage-account-staging-secondary-key
+          alias: storage.account-secondary-key
+        - name: crime-storage-connection-string
+          alias: storage.crime.connection-string
+        - name: blob-router-staging-db-password
+          alias: DB_PASSWORD
+        - name: blob-router-staging-db-user
+          alias: DB_USER
+        - name: blob-router-staging-db-host
+          alias: DB_HOST
+        - name: blob-router-staging-db-port
+          alias: DB_PORT
+        - name: blob-router-staging-db-name
+          alias: DB_NAME
+        - name: notification-staging-queue-send-shared-access-key
+          alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
