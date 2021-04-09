@@ -173,7 +173,7 @@ dependencyManagement {
       entry 'json-smart'
     }
     //avoid   CVE-2021-21409
-    dependencySet(group: 'io.netty', version: '4.1.61.Final') {
+    dependencySet(group: 'io.netty', version: '4.1.63.Final') {
       entry 'netty-buffer'
       entry 'netty-codec'
       entry 'netty-codec-http'
