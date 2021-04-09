@@ -22,7 +22,7 @@ java:
           alias: SMTP_USERNAME
         - name: reports-email-password
           alias: SMTP_PASSWORD
-        - name: reports-recipients
+        - name: reform-reports-recipients
           alias: REPORTS_RECIPIENTS
         - name: reconciliation-api-key
           alias: RECONCILIATION_API_KEY
