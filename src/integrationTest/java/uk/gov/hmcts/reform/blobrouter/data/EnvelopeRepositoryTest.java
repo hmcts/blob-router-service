@@ -431,6 +431,47 @@ public class EnvelopeRepositoryTest {
             .containsExactlyInAnyOrder("A.zip", "D.zip");
     }
 
+    @Test
+    void should_return_empty_when_envelope_status_is_created() {
+        // given
+        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(10), null, CREATED));
+        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(10), null, CREATED));
+        repo.insert(new NewEnvelope("Y", "A.zip", now().minusSeconds(7200), null, REJECTED));
+        repo.insert(new NewEnvelope("X", "E.zip", now().minusSeconds(10), null, DISPATCHED));
+
+        // when
+        Optional<Envelope> envelopeInDb = repo.findEnvelopeNotInCreatedStatus("A.zip", "X");
+
+        // then
+        assertThat(envelopeInDb).isEmpty();
+    }
+
+    @Test
+    void should_get_envelope_not_in_created_status() {
+        // given
+        NewEnvelope newEnvelope =
+            new NewEnvelope("X", "A.zip", now().minusSeconds(7200), null, DISPATCHED);
+        repo.insert(newEnvelope);
+        repo.insert(new NewEnvelope("X", "B.zip", now().minusSeconds(10), null, DISPATCHED));
+        repo.insert(new NewEnvelope("X", "C.zip", now().minusSeconds(10), null, REJECTED));
+        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(100), null, CREATED));
+        repo.insert(new NewEnvelope("X", "E.zip", now().minusSeconds(10), null, CREATED));
+
+        // when
+        Optional<Envelope> envelopeInDb = repo.findEnvelopeNotInCreatedStatus("A.zip", "X");
+
+        // then
+        assertThat(envelopeInDb).hasValueSatisfying(env -> {
+            assertThat(env.container).isEqualTo(newEnvelope.container);
+            assertThat(env.fileName).isEqualTo(newEnvelope.fileName);
+            assertThat(env.dispatchedAt).isEqualTo(newEnvelope.dispatchedAt);
+            assertThat(env.fileCreatedAt).isEqualTo(newEnvelope.fileCreatedAt);
+            assertThat(env.status).isEqualTo(newEnvelope.status);
+            assertThat(env.isDeleted).isEqualTo(false);
+            assertThat(env.createdAt).isNotNull();
+        });
+    }
+
     private UUID addEnvelope(String fileName, String container) {
         return addEnvelope(container, fileName, CREATED, false);
     }
