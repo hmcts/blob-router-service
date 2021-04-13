@@ -88,7 +88,9 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
     void should_not_call_blob_processor_when_file_already_exists_in_database() {
         // given
         upload(containerClient, "4.zip");
-        envelopeService.createNewEnvelope(CONTAINER_NAME, "4.zip", Instant.now());
+        envelopeService.markAsDispatched(
+             envelopeService.createNewEnvelope(CONTAINER_NAME, "4.zip", Instant.now())
+        );
         given(blobReadinessChecker.isReady(any())).willReturn(true);
 
         // when
