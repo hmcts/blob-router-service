@@ -50,6 +50,11 @@ public class EnvelopeService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<Envelope> findEnvelopeNotInCreatedStatus(String fileName, String containerName) {
+        return envelopeRepository.findEnvelopeNotInCreatedStatus(fileName, containerName);
+    }
+
+    @Transactional(readOnly = true)
     public Optional<Envelope> findEnvelope(UUID id) {
         return envelopeRepository.find(id);
     }

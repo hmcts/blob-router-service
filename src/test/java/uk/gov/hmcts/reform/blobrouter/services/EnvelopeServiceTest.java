@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -414,4 +415,40 @@ class EnvelopeServiceTest {
             .isNotSameAs(list);
         verifyNoInteractions(eventRepository);
     }
+
+    @Test
+    void should_find_envelope_not_in_created_status() {
+        // given
+        String fileName = "file123.zip";
+        String containerName = "X";
+        var envelope =  mock(Envelope.class);
+        given(envelopeRepository.findEnvelopeNotInCreatedStatus(fileName, containerName))
+            .willReturn(Optional.of(envelope));
+
+        // when
+        Optional<Envelope> envelopeOpt = envelopeService.findEnvelopeNotInCreatedStatus(fileName,containerName);
+
+        // then
+        assertThat(envelopeOpt).hasValue(envelope);
+        verify(envelopeRepository).findEnvelopeNotInCreatedStatus(fileName, containerName);
+        verifyNoInteractions(eventRepository);
+    }
+
+    @Test
+    void should_not_find_envelope_not_in_created_status() {
+        // given
+        String fileName = "file123.zip";
+        String containerName = "X";
+        given(envelopeRepository.findEnvelopeNotInCreatedStatus(fileName, containerName))
+            .willReturn(Optional.empty());
+
+        // when
+        Optional<Envelope> envelopeOpt = envelopeService.findEnvelopeNotInCreatedStatus(fileName,containerName);
+
+        // then
+        assertThat(envelopeOpt).isEmpty();
+        verify(envelopeRepository).findEnvelopeNotInCreatedStatus(fileName, containerName);
+        verifyNoInteractions(eventRepository);
+    }
+
 }
