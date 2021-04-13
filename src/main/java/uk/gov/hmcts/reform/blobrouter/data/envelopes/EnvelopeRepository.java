@@ -71,6 +71,26 @@ public class EnvelopeRepository {
         );
     }
 
+    public Optional<Envelope> findEnvelopeNotInCreatedStatus(String fileName, String container) {
+        try {
+            Envelope envelope = jdbcTemplate.queryForObject(
+                "SELECT * FROM envelopes "
+                    + "WHERE file_name = :fileName "
+                    + "AND container = :container "
+                    + "AND status != 'CREATED' "
+                    + "ORDER BY created_at DESC "
+                    + "LIMIT 1",
+                new MapSqlParameterSource()
+                    .addValue("fileName", fileName)
+                    .addValue("container", container),
+                this.mapper
+            );
+            return Optional.of(envelope);
+        } catch (EmptyResultDataAccessException ex) {
+            return Optional.empty();
+        }
+    }
+
     public Optional<Envelope> findLast(String fileName, String container) {
         try {
             Envelope envelope = jdbcTemplate.queryForObject(
