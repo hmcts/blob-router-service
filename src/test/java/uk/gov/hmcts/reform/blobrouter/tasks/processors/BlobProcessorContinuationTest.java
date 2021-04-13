@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.models.BlobProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,12 +18,15 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
 import java.io.OutputStream;
+import java.time.OffsetDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -65,13 +69,16 @@ public class BlobProcessorContinuationTest {
         var id = UUID.randomUUID();
         var fileName = "hello.zip";
         var containerName = "s1";
-        var content = "same content".getBytes();
 
         blobExists(fileName, containerName);
         given(verifier.verifyZip(any(), any())).willReturn(ok());
 
+        Envelope envelope = envelope(id, Status.CREATED);
+        given(envelopeService.findLastEnvelope(fileName, containerName))
+            .willReturn(Optional.of(envelope));
+
         // when
-        blobProcessor.continueProcessing(id, blobClient);
+        blobProcessor.process(blobClient);
 
         // then
         verify(envelopeService, never()).createNewEnvelope(any(), any(), any());
@@ -80,16 +87,74 @@ public class BlobProcessorContinuationTest {
     }
 
     @Test
+    void should_not_continue_processing_when_envelope_status_is_not_created() throws Exception {
+        // given
+        var id = UUID.randomUUID();
+        var fileName = "hello.zip";
+        var containerName = "s1";
+
+        blobExists(fileName, containerName);
+
+        Envelope envelope = envelope(id, Status.DISPATCHED);
+        given(envelopeService.findLastEnvelope(fileName, containerName))
+            .willReturn(Optional.of(envelope));
+
+        // when
+        blobProcessor.process(blobClient);
+
+        // then
+        verify(envelopeService).findLastEnvelope(fileName, containerName);
+        verifyNoMoreInteractions(envelopeService);
+        verifyNoInteractions(blobDispatcher);
+    }
+
+    @Test
+    void should_create_envelope_record_when_not_exists() throws Exception {
+        // given
+        var id = UUID.randomUUID();
+        var fileName = "hello.zip";
+        var containerName = "s1";
+        OffsetDateTime blobCreationTime = OffsetDateTime.now();
+
+        blobExists(fileName, containerName);
+        given(verifier.verifyZip(any(), any())).willReturn(ok());
+
+        var blobProperties = mock(BlobProperties.class);
+        given(blobClient.getProperties()).willReturn(blobProperties);
+        given(blobProperties.getCreationTime()).willReturn(blobCreationTime);
+
+        given(envelopeService.findLastEnvelope(fileName, containerName))
+            .willReturn(Optional.empty());
+
+        given(envelopeService.createNewEnvelope(containerName, fileName, blobCreationTime.toInstant()))
+            .willReturn(id);
+
+        // when
+        blobProcessor.process(blobClient);
+
+        // then
+        verify(envelopeService).createNewEnvelope(containerName, fileName, blobCreationTime.toInstant());
+        verify(envelopeService).markAsDispatched(id);
+        verifyNoMoreInteractions(envelopeService);
+        verify(blobDispatcher).dispatch(blobClient,"t1", CFT);
+    }
+
+    @Test
     void should_reject_invalid_envelope() throws Exception {
         // given
         var id = UUID.randomUUID();
         var validationError = "error message";
+        var fileName = "hello.zip";
+        var containerName = "s1";
 
-        blobExists("hello.zip", "s1");
+        blobExists(fileName, containerName);
         given(verifier.verifyZip(any(), any())).willReturn(error(ErrorCode.ERR_METAFILE_INVALID, validationError));
+        Envelope envelope = envelope(id, Status.CREATED);
+        given(envelopeService.findLastEnvelope(fileName, containerName))
+            .willReturn(Optional.of(envelope));
 
         // when
-        blobProcessor.continueProcessing(id, blobClient);
+        blobProcessor.process(blobClient);
 
         // then
         verify(envelopeService).markAsRejected(id, ErrorCode.ERR_METAFILE_INVALID, validationError);
@@ -121,6 +186,6 @@ public class BlobProcessorContinuationTest {
     }
 
     private Envelope envelope(UUID id, Status status) {
-        return new Envelope(id, "container", "file_name", null, null, null, status, false, false);
+        return new Envelope(id, "s1", "hello.zip", null, null, null, status, false, false);
     }
 }
