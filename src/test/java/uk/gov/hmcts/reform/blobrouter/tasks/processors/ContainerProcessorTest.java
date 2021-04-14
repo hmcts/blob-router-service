@@ -66,13 +66,13 @@ class ContainerProcessorTest {
         var envelope = envelope(Status.CREATED);
         storageHasBlob(envelope.fileName, envelope.container);
         leaseCanBeAcquired();
-        dbHas(envelope);
-
+        given(envelopeService.findEnvelopeNotInCreatedStatus(envelope.fileName, envelope.container))
+            .willReturn(Optional.empty());
         // when
         containerProcessor.process(envelope.container);
 
         // then
-        verify(blobProcessor).continueProcessing(envelope.id, blobClient);
+        verify(blobProcessor).process(blobClient);
         verifyNoMoreInteractions(blobProcessor);
     }
 
@@ -91,37 +91,6 @@ class ContainerProcessorTest {
         verifyNoInteractions(blobProcessor);
     }
 
-    @Test
-    void should_skip_blob_if_status_has_been_changed() {
-        // given
-        var envelope = envelope(Status.CREATED);
-        storageHasBlob(envelope.fileName, envelope.container);
-        leaseCanBeAcquired();
-        envelopeStatusChangedInDb(envelope, Status.DISPATCHED);
-
-        // when
-        containerProcessor.process(envelope.container);
-
-        // then
-        verify(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
-        verifyNoInteractions(blobProcessor);
-    }
-
-    @Test
-    void should_skip_blob_if_envelope_has_been_deleted() {
-        // given
-        var envelope = envelope(Status.CREATED);
-        storageHasBlob(envelope.fileName, envelope.container);
-        leaseCanBeAcquired();
-        envelopeDeletedFromDb(envelope);
-
-        // when
-        containerProcessor.process(envelope.container);
-
-        // then
-        verify(leaseAcquirer).ifAcquiredOrElse(any(), any(), any(), anyBoolean());
-        verifyNoInteractions(blobProcessor);
-    }
 
     @Test
     void should_skip_blob_if_lease_cannot_be_acquired() {
@@ -135,21 +104,8 @@ class ContainerProcessorTest {
 
         // then
         verifyNoInteractions(blobProcessor);
-    }
-
-    @Test
-    void should_process_blob_if_envelope_does_not_exist_yet() {
-        // given
-        storageHasBlob("x.zip", "container");
-        leaseCanBeAcquired();
-        given(envelopeService.findLastEnvelope(any(), any())).willReturn(Optional.empty());
-
-        // when
-        containerProcessor.process("container");
-
-        // then
-        verify(blobProcessor).process(blobClient);
-        verifyNoMoreInteractions(blobProcessor);
+        verify(envelopeService).findEnvelopeNotInCreatedStatus(envelope.fileName, envelope.container);
+        verifyNoMoreInteractions(envelopeService);
     }
 
     private void storageHasBlob(String fileName, String containerName) {
@@ -165,7 +121,7 @@ class ContainerProcessorTest {
     }
 
     private void dbHas(Envelope envelope) {
-        given(envelopeService.findLastEnvelope(envelope.fileName, envelope.container))
+        given(envelopeService.findEnvelopeNotInCreatedStatus(envelope.fileName, envelope.container))
             .willReturn(Optional.of(envelope));
     }
 
