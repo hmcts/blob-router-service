@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
-import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
@@ -39,7 +38,6 @@ class ContainerProcessorTest {
 
     @Mock BlobServiceClient storageClient;
     @Mock BlobProcessor blobProcessor;
-    @Mock BlobReadinessChecker blobReadinessChecker;
     @Mock LeaseAcquirer leaseAcquirer;
     @Mock EnvelopeService envelopeService;
 
@@ -54,7 +52,6 @@ class ContainerProcessorTest {
         containerProcessor = new ContainerProcessor(
             storageClient,
             blobProcessor,
-            blobReadinessChecker,
             leaseAcquirer,
             envelopeService
         );
@@ -117,7 +114,6 @@ class ContainerProcessorTest {
         given(containerClient.getBlobClient(blob.getName())).willReturn(blobClient);
         given(blobClient.getBlobName()).willReturn(fileName);
         given(blobClient.getContainerName()).willReturn(containerName);
-        given(blobReadinessChecker.isReady(any())).willReturn(true);
     }
 
     private void dbHas(Envelope envelope) {
