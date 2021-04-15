@@ -6,7 +6,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobItem;
-import com.azure.storage.blob.models.BlobItemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
-import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -39,7 +36,6 @@ class ContainerProcessorTest {
 
     @Mock BlobServiceClient storageClient;
     @Mock BlobProcessor blobProcessor;
-    @Mock BlobReadinessChecker blobReadinessChecker;
     @Mock LeaseAcquirer leaseAcquirer;
     @Mock EnvelopeService envelopeService;
 
@@ -54,7 +50,6 @@ class ContainerProcessorTest {
         containerProcessor = new ContainerProcessor(
             storageClient,
             blobProcessor,
-            blobReadinessChecker,
             leaseAcquirer,
             envelopeService
         );
@@ -117,7 +112,6 @@ class ContainerProcessorTest {
         given(containerClient.getBlobClient(blob.getName())).willReturn(blobClient);
         given(blobClient.getBlobName()).willReturn(fileName);
         given(blobClient.getContainerName()).willReturn(containerName);
-        given(blobReadinessChecker.isReady(any())).willReturn(true);
     }
 
     private void dbHas(Envelope envelope) {
@@ -174,12 +168,7 @@ class ContainerProcessorTest {
 
     private BlobItem blob(String name) {
         var blobItem = mock(BlobItem.class);
-        var properties = mock(BlobItemProperties.class);
-
-        given(blobItem.getProperties()).willReturn(properties);
-        given(properties.getLastModified()).willReturn(OffsetDateTime.now());
         given(blobItem.getName()).willReturn(name);
-
         return blobItem;
     }
 }
