@@ -6,7 +6,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobItem;
-import com.azure.storage.blob.models.BlobItemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +16,6 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
-import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -170,12 +168,7 @@ class ContainerProcessorTest {
 
     private BlobItem blob(String name) {
         var blobItem = mock(BlobItem.class);
-        var properties = mock(BlobItemProperties.class);
-
-        given(blobItem.getProperties()).willReturn(properties);
-        given(properties.getLastModified()).willReturn(OffsetDateTime.now());
         given(blobItem.getName()).willReturn(name);
-
         return blobItem;
     }
 }
