@@ -105,7 +105,6 @@ reports:
 flyway:
   skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
 
-storage-blob-processing-delay-in-minutes: ${STORAGE_BLOB_PROCESSING_DELAY_IN_MINUTES}
 storage-blob-lease-timeout-in-minutes: ${STORAGE_BLOB_LEASE_TIMEOUT_IN_MINUTES}
 public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY} # public key file in der format
 
