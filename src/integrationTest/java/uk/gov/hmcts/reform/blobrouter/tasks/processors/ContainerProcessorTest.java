@@ -64,7 +64,6 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
         // given
         upload(containerClient, "1.zip");
         upload(containerClient, "2.zip");
-        upload(containerClient, "3.zip");
 
         // when
         containerProcessor.process(CONTAINER_NAME);
@@ -75,7 +74,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
 
         assertThat(blobArgCaptor.getAllValues())
             .extracting(BlobClientBase::getBlobName)
-            .containsExactly("1.zip", "3.zip");
+            .containsExactly("1.zip", "2.zip");
     }
 
     @Test
