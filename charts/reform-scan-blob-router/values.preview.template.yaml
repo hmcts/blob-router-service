@@ -61,9 +61,6 @@ java:
 
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
-    CRIME_ENABLED: true
-    PCQ_DESTINATION_CONTAINER: pcq
-    PCQ_ENABLED: true
 
     NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     NOTIFICATIONS_QUEUE_NAMESPACE: "$(SB_NAMESPACE)"
