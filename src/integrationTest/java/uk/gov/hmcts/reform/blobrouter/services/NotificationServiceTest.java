@@ -122,16 +122,71 @@ class NotificationServiceTest {
         envelopeService.markAsRejected(envelopeId3, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
         envelopeService.saveEvent(envelopeId3, DELETED);
 
+        // rejected but notification NOT sent
+        var envelopeId4 = envelopeService.createNewEnvelope("bulkscan", "blob4.zip", now());
+        envelopeService.markAsRejected(envelopeId4, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId4, DELETED);
+
+        // rejected but notification NOT sent
+        var envelopeId5 = envelopeService.createNewEnvelope("bulkscan", "blob5.zip", now());
+        envelopeService.markAsRejected(envelopeId5, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId5, DELETED);
+
+        // rejected but notification NOT sent
+        var envelopeId6 = envelopeService.createNewEnvelope("bulkscan", "blob6.zip", now());
+        envelopeService.markAsRejected(envelopeId6, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId6, DELETED);
+
+        // rejected but notification NOT sent
+        var envelopeId7 = envelopeService.createNewEnvelope("bulkscan", "blob7.zip", now());
+        envelopeService.markAsRejected(envelopeId7, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId7, DELETED);
+
+        // rejected but notification NOT sent
+        var envelopeId8 = envelopeService.createNewEnvelope("bulkscan", "blob8.zip", now());
+        envelopeService.markAsRejected(envelopeId8, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId8, DELETED);
+
+        // rejected but notification NOT sent
+        var envelopeId9 = envelopeService.createNewEnvelope("bulkscan", "blob9.zip", now());
+        envelopeService.markAsRejected(envelopeId9, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId9, DELETED);
+
+        // rejected but notification NOT sent
+        var envelopeId10 = envelopeService.createNewEnvelope("bulkscan", "blob10.zip", now());
+        envelopeService.markAsRejected(envelopeId10, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId10, DELETED);
+
+        // rejected but notification NOT sent
+        var envelopeId11 = envelopeService.createNewEnvelope("bulkscan", "blob11.zip", now());
+        envelopeService.markAsRejected(envelopeId11, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId11, DELETED);
+
+        // rejected but notification NOT sent
+        var envelopeId12 = envelopeService.createNewEnvelope("bulkscan", "blob12.zip", now());
+        envelopeService.markAsRejected(envelopeId12, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId12, DELETED);
+
+        // rejected but notification NOT sent
+        var envelopeId13 = envelopeService.createNewEnvelope("bulkscan", "blob13.zip", now());
+        envelopeService.markAsRejected(envelopeId13, ErrorCode.ERR_SIG_VERIFY_FAILED, "invalid signature");
+        envelopeService.saveEvent(envelopeId13, DELETED);
+
+
         // when
         notificationService.sendNotifications(); //1st time
+        try {
+            new Thread().sleep(2000L);
+        } catch (Exception ex) {
+
+        }
         notificationService.sendNotifications(); //2nd time
 
-        verify(notificationsPublisher).publish(notificationMsgCaptor.capture(), messageIdCaptor.capture());
-        verify(notificationsPublisher, times(1)).publish(any(), any()); // message published only once
+        verify(notificationsPublisher, times(11)).publish(notificationMsgCaptor.capture(), messageIdCaptor.capture());
 
         NotificationMsg msgCaptorValue = notificationMsgCaptor.getValue();
         String messageId = messageIdCaptor.getValue();
-        assertThat(msgCaptorValue.zipFileName).isEqualTo("blob3.zip");
+        assertThat(msgCaptorValue.zipFileName).isEqualTo("blob13.zip");
         assertThat(msgCaptorValue.container).isEqualTo("bulkscan");
         assertThat(messageId).isEqualTo(envelopeId3.toString());
 
