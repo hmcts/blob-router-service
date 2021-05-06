@@ -26,9 +26,11 @@ public class ReportCsvWriter {
         File csvFile = File.createTempFile("Zipfiles-summary-", ".csv");
 
         CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(ENVELOPES_SUMMARY_CSV_HEADERS);
-        FileWriter fileWriter = new FileWriter(csvFile);
 
-        try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
+        try (
+            FileWriter fileWriter = new FileWriter(csvFile);
+            CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)
+        ) {
             for (EnvelopeSummaryItem summary : Optional.ofNullable(data).orElse(emptyList())) {
                 printer.printRecord(
                     summary.container,
