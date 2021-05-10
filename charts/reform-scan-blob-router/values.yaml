@@ -89,6 +89,8 @@ java:
     SEND_DAILY_REPORT_ENABLED: "false"
 
     ENVELOPE_STALE_TIMEOUT_HR: 48
+    REJECT_DUPLICATES_ENABLED: true
+    CRIME_PROCESS_ENABLED: "true"
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   resourceGroup: reform-scan-aks
