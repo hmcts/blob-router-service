@@ -3,12 +3,11 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.common.Utility;
 import com.azure.storage.common.implementation.StorageImplUtils;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
-import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
 import java.time.OffsetDateTime;
@@ -25,8 +24,8 @@ class SasTokenGeneratorServiceTest {
     private static final String VALID_SERVICE = "bulkscan";
     private static final String DISABLED_SERVICE = "disabled-service";
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
         serviceConfiguration = new ServiceConfiguration();
         serviceConfiguration.setStorageConfig(
             asList(
@@ -66,10 +65,9 @@ class SasTokenGeneratorServiceTest {
     }
 
     @Test
-    void should_throw_exception_when_service_is_disabled() {
-        assertThatThrownBy(() -> tokenGeneratorService.generateSasToken(DISABLED_SERVICE))
-            .isInstanceOf(ServiceDisabledException.class)
-            .hasMessageContaining("Service " + DISABLED_SERVICE + " has been disabled.");
+    void should_not_throw_exception_when_service_is_disabled() {
+        String sasToken = tokenGeneratorService.generateSasToken(DISABLED_SERVICE);
+        assertThat(sasToken).isNotBlank();
     }
 
     @Test

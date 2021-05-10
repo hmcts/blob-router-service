@@ -13,7 +13,6 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidApiKeyException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSupplierStatementException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
-import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 import uk.gov.hmcts.reform.blobrouter.model.out.ErrorResponse;
 
@@ -31,12 +30,6 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ServiceConfigNotFoundException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     protected ErrorResponse handleServiceConfigNotFoundException(ServiceConfigNotFoundException exception) {
-        return new ErrorResponse(exception.getMessage());
-    }
-
-    @ExceptionHandler(ServiceDisabledException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorResponse handleServiceDisabledException(ServiceDisabledException exception) {
         return new ErrorResponse(exception.getMessage());
     }
 
