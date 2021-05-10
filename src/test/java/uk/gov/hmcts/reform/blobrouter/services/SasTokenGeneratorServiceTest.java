@@ -3,7 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.common.Utility;
 import com.azure.storage.common.implementation.StorageImplUtils;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
@@ -24,8 +24,8 @@ class SasTokenGeneratorServiceTest {
     private static final String VALID_SERVICE = "bulkscan";
     private static final String DISABLED_SERVICE = "disabled-service";
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
         serviceConfiguration = new ServiceConfiguration();
         serviceConfiguration.setStorageConfig(
             asList(
