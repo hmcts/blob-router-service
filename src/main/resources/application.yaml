@@ -123,7 +123,7 @@ scheduling:
       enabled: true
       cron: ${HANDLE_REJECTED_FILES_CRON}
     reject-duplicates:
-      enabled: true
+      enabled: ${REJECT_DUPLICATES_ENABLED}
       cron: ${REJECT_DUPLICATES_CRON}
     send-notifications:
       enabled: true
