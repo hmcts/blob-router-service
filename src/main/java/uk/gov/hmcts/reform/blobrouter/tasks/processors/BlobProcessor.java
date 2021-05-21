@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
@@ -14,6 +15,7 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.BlobDispatcher;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -45,28 +47,33 @@ public class BlobProcessor {
 
     public void process(BlobClient blobClient) {
         logger.info("Processing {} from {} container", blobClient.getBlobName(), blobClient.getContainerName());
-        handle(
-            blobClient,
-            () -> envelopeService.createNewEnvelope(
-                blobClient.getContainerName(),
-                blobClient.getBlobName(),
-                blobClient.getProperties().getLastModified().toInstant()
-            )
-        );
+
+        getEnvelopeSupplier(blobClient)
+            .ifPresent(envelopeSupplier -> handle(blobClient, envelopeSupplier));
+
     }
 
-    public void continueProcessing(UUID envelopeId, BlobClient blob) {
-        logger.info(
-            "Continuing processing envelope. Envelope ID: {}, file name: {}. container: {}",
-            envelopeId,
-            blob.getBlobName(),
-            blob.getContainerName()
-        );
+    private Optional<Supplier<UUID>> getEnvelopeSupplier(BlobClient blobClient) {
+        var envelopeOptional =
+            envelopeService.findLastEnvelope(blobClient.getBlobName(), blobClient.getContainerName());
 
-        handle(
-            blob,
-            () -> envelopeId
-        );
+        Supplier<UUID> envelopeSupplier = null;
+        if (envelopeOptional.isPresent()) {
+            var envelope = envelopeOptional.get();
+            if (envelope.status != Status.CREATED) {
+                logger.info("Envelope processed while getting lock {} ", envelope.getBasicInfo());
+                return Optional.empty();
+            } else {
+                envelopeSupplier = () -> envelope.id;
+            }
+        } else {
+            envelopeSupplier = () -> envelopeService.createNewEnvelope(
+                blobClient.getContainerName(),
+                blobClient.getBlobName(),
+                blobClient.getProperties().getCreationTime().toInstant()
+            );
+        }
+        return Optional.of(envelopeSupplier);
     }
 
     private void handle(

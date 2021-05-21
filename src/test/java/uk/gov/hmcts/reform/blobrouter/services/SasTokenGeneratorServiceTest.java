@@ -3,12 +3,11 @@ package uk.gov.hmcts.reform.blobrouter.services;
 import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.common.Utility;
 import com.azure.storage.common.implementation.StorageImplUtils;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
-import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceDisabledException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 
 import java.time.OffsetDateTime;
@@ -25,8 +24,8 @@ class SasTokenGeneratorServiceTest {
     private static final String VALID_SERVICE = "bulkscan";
     private static final String DISABLED_SERVICE = "disabled-service";
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
         serviceConfiguration = new ServiceConfiguration();
         serviceConfiguration.setStorageConfig(
             asList(
@@ -51,10 +50,10 @@ class SasTokenGeneratorServiceTest {
         OffsetDateTime now = OffsetDateTime.now();
 
         assertThat(queryParams.get("sig")).isNotNull(); //this is a generated hash of the resource string
-        assertThat(queryParams.get("sv")).contains("2020-04-08"); //azure api version is latest
+        assertThat(queryParams.get("sv")).contains("2020-06-12"); //azure api version is latest
         OffsetDateTime expiresAt = OffsetDateTime.parse(queryParams.get("se")[0]); //expiry datetime for the signature
         assertThat(expiresAt).isBetween(now, now.plusSeconds(300));
-        assertThat(queryParams.get("sp")).containsExactly("racwdl"); //access permissions(create-c,list-l)
+        assertThat(queryParams.get("sp")).containsExactly("rwl"); //access permissions(create-c,list-l)
         assertThat(queryParams.get("spr")).containsExactlyInAnyOrder("https", "http");
     }
 
@@ -66,10 +65,9 @@ class SasTokenGeneratorServiceTest {
     }
 
     @Test
-    void should_throw_exception_when_service_is_disabled() {
-        assertThatThrownBy(() -> tokenGeneratorService.generateSasToken(DISABLED_SERVICE))
-            .isInstanceOf(ServiceDisabledException.class)
-            .hasMessageContaining("Service " + DISABLED_SERVICE + " has been disabled.");
+    void should_not_throw_exception_when_service_is_disabled() {
+        String sasToken = tokenGeneratorService.generateSasToken(DISABLED_SERVICE);
+        assertThat(sasToken).isNotBlank();
     }
 
     @Test
