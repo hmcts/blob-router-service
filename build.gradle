@@ -172,25 +172,6 @@ dependencyManagement {
     dependencySet(group: 'net.minidev', version: '2.4.7') {
       entry 'json-smart'
     }
-    //avoid   CVE-2021-21409
-    dependencySet(group: 'io.netty', version: '4.1.63.Final') {
-      entry 'netty-buffer'
-      entry 'netty-codec'
-      entry 'netty-codec-http'
-      entry 'netty-codec-http2'
-      entry 'netty-codec-socks'
-      entry 'netty-common'
-      entry 'netty-handler'
-      entry 'netty-handler-proxy'
-      entry 'netty-resolver'
-      entry 'netty-transport'
-      entry 'netty-transport-native-epoll'
-      entry 'netty-transport-native-kqueue'
-      entry 'netty-transport-native-unix-common'
-      entry 'netty-codec-dns'
-      entry 'netty-resolver-dns'
-      entry 'netty-resolver-dns-native-macos'
-    }
     // avoid CVE-2021-29425
     dependencySet(group: 'commons-io', version: '2.8.0') {
       entry 'commons-io'
@@ -265,7 +246,7 @@ dependencies {
   integrationTestImplementation sourceSets.test.runtimeClasspath
 
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.0.2'
-  
+
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.15.3', {
     exclude group: 'junit', module: 'junit'
