@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.DbHelper;
-import uk.gov.hmcts.reform.blobrouter.services.BlobReadinessChecker;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
@@ -23,7 +22,6 @@ import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,7 +38,6 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
     @Autowired DbHelper dbHelper;
 
     @Mock BlobProcessor blobProcessor;
-    @Mock BlobReadinessChecker blobReadinessChecker;
 
     private ContainerProcessor containerProcessor;
     private BlobContainerClient containerClient;
@@ -50,7 +47,6 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
         containerProcessor = new ContainerProcessor(
             storageClient,
             blobProcessor,
-            blobReadinessChecker,
             leaseAcquirer,
             envelopeService
         );
@@ -68,9 +64,6 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
         // given
         upload(containerClient, "1.zip");
         upload(containerClient, "2.zip");
-        upload(containerClient, "3.zip");
-
-        given(blobReadinessChecker.isReady(any())).willReturn(true, false, true);
 
         // when
         containerProcessor.process(CONTAINER_NAME);
@@ -81,15 +74,16 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
 
         assertThat(blobArgCaptor.getAllValues())
             .extracting(BlobClientBase::getBlobName)
-            .containsExactly("1.zip", "3.zip");
+            .containsExactly("1.zip", "2.zip");
     }
 
     @Test
     void should_not_call_blob_processor_when_file_already_exists_in_database() {
         // given
         upload(containerClient, "4.zip");
-        envelopeService.createNewEnvelope(CONTAINER_NAME, "4.zip", Instant.now());
-        given(blobReadinessChecker.isReady(any())).willReturn(true);
+        envelopeService.markAsDispatched(
+             envelopeService.createNewEnvelope(CONTAINER_NAME, "4.zip", Instant.now())
+        );
 
         // when
         containerProcessor.process(CONTAINER_NAME);

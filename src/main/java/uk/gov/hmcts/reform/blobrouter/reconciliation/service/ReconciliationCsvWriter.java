@@ -27,9 +27,11 @@ public class ReconciliationCsvWriter {
         File csvFile = File.createTempFile("Reconciliation-summary-", ".csv");
 
         CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(SUMMARY_RECONCILIATION_CSV_HEADERS);
-        FileWriter fileWriter = new FileWriter(csvFile);
 
-        try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
+        try (
+            FileWriter fileWriter = new FileWriter(csvFile);
+            CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)
+        ) {
             printSummaryRecords(printer, RECEIVED_NOT_REPORTED_PROBLEM, data.receivedButNotReported);
             printSummaryRecords(printer, REPORTED_NOT_RECEIVED_PROBLEM, data.reportedButNotReceived);
         }
@@ -50,9 +52,11 @@ public class ReconciliationCsvWriter {
         throws IOException {
         File csvFile = File.createTempFile("Reconciliation-detailed-", ".csv");
         CSVFormat csvFileHeader = CSVFormat.DEFAULT.withHeader(DETAILED_RECONCILIATION_CSV_HEADERS);
-        FileWriter fileWriter = new FileWriter(csvFile);
 
-        try (CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)) {
+        try (
+            FileWriter fileWriter = new FileWriter(csvFile);
+            CSVPrinter printer = new CSVPrinter(fileWriter, csvFileHeader)
+        ) {
             for (DiscrepancyItem item : data.items) {
                 printer.printRecord(
                     item.zipFileName,

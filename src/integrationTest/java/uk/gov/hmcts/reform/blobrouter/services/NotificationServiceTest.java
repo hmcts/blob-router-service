@@ -23,6 +23,7 @@ import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.Notificatio
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -104,7 +105,7 @@ class NotificationServiceTest {
     }
 
     @Test
-    void should_not_send_notification_when_notification_was_already_sent() {
+    void should_not_send_notification_when_notification_was_already_sent() throws Exception {
         // given
         // rejected and notification_sent
         var envelopeId1 = envelopeService.createNewEnvelope("bulkscan", "blob1.zip", now());
@@ -124,10 +125,12 @@ class NotificationServiceTest {
 
         // when
         notificationService.sendNotifications(); //1st time
+
+        TimeUnit.SECONDS.sleep(2);
+
         notificationService.sendNotifications(); //2nd time
 
         verify(notificationsPublisher).publish(notificationMsgCaptor.capture(), messageIdCaptor.capture());
-        verify(notificationsPublisher, times(1)).publish(any(), any()); // message published only once
 
         NotificationMsg msgCaptorValue = notificationMsgCaptor.getValue();
         String messageId = messageIdCaptor.getValue();

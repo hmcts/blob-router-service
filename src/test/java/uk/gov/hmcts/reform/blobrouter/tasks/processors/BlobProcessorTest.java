@@ -255,7 +255,7 @@ class BlobProcessorTest {
 
         setupDownloadedBlobContent("some content".getBytes());
 
-        given(blobProperties.getLastModified()).willReturn(time);
+        given(blobProperties.getCreationTime()).willReturn(time);
     }
 
     private void setupDownloadedBlobContent(byte[] content) {
@@ -286,7 +286,7 @@ class BlobProcessorTest {
         verify(envelopeService).createNewEnvelope(
             blobClient.getContainerName(),
             blobClient.getBlobName(),
-            blobClient.getProperties().getLastModified().toInstant()
+            blobClient.getProperties().getCreationTime().toInstant()
         );
     }
 
