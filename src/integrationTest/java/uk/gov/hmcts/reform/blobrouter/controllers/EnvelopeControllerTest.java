@@ -14,10 +14,10 @@ import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
 import uk.gov.hmcts.reform.blobrouter.model.out.IncompleteEnvelopeInfo;
 import uk.gov.hmcts.reform.blobrouter.services.IncompleteEnvelopesService;
+import uk.gov.hmcts.reform.blobrouter.util.DateFormatter;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static java.time.Instant.now;
@@ -35,8 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
-import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.toLocalTimeZone;
-import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -52,8 +50,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         final String fileName = "some_file_name.zip";
         final String container = "some_container";
 
-        Instant createdDate = LocalDateTime.of(2020, 5, 20, 10, 15, 10)
-            .atZone(EUROPE_LONDON_ZONE_ID).toInstant();
+        Instant createdDate = Instant.parse("2020-05-20T10:15:10.000Z");
         Envelope envelopeInDb = envelope(fileName, container, Instant.from(createdDate));
         var eventRecordInDb1 = envelopeEvent(envelopeInDb.id, 1, EventType.FILE_PROCESSING_STARTED);
         var eventRecordInDb2 = envelopeEvent(envelopeInDb.id, 2, EventType.DISPATCHED);
@@ -78,12 +75,12 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(jsonPath("$.count").value(1))
             .andExpect(jsonPath("$.data", hasSize(1)))
             .andExpect(jsonPath("$.data[0].id").value(envelopeInDb.id.toString()))
-            .andExpect(jsonPath("$.data[0].created_at").value("2020-05-20T10:15:10"))
+            .andExpect(jsonPath("$.data[0].created_at").value("2020-05-20T10:15:10.000Z"))
             .andExpect(jsonPath("$.data[0].file_created_at").value(
-                toLocalTimeZone(envelopeInDb.fileCreatedAt))
+                DateFormatter.getSimpleDateTime(envelopeInDb.fileCreatedAt))
             )
             .andExpect(jsonPath("$.data[0].dispatched_at").value(
-                toLocalTimeZone(envelopeInDb.dispatchedAt))
+                DateFormatter.getSimpleDateTime(envelopeInDb.dispatchedAt))
             )
             .andExpect(jsonPath("$.data[0].pending_notification").value(envelopeInDb.pendingNotification))
             .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
@@ -91,8 +88,8 @@ public class EnvelopeControllerTest extends ControllerTestBase {
                 EventType.DISPATCHED.name()
             )))
             .andExpect(jsonPath("$.data[0].events[*].created_at").value(contains(
-                toLocalTimeZone(eventRecordInDb1.createdAt),
-                toLocalTimeZone(eventRecordInDb2.createdAt)
+                DateFormatter.getSimpleDateTime(eventRecordInDb1.createdAt),
+                DateFormatter.getSimpleDateTime(eventRecordInDb2.createdAt)
             )));
     }
 

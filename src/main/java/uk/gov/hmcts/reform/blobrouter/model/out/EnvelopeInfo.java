@@ -1,8 +1,11 @@
 package uk.gov.hmcts.reform.blobrouter.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.util.InstantSerializer;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,13 +21,16 @@ public class EnvelopeInfo {
     public final String fileName;
 
     @JsonProperty("created_at")
-    public final String createdAt;
+    @JsonSerialize(using = InstantSerializer.class)
+    public final Instant createdAt;
 
     @JsonProperty("file_created_at")
-    public final String fileCreatedAt;
+    @JsonSerialize(using = InstantSerializer.class)
+    public final Instant fileCreatedAt;
 
     @JsonProperty("dispatched_at")
-    public final String dispatchedAt;
+    @JsonSerialize(using = InstantSerializer.class)
+    public final Instant dispatchedAt;
 
     @JsonProperty("status")
     public final Status status;
@@ -42,9 +48,9 @@ public class EnvelopeInfo {
         UUID id,
         String container,
         String fileName,
-        String createdAt,
-        String fileCreatedAt,
-        String dispatchedAt,
+        Instant createdAt,
+        Instant fileCreatedAt,
+        Instant dispatchedAt,
         Status status,
         boolean isDeleted,
         boolean pendingNotification,

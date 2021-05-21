@@ -22,7 +22,6 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
-import static uk.gov.hmcts.reform.blobrouter.util.TimeUtils.toLocalTimeZone;
 
 @RestController
 @RequestMapping(path = "/envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -77,9 +76,9 @@ public class EnvelopeController {
             dbEnvelope.id,
             dbEnvelope.container,
             dbEnvelope.fileName,
-            toLocalTimeZone(dbEnvelope.createdAt),
-            toLocalTimeZone(dbEnvelope.fileCreatedAt),
-            toLocalTimeZone(dbEnvelope.dispatchedAt),
+            dbEnvelope.createdAt,
+            dbEnvelope.fileCreatedAt,
+            dbEnvelope.dispatchedAt,
             dbEnvelope.status,
             dbEnvelope.isDeleted,
             dbEnvelope.pendingNotification,
@@ -87,7 +86,7 @@ public class EnvelopeController {
                 .stream()
                 .map(
                     e -> new EnvelopeEventResponse(
-                        e.id, toLocalTimeZone(e.createdAt), e.type.name(), e.notes
+                        e.id, e.createdAt, e.type.name(), e.notes
                     )
                 )
                 .collect(toList())
