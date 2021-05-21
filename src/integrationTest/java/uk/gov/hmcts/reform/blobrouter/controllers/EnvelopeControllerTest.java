@@ -18,7 +18,6 @@ import uk.gov.hmcts.reform.blobrouter.util.DateFormatter;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static java.time.Instant.now;
@@ -36,8 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
-import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.toLocalTimeZone;
-import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 @AutoConfigureMockMvc
 @SpringBootTest
