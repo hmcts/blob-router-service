@@ -1,6 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import uk.gov.hmcts.reform.blobrouter.util.InstantSerializer;
+
+import java.time.Instant;
 
 public class EnvelopeEventResponse {
 
@@ -8,7 +12,8 @@ public class EnvelopeEventResponse {
     public final long id;
 
     @JsonProperty("created_at")
-    public final String createdAt;
+    @JsonSerialize(using = InstantSerializer.class)
+    public final Instant createdAt;
 
     @JsonProperty("event")
     public final String event;
@@ -16,7 +21,7 @@ public class EnvelopeEventResponse {
     @JsonProperty("notes")
     public final String notes;
 
-    public EnvelopeEventResponse(long id, String createdAt, String event, String notes) {
+    public EnvelopeEventResponse(long id, Instant createdAt, String event, String notes) {
         this.id = id;
         this.createdAt = createdAt;
         this.event = event;
