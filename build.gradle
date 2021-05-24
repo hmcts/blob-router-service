@@ -53,6 +53,10 @@ processIntegrationTestResources {
   duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
+processSmokeTestResources {
+  duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 tasks.withType(JavaCompile) {
   options.compilerArgs << "-Xlint:unchecked" << "-Werror"
 }
