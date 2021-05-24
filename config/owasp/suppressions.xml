@@ -18,7 +18,7 @@
     <cve>CVE-2020-13956</cve>
   </suppress>
 
-  <suppress until="2021-07-01">
+  <suppress until="2021-08-01">
     <notes><![CDATA[
    file name: hibernate-validator-6.2.0.Final.jar
    ]]></notes>
