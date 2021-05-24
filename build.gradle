@@ -240,7 +240,7 @@ dependencies {
     exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
   }
 
-  testCompile group: 'org.apache.commons', name: 'commons-email', version: '1.5'
+  testImplementation group: 'org.apache.commons', name: 'commons-email', version: '1.5'
 
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
