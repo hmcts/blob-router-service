@@ -1,6 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import uk.gov.hmcts.reform.blobrouter.util.InstantSerializer;
+
+import java.time.Instant;
 
 public class BlobInfo {
 
@@ -11,12 +15,13 @@ public class BlobInfo {
     public final String fileName;
 
     @JsonProperty("created_at")
-    public final String createdAt;
+    @JsonSerialize(using = InstantSerializer.class)
+    public final Instant createdAt;
 
     public BlobInfo(
         String container,
         String fileName,
-        String createdAt
+        Instant createdAt
     ) {
         this.container = container;
         this.fileName = fileName;
