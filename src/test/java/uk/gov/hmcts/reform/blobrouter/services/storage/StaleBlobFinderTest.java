@@ -23,7 +23,6 @@ import static java.time.OffsetDateTime.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static uk.gov.hmcts.reform.blobrouter.util.TimeUtils.toLocalTimeZone;
 
 @ExtendWith(MockitoExtension.class)
 class StaleBlobFinderTest {
@@ -37,7 +36,7 @@ class StaleBlobFinderTest {
     @InjectMocks
     private StaleBlobFinder staleBlobFinder;
 
-    private OffsetDateTime expectedCreationTime = now().minus(3, ChronoUnit.HOURS);
+    private final OffsetDateTime expectedCreationTime = now().minus(3, ChronoUnit.HOURS);
 
     @Test
     void should_find_stale_blobs() {
@@ -74,7 +73,7 @@ class StaleBlobFinderTest {
         assertThat(blobInfos.size()).isEqualTo(1);
         assertThat(blobInfos.get(0).container).isEqualTo("bulkscan");
         assertThat(blobInfos.get(0).fileName).isEqualTo("bulk_scan_file_stale");
-        assertThat(blobInfos.get(0).createdAt).isEqualTo(toLocalTimeZone(expectedCreationTime.toInstant()));
+        assertThat(blobInfos.get(0).createdAt).isEqualTo(expectedCreationTime.toInstant());
     }
 
     @SuppressWarnings("unchecked")

@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
-import static uk.gov.hmcts.reform.blobrouter.util.TimeUtils.toLocalTimeZone;
 
 @Component
 @EnableConfigurationProperties(ServiceConfiguration.class)
@@ -43,7 +42,7 @@ public class StaleBlobFinder {
             .map(blob -> new BlobInfo(
                     containerName,
                     blob.getName(),
-                    toLocalTimeZone(blob.getProperties().getCreationTime().toInstant())
+                    blob.getProperties().getCreationTime().toInstant()
                 )
             );
     }
