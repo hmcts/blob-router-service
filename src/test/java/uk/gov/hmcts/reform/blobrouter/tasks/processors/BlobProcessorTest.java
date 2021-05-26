@@ -37,7 +37,7 @@ import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
-import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.getError;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @ExtendWith(MockitoExtension.class)
@@ -207,7 +207,7 @@ class BlobProcessorTest {
         String fileName = "envelope1.zip";
         blobExists(fileName, SOURCE_CONTAINER, blobCreationTime);
 
-        given(verifier.verifyZip(any(), any())).willReturn(error(ErrorCode.ERR_SIG_VERIFY_FAILED, "some error"));
+        given(verifier.verifyZip(any(), any())).willReturn(getError(ErrorCode.ERR_SIG_VERIFY_FAILED, "some error"));
 
         // when
         newBlobProcessor().process(blobClient);

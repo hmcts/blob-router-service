@@ -18,7 +18,7 @@ import java.util.zip.ZipInputStream;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
-import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.getError;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @Component
@@ -45,13 +45,13 @@ public class BlobVerifier {
             return ok();
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
-            return error(ErrorCode.ERR_SIG_VERIFY_FAILED, "Invalid signature");
+            return getError(ErrorCode.ERR_SIG_VERIFY_FAILED, "Invalid signature");
         } catch (InvalidZipArchiveException ex) {
             logger.info("Invalid zip archive. Blob name: {}", blobName, ex);
-            return error(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
+            return getError(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
         } catch (IOException ex) {
             logger.info("Error occurred when verifying file. Blob name: {}", blobName, ex);
-            return error(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
+            return getError(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
         }
     }
 
@@ -70,7 +70,7 @@ public class BlobVerifier {
             return new VerificationResult(true, null, null);
         }
 
-        public static VerificationResult error(ErrorCode error, String reason) {
+        public static VerificationResult getError(ErrorCode error, String reason) {
             return new VerificationResult(false, error, reason);
         }
     }

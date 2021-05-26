@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
-import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.error;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.getError;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @ExtendWith(MockitoExtension.class)
@@ -148,7 +148,7 @@ public class BlobProcessorContinuationTest {
         var containerName = "s1";
 
         blobExists(fileName, containerName);
-        given(verifier.verifyZip(any(), any())).willReturn(error(ErrorCode.ERR_METAFILE_INVALID, validationError));
+        given(verifier.verifyZip(any(), any())).willReturn(getError(ErrorCode.ERR_METAFILE_INVALID, validationError));
         Envelope envelope = envelope(id, Status.CREATED);
         given(envelopeService.findLastEnvelope(fileName, containerName))
             .willReturn(Optional.of(envelope));
