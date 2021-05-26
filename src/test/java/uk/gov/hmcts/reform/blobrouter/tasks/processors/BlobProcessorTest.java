@@ -307,7 +307,7 @@ class BlobProcessorTest {
         given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
 
         // when
-        newBlobProcessor(true).process(blobClient);
+        newBlobProcessor().process(blobClient);
 
         // then
         verifyNewEnvelopeHasBeenCreated();
@@ -317,10 +317,6 @@ class BlobProcessorTest {
     }
 
     private BlobProcessor newBlobProcessor() {
-        return newBlobProcessor(false);
-    }
-
-    private BlobProcessor newBlobProcessor(boolean extractEnvelopeForCft) {
         return new BlobProcessor(
             this.blobDispatcher,
             this.envelopeService,
