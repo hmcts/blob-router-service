@@ -215,7 +215,7 @@ class BlobProcessorTest {
         // then
         verifyNoInteractions(blobDispatcher);
         verifyNewEnvelopeHasBeenCreated();
-        verify(envelopeService).markAsRejected(id, ErrorCode.ERR_SIG_VERIFY_FAILED, "some error");
+        verify(envelopeService).markAsRejected(id, ErrorCode.ERR_SIG_VERIFY_FAILED, "Invalid signature");
     }
 
     @Test

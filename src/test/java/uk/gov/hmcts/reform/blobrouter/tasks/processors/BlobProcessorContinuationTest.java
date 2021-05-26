@@ -143,7 +143,6 @@ public class BlobProcessorContinuationTest {
     void should_reject_invalid_envelope() {
         // given
         var id = UUID.randomUUID();
-        var validationError = "error message";
         var fileName = "hello.zip";
         var containerName = "s1";
 
@@ -157,7 +156,7 @@ public class BlobProcessorContinuationTest {
         blobProcessor.process(blobClient);
 
         // then
-        verify(envelopeService).markAsRejected(id, ErrorCode.ERR_METAFILE_INVALID, validationError);
+        verify(envelopeService).markAsRejected(id, ErrorCode.ERR_SIG_VERIFY_FAILED, "Invalid signature");
         verifyNoMoreInteractions(envelopeService);
 
         verifyNoInteractions(blobDispatcher);
