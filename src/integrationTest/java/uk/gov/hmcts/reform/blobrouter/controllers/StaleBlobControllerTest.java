@@ -9,11 +9,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
 import uk.gov.hmcts.reform.blobrouter.services.storage.StaleBlobFinder;
+import uk.gov.hmcts.reform.blobrouter.util.DateFormatter;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static java.time.Instant.now;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -22,7 +23,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.blobrouter.util.TimeUtils.toLocalTimeZone;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(StaleBlobController.class)
@@ -37,7 +37,7 @@ public class StaleBlobControllerTest {
     @Test
     void should_return_list_of_stale_blobs_when_there_is_with_request_param() throws Exception {
 
-        String createdAt = toLocalTimeZone(now());
+        Instant createdAt = Instant.now();
 
         given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
@@ -55,10 +55,10 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data", hasSize(2)))
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
-            .andExpect(jsonPath("$.data.[0].created_at").value(createdAt))
+            .andExpect(jsonPath("$.data.[0].created_at").value(DateFormatter.getSimpleDateTime(createdAt)))
             .andExpect(jsonPath("$.data.[1].container").value("container2"))
             .andExpect(jsonPath("$.data.[1].file_name").value("file_name_2"))
-            .andExpect(jsonPath("$.data.[1].created_at").value(createdAt));
+            .andExpect(jsonPath("$.data.[1].created_at").value(DateFormatter.getSimpleDateTime(createdAt)));
 
         verify(staleBlobFinder).findStaleBlobs(60);
 
@@ -67,7 +67,7 @@ public class StaleBlobControllerTest {
     @Test
     void should_return_list_of_stale_blobs_when_there_is_by_default_param_value() throws Exception {
 
-        String createdAt = toLocalTimeZone(now());
+        Instant createdAt = Instant.now();
 
         given(staleBlobFinder.findStaleBlobs(120))
             .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
@@ -79,7 +79,7 @@ public class StaleBlobControllerTest {
             .andExpect(jsonPath("$.data", hasSize(1)))
             .andExpect(jsonPath("$.data.[0].container").value("container1"))
             .andExpect(jsonPath("$.data.[0].file_name").value("file_name_1"))
-            .andExpect(jsonPath("$.data.[0].created_at").value(createdAt));
+            .andExpect(jsonPath("$.data.[0].created_at").value(DateFormatter.getSimpleDateTime(createdAt)));
 
         verify(staleBlobFinder).findStaleBlobs(120);
 
