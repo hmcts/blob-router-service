@@ -33,8 +33,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.INVALID_SIGNATURE_VERIFICATION_RESULT;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.OK_VERIFICATION_RESULT;
-import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.getError;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
@@ -64,7 +64,7 @@ public class BlobProcessorContinuationTest {
     }
 
     @Test
-    void should_continue_processing_valid_envelope() throws Exception {
+    void should_continue_processing_valid_envelope() {
         // given
         var id = UUID.randomUUID();
         var fileName = "hello.zip";
@@ -87,7 +87,7 @@ public class BlobProcessorContinuationTest {
     }
 
     @Test
-    void should_not_continue_processing_when_envelope_status_is_not_created() throws Exception {
+    void should_not_continue_processing_when_envelope_status_is_not_created() {
         // given
         var id = UUID.randomUUID();
         var fileName = "hello.zip";
@@ -109,7 +109,7 @@ public class BlobProcessorContinuationTest {
     }
 
     @Test
-    void should_create_envelope_record_when_not_exists() throws Exception {
+    void should_create_envelope_record_when_not_exists() {
         // given
         var id = UUID.randomUUID();
         var fileName = "hello.zip";
@@ -140,7 +140,7 @@ public class BlobProcessorContinuationTest {
     }
 
     @Test
-    void should_reject_invalid_envelope() throws Exception {
+    void should_reject_invalid_envelope() {
         // given
         var id = UUID.randomUUID();
         var validationError = "error message";
@@ -148,7 +148,7 @@ public class BlobProcessorContinuationTest {
         var containerName = "s1";
 
         blobExists(fileName, containerName);
-        given(verifier.verifyZip(any(), any())).willReturn(getError(ErrorCode.ERR_METAFILE_INVALID, validationError));
+        given(verifier.verifyZip(any(), any())).willReturn(INVALID_SIGNATURE_VERIFICATION_RESULT);
         Envelope envelope = envelope(id, Status.CREATED);
         given(envelopeService.findLastEnvelope(fileName, containerName))
             .willReturn(Optional.of(envelope));

@@ -26,7 +26,7 @@ public class BlobVerifier {
 
     private static final Logger logger = getLogger(BlobVerifier.class);
 
-    private static final VerificationResult INVALID_SIGNATURE_VERIFICATION_RESULT =
+    public static final VerificationResult INVALID_SIGNATURE_VERIFICATION_RESULT =
             getError(ErrorCode.ERR_SIG_VERIFY_FAILED, "Invalid signature");
     private static final VerificationResult INVALID_ZIP_ARCHIVE_VERIFICATION_RESULT =
             getError(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
@@ -73,7 +73,7 @@ public class BlobVerifier {
             this.errorDescription = errorDescription;
         }
 
-        public static VerificationResult getError(ErrorCode error, String reason) {
+        static VerificationResult getError(ErrorCode error, String reason) {
             return new VerificationResult(false, error, reason);
         }
     }
