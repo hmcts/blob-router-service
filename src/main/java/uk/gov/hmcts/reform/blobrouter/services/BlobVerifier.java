@@ -26,6 +26,11 @@ public class BlobVerifier {
 
     private static final Logger logger = getLogger(BlobVerifier.class);
 
+    private static final VerificationResult INVALID_SIGNATURE_VERIFICATION_RESULT =
+            getError(ErrorCode.ERR_SIG_VERIFY_FAILED, "Invalid signature");
+    private static final VerificationResult INVALID_ZIP_ARCHIVE_VERIFICATION_RESULT =
+            getError(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
+
     private final PublicKey publicKey;
 
     public BlobVerifier(
@@ -45,13 +50,13 @@ public class BlobVerifier {
             return ok();
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
-            return getError(ErrorCode.ERR_SIG_VERIFY_FAILED, "Invalid signature");
+            return INVALID_SIGNATURE_VERIFICATION_RESULT;
         } catch (InvalidZipArchiveException ex) {
             logger.info("Invalid zip archive. Blob name: {}", blobName, ex);
-            return getError(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
+            return INVALID_ZIP_ARCHIVE_VERIFICATION_RESULT;
         } catch (IOException ex) {
             logger.info("Error occurred when verifying file. Blob name: {}", blobName, ex);
-            return getError(ErrorCode.ERR_ZIP_PROCESSING_FAILED, "Invalid zip archive");
+            return INVALID_ZIP_ARCHIVE_VERIFICATION_RESULT;
         }
     }
 
