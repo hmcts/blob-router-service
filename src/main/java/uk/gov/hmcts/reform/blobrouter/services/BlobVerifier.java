@@ -18,8 +18,8 @@ import java.util.zip.ZipInputStream;
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.toByteArray;
 import static org.slf4j.LoggerFactory.getLogger;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.OK_VERIFICATION_RESULT;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.getError;
-import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @Component
 public class BlobVerifier {
@@ -47,7 +47,7 @@ public class BlobVerifier {
         try (var zis = new ZipInputStream(zipSource)) {
 
             ZipVerifiers.verifyZip(zis, publicKey);
-            return ok();
+            return OK_VERIFICATION_RESULT;
         } catch (DocSignatureFailureException ex) {
             logger.info("Invalid signature. Blob name: {}", blobName, ex);
             return INVALID_SIGNATURE_VERIFICATION_RESULT;
@@ -65,14 +65,12 @@ public class BlobVerifier {
         public final ErrorCode error;
         public final String errorDescription;
 
+        public static final VerificationResult OK_VERIFICATION_RESULT = new VerificationResult(true, null, null);
+
         private VerificationResult(boolean isOk, ErrorCode error, String errorDescription) {
             this.isOk = isOk;
             this.error = error;
             this.errorDescription = errorDescription;
-        }
-
-        public static VerificationResult ok() {
-            return new VerificationResult(true, null, null);
         }
 
         public static VerificationResult getError(ErrorCode error, String reason) {

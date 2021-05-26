@@ -37,8 +37,8 @@ import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CFT;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
+import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.OK_VERIFICATION_RESULT;
 import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.getError;
-import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationResult.ok;
 
 @ExtendWith(MockitoExtension.class)
 class BlobProcessorTest {
@@ -61,7 +61,7 @@ class BlobProcessorTest {
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
+        given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
 
         willThrow(new RuntimeException("Exception message"))
             .given(blobDispatcher)
@@ -90,7 +90,7 @@ class BlobProcessorTest {
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CRIME);
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
+        given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
 
         willThrow(new RuntimeException(
             "<html><head><title>Oh no!</title></head><body><h2>You failed</h2></body</html>"
@@ -129,7 +129,7 @@ class BlobProcessorTest {
 
         HttpResponse errorResponse = mock(HttpResponse.class);
         given(errorResponse.getStatusCode()).willReturn(BAD_GATEWAY.value());
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
+        given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
 
         willThrow(new BlobStorageException("test", errorResponse, null))
             .given(blobDispatcher)
@@ -155,7 +155,7 @@ class BlobProcessorTest {
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
+        given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
 
         willThrow(new RuntimeException("test")).given(blobDispatcher).dispatch(any(), any(), any());
 
@@ -184,7 +184,7 @@ class BlobProcessorTest {
         String fileName = "envelope1.zip";
         blobExists(fileName, SOURCE_CONTAINER, blobCreationTime);
 
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
+        given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
 
         // when
         newBlobProcessor().process(blobClient);
@@ -232,7 +232,7 @@ class BlobProcessorTest {
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
+        given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
 
         // when
         newBlobProcessor().process(blobClient);
@@ -304,7 +304,7 @@ class BlobProcessorTest {
         given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
 
         // valid file
-        given(verifier.verifyZip(any(), any())).willReturn(ok());
+        given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
 
         // when
         newBlobProcessor(true).process(blobClient);
