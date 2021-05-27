@@ -19,6 +19,14 @@ import java.util.UUID;
 @Repository
 public class EnvelopeRepository {
 
+    private static final String STATUS_PARAM = "status";
+    private static final String CONTAINER_PARAM = "container";
+    private static final String FILE_NAME_PARAM = "fileName";
+    private static final String SELECT_FROM_ENVELOPES = "SELECT * FROM envelopes ";
+    private static final String ORDER_BY_CREATED_AT_DESC = " ORDER BY created_at DESC ";
+    private static final String UPDATE_ENVELOPES = "UPDATE envelopes ";
+    private static final String WHERE_ID_ID = "WHERE id = :id";
+
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final EnvelopeMapper mapper;
 
@@ -30,7 +38,8 @@ public class EnvelopeRepository {
     public Optional<Envelope> find(UUID id) {
         try {
             Envelope envelope = jdbcTemplate.queryForObject(
-                "SELECT * FROM envelopes WHERE id = :id",
+                SELECT_FROM_ENVELOPES
+                        + WHERE_ID_ID,
                 new MapSqlParameterSource("id", id),
                 this.mapper
             );
@@ -42,10 +51,11 @@ public class EnvelopeRepository {
 
     public List<Envelope> find(Status status, String container, boolean isDeleted) {
         return jdbcTemplate.query(
-            "SELECT * FROM envelopes WHERE status = :status AND container = :container AND is_deleted = :isDeleted",
+            SELECT_FROM_ENVELOPES
+                    + "WHERE status = :status AND container = :container AND is_deleted = :isDeleted",
             new MapSqlParameterSource()
-                .addValue("status", status.name())
-                .addValue("container", container)
+                .addValue(STATUS_PARAM, status.name())
+                .addValue(CONTAINER_PARAM, container)
                 .addValue("isDeleted", isDeleted),
             this.mapper
         );
@@ -53,9 +63,10 @@ public class EnvelopeRepository {
 
     public List<Envelope> find(Status status, boolean isDeleted) {
         return jdbcTemplate.query(
-            "SELECT * FROM envelopes WHERE status = :status AND is_deleted = :isDeleted",
+                SELECT_FROM_ENVELOPES
+                        + "WHERE status = :status AND is_deleted = :isDeleted",
             new MapSqlParameterSource()
-                .addValue("status", status.name())
+                .addValue(STATUS_PARAM, status.name())
                 .addValue("isDeleted", isDeleted),
             this.mapper
         );
@@ -63,10 +74,11 @@ public class EnvelopeRepository {
 
     public List<Envelope> find(String fileName, String container) {
         return jdbcTemplate.query(
-            "SELECT * FROM envelopes WHERE file_name = :fileName AND container = :container",
+                SELECT_FROM_ENVELOPES
+                        + "WHERE file_name = :fileName AND container = :container",
             new MapSqlParameterSource()
-                .addValue("fileName", fileName)
-                .addValue("container", container),
+                .addValue(FILE_NAME_PARAM, fileName)
+                .addValue(CONTAINER_PARAM, container),
             this.mapper
         );
     }
@@ -74,15 +86,15 @@ public class EnvelopeRepository {
     public Optional<Envelope> findEnvelopeNotInCreatedStatus(String fileName, String container) {
         try {
             Envelope envelope = jdbcTemplate.queryForObject(
-                "SELECT * FROM envelopes "
+                SELECT_FROM_ENVELOPES
                     + "WHERE file_name = :fileName "
                     + "AND container = :container "
                     + "AND status != 'CREATED' "
-                    + "ORDER BY created_at DESC "
+                    + ORDER_BY_CREATED_AT_DESC
                     + "LIMIT 1",
                 new MapSqlParameterSource()
-                    .addValue("fileName", fileName)
-                    .addValue("container", container),
+                    .addValue(FILE_NAME_PARAM, fileName)
+                    .addValue(CONTAINER_PARAM, container),
                 this.mapper
             );
             return Optional.of(envelope);
@@ -94,14 +106,14 @@ public class EnvelopeRepository {
     public Optional<Envelope> findLast(String fileName, String container) {
         try {
             Envelope envelope = jdbcTemplate.queryForObject(
-                "SELECT * FROM envelopes"
-                    + " WHERE file_name = :fileName"
-                    + " AND container = :container"
-                    + " ORDER BY created_at DESC"
-                    + " LIMIT 1",
+                    SELECT_FROM_ENVELOPES
+                            + "WHERE file_name = :fileName "
+                            + "AND container = :container "
+                            + ORDER_BY_CREATED_AT_DESC
+                            + "LIMIT 1",
                 new MapSqlParameterSource()
-                    .addValue("fileName", fileName)
-                    .addValue("container", container),
+                    .addValue(FILE_NAME_PARAM, fileName)
+                    .addValue(CONTAINER_PARAM, container),
                 this.mapper
             );
             return Optional.of(envelope);
@@ -117,10 +129,10 @@ public class EnvelopeRepository {
                 + "VALUES (:id, :container, :fileName, :fileCreatedAt, :status, :dispatchedAt, CURRENT_TIMESTAMP)",
             new MapSqlParameterSource()
                 .addValue("id", id)
-                .addValue("container", envelope.container)
-                .addValue("fileName", envelope.fileName)
+                .addValue(CONTAINER_PARAM, envelope.container)
+                .addValue(FILE_NAME_PARAM, envelope.fileName)
                 .addValue("fileCreatedAt", Timestamp.from(envelope.fileCreatedAt))
-                .addValue("status", envelope.status.name())
+                .addValue(STATUS_PARAM, envelope.status.name())
                 .addValue(
                     "dispatchedAt",
                     envelope.dispatchedAt == null ? null : Timestamp.from(envelope.dispatchedAt)
@@ -131,9 +143,9 @@ public class EnvelopeRepository {
 
     public void updateStatus(UUID id, Status newStatus) {
         jdbcTemplate.update(
-            "UPDATE envelopes "
-                + "SET status = :newStatus "
-                + "WHERE id = :id",
+            UPDATE_ENVELOPES
+                    + "SET status = :newStatus "
+                    + WHERE_ID_ID,
             new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("newStatus", newStatus.name())
@@ -142,9 +154,9 @@ public class EnvelopeRepository {
 
     public void updateDispatchDateTime(UUID id, Instant dispatchedAt) {
         jdbcTemplate.update(
-            "UPDATE envelopes "
-                + "SET dispatched_at = :dispatchedAt "
-                + "WHERE id = :id",
+                UPDATE_ENVELOPES
+                        + "SET dispatched_at = :dispatchedAt "
+                        + WHERE_ID_ID,
             new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("dispatchedAt", Timestamp.from(dispatchedAt))
@@ -153,18 +165,18 @@ public class EnvelopeRepository {
 
     public int markAsDeleted(UUID id) {
         return jdbcTemplate.update(
-            "UPDATE envelopes "
-                + "SET is_deleted = True "
-                + "WHERE id = :id",
+                UPDATE_ENVELOPES
+                        + "SET is_deleted = True "
+                        + WHERE_ID_ID,
             new MapSqlParameterSource("id", id)
         );
     }
 
     public int updatePendingNotification(UUID id, Boolean notificationPending) {
         return jdbcTemplate.update(
-            "UPDATE envelopes "
-                + "SET pending_notification = :notificationPending "
-                + "WHERE id = :id",
+                UPDATE_ENVELOPES
+                        + "SET pending_notification = :notificationPending "
+                        + WHERE_ID_ID,
             new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("notificationPending", notificationPending)
@@ -192,12 +204,12 @@ public class EnvelopeRepository {
 
         if (StringUtils.isNotEmpty(fileName)) {
             whereClause.add("file_name = :fileName");
-            parameterSource.addValue("fileName", fileName);
+            parameterSource.addValue(FILE_NAME_PARAM, fileName);
         }
 
         if (StringUtils.isNotEmpty(container)) {
             whereClause.add("container = :container");
-            parameterSource.addValue("container", container);
+            parameterSource.addValue(CONTAINER_PARAM, container);
         }
 
         if (date != null) {
@@ -206,9 +218,9 @@ public class EnvelopeRepository {
         }
 
         return jdbcTemplate.query(
-            "SELECT * FROM envelopes"
+            SELECT_FROM_ENVELOPES
                 + whereClause.toString()
-                + " ORDER BY created_at DESC",
+                + ORDER_BY_CREATED_AT_DESC,
             parameterSource,
             this.mapper
         );
@@ -216,9 +228,9 @@ public class EnvelopeRepository {
 
     public List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") Instant dateTime) {
         return jdbcTemplate.query(
-            "SELECT * FROM envelopes"
-                + " WHERE file_created_at < :datetime AND status = 'CREATED'"
-                + " ORDER BY created_at DESC",
+            SELECT_FROM_ENVELOPES
+                    + "WHERE file_created_at < :datetime AND status = 'CREATED' "
+                    + ORDER_BY_CREATED_AT_DESC,
             new MapSqlParameterSource()
                 .addValue("datetime", Timestamp.from(dateTime)),
             mapper
