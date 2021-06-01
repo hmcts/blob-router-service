@@ -36,10 +36,9 @@ class StaleBlobFinderTest {
     @InjectMocks
     private StaleBlobFinder staleBlobFinder;
 
-    private final OffsetDateTime expectedCreationTime = now().minus(3, ChronoUnit.HOURS);
-
     @Test
     void should_find_stale_blobs() {
+        //given
         given(serviceConfiguration.getSourceContainers())
             .willReturn(Arrays.asList("bulkscan", "cmc", "sscs"));
 
@@ -50,30 +49,85 @@ class StaleBlobFinderTest {
         given(storageClient.getBlobContainerClient("cmc")).willReturn(cmcBlobClient);
         given(storageClient.getBlobContainerClient("sscs")).willReturn(sscsBlobClient);
 
+        OffsetDateTime staleTime = now().minus(3, ChronoUnit.HOURS);
         mockStorageList(
             bulkscanBlobClient,
             Stream.of(
-                blob("bulk_scan_file_new", false),
-                blob("bulk_scan_file_stale", true)
+                blob("bulk_scan_file_new", now(), false),
+                blob("bulk_scan_file_stale", staleTime, true)
             )
         );
 
         mockStorageList(
             cmcBlobClient,
             Stream.of(
-                blob("cmc_scan_file_new_1", false),
-                blob("cmc_scan_file_new_2", false)
+                blob("cmc_scan_file_new_1", now(), false),
+                blob("cmc_scan_file_new_2", now(), false)
             )
         );
 
         mockStorageList(sscsBlobClient, Stream.empty());
 
+        // when
         List<BlobInfo> blobInfos = staleBlobFinder.findStaleBlobs(120);
 
+        // then
         assertThat(blobInfos.size()).isEqualTo(1);
         assertThat(blobInfos.get(0).container).isEqualTo("bulkscan");
         assertThat(blobInfos.get(0).fileName).isEqualTo("bulk_scan_file_stale");
-        assertThat(blobInfos.get(0).createdAt).isEqualTo(expectedCreationTime.toInstant());
+        assertThat(blobInfos.get(0).createdAt).isEqualTo(staleTime.toInstant());
+    }
+
+    @Test
+    void should_order_stale_blobs() {
+        //given
+        given(serviceConfiguration.getSourceContainers())
+            .willReturn(Arrays.asList("bulkscan", "cmc", "sscs"));
+
+        var bulkscanBlobClient = mock(BlobContainerClient.class);
+        var cmcBlobClient = mock(BlobContainerClient.class);
+        var sscsBlobClient = mock(BlobContainerClient.class);
+        given(storageClient.getBlobContainerClient("bulkscan")).willReturn(bulkscanBlobClient);
+        given(storageClient.getBlobContainerClient("cmc")).willReturn(cmcBlobClient);
+        given(storageClient.getBlobContainerClient("sscs")).willReturn(sscsBlobClient);
+
+        OffsetDateTime staleTime1 = now().minus(3, ChronoUnit.HOURS);
+        OffsetDateTime staleTime2 = now().minus(5, ChronoUnit.HOURS);
+        OffsetDateTime staleTime3 = now().minus(4, ChronoUnit.HOURS);
+        mockStorageList(
+            bulkscanBlobClient,
+            Stream.of(
+                blob("bulk_scan_file_new", now(), false),
+                blob("bulk_scan_file_stale1", staleTime1, true),
+                blob("bulk_scan_file_stale2", staleTime2, true),
+                blob("bulk_scan_file_stale3", staleTime3, true)
+            )
+        );
+
+        mockStorageList(
+            cmcBlobClient,
+            Stream.of(
+                blob("cmc_scan_file_new_1", now(), false),
+                blob("cmc_scan_file_new_2", now(), false)
+            )
+        );
+
+        mockStorageList(sscsBlobClient, Stream.empty());
+
+        // when
+        List<BlobInfo> blobInfos = staleBlobFinder.findStaleBlobs(120);
+
+        // then
+        assertThat(blobInfos.size()).isEqualTo(3);
+        assertThat(blobInfos.get(0).container).isEqualTo("bulkscan");
+        assertThat(blobInfos.get(0).fileName).isEqualTo("bulk_scan_file_stale2");
+        assertThat(blobInfos.get(0).createdAt).isEqualTo(staleTime2.toInstant());
+        assertThat(blobInfos.get(1).container).isEqualTo("bulkscan");
+        assertThat(blobInfos.get(1).fileName).isEqualTo("bulk_scan_file_stale3");
+        assertThat(blobInfos.get(1).createdAt).isEqualTo(staleTime3.toInstant());
+        assertThat(blobInfos.get(2).container).isEqualTo("bulkscan");
+        assertThat(blobInfos.get(2).fileName).isEqualTo("bulk_scan_file_stale1");
+        assertThat(blobInfos.get(2).createdAt).isEqualTo(staleTime1.toInstant());
     }
 
     @SuppressWarnings("unchecked")
@@ -84,17 +138,17 @@ class StaleBlobFinderTest {
 
     }
 
-    private BlobItem blob(String name, boolean staleFile) {
+    private BlobItem blob(String name, OffsetDateTime creationTime, boolean isStale) {
         var blobItem = mock(BlobItem.class);
         var properties = mock(BlobItemProperties.class);
 
         given(blobItem.getProperties()).willReturn(properties);
-        if (staleFile) {
-            given(properties.getCreationTime()).willReturn(expectedCreationTime);
+        given(properties.getCreationTime()).willReturn(creationTime);
+
+        if (isStale) {
             given(blobItem.getName()).willReturn(name);
-        } else {
-            given(properties.getCreationTime()).willReturn(now());
         }
+
         return blobItem;
     }
 }

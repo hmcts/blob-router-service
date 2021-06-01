@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.blobrouter.model.out.BlobInfo;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -44,7 +45,8 @@ public class StaleBlobFinder {
                     blob.getName(),
                     blob.getProperties().getCreationTime().toInstant()
                 )
-            );
+            )
+            .sorted(Comparator.comparing(o -> o.createdAt));
     }
 
     private boolean isStale(BlobItem blobItem, int staleTime) {
