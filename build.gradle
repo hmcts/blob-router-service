@@ -171,18 +171,6 @@ dependencyCheck {
 
 dependencyManagement {
   dependencies {
-    dependencySet(group: 'com.google.guava', version: '30.1.1-jre') {
-      entry 'guava'
-    }
-    // this should not be used, ideally.
-    // there are lot's of nested dependencies which include it.
-    // for some reason the required version of json-path (which is 2.4.0) is 2.3
-    // but certain dependencies favour 1.3 over required 2.3 which is incompatible.
-    // this custom management should be reviewed later on.
-    // started to happen since migration to spring boot 2.3.0
-    dependencySet(group: 'net.minidev', version: '2.4.7') {
-      entry 'json-smart'
-    }
     // avoid CVE-2021-29425
     dependencySet(group: 'commons-io', version: '2.9.0') {
       entry 'commons-io'
