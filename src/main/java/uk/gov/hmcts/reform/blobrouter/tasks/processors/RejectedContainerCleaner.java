@@ -64,7 +64,7 @@ public class RejectedContainerCleaner {
             .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
             .forEach(blobClient -> leaseAcquirer.ifAcquiredOrElse(
                 blobClient,
-                leaseId -> delete(blobClient, leaseId),
+                () -> delete(blobClient),
                 errorCode -> {}, // nothing to do if blob not found in rejected container
                 false
             ));
@@ -72,7 +72,7 @@ public class RejectedContainerCleaner {
         logger.info("Finished removing rejected files. Container: {}", containerName);
     }
 
-    private void delete(BlobClient blobClient, String leaseId) {
+    private void delete(BlobClient blobClient) {
         String containerName = blobClient.getContainerName();
         String blobName = blobClient.getBlobName();
 
@@ -95,7 +95,7 @@ public class RejectedContainerCleaner {
                     e -> envelopeService.saveEvent(e.id, EventType.DELETED_FROM_REJECTED),
                     () -> logger.warn("Envelope not found. {}", blobInfo)
                 );
-            logger.info("Deleted rejected file. {}, leaseId {}", blobInfo, leaseId);
+            logger.info("Deleted rejected file. {}", blobInfo);
         } catch (Exception exc) {
             logger.error("Error deleting rejected file. {}", blobInfo, exc);
         }

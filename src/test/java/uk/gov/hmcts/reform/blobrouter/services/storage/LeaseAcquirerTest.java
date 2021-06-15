@@ -40,7 +40,7 @@ class LeaseAcquirerTest {
     @Test
     void should_run_provided_action_when_metadata_lease_was_acquired() {
         // given
-        var onSuccess = mock(Consumer.class);
+        var onSuccess = mock(Runnable.class);
         var onFailure = mock(Consumer.class);
         given(blobMetaDataHandler.isBlobReadyToUse(blobClient)).willReturn(true);
 
@@ -58,14 +58,14 @@ class LeaseAcquirerTest {
 
         given(blobStorageException.getErrorCode()).willReturn(null);
         given(blobStorageException.getStatusCode()).willReturn(404);
-        var onSuccess = mock(Consumer.class);
+        var onSuccess = mock(Runnable.class);
         var onFailure = mock(Consumer.class);
 
         // when
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
 
         // then
-        verify(onSuccess, never()).accept(anyString());
+        verify(onSuccess, never()).run();
         verify(onFailure).accept(BLOB_NOT_FOUND);
     }
 
@@ -75,7 +75,7 @@ class LeaseAcquirerTest {
         doThrow(blobStorageException).when(blobMetaDataHandler).isBlobReadyToUse(blobClient);
 
         // when
-        leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true);
+        leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Runnable.class), mock(Consumer.class), true);
 
         // then
         verify(blobMetaDataHandler, never()).clearAllMetaData(any());
@@ -87,7 +87,7 @@ class LeaseAcquirerTest {
         given(blobMetaDataHandler.isBlobReadyToUse(blobClient)).willReturn(true);
 
         // when
-        leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Consumer.class), mock(Consumer.class), true);
+        leaseAcquirer.ifAcquiredOrElse(blobClient, mock(Runnable.class), mock(Consumer.class), true);
 
         // then
         verify(blobMetaDataHandler).clearAllMetaData(any());
@@ -96,7 +96,7 @@ class LeaseAcquirerTest {
     @Test
     void should_run_onFailure_when_metadata_lease_can_not_acquired() {
         // given
-        var onSuccess = mock(Consumer.class);
+        var onSuccess = mock(Runnable.class);
         var onFailure = mock(Consumer.class);
         given(blobMetaDataHandler.isBlobReadyToUse(blobClient)).willReturn(false);
 
@@ -104,14 +104,14 @@ class LeaseAcquirerTest {
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, false);
 
         // then
-        verify(onSuccess, never()).accept(anyString());
+        verify(onSuccess, never()).run();
         verify(onFailure).accept(any(BlobErrorCode.class));
     }
 
     @Test
     void should_catch_exception_when_metadata_lease_clear_throw_exception() {
         // given
-        var onSuccess = mock(Consumer.class);
+        var onSuccess = mock(Runnable.class);
         var onFailure = mock(Consumer.class);
 
         given(blobMetaDataHandler.isBlobReadyToUse(blobClient)).willReturn(true);
@@ -121,7 +121,7 @@ class LeaseAcquirerTest {
         leaseAcquirer.ifAcquiredOrElse(blobClient, onSuccess, onFailure, true);
 
         // then
-        verify(onSuccess).accept(null);
+        verify(onSuccess).run();
         verify(onFailure, never()).accept(any());
         verifyNoMoreInteractions(blobMetaDataHandler);
     }
