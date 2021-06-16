@@ -25,6 +25,7 @@ public class StatisticsRepository {
                 "SELECT series.day as interval, coalesce(cnt.cnt,0) as cnt FROM\n"
                         + "    (\n"
                         + "    SELECT COUNT(*) cnt, \n"
+                        // 86400 - number of seconds per day
                         + "      to_timestamp(floor((extract('epoch' from file_created_at) / 86400 )) * 86400) \n"
                         + "      AT TIME ZONE 'UTC' as interval_alias\n"
                         + "      FROM envelopes\n"
