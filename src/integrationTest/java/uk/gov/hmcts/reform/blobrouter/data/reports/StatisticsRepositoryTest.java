@@ -55,8 +55,7 @@ class StatisticsRepositoryTest {
                 .containsExactly(
                         tuple(LocalDate.of(2021, 2, 10), 1),
                         tuple(LocalDate.of(2021, 2, 11), 2)
-                );
-        ;
+            );
     }
 
     private void insertEnvelope(String container, String fileName, LocalDateTime createdAt) {
