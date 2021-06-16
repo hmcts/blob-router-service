@@ -34,7 +34,7 @@ public class LeaseAcquirer {
      */
     public void ifAcquiredOrElse(
         BlobClient blobClient,
-        Consumer<String> onSuccess,
+        Runnable onSuccess,
         Consumer<BlobErrorCode> onFailure,
         boolean releaseLease
     ) {
@@ -67,7 +67,7 @@ public class LeaseAcquirer {
             }
 
             if (isReady) {
-                onSuccess.accept(null);
+                onSuccess.run();
                 if (releaseLease) {
                     clearMetadataAndReleaseLease(blobClient);
                 }
