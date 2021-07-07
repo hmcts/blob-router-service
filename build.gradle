@@ -186,7 +186,7 @@ ext.libraries = [
 ext["rest-assured.version"] = '4.2.1'
 
 dependencies {
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.22'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23'
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '7.11.0'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.24.0'
