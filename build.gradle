@@ -206,7 +206,7 @@ dependencies {
   // region: feign clients
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.0.3'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.3'
-  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '11.3'
+  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '11.5'
   // end region
 
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
