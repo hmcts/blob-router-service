@@ -11,6 +11,27 @@ def type = "java"
 def product = "reform-scan"
 def component = "blob-router"
 
+def secrets = [
+  'reform-scan-${env}': [
+    secret('fortify-on-demand-username', 'FORTIFY_USER_NAME'),
+    secret('fortify-on-demand-password', 'FORTIFY_PASSWORD')
+  ]
+]
+
+static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
+  [$class     : 'AzureKeyVaultSecret',
+   secretType : 'Secret',
+   name       : secretName,
+   version    : '',
+   envVariable: envVar
+  ]
+}
+
 withNightlyPipeline(type, product, component) {
+  loadVaultSecrets(secrets)
+  enableFortifyScan('reform-scan-aat')
   enableSlackNotifications('#bsp-build-notices')
+  after('fortify-scan') {
+    steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
+  }
 }
