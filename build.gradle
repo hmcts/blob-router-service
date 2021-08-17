@@ -200,7 +200,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.25.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.11.1'
-  implementation group: 'com.microsoft.azure', name: 'azure-servicebus', version: '3.6.4'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.2.3'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
@@ -225,6 +225,8 @@ dependencies {
   implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '4.0.0'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
+  implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+  implementation group: 'com.google.guava', name: 'guava', version: '30.1.1-jre'
 
   testImplementation libraries.junit5
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {

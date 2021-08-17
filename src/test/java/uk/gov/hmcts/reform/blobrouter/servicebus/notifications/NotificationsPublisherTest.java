@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.servicebus.notifications;
 
+import com.azure.messaging.servicebus.ServiceBusErrorSource;
+import com.azure.messaging.servicebus.ServiceBusException;
+import com.azure.messaging.servicebus.ServiceBusMessage;
+import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.azure.servicebus.Message;
-import com.microsoft.azure.servicebus.MessageBody;
-import com.microsoft.azure.servicebus.QueueClient;
-import com.microsoft.azure.servicebus.primitives.ServiceBusException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,11 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import org.springframework.util.CollectionUtils;
 import uk.gov.hmcts.reform.blobrouter.data.events.ErrorCode;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -31,7 +28,7 @@ class NotificationsPublisherTest {
     private NotificationsPublisher notifier;
 
     @Mock
-    private QueueClient queueClient;
+    private ServiceBusSenderClient queueClient;
 
     @BeforeEach
     void setUp() {
@@ -54,14 +51,14 @@ class NotificationsPublisherTest {
         notifier.publish(notificationMsg, "messageId");
 
         // then
-        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
-        verify(queueClient).send(messageCaptor.capture());
+        ArgumentCaptor<ServiceBusMessage> messageCaptor = ArgumentCaptor.forClass(ServiceBusMessage.class);
+        verify(queueClient).sendMessage(messageCaptor.capture());
 
-        Message message = messageCaptor.getValue();
+        ServiceBusMessage message = messageCaptor.getValue();
 
         assertThat(message.getContentType()).isEqualTo("application/json");
 
-        String messageBodyJson = new String(getBinaryData(message.getMessageBody()));
+        String messageBodyJson = message.getBody().toString();
         String expectedMessageBodyJson = String.format(
             "{\"zip_file_name\":\"%s\", \"container\":\"%s\", \"document_control_number\":\"%s\", "
                 + "\"error_code\":\"%s\", \"error_description\":\"%s\", \"service\":\"%s\"}",
@@ -83,10 +80,13 @@ class NotificationsPublisherTest {
             "A.zip", "C1", "123", null, "Xyz", "service1"
         );
 
-        ServiceBusException exceptionToThrow = new ServiceBusException(true, "test exception");
+        ServiceBusException exceptionToThrow = new ServiceBusException(
+            new IllegalAccessError("test exception"),
+            ServiceBusErrorSource.ABANDON
+        );
         willThrow(exceptionToThrow)
             .given(queueClient)
-            .send(any());
+            .sendMessage(any());
 
         // when
         Throwable exc = catchThrowable(
@@ -102,9 +102,4 @@ class NotificationsPublisherTest {
             ).hasCause(exceptionToThrow);
     }
 
-    private byte[] getBinaryData(MessageBody messageBody) {
-        List<byte[]> binaryData = messageBody.getBinaryData();
-
-        return CollectionUtils.isEmpty(binaryData) ? null : binaryData.get(0);
-    }
 }
