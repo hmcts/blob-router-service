@@ -1,9 +1,8 @@
 package uk.gov.hmcts.reform.blobrouter.servicebus.notifications;
 
+import com.azure.messaging.servicebus.ServiceBusMessage;
+import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.microsoft.azure.servicebus.IMessage;
-import com.microsoft.azure.servicebus.Message;
-import com.microsoft.azure.servicebus.QueueClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,11 +15,11 @@ public class NotificationsPublisher {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationsPublisher.class);
 
-    private final QueueClient queueClient;
+    private final ServiceBusSenderClient queueClient;
     private final ObjectMapper objectMapper;
 
     public NotificationsPublisher(
-        QueueClient queueClient,
+        ServiceBusSenderClient queueClient,
         ObjectMapper objectMapper
     ) {
         this.queueClient = queueClient;
@@ -31,13 +30,11 @@ public class NotificationsPublisher {
         try {
             String messageBody = objectMapper.writeValueAsString(notificationMsg);
 
-            IMessage message = new Message(
-                messageId,
-                messageBody,
-                APPLICATION_JSON_VALUE
-            );
+            ServiceBusMessage message = new ServiceBusMessage(messageBody);
+            message.setMessageId(messageId);
+            message.setContentType(APPLICATION_JSON_VALUE);
 
-            queueClient.send(message);
+            queueClient.sendMessage(message);
 
             logger.info(
                 "Sent message to Notifications queue. File name: {} Container: {} Error code: {}",

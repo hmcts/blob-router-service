@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
-import com.microsoft.azure.servicebus.QueueClient;
+import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 
@@ -10,7 +10,7 @@ public class QueueClientConfig {
 
     @Bean
     @ConditionalOnProperty(name = "queue.notifications.access-key", havingValue = "false")
-    public QueueClient notificationsQueueClient() {
-        return mock(QueueClient.class);
+    public ServiceBusSenderClient notificationsQueueClient() {
+        return mock(ServiceBusSenderClient.class);
     }
 }
