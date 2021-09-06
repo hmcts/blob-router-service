@@ -406,7 +406,7 @@ class ReconciliationMailServiceTest {
         verify(repository).findLatest(date);
         verifyNoMoreInteractions(repository);
         verify(reconciliationReportRepository, times(1))
-            .getLatestReconciliationReport(eq(date), eq(CFT.name()));
+            .getLatestReconciliationReport(date, CFT.name());
         verifyNoInteractions(emailSender);
     }
 
@@ -435,7 +435,7 @@ class ReconciliationMailServiceTest {
         verify(repository).findLatest(date);
         verifyNoMoreInteractions(repository);
         verify(reconciliationReportRepository, times(1))
-            .getLatestReconciliationReport(eq(date), eq(account.name()));
+            .getLatestReconciliationReport(date, account.name());
         verify(objectMapper).readValue(anyString(), eq(SummaryReport.class));
         verifyNoMoreInteractions(objectMapper);
         verify(reconciliationSender, times(1))
@@ -545,7 +545,7 @@ class ReconciliationMailServiceTest {
         verify(repository).findLatest(date);
         verifyNoMoreInteractions(repository);
         verify(reconciliationReportRepository, times(1))
-            .getLatestReconciliationReport(eq(date), eq(CFT.name()));
+            .getLatestReconciliationReport(date, CFT.name());
         verify(objectMapper).readValue(anyString(), eq(SummaryReport.class));
         verify(objectMapper).readValue(anyString(), eq(ReconciliationReportResponse.class));
         verifyNoMoreInteractions(objectMapper);

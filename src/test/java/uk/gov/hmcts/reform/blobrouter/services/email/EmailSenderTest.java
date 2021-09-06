@@ -17,7 +17,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 
-public class EmailSenderTest {
+class EmailSenderTest {
 
     private static final String FROM_ADDRESS = "from@hmcts.net";
     private static final String RECIPIENT_1 = "Foo <foo@hmcts.net>";

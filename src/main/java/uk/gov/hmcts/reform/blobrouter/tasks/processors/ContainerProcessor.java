@@ -44,7 +44,7 @@ public class ContainerProcessor {
                 .listBlobs()
                 .stream()
                 .map(blobItem -> containerClient.getBlobClient(blobItem.getName()))
-                .forEach(blob -> processBlob(blob));
+                .forEach(this::processBlob);
 
             logger.info("Finished processing container {}", containerName);
         } catch (Exception exception) {

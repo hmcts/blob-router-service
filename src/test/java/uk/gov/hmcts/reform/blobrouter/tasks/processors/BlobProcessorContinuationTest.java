@@ -38,7 +38,7 @@ import static uk.gov.hmcts.reform.blobrouter.services.BlobVerifier.VerificationR
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
-public class BlobProcessorContinuationTest {
+class BlobProcessorContinuationTest {
 
     @Mock BlobDispatcher blobDispatcher;
     @Mock EnvelopeService envelopeService;

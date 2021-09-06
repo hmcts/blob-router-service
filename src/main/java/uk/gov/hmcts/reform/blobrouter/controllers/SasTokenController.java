@@ -13,6 +13,8 @@ import uk.gov.hmcts.reform.blobrouter.services.SasTokenGeneratorService;
 @RequestMapping(path = "/token", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SasTokenController {
 
+    private static final String SEPARATORS = "[\n|\r|\t]";
+
     private final SasTokenGeneratorService tokenGeneratorService;
 
     public SasTokenController(SasTokenGeneratorService tokenGeneratorService) {
@@ -21,7 +23,7 @@ public class SasTokenController {
 
     @GetMapping(path = "/{serviceName}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<SasTokenResponse> getSasToken(@PathVariable String serviceName) {
-        String sasToken = tokenGeneratorService.generateSasToken(serviceName.replaceAll("[\n|\r|\t]", "_"));
+        String sasToken = tokenGeneratorService.generateSasToken(serviceName.replaceAll(SEPARATORS, "_"));
 
         return ResponseEntity.ok(new SasTokenResponse(sasToken));
     }

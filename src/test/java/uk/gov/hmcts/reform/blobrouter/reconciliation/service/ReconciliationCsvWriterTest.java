@@ -37,7 +37,7 @@ class ReconciliationCsvWriterTest {
     private static final String RECEIVED_NOT_REPORTED_PROBLEM = "Received but not Reported";
     private static final String REPORTED_NOT_RECEIVED_PROBLEM = "Reported but not Received";
 
-    private ReconciliationCsvWriter reconciliationCsvWriter = new ReconciliationCsvWriter();
+    private final ReconciliationCsvWriter reconciliationCsvWriter = new ReconciliationCsvWriter();
 
     @Test
     void should_return_csv_file_with_headers_and_csv_records() throws IOException {
