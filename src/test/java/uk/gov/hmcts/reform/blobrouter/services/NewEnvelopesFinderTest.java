@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(SpringExtension.class)
-public class NewEnvelopesFinderTest {
+class NewEnvelopesFinderTest {
 
     @Mock
     private EnvelopeRepository envelopeRepository;

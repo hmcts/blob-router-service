@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +33,7 @@ public class NewEnvelopesFinder {
 
     private final Duration timeInterval;
 
-    private static final List<String> nonCftContainers = ImmutableList.of("crime", "pcq");
+    private static final List<String> nonCftContainers = List.of("crime", "pcq");
 
     private final Clock clock;
 

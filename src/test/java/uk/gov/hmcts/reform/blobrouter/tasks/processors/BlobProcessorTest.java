@@ -24,7 +24,6 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
 import static org.mockito.BDDMockito.willThrow;
@@ -74,7 +73,7 @@ class BlobProcessorTest {
         verifyNewEnvelopeHasBeenCreated();
 
         // dispatcher has been called
-        verify(blobDispatcher).dispatch(eq(blobClient), eq(TARGET_CONTAINER), eq(TARGET_STORAGE_ACCOUNT));
+        verify(blobDispatcher).dispatch(blobClient, TARGET_CONTAINER, TARGET_STORAGE_ACCOUNT);
 
         // but the envelope has not been marked as dispatched
         verify(envelopeService, never()).markAsDispatched(any());
@@ -240,7 +239,7 @@ class BlobProcessorTest {
         // then
         verifyNewEnvelopeHasBeenCreated();
         verify(blobDispatcher, times(1))
-            .dispatch(eq(blobClient), eq(targetContainerName), eq(CFT));
+            .dispatch(blobClient, targetContainerName, CFT);
         verify(envelopeService).markAsDispatched(id);
     }
 

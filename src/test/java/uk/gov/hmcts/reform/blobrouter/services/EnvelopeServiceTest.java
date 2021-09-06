@@ -181,7 +181,7 @@ class EnvelopeServiceTest {
 
         assertThat(eventCaptor.getValue().envelopeId).isEqualTo(envelopeId);
         assertThat(eventCaptor.getValue().type).isEqualTo(eventType);
-        assertThat(eventCaptor.getValue().notes).isEqualTo(null);
+        assertThat(eventCaptor.getValue().notes).isNull();
     }
 
     @Test

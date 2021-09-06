@@ -71,11 +71,11 @@ class ReconciliationSenderTest {
         // then
         verify(emailSender, times(1))
             .sendMessageWithAttachments(
-                eq(subject),
-                eq(""),
-                eq(mailFrom),
-                eq(mailRecipients),
-                eq(Map.of("Summary-Report-" + date + ".csv", summaryReportFile))
+                subject,
+                "",
+                mailFrom,
+                mailRecipients,
+                Map.of("Summary-Report-" + date + ".csv", summaryReportFile)
             );
         verifyNoMoreInteractions(emailSender);
     }
@@ -115,15 +115,14 @@ class ReconciliationSenderTest {
         // then
         verify(emailSender, times(1))
             .sendMessageWithAttachments(
-                eq("[MISMATCH] CFT Scanning Reconciliation"),
-                eq(""),
-                eq(mailFrom),
-                eq(mailRecipients),
-                eq(Map.of(
-                    "Summary-Report-" + date + ".csv", summaryReportFile,
-                    "Detailed-report-" + date + ".csv", detailedReportFile
-                   )
-                )
+                "[MISMATCH] CFT Scanning Reconciliation",
+                "",
+                mailFrom,
+                mailRecipients,
+                Map.of(
+                "Summary-Report-" + date + ".csv", summaryReportFile,
+                "Detailed-report-" + date + ".csv", detailedReportFile
+               )
             );
         verifyNoMoreInteractions(emailSender);
     }

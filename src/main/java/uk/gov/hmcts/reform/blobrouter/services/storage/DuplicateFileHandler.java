@@ -37,34 +37,36 @@ public class DuplicateFileHandler {
     public void handle() {
         serviceConfiguration
             .getEnabledSourceContainers()
-            .forEach(container -> {
-                duplicateFinder
-                    .findIn(container)
-                    .forEach(duplicate -> {
-                        try {
-                            logger.info(
-                                "Moving duplicate file to rejected container. Container: {}, File name: {}",
-                                container,
-                                duplicate.fileName
-                            );
-                            var id = envelopeService.createNewEnvelope(
-                                duplicate.container,
-                                duplicate.fileName,
-                                duplicate.blobCreatedAt
-                            );
+            .forEach(container -> duplicateFinder
+                .findIn(container)
+                .forEach(duplicate -> {
+                    moveToRejectedContainer(container, duplicate);
+                }));
+    }
 
-                            envelopeService.markAsRejected(id, ErrorCode.ERR_ZIP_PROCESSING_FAILED, EVENT_MESSAGE);
-                            blobMover.moveToRejectedContainer(duplicate.fileName, container);
+    private void moveToRejectedContainer(String container, DuplicateFinder.Duplicate duplicate) {
+        try {
+            logger.info(
+                "Moving duplicate file to rejected container. Container: {}, File name: {}",
+                    container,
+                duplicate.fileName
+            );
+            var id = envelopeService.createNewEnvelope(
+                duplicate.container,
+                duplicate.fileName,
+                duplicate.blobCreatedAt
+            );
 
-                        } catch (Exception exc) {
-                            logger.error(
-                                "Error moving duplicate file. Container: {}. File name: {}",
-                                container,
-                                duplicate.fileName,
-                                exc
-                            );
-                        }
-                    });
-            });
+            envelopeService.markAsRejected(id, ErrorCode.ERR_ZIP_PROCESSING_FAILED, EVENT_MESSAGE);
+            blobMover.moveToRejectedContainer(duplicate.fileName, container);
+
+        } catch (Exception exc) {
+            logger.error(
+                "Error moving duplicate file. Container: {}. File name: {}",
+                    container,
+                duplicate.fileName,
+                exc
+            );
+        }
     }
 }
