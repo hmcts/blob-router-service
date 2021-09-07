@@ -224,4 +224,19 @@ public class EnvelopeRepository {
             mapper
         );
     }
+
+    public List<Envelope> findEnvelopesByDcnPrefix(String dcnPrefix, LocalDate fromDate, LocalDate toDate) {
+
+        return jdbcTemplate.query(
+            "SELECT * FROM envelopes"
+                + " WHERE file_name like :dcnPrefix"
+                + " AND DATE(file_created_at) BETWEEN :fromDate AND :toDate"
+                + " ORDER BY file_created_at DESC",
+            new MapSqlParameterSource()
+                .addValue("dcnPrefix", dcnPrefix + "%")
+                .addValue("fromDate", fromDate)
+                .addValue("toDate", toDate),
+            this.mapper
+        );
+    }
 }
