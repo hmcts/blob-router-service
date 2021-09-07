@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -470,6 +471,41 @@ public class EnvelopeRepositoryTest {
             assertThat(env.isDeleted).isEqualTo(false);
             assertThat(env.createdAt).isNotNull();
         });
+    }
+
+
+    @Test
+    void should_return_envelopes_by_dcn() {
+        // given
+        repo.insert(new NewEnvelope("X", "2313131.zip", now(), null, CREATED));
+        repo.insert(new NewEnvelope("Y", "231313.zip", now().minus(2, ChronoUnit.DAYS), null, DISPATCHED));
+        repo.insert(new NewEnvelope("F", "231313_x.zip", now(), null, REJECTED));
+        repo.insert(new NewEnvelope("K", "231313_b.zip", now().minus(3, ChronoUnit.DAYS), null, CREATED));
+        repo.insert(new NewEnvelope("B", "41419090.zip", now(), null, CREATED));
+
+        // when
+        List<Envelope> result = repo.findEnvelopesByDcnPrefix("231313", LocalDate.now().minusDays(1),LocalDate.now());
+
+        // then
+        assertThat(result)
+            .extracting(envelope -> envelope.fileName)
+            .containsExactlyInAnyOrder("231313_x.zip", "2313131.zip");
+    }
+
+    @Test
+    void should_return_empty_list_when_no_envelopes_matching_by_dcn() {
+        // given
+        repo.insert(new NewEnvelope("X", "2313131.zip", now().minus(4, ChronoUnit.DAYS), null, CREATED));
+        repo.insert(new NewEnvelope("Y", "231313.zip", now().minus(2, ChronoUnit.DAYS), null, DISPATCHED));
+        repo.insert(new NewEnvelope("F", "23131_x.zip", now(), null, REJECTED));
+        repo.insert(new NewEnvelope("K", "231313_b.zip", now().minus(3, ChronoUnit.DAYS), null, CREATED));
+        repo.insert(new NewEnvelope("B", "41419090.zip", now(), null, CREATED));
+
+        // when
+        List<Envelope> result = repo.findEnvelopesByDcnPrefix("231313", LocalDate.now().minusDays(1), LocalDate.now());
+
+        // then
+        assertThat(result).isEmpty();
     }
 
     private UUID addEnvelope(String fileName, String container) {
