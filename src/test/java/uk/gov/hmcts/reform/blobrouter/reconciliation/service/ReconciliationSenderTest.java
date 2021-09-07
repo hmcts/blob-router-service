@@ -22,7 +22,6 @@ import java.util.Map;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -158,13 +157,12 @@ class ReconciliationSenderTest {
         // then
         verify(emailSender, times(1))
             .sendMessageWithAttachments(
-                eq("[MISMATCH] CFT Scanning Reconciliation"),
-                eq(""),
-                eq(mailFrom),
-                eq(mailRecipients),
-                eq(Map.of(
+                "[MISMATCH] CFT Scanning Reconciliation",
+                "",
+                mailFrom,
+                mailRecipients,
+                Map.of(
                     "Detailed-report-" + date + ".csv", detailedReportFile
-                   )
                 )
             );
         verifyNoMoreInteractions(emailSender);
@@ -199,11 +197,11 @@ class ReconciliationSenderTest {
         // then
         verify(emailSender, times(1))
             .sendMessageWithAttachments(
-                eq("[NO ERROR] CFT Scanning Reconciliation"),
-                eq(""),
-                eq(mailFrom),
-                eq(mailRecipients),
-                eq(emptyMap())
+                "[NO ERROR] CFT Scanning Reconciliation",
+                "",
+                mailFrom,
+                mailRecipients,
+                emptyMap()
             );
 
         verifyNoMoreInteractions(emailSender);

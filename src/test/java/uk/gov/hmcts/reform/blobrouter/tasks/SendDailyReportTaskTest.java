@@ -90,8 +90,9 @@ class SendDailyReportTaskTest {
         assertThat(attachments).hasSize(1);
 
         String attachmentName = attachments.keySet().iterator().next();
-        assertThat(attachmentName).startsWith(SendDailyReportTask.ATTACHMENT_PREFIX);
-        assertThat(attachmentName).endsWith(SendDailyReportTask.ATTACHMENT_SUFFIX);
+        assertThat(attachmentName)
+                .startsWith(SendDailyReportTask.ATTACHMENT_PREFIX)
+                .endsWith(SendDailyReportTask.ATTACHMENT_SUFFIX);
 
         File attachment = attachments.values().iterator().next();
         assertThat(attachment).isEqualTo(reportFile);
