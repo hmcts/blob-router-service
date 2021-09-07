@@ -115,16 +115,16 @@ class ContainerCleanerTest {
         // and
 
         verify(blobClient1).deleteWithResponse(
-            eq(DeleteSnapshotsOptionType.INCLUDE),
-            eq(null),
-            eq(null),
-            eq(Context.NONE)
+            DeleteSnapshotsOptionType.INCLUDE,
+            null,
+            null,
+            Context.NONE
         );
         verify(blobClient2).deleteWithResponse(
-            eq(DeleteSnapshotsOptionType.INCLUDE),
-            eq(null),
-            eq(null),
-            eq(Context.NONE)
+            DeleteSnapshotsOptionType.INCLUDE,
+            null,
+            null,
+            Context.NONE
         );
 
         // and
@@ -193,7 +193,6 @@ class ContainerCleanerTest {
                 ENVELOPE_1
             ));
         given(containerClient.getBlobClient(ENVELOPE_1.fileName)).willReturn(blobClient1);
-        String leaseId = UUID.randomUUID().toString();
         BlobStorageException mockException = mock(BlobStorageException.class);
         given(mockException.getErrorCode()).willReturn(BlobErrorCode.LEASE_ALREADY_PRESENT);
 
