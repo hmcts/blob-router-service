@@ -63,6 +63,9 @@ public class EnvelopeController {
         @RequestParam(name = "between_dates") @DateTimeFormat(iso = DATE) List<LocalDate> dates
     ) {
 
+        if (dcnPrefix.length() < 10) {
+            return ResponseEntity.badRequest().body("`dcn_prefix` should contain at least 10 characters");
+        }
         if (dates.size() != 2) {
             return ResponseEntity.badRequest().body("`between_dates` should contain 2 valid dates");
         }
