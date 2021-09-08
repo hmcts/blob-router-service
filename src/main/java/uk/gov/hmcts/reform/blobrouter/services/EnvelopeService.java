@@ -175,6 +175,12 @@ public class EnvelopeService {
         return envelopes.isEmpty() ? emptyList() : ImmutableList.copyOf(envelopes);
     }
 
+    @Transactional(readOnly = true)
+    public List<Envelope> getEnvelopesByDcnPrefix(String dcnPrefix, LocalDate fromDate, LocalDate toDate) {
+        var envelopes = envelopeRepository.findEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
+        return envelopes.isEmpty() ? emptyList() : ImmutableList.copyOf(envelopes);
+    }
+
     private List<EnvelopeEvent> getEnvelopeEvents(
         Map<UUID, List<EnvelopeEvent>> eventsByEnvelopeIds,
         Envelope envelope

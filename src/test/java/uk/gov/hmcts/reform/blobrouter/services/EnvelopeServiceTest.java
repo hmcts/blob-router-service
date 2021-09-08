@@ -451,4 +451,45 @@ class EnvelopeServiceTest {
         verifyNoInteractions(eventRepository);
     }
 
+    @Test
+    void should_return_emptyList_when_no_envelopes_exists_for_dcn_for_given_dates() {
+        // given
+        LocalDate fromDate = LocalDate.now().minusDays(3);
+        LocalDate toDate = LocalDate.now();
+        String dcnPrefix = "23131312";
+        given(envelopeRepository.findEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate)).willReturn(emptyList());
+
+        // when
+        List<Envelope> envelopes = envelopeService.getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
+
+        // then
+        verify(envelopeRepository).findEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
+        assertThat(envelopes).isEmpty();
+        verifyNoInteractions(eventRepository);
+    }
+
+    @Test
+    void should_return_envelopeList_when_envelope_exists_for_dcn_for_given_dates() {
+        // given
+        String dcnPrefix = "23131312";
+        var envelope1 = new Envelope(
+            UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false
+        );
+        var envelope2 = new Envelope(
+            UUID.randomUUID(), "c2", "file2", now(), now(), now(), Status.REJECTED, false, false
+        );
+        LocalDate fromDate = LocalDate.now().minusDays(3);
+        LocalDate toDate = LocalDate.now();
+        given(envelopeRepository.findEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate))
+            .willReturn(asList(envelope2, envelope1));
+
+        // when
+        List<Envelope> envelopes = envelopeService.getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
+
+        // then
+        verify(envelopeRepository).findEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
+        assertThat(envelopes).isEqualTo(asList(envelope2, envelope1));
+        verifyNoInteractions(eventRepository);
+    }
+
 }
