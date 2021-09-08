@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,6 +53,29 @@ public class EnvelopeController {
                 .stream()
                 .map(tuple -> toResponse(tuple.getT1(), tuple.getT2()))
                 .collect(toList())
+        );
+
+    }
+
+    @GetMapping(params = {"dcn_prefix", "between_dates"})
+    public ResponseEntity findEnvelopesByDcnPrefixAndDate(
+        @RequestParam(name = "dcn_prefix") String dcnPrefix,
+        @RequestParam(name = "between_dates") @DateTimeFormat(iso = DATE) List<LocalDate> dates
+    ) {
+
+        if (dates.size() != 2) {
+            return ResponseEntity.badRequest().body("`between_dates` should contain 2 valid dates");
+        }
+        LocalDate fromDate = dates.get(0);
+        LocalDate toDate = dates.get(1);
+        if (toDate.isBefore(fromDate)) {
+            toDate = dates.get(0);
+            fromDate = dates.get(1);
+        }
+
+        return ResponseEntity.ok(new SearchResult(
+            envelopeService
+                .getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate))
         );
 
     }
