@@ -27,7 +27,10 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -242,6 +245,80 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(jsonPath("data[1].file_name").value("file2.zip"))
             .andExpect(jsonPath("data[1].envelope_id").value(envelopeId2.toString()))
             .andExpect(jsonPath("data[1].created_at").value("2021-01-14T11:38:28"));
+    }
+
+    @Test
+    void should_return_empty_result_if_envelope_for_given_dncPrefix_and_dates_not_exist() throws Exception {
+        final String dcnPrefix = "123456789";
+
+        var fromDate = LocalDate.of(2021, 8, 4);
+        var toDate = LocalDate.of(2021, 8, 21);
+        given(envelopeService.getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate))
+            .willReturn(emptyList());
+
+        mockMvc
+            .perform(
+                get("/envelopes")
+                    .queryParam("dcn_prefix", dcnPrefix)
+                    .queryParam("between_dates", "2021-08-04,2021-08-21")
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data", hasSize(0)));
+    }
+
+    @Test
+    void should_use_earliest_date_as_from_date_when_searching_by_dncPrefix() throws Exception {
+        final String dcnPrefix = "123456789";
+
+        var fromDate = LocalDate.of(2021, 8, 4);
+        var toDate = LocalDate.of(2021, 8, 21);
+        given(envelopeService.getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate))
+            .willReturn(emptyList());
+
+        mockMvc
+            .perform(
+                get("/envelopes")
+                    .queryParam("dcn_prefix", dcnPrefix)
+                    .queryParam("between_dates", "2021-08-21,2021-08-04")
+            )
+            .andDo(print())
+            .andExpect(status().isOk());
+        verify(envelopeService).getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
+    }
+
+    @Test
+    void should_return_envelopes_if_envelope_for_given_dncPrefix_and_dates_exists() throws Exception {
+
+        Envelope envelope1InDb = envelope("file1.zip", "cmc", instant("2021-08-26 10:10:00"));
+        Envelope envelope2InDb = envelope("file2.zip", "sscs", instant("2021-08-27 11:54:00"));
+
+        final String dcnPrefix = "file";
+
+        var fromDate = LocalDate.of(2021, 8, 25);
+        var toDate = LocalDate.of(2021, 8, 31);
+        given(envelopeService.getEnvelopesByDcnPrefix(anyString(), any(), any()))
+            .willReturn(asList(envelope1InDb, envelope2InDb));
+
+        mockMvc
+            .perform(
+                get("/envelopes")
+                    .queryParam("dcn_prefix", dcnPrefix)
+                    .queryParam("between_dates", "2021-08-25,2021-08-31")
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data", hasSize(2)))
+            .andExpect(content().contentType(APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("data[0].container").value("cmc"))
+            .andExpect(jsonPath("data[0].fileName").value("file1.zip"))
+            .andExpect(jsonPath("data[0].id").value(envelope1InDb.id.toString()))
+            .andExpect(jsonPath("data[0].createdAt").value("2021-08-26T09:10:00Z"))
+            .andExpect(jsonPath("data[1].container").value("sscs"))
+            .andExpect(jsonPath("data[1].fileName").value("file2.zip"))
+            .andExpect(jsonPath("data[1].id").value(envelope2InDb.id.toString()))
+            .andExpect(jsonPath("data[1].createdAt").value("2021-08-27T10:54:00Z"));
+        verify(envelopeService).getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
     }
 
     private Envelope envelope(String fileName, String container, Instant createdDate) {
