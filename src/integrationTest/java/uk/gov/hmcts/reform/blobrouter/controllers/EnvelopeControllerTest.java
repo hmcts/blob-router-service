@@ -249,7 +249,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
 
     @Test
     void should_return_empty_result_if_envelope_for_given_dncPrefix_and_dates_not_exist() throws Exception {
-        final String dcnPrefix = "123456789";
+        final String dcnPrefix = "1234567890";
 
         var fromDate = LocalDate.of(2021, 8, 4);
         var toDate = LocalDate.of(2021, 8, 21);
@@ -269,7 +269,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
 
     @Test
     void should_use_earliest_date_as_from_date_when_searching_by_dncPrefix() throws Exception {
-        final String dcnPrefix = "123456789";
+        final String dcnPrefix = "123456789§";
 
         var fromDate = LocalDate.of(2021, 8, 4);
         var toDate = LocalDate.of(2021, 8, 21);
@@ -288,12 +288,26 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     }
 
     @Test
+    void should_return_400_when_dncPrefix_shorter_than_10_chars() throws Exception {
+        final String dcnPrefix = "123456789";
+
+        mockMvc
+            .perform(
+                get("/envelopes")
+                    .queryParam("dcn_prefix", dcnPrefix)
+                    .queryParam("between_dates", "2021-08-21,2021-08-04")
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void should_return_envelopes_if_envelope_for_given_dncPrefix_and_dates_exists() throws Exception {
 
-        Envelope envelope1InDb = envelope("file1.zip", "cmc", instant("2021-08-26 10:10:00"));
-        Envelope envelope2InDb = envelope("file2.zip", "sscs", instant("2021-08-27 11:54:00"));
+        Envelope envelope1InDb = envelope("file_567890.zip", "cmc", instant("2021-08-26 10:10:00"));
+        Envelope envelope2InDb = envelope("file_567890_2.zip", "sscs", instant("2021-08-27 11:54:00"));
 
-        final String dcnPrefix = "file";
+        final String dcnPrefix = "file_567890";
 
         var fromDate = LocalDate.of(2021, 8, 25);
         var toDate = LocalDate.of(2021, 8, 31);
@@ -311,11 +325,11 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(jsonPath("$.data", hasSize(2)))
             .andExpect(content().contentType(APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("data[0].container").value("cmc"))
-            .andExpect(jsonPath("data[0].fileName").value("file1.zip"))
+            .andExpect(jsonPath("data[0].fileName").value("file_567890.zip"))
             .andExpect(jsonPath("data[0].id").value(envelope1InDb.id.toString()))
             .andExpect(jsonPath("data[0].createdAt").value("2021-08-26T09:10:00Z"))
             .andExpect(jsonPath("data[1].container").value("sscs"))
-            .andExpect(jsonPath("data[1].fileName").value("file2.zip"))
+            .andExpect(jsonPath("data[1].fileName").value("file_567890_2.zip"))
             .andExpect(jsonPath("data[1].id").value(envelope2InDb.id.toString()))
             .andExpect(jsonPath("data[1].createdAt").value("2021-08-27T10:54:00Z"));
         verify(envelopeService).getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
