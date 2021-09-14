@@ -174,7 +174,7 @@ repositories {
 
 def versions = [
   junit           : '5.7.2',
-  junitPlatform   : '1.7.2',
+  junitPlatform   : '1.8.0',
   reformLogging   : '5.1.5'
 ]
 
