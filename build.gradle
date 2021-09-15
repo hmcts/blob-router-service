@@ -165,7 +165,7 @@ dependencyManagement {
       entry 'commons-io'
     }
     // CVE-2020-0822
-    dependencySet(group: 'org.apache.tomcat.embed', version: '10.0.11') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '10.0.0') {
       entry 'tomcat-embed-websocket'
       entry 'tomcat-embed-core'
     }
