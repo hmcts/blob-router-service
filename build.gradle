@@ -173,7 +173,7 @@ repositories {
 }
 
 def versions = [
-  junit           : '5.7.2',
+  junit           : '5.8.0',
   junitPlatform   : '1.8.0',
   reformLogging   : '5.1.5'
 ]
@@ -197,7 +197,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.27.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.11.1'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.4.0'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.4.1'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
@@ -214,7 +214,7 @@ dependencies {
   // end region
 
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.3'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.4'
 
   implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
   implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
@@ -248,7 +248,7 @@ dependencies {
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation libraries.junit5
-  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.2'
+  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
   functionalTestImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
   functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.1'
   functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
@@ -257,7 +257,7 @@ dependencies {
 
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation libraries.junit5
-  smokeTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.20.1'
+  smokeTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
   smokeTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
