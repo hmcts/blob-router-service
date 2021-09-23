@@ -186,7 +186,7 @@ ext.libraries = [
     "org.junit.jupiter:junit-jupiter-params:${versions.junit}",
     "org.junit.platform:junit-platform-commons:${versions.junitPlatform}",
     "org.junit.platform:junit-platform-engine:${versions.junitPlatform}"
-    "org.apiguardian:apiguardian-api:${versions.junitPlatform}"
+    "org.apiguardian:apiguardian-api:${versions.apiguardian}"
   ]
 ]
 ext["rest-assured.version"] = '4.2.1'
