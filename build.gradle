@@ -176,7 +176,7 @@ def versions = [
   junit           : '5.8.1',
   junitPlatform   : '1.8.1',
   reformLogging   : '5.1.5',
-  apiguardian     : '1.0.0'
+  apiguardian     : '1.1.2'
 ]
 
 ext.libraries = [
