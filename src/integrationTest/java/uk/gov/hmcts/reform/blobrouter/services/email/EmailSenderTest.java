@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.services.email;
 
+import com.google.common.io.Resources;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import com.microsoft.applicationinsights.boot.dependencies.google.common.io.Resources;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.mail.util.MimeMessageParser;
 import org.junit.jupiter.api.AfterEach;
