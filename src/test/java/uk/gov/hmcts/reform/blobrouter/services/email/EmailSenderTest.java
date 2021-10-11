@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.email;
 
-import com.microsoft.applicationinsights.boot.dependencies.google.common.io.Resources;
+import com.google.common.io.Resources;
 import org.junit.jupiter.api.Test;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;

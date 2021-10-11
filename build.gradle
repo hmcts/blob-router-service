@@ -175,7 +175,7 @@ repositories {
 def versions = [
   junit           : '5.8.1',
   junitPlatform   : '1.8.1',
-  reformLogging   : '5.1.5',
+  reformLogging   : '5.1.9',
   apiguardian     : '1.1.2'
 ]
 
@@ -218,10 +218,9 @@ dependencies {
   implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.4'
 
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformLogging
-  implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformLogging
-
-  implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: '4.0.0'
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
+  implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
+  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.2'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
