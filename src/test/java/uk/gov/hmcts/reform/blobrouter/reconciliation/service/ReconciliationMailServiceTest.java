@@ -73,8 +73,8 @@ class ReconciliationMailServiceTest {
     private static final List<TargetStorageAccount> AVAILABLE_ACCOUNTS =
         List.of(CFT, CRIME);
 
-    private static final String BULKSCAN_NO_REPORT = "[NO SUPPLIER STATEMENT RECEIVED] CFT Scanning Reconciliation";
-    private static final String CRIME_NO_REPORT = "[NO SUPPLIER STATEMENT RECEIVED] CRIME Scanning Reconciliation";
+    private static final String BULKSCAN_NO_REPORT = "[NO SUPPLIER STATEMENT RECEIVED] CFT Scanning Reconciliation %s";
+    private static final String CRIME_NO_REPORT = "[NO SUPPLIER STATEMENT RECEIVED] CRIME Scanning Reconciliation %s";
 
     @BeforeEach
     void setUp() {
@@ -114,7 +114,12 @@ class ReconciliationMailServiceTest {
             );
 
         var titles = titleCaptor.getAllValues();
-        assertThat(titles).containsAll(List.of(BULKSCAN_NO_REPORT, CRIME_NO_REPORT));
+        assertThat(titles).containsAll(
+            List.of(
+                String.format(BULKSCAN_NO_REPORT, date),
+                String.format(CRIME_NO_REPORT, date)
+            )
+        );
         verifyNoMoreInteractions(emailSender);
     }
 
