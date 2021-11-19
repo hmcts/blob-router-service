@@ -42,6 +42,7 @@ class ReconciliationSenderTest {
 
     private static final String mailFrom = "from@f.com";
     private static final String[] mailRecipients = {"r1@d.com"};
+    private static final LocalDate reportForDate = LocalDate.now();
 
     @ParameterizedTest
     @MethodSource("summaryReportTest")
@@ -58,14 +59,13 @@ class ReconciliationSenderTest {
             mailRecipients
         );
 
-        LocalDate date = LocalDate.now();
 
         var summaryReportFile = mock(File.class);
         given(reconciliationCsvWriter.writeSummaryReconciliationToCsv(summaryReport))
             .willReturn(summaryReportFile);
 
         // when
-        reconciliationSender.sendReconciliationReport(date, account, summaryReport, null);
+        reconciliationSender.sendReconciliationReport(reportForDate, account, summaryReport, null);
 
         // then
         verify(emailSender, times(1))
@@ -74,7 +74,7 @@ class ReconciliationSenderTest {
                 "",
                 mailFrom,
                 mailRecipients,
-                Map.of("Summary-Report-" + date + ".csv", summaryReportFile)
+                Map.of("Summary-Report-" + reportForDate + ".csv", summaryReportFile)
             );
         verifyNoMoreInteractions(emailSender);
     }
@@ -91,7 +91,6 @@ class ReconciliationSenderTest {
             mailRecipients
         );
 
-        LocalDate date = LocalDate.now();
 
         var summaryReport = new SummaryReport(
             120,
@@ -109,18 +108,18 @@ class ReconciliationSenderTest {
             .willReturn(detailedReportFile);
 
         // when
-        reconciliationSender.sendReconciliationReport(date, CFT, summaryReport, detailedReport);
+        reconciliationSender.sendReconciliationReport(reportForDate, CFT, summaryReport, detailedReport);
 
         // then
         verify(emailSender, times(1))
             .sendMessageWithAttachments(
-                "[MISMATCH] CFT Scanning Reconciliation",
+                "[MISMATCH] CFT Scanning Reconciliation " + reportForDate,
                 "",
                 mailFrom,
                 mailRecipients,
                 Map.of(
-                "Summary-Report-" + date + ".csv", summaryReportFile,
-                "Detailed-report-" + date + ".csv", detailedReportFile
+                "Summary-Report-" + reportForDate + ".csv", summaryReportFile,
+                "Detailed-report-" + reportForDate + ".csv", detailedReportFile
                )
             );
         verifyNoMoreInteractions(emailSender);
@@ -138,7 +137,6 @@ class ReconciliationSenderTest {
             mailRecipients
         );
 
-        LocalDate date = LocalDate.now();
         var summaryReport = new SummaryReport(
             120,
             120,
@@ -152,17 +150,17 @@ class ReconciliationSenderTest {
             .willReturn(detailedReportFile);
 
         // when
-        reconciliationSender.sendReconciliationReport(date, CFT, summaryReport, detailedReport);
+        reconciliationSender.sendReconciliationReport(reportForDate, CFT, summaryReport, detailedReport);
 
         // then
         verify(emailSender, times(1))
             .sendMessageWithAttachments(
-                "[MISMATCH] CFT Scanning Reconciliation",
+                "[MISMATCH] CFT Scanning Reconciliation " + reportForDate,
                 "",
                 mailFrom,
                 mailRecipients,
                 Map.of(
-                    "Detailed-report-" + date + ".csv", detailedReportFile
+                    "Detailed-report-" + reportForDate + ".csv", detailedReportFile
                 )
             );
         verifyNoMoreInteractions(emailSender);
@@ -181,7 +179,6 @@ class ReconciliationSenderTest {
             mailRecipients
         );
 
-        LocalDate date = LocalDate.now();
         var summaryReport = new SummaryReport(
             120,
             120,
@@ -192,12 +189,12 @@ class ReconciliationSenderTest {
         var detailedReport = new ReconciliationReportResponse(emptyList());
 
         // when
-        reconciliationSender.sendReconciliationReport(date, CFT, summaryReport, detailedReport);
+        reconciliationSender.sendReconciliationReport(reportForDate, CFT, summaryReport, detailedReport);
 
         // then
         verify(emailSender, times(1))
             .sendMessageWithAttachments(
-                "[NO ERROR] CFT Scanning Reconciliation",
+                "[NO ERROR] CFT Scanning Reconciliation " + reportForDate,
                 "",
                 mailFrom,
                 mailRecipients,
@@ -217,7 +214,7 @@ class ReconciliationSenderTest {
                     List.of(new SummaryReportItem("12312.31312.312.zip", "crime")),
                     emptyList()
                 ),
-                "[MISMATCH] CRIME Scanning Reconciliation"
+                "[MISMATCH] CRIME Scanning Reconciliation " + reportForDate
             },
             new Object[]{
                 CRIME,
@@ -227,7 +224,7 @@ class ReconciliationSenderTest {
                     emptyList(),
                     List.of(new SummaryReportItem("2.31312.312.zip", "crime"))
                 ),
-                "[MISMATCH] CRIME Scanning Reconciliation"
+                "[MISMATCH] CRIME Scanning Reconciliation " + reportForDate
             },
             new Object[]{
                 CRIME,
@@ -237,7 +234,7 @@ class ReconciliationSenderTest {
                     List.of(new SummaryReportItem("12312.31312.312.zip", "crime")),
                     emptyList()
                 ),
-                "[MISMATCH] CRIME Scanning Reconciliation"
+                "[MISMATCH] CRIME Scanning Reconciliation " + reportForDate
             },
             new Object[]{
                 CRIME,
@@ -247,7 +244,7 @@ class ReconciliationSenderTest {
                     emptyList(),
                     List.of(new SummaryReportItem("2.31312.312.zip", "crime"))
                 ),
-                "[MISMATCH] CRIME Scanning Reconciliation"
+                "[MISMATCH] CRIME Scanning Reconciliation " + reportForDate
             }
         };
     }

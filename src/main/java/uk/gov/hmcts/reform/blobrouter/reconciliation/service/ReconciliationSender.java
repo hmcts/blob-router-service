@@ -23,8 +23,8 @@ public class ReconciliationSender {
 
     private static final Logger logger = getLogger(ReconciliationSender.class);
 
-    private static final String NO_ERROR_SUBJECT_FORMAT = "[NO ERROR] %s Scanning Reconciliation";
-    private static final String MISMATCH_SUBJECT_FORMAT = "[MISMATCH] %s Scanning Reconciliation";
+    private static final String NO_ERROR_SUBJECT_FORMAT = "[NO ERROR] %s Scanning Reconciliation %s";
+    private static final String MISMATCH_SUBJECT_FORMAT = "[MISMATCH] %s Scanning Reconciliation %s";
     private static final String EMPTY_BODY = "";
 
     private final MessageSender emailSender;
@@ -78,7 +78,7 @@ public class ReconciliationSender {
             }
 
             emailSender.sendMessageWithAttachments(
-                String.format(MISMATCH_SUBJECT_FORMAT, account),
+                String.format(MISMATCH_SUBJECT_FORMAT, account, date.toString()),
                 EMPTY_BODY,
                 mailFrom,
                 mailRecipients,
@@ -88,7 +88,7 @@ public class ReconciliationSender {
             logger.info("Email with reconciliation report has been sent for {}, {}", account, date);
         } else {
             emailSender.sendMessageWithAttachments(
-                String.format(NO_ERROR_SUBJECT_FORMAT, account),
+                String.format(NO_ERROR_SUBJECT_FORMAT, account, date.toString()),
                 EMPTY_BODY,
                 mailFrom,
                 mailRecipients,
