@@ -168,6 +168,10 @@ dependencyManagement {
       entry 'tomcat-embed-websocket'
       entry 'tomcat-embed-core'
     }
+    // CVE-2014-3488 CVE-2015-2156
+    dependencySet(group: 'io.netty', version: '2.0.43.Final') {
+      entry 'netty-tcnative-boringssl-static'
+    }
   }
 }
 
@@ -202,7 +206,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.29.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.29.0'
 
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.14.1'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.14.2'
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.4.2'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
