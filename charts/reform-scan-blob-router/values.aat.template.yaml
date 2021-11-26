@@ -23,6 +23,8 @@ java:
           alias: REPORTS_RECIPIENTS
         - name: reconciliation-api-key
           alias: RECONCILIATION_API_KEY
+        - name: reconciliation-report-api-key
+          alias: RECONCILIATION_REPORT_API_KEY
         - name: s2s-secret-blob-router
           alias: S2S_SECRET
         - name: reconciliation-report-recipients
