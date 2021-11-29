@@ -34,7 +34,7 @@ public class ReconciliationReportGenerationController {
         ReconciliationMailService reconciliationMailService,
         CftDetailedReportService cftDetailedReportService,
         SummaryReportService summaryReportService,
-        @Value("${reconciliation-report.api-key}") String apiKey
+        @Value("${reconciliation.report.api-key}") String apiKey
     ) {
         this.reconciliationMailService = reconciliationMailService;
         this.cftDetailedReportService = cftDetailedReportService;
