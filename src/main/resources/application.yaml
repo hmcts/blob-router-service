@@ -156,6 +156,7 @@ reconciliation:
   report:
       mail-from: ${SMTP_USERNAME}
       mail-recipients: ${RECONCILIATION_REPORT_RECIPIENTS}
+      api-key: ${RECONCILIATION_REPORT_API_KEY}
 
 idam:
   s2s-auth:
