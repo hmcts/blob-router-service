@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.controllers;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -84,11 +84,11 @@ public class EnvelopeController {
     }
 
     @GetMapping(path = "/stale-incomplete-envelopes")
-    @ApiOperation(
-        value = "Retrieves incomplete stale envelopes",
-        notes = "Returns an empty list when no incomplete stale envelopes were found"
+    @Operation(
+        summary = "Retrieves incomplete stale envelopes",
+        description = "Returns an empty list when no incomplete stale envelopes were found"
     )
-    @ApiResponse(code = 200, message = "Success")
+    @ApiResponse(responseCode = "200", description = "Success")
     public SearchResult getIncomplete(
         @RequestParam(name = "stale_time", required = false, defaultValue = DEFAULT_STALE_TIME_HOURS)
             int staleTime
