@@ -167,7 +167,7 @@ idam:
 envelope-stale-timeout-hr: ${ENVELOPE_STALE_TIMEOUT_HR}
 
 springdoc:
-  packagesToScan: uk.gov.hmcts.reform.blobrouter.controllers
+  packagesToScan: uk.gov.hmcts.reform.blobrouter
   pathsToMatch:
     - /reconciliation-report/*
     - /token/*
