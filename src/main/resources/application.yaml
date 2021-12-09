@@ -168,7 +168,9 @@ envelope-stale-timeout-hr: ${ENVELOPE_STALE_TIMEOUT_HR}
 
 springdoc:
   packagesToScan: uk.gov.hmcts.reform.blobrouter.controllers
-  pathsToMatch: /reconciliation-report/*,/token/*
+  pathsToMatch:
+    - /reconciliation-report/*
+    - /token/*
   swagger-ui:
     use-root-path: true
 
