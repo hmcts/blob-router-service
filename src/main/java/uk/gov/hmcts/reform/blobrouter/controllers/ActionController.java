@@ -1,6 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.controllers;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +21,7 @@ public class ActionController {
     }
 
     @PutMapping(path = "/complete/{id}")
-    @ApiOperation("Reprocess envelope by ID")
+    @Operation(summary = "Reprocess envelope by ID")
     public ResponseEntity<Void> complete(@PathVariable UUID id) {
         envelopeActionService.completeStaleEnvelope(id);
         return new ResponseEntity<>(HttpStatus.OK);

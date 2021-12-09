@@ -1,13 +1,13 @@
 package uk.gov.hmcts.reform.blobrouter.model.out;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class SasTokenResponse {
 
-    @ApiModelProperty(
+    @Schema(
         name = "SAS Token",
-        notes = "Shared access token to access blobs"
+        description = "Shared access token to access blobs"
     )
     @JsonProperty("sas_token")
     public final String sasToken;

@@ -1,8 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.controller;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,13 +60,16 @@ public class ReconciliationController {
         consumes = MediaType.APPLICATION_JSON_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @ApiOperation("Saves supplier statements report for given date")
+    @Operation(description = "Saves supplier statements report for given date")
     @ApiResponses({
         @ApiResponse(
-            code = 200, response = SuccessfulResponse.class, message = "The report has been accepted"
+            responseCode = "200",
+            content = @Content(schema = @Schema(implementation = SuccessfulResponse.class)),
+            description = "The report has been accepted"
         ),
-        @ApiResponse(code = 400, message = "Request failed due to malformed syntax in either body or path parameter"),
-        @ApiResponse(code = 401, message = "Invalid API Key")
+        @ApiResponse(responseCode = "400",
+            description = "Request failed due to malformed syntax in either body or path parameter"),
+        @ApiResponse(responseCode = "401", description = "Invalid API Key")
     })
     public SuccessfulResponse uploadSupplierReport(
         @RequestHeader(value = AUTHORIZATION, required = false) String authHeader,
