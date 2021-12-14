@@ -223,7 +223,7 @@ dependencies {
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '11.7'
   // end region
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.0'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.1'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.5'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
