@@ -168,7 +168,7 @@ dependencyManagement {
     dependencySet(group: 'io.netty', version: '2.0.43.Final') {
       entry 'netty-tcnative-boringssl-static'
     }
-    dependencySet(group: 'org.apache.logging.log4j', version: '2.17.0') {
+    dependencySet(group: 'org.apache.logging.log4j', version: '2.17.1') {
       entry 'log4j-api'
       entry 'log4j-to-slf4j'
     }
@@ -201,7 +201,7 @@ ext["rest-assured.version"] = '4.2.1'
 
 dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.1'
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.2.3'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.3.0'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.30.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.30.0'
@@ -219,11 +219,11 @@ dependencies {
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.0'
   // region: feign clients
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.0'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.7'
-  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '11.7'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.8'
+  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '11.8'
   // end region
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.2'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.3'
   implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.5'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
@@ -248,7 +248,7 @@ dependencies {
 
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.1.0'
 
-  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.27.2'
+  integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.32.0'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.16.2', {
     exclude group: 'junit', module: 'junit'
   }
@@ -257,7 +257,7 @@ dependencies {
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation libraries.junit5
-  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
+  functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.22.0'
   functionalTestImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
   functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.1'
   functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
