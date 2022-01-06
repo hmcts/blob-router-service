@@ -19,13 +19,14 @@ import static org.mockito.Mockito.verify;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.REJECTED;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("checkstyle:LineLength")
 class RejectedFilesHandlerTest {
 
     @Mock EnvelopeService envelopeService;
     @Mock BlobMover blobMover;
 
-    final Envelope envelope1 = new Envelope(UUID.randomUUID(), "c1", "f1", now(), now(), null, REJECTED, false, false);
-    final Envelope envelope2 = new Envelope(UUID.randomUUID(), "c2", "f2", now(), now(), null, REJECTED, false, false);
+    final Envelope envelope1 = new Envelope(UUID.randomUUID(), "c1", "f1", now(), now(), null, REJECTED, false, false, null);
+    final Envelope envelope2 = new Envelope(UUID.randomUUID(), "c2", "f2", now(), now(), null, REJECTED, false, false, null);
 
     RejectedFilesHandler mover;
 

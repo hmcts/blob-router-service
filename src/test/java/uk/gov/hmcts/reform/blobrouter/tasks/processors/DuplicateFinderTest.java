@@ -27,6 +27,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("checkstyle:LineLength")
 class DuplicateFinderTest {
 
     @Mock BlobServiceClient storageClient;
@@ -44,8 +45,8 @@ class DuplicateFinderTest {
     @Test
     void should_return_duplicate_when_envelope_already_exists_and_is_marked_as_deleted() {
         // given
-        Envelope deletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, true, false);
-        Envelope notYetDeletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, false, false);
+        Envelope deletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, true, false, null);
+        Envelope notYetDeletedEnvelope = new Envelope(randomUUID(), null, null, null, null, null, null, false, false, null);
 
         var blobs = Stream.of(
             blob("a.zip"),

@@ -14,6 +14,7 @@ public class Envelope {
     public final Status status;
     public final boolean isDeleted;
     public final boolean pendingNotification;
+    public final Integer fileSize;
 
     public Envelope(
         UUID id,
@@ -24,7 +25,8 @@ public class Envelope {
         Instant dispatchedAt,
         Status status,
         boolean isDeleted,
-        boolean pendingNotification
+        boolean pendingNotification,
+        Integer fileSize
     ) {
         this.id = id;
         this.container = container;
@@ -35,6 +37,7 @@ public class Envelope {
         this.status = status;
         this.isDeleted = isDeleted;
         this.pendingNotification = pendingNotification;
+        this.fileSize = fileSize;
     }
 
     public String getBasicInfo() {

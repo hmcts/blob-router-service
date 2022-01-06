@@ -508,6 +508,20 @@ public class EnvelopeRepositoryTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    void should_update_file_size() {
+        // given
+        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, DISPATCHED));
+        var newFileSize = 1024;
+
+        // when
+        repo.updateFileSize(id, newFileSize);
+
+        // then
+        assertThat(repo.find(id))
+                .hasValueSatisfying(env -> assertThat(env.fileSize).isEqualTo(newFileSize));
+    }
+
     private UUID addEnvelope(String fileName, String container) {
         return addEnvelope(container, fileName, CREATED, false);
     }
