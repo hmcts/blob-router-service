@@ -1,0 +1,2 @@
+ALTER TABLE envelopes
+ADD COLUMN file_size INTEGER NULL;
