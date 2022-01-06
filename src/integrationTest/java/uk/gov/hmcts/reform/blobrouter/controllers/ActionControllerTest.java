@@ -270,7 +270,7 @@ class ActionControllerTest {
             status,
             false,
             false,
-            null
+            0
         );
     }
 

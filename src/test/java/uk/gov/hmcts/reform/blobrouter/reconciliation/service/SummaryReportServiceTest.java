@@ -392,7 +392,7 @@ class SummaryReportServiceTest {
             Status.CREATED,
             false,
             false,
-            null
+            0
         );
     }
 

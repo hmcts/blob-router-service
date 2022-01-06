@@ -185,6 +185,6 @@ class BlobProcessorContinuationTest {
     }
 
     private Envelope envelope(UUID id, Status status) {
-        return new Envelope(id, "s1", "hello.zip", null, null, null, status, false, false, null);
+        return new Envelope(id, "s1", "hello.zip", null, null, null, status, false, false, 0);
     }
 }

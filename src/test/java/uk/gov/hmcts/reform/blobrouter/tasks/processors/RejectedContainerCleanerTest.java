@@ -120,7 +120,7 @@ class RejectedContainerCleanerTest {
 
         var envelopeId = UUID.randomUUID();
         given(envelopeService.findLastEnvelope(REJECTED_BLOB, REJECTED_CONTAINER))
-            .willReturn(Optional.of(new Envelope(envelopeId, null, null, null, null, null, null, true, false, null)));
+            .willReturn(Optional.of(new Envelope(envelopeId, null, null, null, null, null, null, true, false, 0)));
 
         // when
         cleaner.cleanUp();

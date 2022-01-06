@@ -14,7 +14,7 @@ public class Envelope {
     public final Status status;
     public final boolean isDeleted;
     public final boolean pendingNotification;
-    public final Integer fileSize;
+    public final int fileSize;
 
     public Envelope(
         UUID id,
@@ -26,7 +26,7 @@ public class Envelope {
         Status status,
         boolean isDeleted,
         boolean pendingNotification,
-        Integer fileSize
+        int fileSize
     ) {
         this.id = id;
         this.container = container;

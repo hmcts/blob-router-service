@@ -25,8 +25,8 @@ class RejectedFilesHandlerTest {
     @Mock EnvelopeService envelopeService;
     @Mock BlobMover blobMover;
 
-    final Envelope envelope1 = new Envelope(UUID.randomUUID(), "c1", "f1", now(), now(), null, REJECTED, false, false, null);
-    final Envelope envelope2 = new Envelope(UUID.randomUUID(), "c2", "f2", now(), now(), null, REJECTED, false, false, null);
+    final Envelope envelope1 = new Envelope(UUID.randomUUID(), "c1", "f1", now(), now(), null, REJECTED, false, false, 0);
+    final Envelope envelope2 = new Envelope(UUID.randomUUID(), "c2", "f2", now(), now(), null, REJECTED, false, false, 0);
 
     RejectedFilesHandler mover;
 
