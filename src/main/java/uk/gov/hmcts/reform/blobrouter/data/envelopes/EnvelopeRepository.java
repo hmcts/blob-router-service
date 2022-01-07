@@ -239,4 +239,15 @@ public class EnvelopeRepository {
             this.mapper
         );
     }
+
+    public int updateFileSize(UUID id, Integer fileSize) {
+        return jdbcTemplate.update(
+            "UPDATE envelopes "
+                + "SET file_size = :fileSize "
+                + "WHERE id = :id",
+            new MapSqlParameterSource()
+                .addValue("id", id)
+                .addValue("fileSize", fileSize)
+        );
+    }
 }

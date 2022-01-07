@@ -218,7 +218,8 @@ class ContainerCleanerTest {
             Instant.now(),
             status,
             false,
-            false
+            false,
+            null
         );
     }
 }

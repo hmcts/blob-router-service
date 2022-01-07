@@ -391,7 +391,8 @@ class SummaryReportServiceTest {
             Instant.now(),
             Status.CREATED,
             false,
-            false
+            false,
+            null
         );
     }
 

@@ -269,7 +269,8 @@ class ActionControllerTest {
             null,
             status,
             false,
-            false
+            false,
+            null
         );
     }
 

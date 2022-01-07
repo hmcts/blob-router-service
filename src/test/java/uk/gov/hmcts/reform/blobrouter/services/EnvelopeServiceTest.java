@@ -129,7 +129,8 @@ class EnvelopeServiceTest {
             now(),
             Status.DISPATCHED,
             false,
-            false
+            false,
+            null
         );
 
         // when
@@ -188,7 +189,7 @@ class EnvelopeServiceTest {
     void should_mark_envelope_as_dispatched() {
         // given
         var existingEnvelope = new Envelope(
-            UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false, false
+            UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false, false, null
         );
         given(envelopeRepository.find(existingEnvelope.id))
             .willReturn(Optional.of(existingEnvelope));
@@ -227,7 +228,7 @@ class EnvelopeServiceTest {
     void should_mark_envelope_as_rejected() {
         // given
         var existingEnvelope = new Envelope(
-            UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false, false
+            UUID.randomUUID(), "c", "f", null, null, null, Status.CREATED, false, false, null
         );
         given(envelopeRepository.find(existingEnvelope.id))
             .willReturn(Optional.of(existingEnvelope));
@@ -268,7 +269,7 @@ class EnvelopeServiceTest {
     void should_mark_envelope_as_notification_sent() {
         // given
         var existingEnvelope = new Envelope(
-            UUID.randomUUID(), "c", "f", null, null, null, Status.REJECTED, false, true
+            UUID.randomUUID(), "c", "f", null, null, null, Status.REJECTED, false, true, null
         );
 
         // when
@@ -288,18 +289,18 @@ class EnvelopeServiceTest {
     void should_call_envelope_repository_with_the_filename_container_and_requested_date_values() {
         // given
         var envelope1 = new Envelope(
-            UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false
+            UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false, null
         );
         var event1a = new EnvelopeEvent(1L, envelope1.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
         var event1b = new EnvelopeEvent(2L, envelope1.id, EventType.DISPATCHED, null, null, now().plusMillis(10));
 
         var envelope2 = new Envelope(
-            UUID.randomUUID(), "c1", "file2", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
+            UUID.randomUUID(), "c1", "file2", now().plusMillis(10), now(), now(), Status.REJECTED, true, false, null
         );
         var event2a = new EnvelopeEvent(3L, envelope2.id, EventType.FILE_PROCESSING_STARTED, null, null, now());
 
         var envelope3 = new Envelope(
-            UUID.randomUUID(), "c1", "file3", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
+            UUID.randomUUID(), "c1", "file3", now().plusMillis(10), now(), now(), Status.REJECTED, true, false, null
         );
 
         LocalDate date = LocalDate.now();
@@ -396,11 +397,11 @@ class EnvelopeServiceTest {
         // given
         LocalDate date = LocalDate.now();
         var envelope1 = new Envelope(
-            UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false
+            UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false, null
         );
 
         var envelope2 = new Envelope(
-            UUID.randomUUID(), "c1", "file2", now().plusMillis(10), now(), now(), Status.REJECTED, true, false
+            UUID.randomUUID(), "c1", "file2", now().plusMillis(10), now(), now(), Status.REJECTED, true, false, null
         );
         var list = List.of(envelope1, envelope2);
         given(envelopeRepository.findEnvelopes(null, null, date)).willReturn(list);
@@ -473,10 +474,10 @@ class EnvelopeServiceTest {
         // given
         String dcnPrefix = "23131312";
         var envelope1 = new Envelope(
-            UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false
+            UUID.randomUUID(), "c1", "file1", now(), now(), now(), Status.DISPATCHED, true, false, null
         );
         var envelope2 = new Envelope(
-            UUID.randomUUID(), "c2", "file2", now(), now(), now(), Status.REJECTED, false, false
+            UUID.randomUUID(), "c2", "file2", now(), now(), now(), Status.REJECTED, false, false, null
         );
         LocalDate fromDate = LocalDate.now().minusDays(3);
         LocalDate toDate = LocalDate.now();
