@@ -1,0 +1,2 @@
+ALTER TABLE envelopes
+ALTER COLUMN file_size TYPE BIGINT;
