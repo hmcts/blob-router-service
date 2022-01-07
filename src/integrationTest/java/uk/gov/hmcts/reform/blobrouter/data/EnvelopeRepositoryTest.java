@@ -45,7 +45,8 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             now().plusSeconds(100),
-            DISPATCHED
+            DISPATCHED,
+            1024L
         );
 
         // when
@@ -63,6 +64,7 @@ public class EnvelopeRepositoryTest {
             assertThat(env.status).isEqualTo(newEnvelope.status);
             assertThat(env.isDeleted).isEqualTo(false);
             assertThat(env.createdAt).isNotNull();
+            assertThat(env.fileSize).isEqualTo(1024L);
         });
     }
 
@@ -74,7 +76,8 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             null,
-            REJECTED
+            REJECTED,
+            1024L
         );
 
         // when
@@ -92,6 +95,7 @@ public class EnvelopeRepositoryTest {
             assertThat(env.status).isEqualTo(newEnvelope.status);
             assertThat(env.isDeleted).isEqualTo(false);
             assertThat(env.createdAt).isNotNull();
+            assertThat(env.fileSize).isEqualTo(1024L);
         });
     }
 
@@ -103,7 +107,8 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             now().plusSeconds(100),
-            DISPATCHED
+            DISPATCHED,
+            1024L
         );
 
         UUID id = repo.insert(newEnvelope);
@@ -125,7 +130,8 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             now().plusSeconds(100),
-            REJECTED
+            REJECTED,
+            1024L
         );
 
         UUID id = repo.insert(newEnvelope);
@@ -145,7 +151,7 @@ public class EnvelopeRepositoryTest {
         var oldStatus = DISPATCHED;
         var newStatus = REJECTED;
 
-        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, oldStatus));
+        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, oldStatus, 1024L));
 
         // when
         repo.updateStatus(id, newStatus);
@@ -158,7 +164,7 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_update_dispatch_time() {
         // given
-        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, DISPATCHED));
+        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, DISPATCHED, 1024L));
         Instant newDispatchTime = now();
 
         // when
@@ -239,6 +245,7 @@ public class EnvelopeRepositoryTest {
             assertThat(env.status).isEqualTo(envelope.status);
             assertThat(env.isDeleted).isEqualTo(true);
             assertThat(env.createdAt).isNotNull();
+            assertThat(env.fileSize).isEqualTo(1024L);
         });
     }
 
@@ -249,8 +256,8 @@ public class EnvelopeRepositoryTest {
         final String container = "bar";
 
         // and
-        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(99), now(), DISPATCHED));
-        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(10), null, REJECTED));
+        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(99), now(), DISPATCHED, null));
+        repo.insert(new NewEnvelope(container, fileName, now().minusSeconds(10), null, REJECTED, null));
 
         // when
         Optional<Envelope> result = repo.findLast(fileName, container);
@@ -266,7 +273,7 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_empty_optional_when_last_envelope_for_given_container_and_file_name_does_not_exist() {
         // given
-        repo.insert(new NewEnvelope("a", "b", now(), now(), DISPATCHED));
+        repo.insert(new NewEnvelope("a", "b", now(), now(), DISPATCHED, null));
 
         // when
         Optional<Envelope> result = repo.findLast("some_other_file_name", "some_other_container");
@@ -417,11 +424,11 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_get_incomplete_envelopes() {
         // given
-        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(7200), null, CREATED));
-        repo.insert(new NewEnvelope("Y", "B.zip", now().minusSeconds(10), null, DISPATCHED));
-        repo.insert(new NewEnvelope("Z", "C.zip", now().minusSeconds(10), null, REJECTED));
-        repo.insert(new NewEnvelope("Z", "D.zip", now().minusSeconds(7200), null, CREATED));
-        repo.insert(new NewEnvelope("Z", "E.zip", now().minusSeconds(10), null, CREATED));
+        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(7200), null, CREATED, null));
+        repo.insert(new NewEnvelope("Y", "B.zip", now().minusSeconds(10), null, DISPATCHED, null));
+        repo.insert(new NewEnvelope("Z", "C.zip", now().minusSeconds(10), null, REJECTED, null));
+        repo.insert(new NewEnvelope("Z", "D.zip", now().minusSeconds(7200), null, CREATED, null));
+        repo.insert(new NewEnvelope("Z", "E.zip", now().minusSeconds(10), null, CREATED, null));
 
         // when
         List<Envelope> result = repo.getIncompleteEnvelopesBefore(now().minusSeconds(3600));
@@ -435,10 +442,10 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_empty_when_envelope_status_is_created() {
         // given
-        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(10), null, CREATED));
-        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(10), null, CREATED));
-        repo.insert(new NewEnvelope("Y", "A.zip", now().minusSeconds(7200), null, REJECTED));
-        repo.insert(new NewEnvelope("X", "E.zip", now().minusSeconds(10), null, DISPATCHED));
+        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(10), null, CREATED, null));
+        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(10), null, CREATED, null));
+        repo.insert(new NewEnvelope("Y", "A.zip", now().minusSeconds(7200), null, REJECTED, null));
+        repo.insert(new NewEnvelope("X", "E.zip", now().minusSeconds(10), null, DISPATCHED, null));
 
         // when
         Optional<Envelope> envelopeInDb = repo.findEnvelopeNotInCreatedStatus("A.zip", "X");
@@ -451,12 +458,12 @@ public class EnvelopeRepositoryTest {
     void should_get_envelope_not_in_created_status() {
         // given
         NewEnvelope newEnvelope =
-            new NewEnvelope("X", "A.zip", now().minusSeconds(7200), null, DISPATCHED);
+            new NewEnvelope("X", "A.zip", now().minusSeconds(7200), null, DISPATCHED, null);
         repo.insert(newEnvelope);
-        repo.insert(new NewEnvelope("X", "B.zip", now().minusSeconds(10), null, DISPATCHED));
-        repo.insert(new NewEnvelope("X", "C.zip", now().minusSeconds(10), null, REJECTED));
-        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(100), null, CREATED));
-        repo.insert(new NewEnvelope("X", "E.zip", now().minusSeconds(10), null, CREATED));
+        repo.insert(new NewEnvelope("X", "B.zip", now().minusSeconds(10), null, DISPATCHED, null));
+        repo.insert(new NewEnvelope("X", "C.zip", now().minusSeconds(10), null, REJECTED, null));
+        repo.insert(new NewEnvelope("X", "A.zip", now().minusSeconds(100), null, CREATED, null));
+        repo.insert(new NewEnvelope("X", "E.zip", now().minusSeconds(10), null, CREATED, null));
 
         // when
         Optional<Envelope> envelopeInDb = repo.findEnvelopeNotInCreatedStatus("A.zip", "X");
@@ -477,11 +484,11 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_envelopes_by_dcn() {
         // given
-        repo.insert(new NewEnvelope("X", "2313131.zip", now(), null, CREATED));
-        repo.insert(new NewEnvelope("Y", "231313.zip", now().minus(2, ChronoUnit.DAYS), null, DISPATCHED));
-        repo.insert(new NewEnvelope("F", "231313_x.zip", now(), null, REJECTED));
-        repo.insert(new NewEnvelope("K", "231313_b.zip", now().minus(3, ChronoUnit.DAYS), null, CREATED));
-        repo.insert(new NewEnvelope("B", "41419090.zip", now(), null, CREATED));
+        repo.insert(new NewEnvelope("X", "2313131.zip", now(), null, CREATED, null));
+        repo.insert(new NewEnvelope("Y", "231313.zip", now().minus(2, ChronoUnit.DAYS), null, DISPATCHED, null));
+        repo.insert(new NewEnvelope("F", "231313_x.zip", now(), null, REJECTED, null));
+        repo.insert(new NewEnvelope("K", "231313_b.zip", now().minus(3, ChronoUnit.DAYS), null, CREATED, null));
+        repo.insert(new NewEnvelope("B", "41419090.zip", now(), null, CREATED, null));
 
         // when
         List<Envelope> result = repo.findEnvelopesByDcnPrefix("231313", LocalDate.now().minusDays(1),LocalDate.now());
@@ -495,11 +502,11 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_return_empty_list_when_no_envelopes_matching_by_dcn() {
         // given
-        repo.insert(new NewEnvelope("X", "2313131.zip", now().minus(4, ChronoUnit.DAYS), null, CREATED));
-        repo.insert(new NewEnvelope("Y", "231313.zip", now().minus(2, ChronoUnit.DAYS), null, DISPATCHED));
-        repo.insert(new NewEnvelope("F", "23131_x.zip", now(), null, REJECTED));
-        repo.insert(new NewEnvelope("K", "231313_b.zip", now().minus(3, ChronoUnit.DAYS), null, CREATED));
-        repo.insert(new NewEnvelope("B", "41419090.zip", now(), null, CREATED));
+        repo.insert(new NewEnvelope("X", "2313131.zip", now().minus(4, ChronoUnit.DAYS), null, CREATED, null));
+        repo.insert(new NewEnvelope("Y", "231313.zip", now().minus(2, ChronoUnit.DAYS), null, DISPATCHED, null));
+        repo.insert(new NewEnvelope("F", "23131_x.zip", now(), null, REJECTED, null));
+        repo.insert(new NewEnvelope("K", "231313_b.zip", now().minus(3, ChronoUnit.DAYS), null, CREATED, null));
+        repo.insert(new NewEnvelope("B", "41419090.zip", now(), null, CREATED, null));
 
         // when
         List<Envelope> result = repo.findEnvelopesByDcnPrefix("231313", LocalDate.now().minusDays(1), LocalDate.now());
@@ -508,26 +515,12 @@ public class EnvelopeRepositoryTest {
         assertThat(result).isEmpty();
     }
 
-    @Test
-    void should_update_file_size() {
-        // given
-        UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, DISPATCHED));
-        var newFileSize = 1024;
-
-        // when
-        repo.updateFileSize(id, newFileSize);
-
-        // then
-        assertThat(repo.find(id))
-                .hasValueSatisfying(env -> assertThat(env.fileSize).isEqualTo(newFileSize));
-    }
-
     private UUID addEnvelope(String fileName, String container) {
         return addEnvelope(container, fileName, CREATED, false);
     }
 
     private UUID addEnvelope(String container, String fileName, Status status, boolean isDeleted) {
-        UUID id = repo.insert(new NewEnvelope(container, fileName, now(), now(), status));
+        UUID id = repo.insert(new NewEnvelope(container, fileName, now(), now(), status, null));
         if (isDeleted) {
             repo.markAsDeleted(id);
         }
@@ -541,7 +534,8 @@ public class EnvelopeRepositoryTest {
                 fileName,
                 fileCreatedAt,
                 fileCreatedAt.plusSeconds(100),
-                status
+                status,
+                null
             )
         );
     }
@@ -552,7 +546,8 @@ public class EnvelopeRepositoryTest {
             UUID.randomUUID().toString(),
             now(),
             now().plusSeconds(100),
-            status
+            status,
+            1024L
         );
     }
 }

@@ -39,7 +39,7 @@ public class EnvelopeEventRepositoryTest {
     @Test
     void should_save_and_read_events() {
         // given
-        var envelopeId = envelopeRepo.insert(new NewEnvelope("c", "f", now(), null, Status.CREATED));
+        var envelopeId = envelopeRepo.insert(new NewEnvelope("c", "f", now(), null, Status.CREATED, null));
 
         var event1 = new NewEnvelopeEvent(envelopeId, EventType.REJECTED, ErrorCode.ERR_SIG_VERIFY_FAILED, "note 1");
         var event2 = new NewEnvelopeEvent(envelopeId, EventType.DELETED, null, "note 2");
@@ -85,8 +85,8 @@ public class EnvelopeEventRepositoryTest {
     @Test
     void should_return_events_for_envelope_ids_order_by_created_at() {
         // given
-        var envelopeId1 = envelopeRepo.insert(new NewEnvelope("c1", "f1", now(), null, Status.CREATED));
-        var envelopeId2 = envelopeRepo.insert(new NewEnvelope("c2", "f2", now(), null, Status.DISPATCHED));
+        var envelopeId1 = envelopeRepo.insert(new NewEnvelope("c1", "f1", now(), null, Status.CREATED, null));
+        var envelopeId2 = envelopeRepo.insert(new NewEnvelope("c2", "f2", now(), null, Status.DISPATCHED, null));
 
         var event1a = new NewEnvelopeEvent(envelopeId1, EventType.FILE_PROCESSING_STARTED, null, "note 1");
         var event2a = new NewEnvelopeEvent(envelopeId2, EventType.FILE_PROCESSING_STARTED, null, "note 3");
@@ -113,8 +113,8 @@ public class EnvelopeEventRepositoryTest {
     @Test
     void should_return_empty_when_no_events_exist_for_envelopes() {
         // given
-        var envelopeId1 = envelopeRepo.insert(new NewEnvelope("c1", "f1", now(), null, Status.CREATED));
-        var envelopeId2 = envelopeRepo.insert(new NewEnvelope("c2", "f2", now(), null, Status.CREATED));
+        var envelopeId1 = envelopeRepo.insert(new NewEnvelope("c1", "f1", now(), null, Status.CREATED, null));
+        var envelopeId2 = envelopeRepo.insert(new NewEnvelope("c2", "f2", now(), null, Status.CREATED, null));
 
         // when
         var eventsInDb = eventRepo.findForEnvelopes(asList(envelopeId1, envelopeId2));

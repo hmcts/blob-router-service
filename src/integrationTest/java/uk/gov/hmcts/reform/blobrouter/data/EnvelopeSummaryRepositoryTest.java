@@ -69,7 +69,8 @@ public class EnvelopeSummaryRepositoryTest {
                 CRIME_CREATED_1,
                 createdAt1,
                 dispatchedAt,
-                Status.DISPATCHED
+                Status.DISPATCHED,
+                null
             )
         );
         // 2 envelopes are on the request date
@@ -79,7 +80,8 @@ public class EnvelopeSummaryRepositoryTest {
                 CRIME_DISPATCHED_3,
                 createdAt2,
                 dispatchedAt,
-                Status.DISPATCHED
+                Status.DISPATCHED,
+                null
             )
         );
         envelopeRepository.insert(
@@ -88,7 +90,8 @@ public class EnvelopeSummaryRepositoryTest {
                 SSCS_REJECTED_2,
                 createdAt3,
                 null,
-                Status.REJECTED
+                Status.REJECTED,
+                null
             )
         );
 
@@ -99,7 +102,8 @@ public class EnvelopeSummaryRepositoryTest {
                 SSCS_REJECTED_2,
                 createdAt4,
                 dispatchedAt,
-                Status.REJECTED
+                Status.REJECTED,
+                null
             )
         );
 
@@ -147,7 +151,8 @@ public class EnvelopeSummaryRepositoryTest {
                 SSCS_REJECTED_2,
                 createdAt2,
                 null,
-                Status.REJECTED
+                Status.REJECTED,
+                null
             )
         );
         envelopeRepository.insert(
@@ -156,7 +161,8 @@ public class EnvelopeSummaryRepositoryTest {
                 CRIME_DISPATCHED_3,
                 createdAt1,
                 dispatchedAt,
-                Status.DISPATCHED
+                Status.DISPATCHED,
+                null
             )
         );
 
@@ -203,7 +209,8 @@ public class EnvelopeSummaryRepositoryTest {
                 CRIME_DISPATCHED_3,
                 createdAt1,
                 dispatchedAt,
-                Status.DISPATCHED
+                Status.DISPATCHED,
+                null
             )
         );
 
@@ -213,7 +220,8 @@ public class EnvelopeSummaryRepositoryTest {
                 BULKSCAN_DISPATCHED_1,
                 createdAt2,
                 dispatchedAt,
-                Status.DISPATCHED
+                Status.DISPATCHED,
+                null
             )
         );
 
@@ -254,7 +262,8 @@ public class EnvelopeSummaryRepositoryTest {
                 CRIME_REJECTED_2,
                 fileCreatedAt1,
                 null,
-                Status.REJECTED
+                Status.REJECTED,
+                null
             ),
             createdAt1
         );
@@ -264,7 +273,8 @@ public class EnvelopeSummaryRepositoryTest {
                 SSCS_CREATED_1,
                 fileCreatedAt2,
                 null,
-                Status.CREATED
+                Status.CREATED,
+                null
             ),
             createdAt2
         );
@@ -274,7 +284,8 @@ public class EnvelopeSummaryRepositoryTest {
                 PCQ_CREATED_1,
                 fileCreatedAt3,
                 dispatchedAt3,
-                Status.CREATED
+                Status.CREATED,
+                null
             ),
             createdAt3
         );
@@ -312,7 +323,8 @@ public class EnvelopeSummaryRepositoryTest {
                 SSCS_DISPATCHED_3,
                 createdAtDay1,
                 dispatchedAt4,
-                Status.DISPATCHED
+                Status.DISPATCHED,
+                null
             )
         );
         envelopeRepository.insert(
@@ -321,7 +333,8 @@ public class EnvelopeSummaryRepositoryTest {
                 PCQ_REJECTED_2,
                 createdAtDay1,
                 null,
-                Status.REJECTED
+                Status.REJECTED,
+                null
             )
         );
         envelopeRepository.insert(
@@ -330,7 +343,8 @@ public class EnvelopeSummaryRepositoryTest {
                 PCQ_REJECTED_2,
                 createdAtDay3,
                 null,
-                Status.REJECTED
+                Status.REJECTED,
+                null
             )
         );
         envelopeRepository.insert(
@@ -339,7 +353,8 @@ public class EnvelopeSummaryRepositoryTest {
                 PROBATE_CREATED_1,
                 createdAtDay2,
                 null,
-                Status.CREATED
+                Status.CREATED,
+                null
             )
         );
         envelopeRepository.insert(
@@ -348,7 +363,8 @@ public class EnvelopeSummaryRepositoryTest {
                 PROBATE_DISPATCHED_3,
                 createdAtDay2,
                 dispatchedAt4,
-                Status.DISPATCHED
+                Status.DISPATCHED,
+                null
             )
         );
         envelopeRepository.insert(
@@ -357,7 +373,8 @@ public class EnvelopeSummaryRepositoryTest {
                 PROBATE_REJECTED_2,
                 dispatchedAt5,
                 null,
-                Status.REJECTED
+                Status.REJECTED,
+                null
             )
         );
 
@@ -389,7 +406,8 @@ public class EnvelopeSummaryRepositoryTest {
                 CRIME_CREATED_1,
                 createdAtDay1,
                 null,
-                Status.CREATED
+                Status.CREATED,
+                null
             )
         );
         envelopeRepository.insert(
@@ -398,7 +416,8 @@ public class EnvelopeSummaryRepositoryTest {
                 PCQ_DISPATCHED_3,
                 createdAtDay1,
                 null,
-                Status.DISPATCHED
+                Status.DISPATCHED,
+                null
             )
         );
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR, containerNames);

@@ -63,7 +63,7 @@ public class EnvelopeService {
     public UUID createNewEnvelope(String containerName, String blobName, Instant blobCreationDate) {
         UUID id = envelopeRepository
             .insert(
-                new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.CREATED)
+                new NewEnvelope(containerName, blobName, blobCreationDate, null, Status.CREATED, null)
             );
 
         eventRepository.insert(new NewEnvelopeEvent(id, EventType.FILE_PROCESSING_STARTED, null, null));

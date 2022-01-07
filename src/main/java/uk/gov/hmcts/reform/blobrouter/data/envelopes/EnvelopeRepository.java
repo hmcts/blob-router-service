@@ -113,8 +113,10 @@ public class EnvelopeRepository {
     public UUID insert(NewEnvelope envelope) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
-            "INSERT INTO envelopes (id, container, file_name, file_created_at, status, dispatched_at, created_at) "
-                + "VALUES (:id, :container, :fileName, :fileCreatedAt, :status, :dispatchedAt, CURRENT_TIMESTAMP)",
+            "INSERT INTO envelopes (id, container, file_name, file_created_at, status, dispatched_at, "
+                + "created_at, file_size) "
+                + "VALUES (:id, :container, :fileName, :fileCreatedAt, :status, :dispatchedAt, CURRENT_TIMESTAMP, "
+                + ":fileSize)",
             new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("container", envelope.container)
@@ -125,6 +127,7 @@ public class EnvelopeRepository {
                     "dispatchedAt",
                     envelope.dispatchedAt == null ? null : Timestamp.from(envelope.dispatchedAt)
                 )
+                .addValue("fileSize", envelope.fileSize)
         );
         return id;
     }
@@ -237,17 +240,6 @@ public class EnvelopeRepository {
                 .addValue("fromDate", fromDate)
                 .addValue("toDate", toDate),
             this.mapper
-        );
-    }
-
-    public int updateFileSize(UUID id, Integer fileSize) {
-        return jdbcTemplate.update(
-            "UPDATE envelopes "
-                + "SET file_size = :fileSize "
-                + "WHERE id = :id",
-            new MapSqlParameterSource()
-                .addValue("id", id)
-                .addValue("fileSize", fileSize)
         );
     }
 }

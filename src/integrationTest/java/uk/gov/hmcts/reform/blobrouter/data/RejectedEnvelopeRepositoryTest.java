@@ -42,16 +42,16 @@ class RejectedEnvelopeRepositoryTest {
     void should_get_the_rejected_envelopes_with_notifications_pending() {
         // given
         envelopeRepo.insert(
-            new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.REJECTED)
+            new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.REJECTED, null)
         );
         var envelopeId2 = envelopeRepo.insert(
-            new NewEnvelope("c1", "file2.zip", now(), now().plusSeconds(100), Status.DISPATCHED)
+            new NewEnvelope("c1", "file2.zip", now(), now().plusSeconds(100), Status.DISPATCHED, null)
         );
         var envelopeId3 = envelopeRepo.insert(
-            new NewEnvelope("c1", "file3.zip", now(), now().plusSeconds(100), Status.REJECTED)
+            new NewEnvelope("c1", "file3.zip", now(), now().plusSeconds(100), Status.REJECTED, null)
         );
         var envelopeId4 = envelopeRepo.insert(
-            new NewEnvelope("c2", "file4.zip", now(), now().plusSeconds(100), Status.REJECTED)
+            new NewEnvelope("c2", "file4.zip", now(), now().plusSeconds(100), Status.REJECTED, null)
         );
 
         eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.DISPATCHED, null, "notes1"));
@@ -82,13 +82,13 @@ class RejectedEnvelopeRepositoryTest {
     void should_get_empty_results_when_no_rejected_envelopes_with_pending_notifications_found() {
         // given
         var envelopeId1 = envelopeRepo.insert(
-            new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.CREATED)
+            new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.CREATED, null)
         );
         var envelopeId2 = envelopeRepo.insert(
-            new NewEnvelope("c1", "file2.zip", now(), now().plusSeconds(100), Status.DISPATCHED)
+            new NewEnvelope("c1", "file2.zip", now(), now().plusSeconds(100), Status.DISPATCHED, null)
         );
         var envelopeId3 = envelopeRepo.insert(
-            new NewEnvelope("c1", "file3.zip", now(), now().plusSeconds(100), Status.REJECTED)
+            new NewEnvelope("c1", "file3.zip", now(), now().plusSeconds(100), Status.REJECTED, null)
         );
 
         eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.FILE_PROCESSING_STARTED, null, "notes1"));
@@ -109,7 +109,7 @@ class RejectedEnvelopeRepositoryTest {
         // given
         /* rejected and notification_sent */
         var envelopeId1 = envelopeRepo.insert(
-            new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.REJECTED)
+            new NewEnvelope("c1", "file1.zip", now(), now().plusSeconds(100), Status.REJECTED, null)
         );
         eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.REJECTED, ErrorCode.ERR_AV_FAILED, "notes1"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId1, EventType.DELETED, null, "notes1"));
@@ -117,7 +117,7 @@ class RejectedEnvelopeRepositoryTest {
 
         /* rejected but notification not sent */
         var envelopeId2 = envelopeRepo.insert(
-            new NewEnvelope("c2", "file2.zip", now(), now().plusSeconds(100), Status.REJECTED)
+            new NewEnvelope("c2", "file2.zip", now(), now().plusSeconds(100), Status.REJECTED, null)
         );
         eventRepo.insert(new NewEnvelopeEvent(envelopeId2, EventType.FILE_PROCESSING_STARTED, null, "notes1"));
         eventRepo.insert(new NewEnvelopeEvent(
@@ -130,7 +130,7 @@ class RejectedEnvelopeRepositoryTest {
 
         /* not rejected */
         var envelopeId3 = envelopeRepo.insert(
-            new NewEnvelope("c1", "file3.zip", now(), now().plusSeconds(100), Status.DISPATCHED)
+            new NewEnvelope("c1", "file3.zip", now(), now().plusSeconds(100), Status.DISPATCHED, null)
         );
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.FILE_PROCESSING_STARTED, null, "notes3"));
         eventRepo.insert(new NewEnvelopeEvent(envelopeId3, EventType.DISPATCHED, null, null));
