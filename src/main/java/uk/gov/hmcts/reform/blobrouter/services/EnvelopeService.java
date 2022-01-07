@@ -181,6 +181,20 @@ public class EnvelopeService {
         return envelopes.isEmpty() ? emptyList() : ImmutableList.copyOf(envelopes);
     }
 
+    @Transactional
+    public void updateFileSize(UUID id, long fileSize) {
+        envelopeRepository
+            .find(id)
+            .ifPresentOrElse(
+                env -> {
+                    envelopeRepository.updateFileSize(id, fileSize);
+                },
+                () -> {
+                    throw new EnvelopeNotFoundException("Envelope with ID: " + id + " not found");
+                }
+            );
+    }
+
     private List<EnvelopeEvent> getEnvelopeEvents(
         Map<UUID, List<EnvelopeEvent>> eventsByEnvelopeIds,
         Envelope envelope

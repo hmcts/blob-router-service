@@ -240,7 +240,7 @@ public class EnvelopeRepository {
         );
     }
 
-    public int updateFileSize(UUID id, Integer fileSize) {
+    public int updateFileSize(UUID id, long fileSize) {
         return jdbcTemplate.update(
             "UPDATE envelopes "
                 + "SET file_size = :fileSize "

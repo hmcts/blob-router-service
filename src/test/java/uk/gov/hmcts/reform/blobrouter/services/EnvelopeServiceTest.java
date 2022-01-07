@@ -493,4 +493,19 @@ class EnvelopeServiceTest {
         verifyNoInteractions(eventRepository);
     }
 
+    @Test
+    void should_update_file_size() {
+        // given
+        var existingEnvelope = new Envelope(
+                UUID.randomUUID(), "c", "f", null, null, null, Status.REJECTED, false, true, null
+        );
+        given(envelopeRepository.find(existingEnvelope.id)).willReturn(Optional.of(existingEnvelope));
+        final long newFileSize = 1024;
+
+        // when
+        envelopeService.updateFileSize(existingEnvelope.id, newFileSize);
+
+        // then
+        verify(envelopeRepository).updateFileSize(existingEnvelope.id, newFileSize);
+    }
 }
