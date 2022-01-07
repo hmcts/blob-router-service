@@ -219,7 +219,7 @@ class ContainerCleanerTest {
             status,
             false,
             false,
-            0
+            null
         );
     }
 }

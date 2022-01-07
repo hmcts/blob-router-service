@@ -317,7 +317,7 @@ class EnvelopeActionServiceTest {
             status,
             true,
             false,
-            0
+            null
         );
     }
 

@@ -86,7 +86,7 @@ class IncompleteEnvelopesServiceTest {
             status,
             false,
             false,
-            0
+            null
         );
     }
 }

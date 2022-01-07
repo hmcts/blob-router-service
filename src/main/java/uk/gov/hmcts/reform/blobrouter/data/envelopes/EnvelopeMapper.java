@@ -23,7 +23,7 @@ public class EnvelopeMapper implements RowMapper<Envelope> {
             Status.valueOf(rs.getString("status")),
             rs.getBoolean("is_deleted"),
             rs.getBoolean("pending_notification"),
-            rs.getInt("file_size")
+            rs.getLong("file_size")
         );
     }
 }

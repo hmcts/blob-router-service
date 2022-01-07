@@ -346,7 +346,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             Status.DISPATCHED,
             false,
             false,
-            0
+            null
         );
     }
 
