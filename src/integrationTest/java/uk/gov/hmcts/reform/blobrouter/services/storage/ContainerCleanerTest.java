@@ -150,7 +150,8 @@ public class ContainerCleanerTest extends BlobStorageBaseTest {
                 fileName,
                 Instant.now(),
                 Instant.now(),
-                status
+                status,
+                null
             );
             envelopeRepository.insert(envelope);
         }
