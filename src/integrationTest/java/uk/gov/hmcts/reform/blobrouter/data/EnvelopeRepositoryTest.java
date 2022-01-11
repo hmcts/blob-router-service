@@ -80,7 +80,8 @@ public class EnvelopeRepositoryTest {
             "hello.zip",
             now(),
             now().plusSeconds(100),
-            DISPATCHED
+            DISPATCHED,
+            null
         );
 
         // when

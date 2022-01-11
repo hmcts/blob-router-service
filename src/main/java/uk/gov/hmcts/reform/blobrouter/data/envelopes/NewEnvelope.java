@@ -16,20 +16,6 @@ public class NewEnvelope {
             String fileName,
             Instant fileCreatedAt,
             Instant dispatchedAt,
-            Status status
-    ) {
-        this.container = container;
-        this.fileName = fileName;
-        this.fileCreatedAt = fileCreatedAt;
-        this.dispatchedAt = dispatchedAt;
-        this.status = status;
-    }
-
-    public NewEnvelope(
-            String container,
-            String fileName,
-            Instant fileCreatedAt,
-            Instant dispatchedAt,
             Status status,
             Long fileSize
     ) {
