@@ -91,8 +91,10 @@ public class EnvelopeRepositoryTest {
 
         // then
         rs.first();
-        rs.getLong("file_size");
+        assertThat(rs.wasNull()).isFalse();
+        long fileSize = rs.getLong("file_size");
         assertThat(rs.wasNull()).isTrue();
+        assertThat(fileSize).isZero();
     }
 
     @Test
