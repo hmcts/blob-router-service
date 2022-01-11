@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
@@ -20,6 +22,7 @@ import java.util.UUID;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.CREATED;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.DISPATCHED;
@@ -31,6 +34,7 @@ public class EnvelopeRepositoryTest {
 
     @Autowired private EnvelopeRepository repo;
     @Autowired private DbHelper dbHelper;
+    @Autowired private NamedParameterJdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void setUp() {
@@ -66,6 +70,53 @@ public class EnvelopeRepositoryTest {
             assertThat(env.createdAt).isNotNull();
             assertThat(env.fileSize).isEqualTo(1024L);
         });
+    }
+
+    @Test
+    void should_handle_null_file_size() {
+        // given
+        var newEnvelope = new NewEnvelope(
+            "container",
+            "hello.zip",
+            now(),
+            now().plusSeconds(100),
+            DISPATCHED
+        );
+
+        // when
+        UUID id = repo.insert(newEnvelope);
+
+        // and
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT * FROM envelopes WHERE id='" + id + "'", emptyMap());
+
+        // then
+        rs.first();
+        rs.getLong("file_size");
+        assertThat(rs.wasNull()).isTrue();
+    }
+
+    @Test
+    void should_handle_not_null_file_size() {
+        // given
+        var newEnvelope = new NewEnvelope(
+            "container",
+            "hello.zip",
+            now(),
+            now().plusSeconds(100),
+            DISPATCHED,
+            1024L
+        );
+
+        // when
+        UUID id = repo.insert(newEnvelope);
+
+        // and
+        SqlRowSet rs = jdbcTemplate.queryForRowSet("SELECT * FROM envelopes WHERE id='" + id + "'", emptyMap());
+
+        // then
+        rs.first();
+        assertThat(rs.wasNull()).isFalse();
+        assertThat(rs.getLong("file_size")).isEqualTo(1024L);
     }
 
     @Test
