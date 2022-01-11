@@ -17,11 +17,13 @@ import static java.time.Instant.now;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("checkstyle:LineLength")
 class DuplicateFileHandlerTest {
 
     @Mock EnvelopeService envelopeService;
@@ -53,25 +55,25 @@ class DuplicateFileHandlerTest {
     @Test
     void should_move_blob_to_rejected_container_and_create_a_new_envelope() {
         // given
-        var duplicate1 = new Duplicate("b1", "C", now());
-        var duplicate2 = new Duplicate("b2", "C", now());
+        var duplicate1 = new Duplicate("b1", "C", now(), 1024L);
+        var duplicate2 = new Duplicate("b2", "C", now(), 2048L);
         var id1 = UUID.randomUUID();
         var id2 = UUID.randomUUID();
 
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("C"));
         given(duplicateFinder.findIn("C")).willReturn(asList(duplicate1, duplicate2));
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id1, id2);
+        given(envelopeService.createNewEnvelope(any(), any(), any(), anyLong())).willReturn(id1, id2);
 
         // when
         handler.handle();
 
         // then
-        verify(envelopeService).createNewEnvelope(duplicate1.container, duplicate1.fileName, duplicate1.blobCreatedAt);
+        verify(envelopeService).createNewEnvelope(duplicate1.container, duplicate1.fileName, duplicate1.blobCreatedAt, 1024L);
         verify(envelopeService)
             .markAsRejected(id1, ErrorCode.ERR_ZIP_PROCESSING_FAILED, DuplicateFileHandler.EVENT_MESSAGE);
         verify(blobMover).moveToRejectedContainer(duplicate1.fileName, duplicate1.container);
 
-        verify(envelopeService).createNewEnvelope(duplicate2.container, duplicate2.fileName, duplicate2.blobCreatedAt);
+        verify(envelopeService).createNewEnvelope(duplicate2.container, duplicate2.fileName, duplicate2.blobCreatedAt, 2048L);
         verify(envelopeService)
             .markAsRejected(id2, ErrorCode.ERR_ZIP_PROCESSING_FAILED, DuplicateFileHandler.EVENT_MESSAGE);
         verify(blobMover).moveToRejectedContainer(duplicate2.fileName, duplicate2.container);
@@ -81,8 +83,8 @@ class DuplicateFileHandlerTest {
     void should_continue_after_failure() {
         // given
         given(serviceConfiguration.getEnabledSourceContainers()).willReturn(singletonList("C"));
-        var duplicate1 = new Duplicate("b1", "C", now());
-        var duplicate2 = new Duplicate("b2", "C", now());
+        var duplicate1 = new Duplicate("b1", "C", now(), 1024L);
+        var duplicate2 = new Duplicate("b2", "C", now(), 2048L);
         given(duplicateFinder.findIn("C"))
             .willReturn(asList(
                 duplicate1,

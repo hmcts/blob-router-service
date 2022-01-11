@@ -81,7 +81,7 @@ class EnvelopeServiceTest {
         given(envelopeRepository.insert(any())).willReturn(idFromDb);
 
         // when
-        var id = envelopeService.createNewEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED);
+        var id = envelopeService.createNewEnvelope(CONTAINER_NAME, BLOB_NAME, BLOB_CREATED, 1024L);
 
         // then
         assertThat(id).isEqualTo(idFromDb);

@@ -54,7 +54,8 @@ public class DuplicateFileHandler {
             var id = envelopeService.createNewEnvelope(
                 duplicate.container,
                 duplicate.fileName,
-                duplicate.blobCreatedAt
+                duplicate.blobCreatedAt,
+                duplicate.fileSize
             );
 
             envelopeService.markAsRejected(id, ErrorCode.ERR_ZIP_PROCESSING_FAILED, EVENT_MESSAGE);

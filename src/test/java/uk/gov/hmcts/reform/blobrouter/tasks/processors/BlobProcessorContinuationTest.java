@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
 import static org.mockito.Mockito.mock;
@@ -81,7 +82,7 @@ class BlobProcessorContinuationTest {
         blobProcessor.process(blobClient);
 
         // then
-        verify(envelopeService, never()).createNewEnvelope(any(), any(), any());
+        verify(envelopeService, never()).createNewEnvelope(any(), any(), any(), anyLong());
         verify(envelopeService).markAsDispatched(id);
         verify(blobDispatcher).dispatch(blobClient,"t1", CFT);
     }
@@ -122,18 +123,19 @@ class BlobProcessorContinuationTest {
         var blobProperties = mock(BlobProperties.class);
         given(blobClient.getProperties()).willReturn(blobProperties);
         given(blobProperties.getCreationTime()).willReturn(blobCreationTime);
+        given(blobProperties.getBlobSize()).willReturn(1024L);
 
         given(envelopeService.findLastEnvelope(fileName, containerName))
             .willReturn(Optional.empty());
 
-        given(envelopeService.createNewEnvelope(containerName, fileName, blobCreationTime.toInstant()))
+        given(envelopeService.createNewEnvelope(containerName, fileName, blobCreationTime.toInstant(), 1024L))
             .willReturn(id);
 
         // when
         blobProcessor.process(blobClient);
 
         // then
-        verify(envelopeService).createNewEnvelope(containerName, fileName, blobCreationTime.toInstant());
+        verify(envelopeService).createNewEnvelope(containerName, fileName, blobCreationTime.toInstant(), 1024L);
         verify(envelopeService).markAsDispatched(id);
         verifyNoMoreInteractions(envelopeService);
         verify(blobDispatcher).dispatch(blobClient,"t1", CFT);
