@@ -28,12 +28,12 @@ public class DuplicateFinder {
             .getBlobContainerClient(containerName)
             .listBlobs()
             .stream()
-            .filter(b -> isDuplicate(b.getName(), containerName))
-            .map(b -> new Duplicate(
-                    b.getName(),
+            .filter(blobItem -> isDuplicate(blobItem.getName(), containerName))
+            .map(blobItem -> new Duplicate(
+                    blobItem.getName(),
                     containerName,
-                    b.getProperties().getLastModified().toInstant(),
-                    b.getProperties().getContentLength()
+                    blobItem.getProperties().getLastModified().toInstant(),
+                    blobItem.getProperties().getContentLength()
             ))
             .collect(toList());
     }
