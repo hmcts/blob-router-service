@@ -70,7 +70,8 @@ public class BlobProcessor {
             envelopeSupplier = () -> envelopeService.createNewEnvelope(
                 blobClient.getContainerName(),
                 blobClient.getBlobName(),
-                blobClient.getProperties().getCreationTime().toInstant()
+                blobClient.getProperties().getCreationTime().toInstant(),
+                blobClient.getProperties().getBlobSize()
             );
         }
         return Optional.of(envelopeSupplier);

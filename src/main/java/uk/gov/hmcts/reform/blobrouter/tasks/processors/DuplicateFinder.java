@@ -28,8 +28,13 @@ public class DuplicateFinder {
             .getBlobContainerClient(containerName)
             .listBlobs()
             .stream()
-            .filter(b -> isDuplicate(b.getName(), containerName))
-            .map(b -> new Duplicate(b.getName(), containerName, b.getProperties().getLastModified().toInstant()))
+            .filter(blobItem -> isDuplicate(blobItem.getName(), containerName))
+            .map(blobItem -> new Duplicate(
+                    blobItem.getName(),
+                    containerName,
+                    blobItem.getProperties().getLastModified().toInstant(),
+                    blobItem.getProperties().getContentLength()
+            ))
             .collect(toList());
     }
 
@@ -44,11 +49,13 @@ public class DuplicateFinder {
         public final String fileName;
         public final String container;
         public final Instant blobCreatedAt;
+        public final Long fileSize;
 
-        public Duplicate(String fileName, String container, Instant blobCreatedAt) {
+        public Duplicate(String fileName, String container, Instant blobCreatedAt, Long fileSize) {
             this.fileName = fileName;
             this.container = container;
             this.blobCreatedAt = blobCreatedAt;
+            this.fileSize = fileSize;
         }
     }
 }

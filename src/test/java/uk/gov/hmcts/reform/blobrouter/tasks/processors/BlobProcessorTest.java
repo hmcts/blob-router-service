@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
@@ -57,7 +58,7 @@ class BlobProcessorTest {
     void should_not_update_envelope_status_when_move_failed() {
         // given
         var id = UUID.randomUUID();
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(envelopeService.createNewEnvelope(any(), any(), any(), anyLong())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
         given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
@@ -86,7 +87,7 @@ class BlobProcessorTest {
     void should_not_update_envelope_status_when_upload_failed_and_message_with_html_should_be_escaped() {
         // given
         var id = UUID.randomUUID();
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(envelopeService.createNewEnvelope(any(), any(), any(), anyLong())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CRIME);
         given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
@@ -122,7 +123,7 @@ class BlobProcessorTest {
     void should_not_update_envelope_status_when_blob_is_blocked_for_download() {
         // given
         var id = UUID.randomUUID();
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(envelopeService.createNewEnvelope(any(), any(), any(), anyLong())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, PCQ);
 
@@ -151,7 +152,7 @@ class BlobProcessorTest {
     void should_not_update_envelope_status_when_blob_move_fails_for_unknown_reason() {
         // given
         var id = UUID.randomUUID();
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(envelopeService.createNewEnvelope(any(), any(), any(), anyLong())).willReturn(id);
         blobExists("envelope1.zip", SOURCE_CONTAINER);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
         given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
@@ -176,7 +177,7 @@ class BlobProcessorTest {
     void should_dispatch_valid_file() {
         // given
         var id = UUID.randomUUID();
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(envelopeService.createNewEnvelope(any(), any(), any(), anyLong())).willReturn(id);
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
 
         OffsetDateTime blobCreationTime = OffsetDateTime.now();
@@ -198,7 +199,7 @@ class BlobProcessorTest {
     void should_reject_file_if_file_verification_fails() {
         // given
         var id = UUID.randomUUID();
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(envelopeService.createNewEnvelope(any(), any(), any(), anyLong())).willReturn(id);
 
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, CFT);
 
@@ -228,7 +229,7 @@ class BlobProcessorTest {
         blobExists(fileName, sourceContainerName);
 
         var id = UUID.randomUUID();
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(envelopeService.createNewEnvelope(any(), any(), any(), anyLong())).willReturn(id);
 
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
@@ -285,7 +286,8 @@ class BlobProcessorTest {
         verify(envelopeService).createNewEnvelope(
             blobClient.getContainerName(),
             blobClient.getBlobName(),
-            blobClient.getProperties().getCreationTime().toInstant()
+            blobClient.getProperties().getCreationTime().toInstant(),
+            blobClient.getProperties().getBlobSize()
         );
     }
 
@@ -300,7 +302,7 @@ class BlobProcessorTest {
         blobExists(fileName, sourceContainerName);
 
         var id = UUID.randomUUID();
-        given(envelopeService.createNewEnvelope(any(), any(), any())).willReturn(id);
+        given(envelopeService.createNewEnvelope(any(), any(), any(), anyLong())).willReturn(id);
 
         // valid file
         given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);

@@ -82,7 +82,7 @@ class ContainerProcessorTest extends BlobStorageBaseTest {
         // given
         upload(containerClient, "4.zip");
         envelopeService.markAsDispatched(
-             envelopeService.createNewEnvelope(CONTAINER_NAME, "4.zip", Instant.now())
+             envelopeService.createNewEnvelope(CONTAINER_NAME, "4.zip", Instant.now(), 1024L)
         );
 
         // when
