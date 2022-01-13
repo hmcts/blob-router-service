@@ -109,6 +109,7 @@ public class EnvelopeController {
             dbEnvelope.status,
             dbEnvelope.isDeleted,
             dbEnvelope.pendingNotification,
+            dbEnvelope.fileSize,
             dbEventRecords
                 .stream()
                 .map(

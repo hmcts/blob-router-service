@@ -85,6 +85,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(jsonPath("$.data[0].dispatched_at").value(
                 DateFormatter.getSimpleDateTime(envelopeInDb.dispatchedAt))
             )
+            .andExpect(jsonPath("$.data[0].file_size").value(envelopeInDb.fileSize))
             .andExpect(jsonPath("$.data[0].pending_notification").value(envelopeInDb.pendingNotification))
             .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
                 EventType.FILE_PROCESSING_STARTED.name(),
@@ -346,7 +347,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             Status.DISPATCHED,
             false,
             false,
-            null
+            1024L
         );
     }
 
