@@ -204,7 +204,7 @@ dependencies {
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.4.1'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.30.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.30.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.31.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.14.2'
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.5.1'
