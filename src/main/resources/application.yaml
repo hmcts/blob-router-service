@@ -75,6 +75,10 @@ service:
       sas-validity: 600 #In seconds
       target-storage-account: cft
       target-container: divorce
+    - source-container: nofaultdivorce
+      sas-validity: 600 #In seconds
+      target-storage-account: cft
+      target-container: nofaultdivorce
     - source-container: finrem
       sas-validity: 300 #In seconds
       target-storage-account: cft
@@ -91,6 +95,10 @@ service:
       sas-validity: 300 #In seconds
       target-storage-account: cft
       target-container: publiclaw
+    - source-container: privatelaw
+      sas-validity: 300 #In seconds
+      target-storage-account: cft
+      target-container: privatelaw
 
 queue:
   notifications:
