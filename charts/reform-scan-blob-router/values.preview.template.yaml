@@ -97,8 +97,10 @@ reformblobstorage:
       - sscs
       - finrem
       - divorce
+      - nofaultdivorce
       - probate
       - publiclaw
+      - privatelaw
       - pcq
       - pcq-rejected
 
