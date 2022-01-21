@@ -4,11 +4,11 @@ plugins {
   id 'pmd'
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-  id 'org.springframework.boot' version '2.6.2'
+  id 'org.springframework.boot' version '2.6.3'
   id 'org.owasp.dependencycheck' version '6.5.3'
   id 'com.github.ben-manes.versions' version '0.41.0'
   id 'org.sonarqube' version '3.3'
-  id 'org.flywaydb.flyway' version '8.4.1'
+  id 'org.flywaydb.flyway' version '8.4.2'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -164,10 +164,7 @@ dependencyManagement {
     dependencySet(group: 'commons-io', version: '2.11.0') {
       entry 'commons-io'
     }
-    // CVE-2014-3488 CVE-2015-2156
-    dependencySet(group: 'io.netty', version: '2.0.43.Final') {
-      entry 'netty-tcnative-boringssl-static'
-    }
+
     dependencySet(group: 'org.apache.logging.log4j', version: '2.17.1') {
       entry 'log4j-api'
       entry 'log4j-to-slf4j'
@@ -176,7 +173,8 @@ dependencyManagement {
 }
 
 repositories {
-  jcenter()
+  mavenLocal()
+  mavenCentral()
   maven { url 'https://jitpack.io' }
 }
 
@@ -201,13 +199,13 @@ ext["rest-assured.version"] = '4.2.1'
 
 dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.1'
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.4.1'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.4.2'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.31.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.31.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.14.2'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.5.1'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.5.2'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
@@ -249,10 +247,10 @@ dependencies {
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.1.0'
 
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.32.0'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.16.2', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.16.3', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.2'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.3'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.5'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
