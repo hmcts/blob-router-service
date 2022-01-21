@@ -57,7 +57,7 @@ public class EnvelopeInfo {
             Status status,
             boolean isDeleted,
             boolean pendingNotification,
-            Long fileSize,
+            Long fSize,
             List<EnvelopeEventResponse> envelopeEvents
     ) {
         this.id = id;
@@ -69,7 +69,7 @@ public class EnvelopeInfo {
         this.status = status;
         this.isDeleted = isDeleted;
         this.pendingNotification = pendingNotification;
-        this.fileSize = fileSize;
+        this.fileSize = fSize;
         this.envelopeEvents = envelopeEvents;
     }
 }
