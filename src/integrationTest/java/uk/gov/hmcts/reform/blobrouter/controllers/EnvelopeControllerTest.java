@@ -85,6 +85,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(jsonPath("$.data[0].dispatched_at").value(
                 DateFormatter.getSimpleDateTime(envelopeInDb.dispatchedAt))
             )
+            .andExpect(jsonPath("$.data[0].file_size").value(envelopeInDb.fileSize))
             .andExpect(jsonPath("$.data[0].pending_notification").value(envelopeInDb.pendingNotification))
             .andExpect(jsonPath("$.data[0].events[*].event").value(contains(
                 EventType.FILE_PROCESSING_STARTED.name(),
@@ -302,6 +303,34 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     }
 
     @Test
+    void should_return_400_when_one_date_provided() throws Exception {
+        final String dcnPrefix = "1234567890";
+
+        mockMvc
+            .perform(
+                get("/envelopes")
+                    .queryParam("dcn_prefix", dcnPrefix)
+                    .queryParam("between_dates", "2021-08-21")
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void should_return_400_when_no_dates_provided() throws Exception {
+        final String dcnPrefix = "1234567890";
+
+        mockMvc
+            .perform(
+                get("/envelopes")
+                    .queryParam("dcn_prefix", dcnPrefix)
+                    .queryParam("between_dates", "")
+            )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void should_return_envelopes_if_envelope_for_given_dncPrefix_and_dates_exists() throws Exception {
 
         Envelope envelope1InDb = envelope("file_567890.zip", "cmc", instant("2021-08-26 10:10:00"));
@@ -346,7 +375,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             Status.DISPATCHED,
             false,
             false,
-            null
+            1024L
         );
     }
 

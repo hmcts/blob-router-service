@@ -41,20 +41,24 @@ public class EnvelopeInfo {
     @JsonProperty("pending_notification")
     public final boolean pendingNotification;
 
+    @JsonProperty("file_size")
+    public final Long fileSize;
+
     @JsonProperty("events")
     public final List<EnvelopeEventResponse> envelopeEvents;
 
     public EnvelopeInfo(
-        UUID id,
-        String container,
-        String fileName,
-        Instant createdAt,
-        Instant fileCreatedAt,
-        Instant dispatchedAt,
-        Status status,
-        boolean isDeleted,
-        boolean pendingNotification,
-        List<EnvelopeEventResponse> envelopeEvents
+            UUID id,
+            String container,
+            String fileName,
+            Instant createdAt,
+            Instant fileCreatedAt,
+            Instant dispatchedAt,
+            Status status,
+            boolean isDeleted,
+            boolean pendingNotification,
+            Long flSize,
+            List<EnvelopeEventResponse> envelopeEvents
     ) {
         this.id = id;
         this.container = container;
@@ -65,6 +69,7 @@ public class EnvelopeInfo {
         this.status = status;
         this.isDeleted = isDeleted;
         this.pendingNotification = pendingNotification;
+        this.fileSize = flSize;
         this.envelopeEvents = envelopeEvents;
     }
 }
