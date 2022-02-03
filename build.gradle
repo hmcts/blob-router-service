@@ -257,7 +257,7 @@ dependencies {
   functionalTestImplementation libraries.junit5
   functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.22.0'
   functionalTestImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.1'
+  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.2'
   functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
   }
@@ -265,7 +265,7 @@ dependencies {
   smokeTestImplementation sourceSets.main.runtimeClasspath
   smokeTestImplementation libraries.junit5
   smokeTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.21.0'
-  smokeTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.0'
+  smokeTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.2'
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
   }
