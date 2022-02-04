@@ -30,7 +30,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.MULTIPART_MIXED_VALUE;
 
 @SpringBootTest
-@Disabled
 public class EmailSenderTest {
 
     // as defined in application.properties
