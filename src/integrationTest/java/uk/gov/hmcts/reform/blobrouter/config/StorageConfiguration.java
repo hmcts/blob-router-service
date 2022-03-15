@@ -15,10 +15,8 @@ public class StorageConfiguration {
 
     @Bean
     public StorageSharedKeyCredential getStorageSharedKeyCredential(
-        @Value("${storage.account-name}") String accountName,
-        @Value("${storage.account-key}") String accountKey
     ) {
-        return new StorageSharedKeyCredential(accountName, accountKey);
+        return new StorageSharedKeyCredential("bulkscan", "testkey");
     }
 
     // not used as needs test context so it can actually be build
