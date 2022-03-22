@@ -227,7 +227,7 @@ dependencies {
   // end region
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.6'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.5'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.0.6'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
