@@ -46,5 +46,5 @@ java:
           alias: DB_PORT
         - name: blob-router-staging-db-name
           alias: DB_NAME
-        - name: notification-staging-queue-send-shared-access-key
+        - name: notification-staging-queue-send-shared-access-key-premium
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY

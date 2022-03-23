@@ -41,7 +41,7 @@ java:
           alias: DB_PORT
         - name: blob-router-POSTGRES-DATABASE
           alias: DB_NAME
-        - name: notification-queue-send-shared-access-key
+        - name: notification-queue-send-shared-access-key-premium
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
 
 
@@ -81,7 +81,7 @@ java:
     EXTRACT_ENVELOPE_FOR_CFT: "true"
 
     NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "SendSharedAccessKey"
-    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
+    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}-premium
     NOTIFICATIONS_QUEUE_NAME: "notifications"
 
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
