@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest
 @TestPropertySource(properties = {
-    "storage.account-name = ",
+    "storage.account-name = bulk",
     "storage.account-key = "
 })
 public class SasTokenControllerExceptionTest extends ControllerTestBase {
