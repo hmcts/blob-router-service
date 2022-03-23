@@ -31,7 +31,7 @@ java:
         - name: storage-account-staging-name
           alias: storage.account-name
         - name: storage-account-staging-primary-key
-          alias: storage.account-keyf
+          alias: storage.account-key
         - name: storage-account-staging-secondary-key
           alias: storage.account-secondary-key
         - name: crime-storage-connection-string
