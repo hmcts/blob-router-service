@@ -5,6 +5,7 @@ java:
     FLYWAY_SKIP_MIGRATIONS: false
     STORAGE_URL: https://reformscanstg.aat.platform.hmcts.net
     NOTIFICATIONS_QUEUE_NAME: "notifications-staging"
+    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
