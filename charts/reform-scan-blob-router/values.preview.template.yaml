@@ -103,6 +103,7 @@ reformblobstorage:
       - privatelaw
       - pcq
       - pcq-rejected
+      - nfd
 
 crimeblobstorage:
   enabled: true
