@@ -44,7 +44,7 @@ public class DuplicateTest extends FunctionalTestBase {
 
         // then
         await("Wait for the blob to disappear from source container")
-            .atMost(2, TimeUnit.MINUTES)
+            .atMost(3, TimeUnit.MINUTES)
             .until(() -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName));
     }
 }
