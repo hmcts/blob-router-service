@@ -97,13 +97,12 @@ reformblobstorage:
       - sscs
       - finrem
       - divorce
-      - nofaultdivorce
+      - nfd
       - probate
       - publiclaw
       - privatelaw
       - pcq
       - pcq-rejected
-      - nfd
 
 crimeblobstorage:
   enabled: true
