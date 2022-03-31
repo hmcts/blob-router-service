@@ -97,7 +97,7 @@ reformblobstorage:
       - sscs
       - finrem
       - divorce
-      - nofaultdivorce
+      - nfd
       - probate
       - publiclaw
       - privatelaw
