@@ -210,7 +210,7 @@ dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.3.3'
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.5.7'
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.33.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.34.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.33.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.15.0'
