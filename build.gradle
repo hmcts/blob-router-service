@@ -218,7 +218,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.34.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.15.0'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.7.0'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.8.0'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
@@ -263,7 +263,7 @@ dependencies {
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.0', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.16.3'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.1'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.8'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
