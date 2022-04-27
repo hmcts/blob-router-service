@@ -1,12 +1,6 @@
 java:
   applicationPort: 8584
   ingressHost: reform-scan-blob-router-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-  registerAdditionalDns:
-    enabled: true
-    primaryIngressHost: reform-scan-blob-router-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal
-    prefix: prefix
-  disableTraefikTls: false
-  enableOAuth: false
   aadIdentityName: reform-scan
   readinessPath: '/health/readiness'
   keyVaults:
