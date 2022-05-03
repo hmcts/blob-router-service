@@ -9,7 +9,7 @@
 
 Primary responsibility of this micro service is to retrieve blobs from source blob storage containers and then dispatch
 them to destination blob storage containers based on source containers.
-Currently it only routes blobs (zip files) to CFT and Crime blob storage containers. Blobs are uploaded to source storage 
+Currently it only routes blobs (zip files) to CFT and Crime blob storage containers. Blobs are uploaded to source storage
 by the third party scanning supplier.
 Before dispatching blobs it verifies if the files were uploaded by third party supplier through non repudiation checks.
 It also provides infrastructure to deploy API management service for retrieving SAS tokens used to upload blobs to source
@@ -30,6 +30,32 @@ To build the project execute the following command:
 
 ### Running the application
 
+Copy the `.localenv` file to .env (which is gitignored) and fill in the values for:
+* S2S_URL
+* STORAGE_URL
+* STORAGE_BULKSCAN_URL
+* STORAGE_PCQ_URL
+* NOTIFICATIONS_QUEUE_NAMESPACE
+* BULK_SCAN_PROCESSOR_URL
+* PCQ_BACKEND_API_URL
+
+Add your local IP to the `blob-router-aat` db in the portal or using the az cli tool.
+
+You'll need to make a new directory in the root of the project with this exact structure and files
+```secrets
+└── reform-scan
+    ├── azure
+    │   └── application-insights
+    │       └── instrumentation-key
+    └── storage
+        ├── account-key
+        ├── account-name
+        ├── account-secondary-key
+        └── crime
+            └── connection-string
+```
+For each of the files, enter the appropriate value from the aat key vault for blob router.
+
 Create the image of the application by executing the following command:
 
 ```bash
@@ -46,7 +72,7 @@ Run the distribution (created in `build/install/blob-router-service` directory)
 by executing the following command:
 
 ```bash
-  docker-compose up
+  docker-compose --env-file .env up
 ```
 
 This will start the API container exposing the application's port
