@@ -20,4 +20,5 @@
 
 .DS_Store
 .env
+__azurite_db_blob__.json
 secrets

@@ -32,9 +32,6 @@ To build the project execute the following command:
 
 Copy the `.localenv` file to .env (which is gitignored) and fill in the values for:
 * S2S_URL
-* STORAGE_URL
-* STORAGE_BULKSCAN_URL
-* STORAGE_PCQ_URL
 * NOTIFICATIONS_QUEUE_NAMESPACE
 * BULK_SCAN_PROCESSOR_URL
 * PCQ_BACKEND_API_URL

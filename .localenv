@@ -1,7 +1,12 @@
 S2S_URL=
-STORAGE_URL=
-STORAGE_BULKSCAN_URL=
-STORAGE_PCQ_URL=
+STORAGE_ACCOUNT_NAME=reformscanlocal
+STORAGE_ACCOUNT_KEY=cmVmb3Jtc2NhbmtleQo=
+STORAGE_ACCOUNT_SECONDARY_KEY=
+STORAGE_CRIME_CONNECTION_STRING=DefaultEndpointsProtocol=http;AccountName=crime;AccountKey=Y3JpbWVrZXkK;BlobEndpoint=http://localhost:10000/crime;QueueEndpoint=http://localhost:10001/crime;
+STORAGE_URL=http://localhost:10000/reformscanlocal
+STORAGE_BULKSCAN_URL=http://localhost:10000/bulkscanlocal
+STORAGE_PCQ_URL=http://localhost:10000/pcqlocal
+
 NOTIFICATIONS_QUEUE_NAMESPACE=
 BULK_SCAN_PROCESSOR_URL=
 PCQ_BACKEND_API_URL=

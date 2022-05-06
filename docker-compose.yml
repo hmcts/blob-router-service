@@ -14,86 +14,18 @@ services:
 
   azure-storage-emulator-azurite:
     image: mcr.microsoft.com/azure-storage/azurite
-    ports:
-      - 10000:10000
-    command: "azurite-blob --blobHost 0.0.0.0 --loose"
+    command: azurite-blob --blobHost 0.0.0.0 --loose --skipApiVersionCheck
+    environment:
+      AZURITE_ACCOUNTS: crime:Y3JpbWVrZXkK;reformscanlocal:cmVmb3Jtc2NhbmtleQo=;bulkscanlocal:cmVmb3Jtc2NhbmtleQo=;pcqlocal:cmVmb3Jtc2NhbmtleQo=;
     volumes:
       - ./bulk-scan-azure-blob-data:/opt/azurite/folder
-
-  blob-router-service:
-    build:
-      context: .
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: hmctspublic.azurecr.io/reform-scan/blob-router
-    environment:
-      - SERVER_PORT
-      - DB_CONN_OPTIONS
-      - FLYWAY_SKIP_MIGRATIONS
-      - S2S_NAME
-      - S2S_URL
-      - DELETE_DISPATCHED_FILES_CRON
-      - HANDLE_REJECTED_FILES_CRON
-      - REJECT_DUPLICATES_CRON
-      - CHECK_NEW_ENVELOPES_CRON
-      - TASK_SCAN_DELAY
-      - SEND_DAILY_REPORT_CRON
-      - SEND_NOTIFICATIONS_CRON
-      - CREATE_RECONCILIATION_SUMMARY_REPORT_CRON
-      - CREATE_RECONCILIATION_SUMMARY_REPORT_ENABLED
-      - CREATE_RECONCILIATION_DETAILED_REPORT_CRON
-      - CREATE_RECONCILIATION_DETAILED_REPORT_ENABLED
-      - SEND_RECONCILIATION_REPORT_MAIL_CRON
-      - SEND_RECONCILIATION_REPORT_MAIL_ENABLED
-      - STORAGE_URL
-      - STORAGE_BULKSCAN_URL
-      - STORAGE_PCQ_URL
-      - STORAGE_BLOB_LEASE_TIMEOUT_IN_MINUTES
-      - STORAGE_BLOB_PUBLIC_KEY
-      - CRIME_DESTINATION_CONTAINER
-      - PCQ_DESTINATION_CONTAINER
-      - PCQ_ENABLED
-      - CRIME_ENABLED
-      - EXTRACT_ENVELOPE_FOR_CFT
-      - NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME
-      - NOTIFICATIONS_QUEUE_NAMESPACE
-      - NOTIFICATIONS_QUEUE_NAME
-      - BULK_SCAN_PROCESSOR_URL
-      - PCQ_BACKEND_API_URL
-      - SMTP_HOST
-      - SEND_DAILY_REPORT_ENABLED
-      - ENVELOPE_STALE_TIMEOUT_HR
-      - REJECT_DUPLICATES_ENABLED
-      - NFD_ENABLED
-      - PRIVATELAW_ENABLED
-
-      - SMTP_USERNAME
-      - SMTP_PASSWORD
-      - REPORTS_RECIPIENTS
-      - RECONCILIATION_API_KEY
-      - RECONCILIATION_REPORT_API_KEY
-      - S2S_SECRET
-      - RECONCILIATION_REPORT_RECIPIENTS
-      - DB_PASSWORD
-      - DB_USER
-      - DB_HOST
-      - DB_PORT
-      - DB_NAME
-      - NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
-
-      # these environment variables are used by java-logging library
-      - ROOT_APPENDER
-      - JSON_CONSOLE_PRETTY_PRINT
-      - ROOT_LOGGING_LEVEL
-      - REFORM_SERVICE_TYPE
-      - REFORM_SERVICE_NAME
-      - REFORM_TEAM
-      - REFORM_ENVIRONMENT
-      - LOGBACK_DATE_FORMAT
-      - LOGBACK_REQUIRE_THREAD
     ports:
-      - $SERVER_PORT:$SERVER_PORT
-    volumes:
-       - ./secrets/reform-scan/:/mnt/secrets/reform-scan/
+      - 10000:10000
+
+  init-storage:
+    build:
+      context: ./docker/storage
+    links:
+      - azure-storage-emulator-azurite
+    depends_on:
+      - azure-storage-emulator-azurite
