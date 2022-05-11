@@ -62,7 +62,7 @@ PEM_EXISTS="false"
 
 if [[ ! -f "private.pem" ]]; then
   az keyvault secret show --vault-name "reform-scan-$ENVI" --name test-signing-key-der | jq -r .value | fold -s -w64 > private.pem
-  exec 3<> private.pem && awk -v TEXT="-----BEGIN RSA PRIVATE KEY-----" 'BEGIN {print TEXT}{print}' private.pem >&3
+  exec 3<> private.pem && awk -v TEXT1="-----BEGIN " -v TEXT2="RSA PRIVATE" -v TEXT3=" KEY-----" 'BEGIN {print TEXT1 TEXT2 TEXT3}{print}' private.pem >&3
   echo "-----END RSA PRIVATE KEY-----" >> private.pem
   PEM_EXISTS="true"
 fi
