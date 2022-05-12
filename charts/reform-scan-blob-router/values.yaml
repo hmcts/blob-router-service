@@ -44,8 +44,6 @@ java:
         - name: notification-queue-send-shared-access-key-premium
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
 
-
-
   environment:
     DB_CONN_OPTIONS: ?sslmode=require
     FLYWAY_SKIP_MIGRATIONS: true
