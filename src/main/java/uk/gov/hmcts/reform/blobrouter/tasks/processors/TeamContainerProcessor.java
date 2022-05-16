@@ -7,7 +7,6 @@ import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.TeamEnvelope;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
@@ -28,18 +27,15 @@ public class TeamContainerProcessor {
     private final BlobServiceClient storageClient;
     private final LeaseAcquirer leaseAcquirer;
     private final BlobVerifier blobVerifier;
-    private final int leaseForSeconds;
 
     public TeamContainerProcessor(
         BlobServiceClient storageClient,
         LeaseAcquirer leaseAcquirer,
         BlobVerifier blobVerifier,
-        @Value("${storage.lease-for-seconds}") int leaseForSeconds
     ) {
         this.storageClient = storageClient;
         this.leaseAcquirer = leaseAcquirer;
         this.blobVerifier = blobVerifier;
-        this.leaseForSeconds = leaseForSeconds;
     }
 
     public List<TeamEnvelope> leaseAndGetEnvelopes(String containerName) {
