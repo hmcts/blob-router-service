@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
+import com.azure.core.http.HttpClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
@@ -21,12 +22,23 @@ public class StorageConfiguration {
         return new StorageSharedKeyCredential(accountName, accountKey);
     }
 
-    // not used as needs test context so it can actually be build
-    @Bean()
-    public BlobServiceClient getStorageClient(StorageSharedKeyCredential credentials) {
+    @Bean
+    public BlobServiceClient getStorageClient(
+        @Value("${storage.account-name}") String accountName,
+        @Value("${storage.account-key}") String accountKey,
+        @Value("${storage.url}") String storageUrl,
+        HttpClient azureHttpClient
+    ) {
+        String connectionString = String.format(
+            "DefaultEndpointsProtocol=https;BlobEndpoint=%s;AccountName=%s;AccountKey=%s",
+            storageUrl,
+            accountName,
+            accountKey
+        );
+
         return new BlobServiceClientBuilder()
-            .endpoint("http://localhost")
-            .credential(credentials)
+            .connectionString(connectionString)
+            .httpClient(azureHttpClient)
             .buildClient();
     }
 

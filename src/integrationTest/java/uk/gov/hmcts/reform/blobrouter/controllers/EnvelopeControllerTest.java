@@ -364,6 +364,29 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         verify(envelopeService).getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
     }
 
+    @Test
+    void should_return_empty_list_of_files() throws Exception {
+        mockMvc
+            .perform(
+                get("/envelopes/nfd")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(0))
+            .andExpect(jsonPath("$.data", hasSize(0)));
+    }
+
+    @Test
+    void should_return_list_of_one_file() throws Exception {
+        mockMvc
+            .perform(
+                get("/envelopes/jason")
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(1))
+            .andExpect(jsonPath("$.data", hasSize(1)));
+    }
+
     private Envelope envelope(String fileName, String container, Instant createdDate) {
         return new Envelope(
             UUID.randomUUID(),
