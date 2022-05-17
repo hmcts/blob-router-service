@@ -11,8 +11,8 @@ public class EnvelopeProcessAttempt {
     public final UUID attemptId;
     @JsonProperty("envelopeId")
     public final String envelopeId;
-    @JsonProperty("teamId")
-    public final String teamId;
+    @JsonProperty("serviceName")
+    public final String serviceName;
     @JsonProperty("timestamp")
     public final String timestamp;
     @JsonProperty("description")
@@ -26,7 +26,7 @@ public class EnvelopeProcessAttempt {
 
     public EnvelopeProcessAttempt(UUID attemptId,
                                   String envelopeId,
-                                  String teamId,
+                                  String serviceName,
                                   String timestamp,
                                   String description,
                                   List<String> warnings,
@@ -34,7 +34,7 @@ public class EnvelopeProcessAttempt {
                                   String status) {
         this.attemptId = attemptId;
         this.envelopeId = envelopeId;
-        this.teamId = teamId;
+        this.serviceName = serviceName;
         this.timestamp = timestamp;
         this.description = description;
         this.warnings = warnings;
