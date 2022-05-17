@@ -31,7 +31,7 @@ public class TeamContainerProcessor {
     public TeamContainerProcessor(
         BlobServiceClient storageClient,
         LeaseAcquirer leaseAcquirer,
-        BlobVerifier blobVerifier,
+        BlobVerifier blobVerifier
     ) {
         this.storageClient = storageClient;
         this.leaseAcquirer = leaseAcquirer;
@@ -65,9 +65,7 @@ public class TeamContainerProcessor {
         }
 
         logger.info("Envelopes found:");
-        envelopes.forEach(e -> {
-            logger.info(e.fileName);
-        });
+        envelopes.forEach(e -> logger.info(e.fileName));
 
         return envelopes;
     }
