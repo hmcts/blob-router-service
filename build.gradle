@@ -204,6 +204,15 @@ dependencyManagement {
       entry 'netty-transport-native-kqueue'
       entry 'netty-transport-native-unix-common'
     }
+    //CVE-2022-22970, CVE-2022-22971
+    dependencySet(group: 'org.springframework', version: '5.3.20') {
+      entry 'spring-aop'
+      entry 'spring-beans'
+      entry 'spring-context'
+      entry 'spring-core'
+      entry 'spring-expression'
+      entry 'spring-jcl'
+    }
   }
 }
 
