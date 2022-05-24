@@ -204,6 +204,20 @@ dependencyManagement {
       entry 'netty-transport-native-kqueue'
       entry 'netty-transport-native-unix-common'
     }
+    //CVE-2022-22970, CVE-2022-22971
+    dependencySet(group: 'org.springframework', version: '5.3.20') {
+      entry 'spring-aop'
+      entry 'spring-beans'
+      entry 'spring-context'
+      entry 'spring-core'
+      entry 'spring-expression'
+      entry 'spring-jcl'
+      entry 'spring-context-support'
+      entry 'spring-jdbc'
+      entry 'spring-tx'
+      entry 'spring-web'
+      entry 'spring-webmvc'
+    }
   }
 }
 
@@ -251,7 +265,7 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-bootstrap', version: '3.1.1'
   // region: feign clients
-  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.1'
+  implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.2'
   implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '11.8'
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '11.8'
   // end region
@@ -279,10 +293,10 @@ dependencies {
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
 
-  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.1.1'
+  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.1.2'
 
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.32.0'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.1', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.2', {
     exclude group: 'junit', module: 'junit'
   }
   integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.1'
