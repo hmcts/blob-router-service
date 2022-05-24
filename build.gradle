@@ -170,7 +170,7 @@ dependencyManagement {
       entry 'log4j-to-slf4j'
     }
     //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.58') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '10.0.21') {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
@@ -293,7 +293,7 @@ dependencies {
   integrationTestImplementation sourceSets.main.runtimeClasspath
   integrationTestImplementation sourceSets.test.runtimeClasspath
 
-  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.1.1'
+  integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.1.2'
 
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.32.0'
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.2', {
