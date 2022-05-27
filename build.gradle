@@ -253,7 +253,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.35.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.35.0'
 
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.15.0'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.17.0'
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.9.0'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
@@ -271,7 +271,7 @@ dependencies {
   // end region
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.8'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.0'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.1'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
