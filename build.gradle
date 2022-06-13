@@ -158,6 +158,11 @@ dependencyCheck {
   }
 }
 
+configurations.all {
+  exclude group: 'org.springframework.security', module: 'spring-security-rsa'
+  exclude group: 'org.springframework.boot', module: 'spring-boot-starter-security'
+}
+
 dependencyManagement {
   dependencies {
     // avoid CVE-2021-29425
