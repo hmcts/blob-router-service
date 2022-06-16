@@ -101,6 +101,11 @@ service:
       target-storage-account: cft
       target-container: privatelaw
       enabled: ${PRIVATELAW_ENABLED}
+    - source-container: adoption
+      sas-validity: 300 #In seconds
+      target-storage-account: cft
+      target-container: adoption
+      enabled: ${ADOPTION_ENABLED:false}
 
 queue:
   notifications:
