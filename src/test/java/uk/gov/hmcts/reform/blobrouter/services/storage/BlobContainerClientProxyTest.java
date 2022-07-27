@@ -45,7 +45,7 @@ class BlobContainerClientProxyTest {
     final String blobName = "hello.zip";
 
     @BeforeEach
-    private void setUp() {
+    void setUp() {
         this.blobContainerClientProxy = new BlobContainerClientProxy(
             crimeClient,
             blobContainerClientBuilderProvider,
