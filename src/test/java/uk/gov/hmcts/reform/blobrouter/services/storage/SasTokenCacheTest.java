@@ -39,7 +39,7 @@ class SasTokenCacheTest {
     private long refreshSasBeforeExpiry = 30;
 
     @BeforeEach
-    private void setUp() {
+    void setUp() {
         this.sasTokenCache = new SasTokenCache(
             bulkScanProcessorClient,
             pcqClient,
