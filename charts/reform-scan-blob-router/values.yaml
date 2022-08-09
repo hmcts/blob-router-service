@@ -19,6 +19,8 @@ java:
           alias: RECONCILIATION_API_KEY
         - name: reconciliation-report-api-key
           alias: RECONCILIATION_REPORT_API_KEY
+        - name: actions-api-key
+          alias: ACTIONS_API_KEY
         - name: s2s-secret-blob-router
           alias: S2S_SECRET
         - name: reconciliation-report-recipients
@@ -43,8 +45,6 @@ java:
           alias: DB_NAME
         - name: notification-queue-send-shared-access-key-premium
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
-
-
 
   environment:
     DB_CONN_OPTIONS: ?sslmode=require
