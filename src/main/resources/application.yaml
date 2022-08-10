@@ -184,3 +184,5 @@ springdoc:
   swagger-ui:
     use-root-path: true
 
+actions:
+  api-key: ${ACTIONS_API_KEY}
