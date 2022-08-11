@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidApiKeyException;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.in.SupplierStatement;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.model.out.SuccessfulResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.service.ReconciliationService;
@@ -30,6 +28,7 @@ import javax.validation.Valid;
 import static java.lang.String.format;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static uk.gov.hmcts.reform.blobrouter.util.AuthValidator.validateAuthorization;
 
 @RestController
 public class ReconciliationController {
@@ -77,7 +76,7 @@ public class ReconciliationController {
         @Valid @RequestBody SupplierStatement supplierStatement
     ) {
         logger.info("Supplier statement received for {}", date);
-        validateAuthorization(authHeader);
+        validateAuthorization(authHeader, apiKey);
         UUID uuid = service.saveSupplierStatement(date, supplierStatement);
 
         ZonedDateTime now = ZonedDateTime.now(clockProvider.getClock());
@@ -96,17 +95,5 @@ public class ReconciliationController {
                 )
             );
         }
-    }
-
-    private void validateAuthorization(String authorizationKey) {
-
-        if (StringUtils.isEmpty(authorizationKey)) {
-            logger.error("API Key is missing");
-            throw new InvalidApiKeyException("API Key is missing");
-        } else if (!authorizationKey.equals("Bearer " + apiKey)) {
-            logger.error("Invalid API Key");
-            throw new InvalidApiKeyException("Invalid API Key");
-        }
-
     }
 }
