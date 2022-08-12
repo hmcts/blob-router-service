@@ -20,6 +20,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: 11
+          distribution: 'adopt'
       - name: Run Swagger Publisher
         run: ./gradlew integration --tests uk.gov.hmcts.reform.blobrouter.config.SwaggerPublisher
       - name: Commit to repository
