@@ -16,7 +16,7 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
     command: azurite-blob --blobHost 0.0.0.0 --loose --skipApiVersionCheck
     environment:
-      AZURITE_ACCOUNTS: crime:Y3JpbWVrZXkK;reformscanlocal:cmVmb3Jtc2NhbmtleQo=;bulkscanlocal:cmVmb3Jtc2NhbmtleQo=;pcqlocal:cmVmb3Jtc2NhbmtleQo=;
+      AZURITE_ACCOUNTS: crime:Y3JpbWVrZXkK;reformscanlocal:cmVmb3Jtc2NhbmtleQo=;bulkscanlocal:cmVmb3Jtc2NhbmtleQo=;pcqlocal:cmVmb3Jtc2NhbmtleQo=;jason:cmVmb3Jtc2NhbmtleQo=;
     volumes:
       - ./bulk-scan-azure-blob-data:/opt/azurite/folder
     ports:
