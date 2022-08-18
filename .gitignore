@@ -1,5 +1,6 @@
 .gradle
 /build/
+/bin/
 /infrastructure/.terraform
 !gradle/wrapper/gradle-wrapper.jar
 
