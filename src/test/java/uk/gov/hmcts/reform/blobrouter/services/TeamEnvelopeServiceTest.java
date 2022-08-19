@@ -57,4 +57,22 @@ public class TeamEnvelopeServiceTest {
         var teamEnvelopes = teamEnvelopeService.getEnvelopes("nfd");
         assertThat(teamEnvelopes).isEqualTo(emptyList());
     }
+
+    @Test
+    void should_return_something_even_when_config_is_disabled() {
+        given(teamContainerProcessor.leaseAndGetEnvelopes(anyString()))
+            .willReturn(emptyList());
+        StorageConfigItem storageConfigItem = new StorageConfigItem();
+        storageConfigItem.setEnabled(false);
+
+        given(serviceConfiguration.getStorageConfig())
+            .willReturn(new HashMap<String, StorageConfigItem>() {
+                {
+                    put("nfd", storageConfigItem);
+                }
+            });
+
+        var teamEnvelopes = teamEnvelopeService.getEnvelopes("nfd");
+        assertThat(teamEnvelopes).isEqualTo(emptyList());
+    }
 }

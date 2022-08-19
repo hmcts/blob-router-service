@@ -23,7 +23,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class TeamContainerProcessor {
 
     private static final Logger logger = getLogger(TeamContainerProcessor.class);
-
     private final BlobServiceClient storageClient;
     private final LeaseAcquirer leaseAcquirer;
     private final BlobVerifier blobVerifier;
