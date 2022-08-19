@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import reactor.util.function.Tuples;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.TeamEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
@@ -367,7 +368,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     @Test
     void should_return_empty_list_of_files() throws Exception {
 
-        given(envelopeService.getEnvelopes(anyString(), any(), any()))
+        given(teamEnvelopeService.getEnvelopes(anyString()))
             .willReturn(emptyList());
 
         mockMvc
@@ -382,32 +383,19 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     @Test
     void should_return_list_of_two_files() throws Exception {
 
-        final String fileName = "some_file_name.zip";
-        final String container = "some_container";
+        var teamEnvelope = teamEnvelope();
 
-        Instant createdDate = Instant.parse("2020-05-20T10:15:10.000Z");
-
-        Envelope envelopeInDb = envelope(fileName, container, Instant.from(createdDate));
-        var eventRecordInDb1 = envelopeEvent(envelopeInDb.id, 1, EventType.FILE_PROCESSING_STARTED);
-        var eventRecordInDb2 = envelopeEvent(envelopeInDb.id, 2, EventType.DISPATCHED);
-
-        given(envelopeService.getEnvelopes(anyString(), any(), any()))
-            .willReturn(singletonList(Tuples.of(
-                envelopeInDb,
-                asList(
-                    eventRecordInDb1,
-                    eventRecordInDb2
-                )
-            )));
+        given(teamEnvelopeService.getEnvelopes(anyString()))
+            .willReturn(asList(teamEnvelope));
 
         mockMvc
             .perform(
-                get("/envelopes/jason")
+                get("/envelopes/nfd")
             )
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.count").value(2))
-            .andExpect(jsonPath("$.data", hasSize(2)));
+            .andExpect(jsonPath("$.count").value(1))
+            .andExpect(jsonPath("$.data", hasSize(1)));
     }
 
     private Envelope envelope(String fileName, String container, Instant createdDate) {
@@ -427,5 +415,14 @@ public class EnvelopeControllerTest extends ControllerTestBase {
 
     private EnvelopeEvent envelopeEvent(UUID envelopeId, int eventId, EventType eventType) {
         return new EnvelopeEvent(eventId, envelopeId, eventType, null, null, now());
+    }
+
+    private TeamEnvelope teamEnvelope() {
+        return new TeamEnvelope("etag",
+                                "fileName",
+                                "https://site.com/fileName",
+                                Instant.now(),
+                                1L,
+                                "application/pdf");
     }
 }
