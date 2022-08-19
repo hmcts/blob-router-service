@@ -51,8 +51,10 @@ public class TeamContainerProcessor {
 
             var sasToken = containerClient.generateSas(values);
 
-            envelopes = containerClient
-                .listBlobs()
+            var itr = containerClient
+                .listBlobs();
+
+            envelopes = itr
                 .stream()
                 .filter(blobItem -> leaseForThisRequest(containerClient, blobItem))
                 .map(blobItem -> createTeamEnvelope(containerClient, blobItem, sasToken))

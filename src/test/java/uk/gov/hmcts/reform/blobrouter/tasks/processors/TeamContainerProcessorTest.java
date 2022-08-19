@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.processors;
 
 import com.azure.core.http.rest.PagedIterable;
+import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
@@ -11,6 +12,7 @@ import org.mockito.Mockito;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import static java.util.Collections.emptyList;
@@ -33,7 +35,20 @@ class TeamContainerProcessorTest {
     @BeforeEach
     void setUp() {
         storageClient = Mockito.mock(BlobServiceClient.class);
+        leaseAcquirer = Mockito.mock(LeaseAcquirer.class);
+        blobVerifier = Mockito.mock(BlobVerifier.class);
         teamContainerProcessor = new TeamContainerProcessor(storageClient, leaseAcquirer, blobVerifier);
+    }
+
+    @Test
+    void should_return_an_empty_list_from_exception() {
+        var blobContainerClient = Mockito.mock(BlobContainerClient.class);
+        given(storageClient.getBlobContainerClient(anyString()))
+            .willThrow(new RuntimeException());
+
+        var envelopes = teamContainerProcessor.leaseAndGetEnvelopes("nfd");
+
+        assertThat(envelopes).isEqualTo(emptyList());
     }
 
     @Test
@@ -55,6 +70,70 @@ class TeamContainerProcessorTest {
 
         given(blobContainerClient.listBlobs())
             .willReturn(mockPagedBlobItems);
+
+        var envelopes = teamContainerProcessor.leaseAndGetEnvelopes("nfd");
+
+        assertThat(envelopes).isEqualTo(emptyList());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void should_return_single_item() {
+        var blobItemName = "testBlobItem";
+        var blobContainerClient = Mockito.mock(BlobContainerClient.class);
+        given(storageClient.getBlobContainerClient(anyString()))
+            .willReturn(blobContainerClient);
+        given(blobContainerClient.generateSas(any()))
+            .willReturn("testSas");
+        given(blobContainerClient.getBlobClient(blobItemName))
+            .willReturn(Mockito.mock(BlobClient.class));
+
+        ArrayList<BlobItem> blobItemList = new ArrayList<>();
+        BlobItem blobItem = new BlobItem();
+        blobItem.setName(blobItemName);
+        blobItemList.add(blobItem);
+
+        PagedIterable<BlobItem> mockPagedBlobItems = (PagedIterable<BlobItem>) Mockito.mock(PagedIterable.class);
+
+        given(mockPagedBlobItems.stream()).willReturn(blobItemList.stream());
+
+        given(blobContainerClient.listBlobs())
+            .willReturn(mockPagedBlobItems);
+
+        given(blobVerifier.verifyZip(anyString(), any()))
+            .willReturn(BlobVerifier.VerificationResult.OK_VERIFICATION_RESULT);
+
+        var envelopes = teamContainerProcessor.leaseAndGetEnvelopes("nfd");
+
+        assertThat(envelopes).isEqualTo(emptyList());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void should_return_single_item_with_verification_error() {
+        var blobItemName = "testBlobItem";
+        var blobContainerClient = Mockito.mock(BlobContainerClient.class);
+        given(storageClient.getBlobContainerClient(anyString()))
+            .willReturn(blobContainerClient);
+        given(blobContainerClient.generateSas(any()))
+            .willReturn("testSas");
+        given(blobContainerClient.getBlobClient(blobItemName))
+            .willReturn(Mockito.mock(BlobClient.class));
+
+        ArrayList<BlobItem> blobItemList = new ArrayList<>();
+        BlobItem blobItem = new BlobItem();
+        blobItem.setName(blobItemName);
+        blobItemList.add(blobItem);
+
+        PagedIterable<BlobItem> mockPagedBlobItems = (PagedIterable<BlobItem>) Mockito.mock(PagedIterable.class);
+
+        given(mockPagedBlobItems.stream()).willReturn(blobItemList.stream());
+
+        given(blobContainerClient.listBlobs())
+            .willReturn(mockPagedBlobItems);
+
+        given(blobVerifier.verifyZip(anyString(), any()))
+            .willReturn(BlobVerifier.INVALID_SIGNATURE_VERIFICATION_RESULT);
 
         var envelopes = teamContainerProcessor.leaseAndGetEnvelopes("nfd");
 
