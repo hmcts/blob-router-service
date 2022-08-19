@@ -4,15 +4,11 @@ import com.azure.storage.blob.BlobServiceClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
-import uk.gov.hmcts.reform.blobrouter.services.TeamEnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 class TeamContainerProcessorTest {
 

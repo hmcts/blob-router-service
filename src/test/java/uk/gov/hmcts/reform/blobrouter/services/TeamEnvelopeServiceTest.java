@@ -9,17 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
-import uk.gov.hmcts.reform.blobrouter.services.storage.DuplicateFileHandler;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.TeamContainerProcessor;
 
-import java.util.Collections;
 import java.util.HashMap;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 
 public class TeamEnvelopeServiceTest {
 
@@ -51,8 +48,7 @@ public class TeamEnvelopeServiceTest {
         given(teamContainerProcessor.leaseAndGetEnvelopes(anyString()))
             .willReturn(emptyList());
         given(serviceConfiguration.getStorageConfig())
-            .willReturn(new HashMap<String, StorageConfigItem>()
-            {
+            .willReturn(new HashMap<String, StorageConfigItem>() {
                 {
                     put("nfd", new StorageConfigItem());
                 }
