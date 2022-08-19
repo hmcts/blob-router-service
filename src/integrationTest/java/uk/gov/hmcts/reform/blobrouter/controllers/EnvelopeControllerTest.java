@@ -364,6 +364,52 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         verify(envelopeService).getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
     }
 
+    @Test
+    void should_return_empty_list_of_files() throws Exception {
+
+        given(envelopeService.getEnvelopes(anyString(), any(), any()))
+            .willReturn(emptyList());
+
+        mockMvc
+            .perform(
+                get("/envelopes/nfd")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(0))
+            .andExpect(jsonPath("$.data", hasSize(0)));
+    }
+
+    @Test
+    void should_return_list_of_two_files() throws Exception {
+
+        final String fileName = "some_file_name.zip";
+        final String container = "some_container";
+
+        Instant createdDate = Instant.parse("2020-05-20T10:15:10.000Z");
+
+        Envelope envelopeInDb = envelope(fileName, container, Instant.from(createdDate));
+        var eventRecordInDb1 = envelopeEvent(envelopeInDb.id, 1, EventType.FILE_PROCESSING_STARTED);
+        var eventRecordInDb2 = envelopeEvent(envelopeInDb.id, 2, EventType.DISPATCHED);
+
+        given(envelopeService.getEnvelopes(anyString(), any(), any()))
+            .willReturn(singletonList(Tuples.of(
+                envelopeInDb,
+                asList(
+                    eventRecordInDb1,
+                    eventRecordInDb2
+                )
+            )));
+
+        mockMvc
+            .perform(
+                get("/envelopes/jason")
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(2))
+            .andExpect(jsonPath("$.data", hasSize(2)));
+    }
+
     private Envelope envelope(String fileName, String container, Instant createdDate) {
         return new Envelope(
             UUID.randomUUID(),

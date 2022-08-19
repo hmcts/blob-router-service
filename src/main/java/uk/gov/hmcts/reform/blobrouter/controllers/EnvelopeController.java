@@ -36,7 +36,6 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 public class EnvelopeController {
 
     private static final Logger logger = getLogger(EnvelopeController.class);
-
     private final EnvelopeService envelopeService;
     private final TeamEnvelopeService teamEnvelopeService;
     private final IncompleteEnvelopesService incompleteEnvelopesService;
