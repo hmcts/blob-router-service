@@ -5,6 +5,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.BlobItemProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -12,6 +13,8 @@ import org.mockito.Mockito;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -123,6 +126,11 @@ class TeamContainerProcessorTest {
         ArrayList<BlobItem> blobItemList = new ArrayList<>();
         BlobItem blobItem = new BlobItem();
         blobItem.setName(blobItemName);
+        var props = new BlobItemProperties();
+        props.setCreationTime(OffsetDateTime.now())
+            .setContentLength(100L)
+            .setContentType("application/json");
+        blobItem.setProperties(props);
         blobItemList.add(blobItem);
 
         PagedIterable<BlobItem> mockPagedBlobItems = (PagedIterable<BlobItem>) Mockito.mock(PagedIterable.class);
@@ -132,11 +140,11 @@ class TeamContainerProcessorTest {
         given(blobContainerClient.listBlobs())
             .willReturn(mockPagedBlobItems);
 
-        given(blobVerifier.verifyZip(anyString(), any()))
+        given(blobVerifier.verifyZip(any(), any()))
             .willReturn(BlobVerifier.INVALID_SIGNATURE_VERIFICATION_RESULT);
 
         var envelopes = teamContainerProcessor.leaseAndGetEnvelopes("nfd");
 
-        assertThat(envelopes).isEqualTo(emptyList());
+        assertThat(envelopes.toArray().length).isEqualTo(1);
     }
 }
