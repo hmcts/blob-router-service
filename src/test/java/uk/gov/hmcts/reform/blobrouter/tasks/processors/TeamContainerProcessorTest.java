@@ -13,7 +13,6 @@ import org.mockito.Mockito;
 import uk.gov.hmcts.reform.blobrouter.services.BlobVerifier;
 import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -123,14 +122,16 @@ class TeamContainerProcessorTest {
         given(blobContainerClient.getBlobClient(blobItemName))
             .willReturn(Mockito.mock(BlobClient.class));
 
-        ArrayList<BlobItem> blobItemList = new ArrayList<>();
-        BlobItem blobItem = new BlobItem();
-        blobItem.setName(blobItemName);
         var props = new BlobItemProperties();
         props.setCreationTime(OffsetDateTime.now())
             .setContentLength(100L)
             .setContentType("application/json");
+
+        BlobItem blobItem = new BlobItem();
+        blobItem.setName(blobItemName);
         blobItem.setProperties(props);
+
+        ArrayList<BlobItem> blobItemList = new ArrayList<>();
         blobItemList.add(blobItem);
 
         PagedIterable<BlobItem> mockPagedBlobItems = (PagedIterable<BlobItem>) Mockito.mock(PagedIterable.class);
