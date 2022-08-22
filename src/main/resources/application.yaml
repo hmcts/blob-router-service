@@ -53,6 +53,54 @@ service:
       sas-validity: 300 #In seconds
       target-storage-account: cft
       target-container: bulkscan
+    - source-container: bulkscanauto
+      sas-validity: 300 #In seconds
+      target-storage-account: cft
+      target-container: bulkscanauto
+    - source-container: cmc
+      sas-validity: 300 #In seconds
+      target-storage-account: cft
+      target-container: cmc
+    - source-container: crime
+      sas-validity: 300 #In seconds
+      enabled: ${CRIME_ENABLED:false}
+      target-storage-account: crime
+      target-container: ${CRIME_DESTINATION_CONTAINER}
+    - source-container: pcq
+      sas-validity: 300 #In seconds
+      enabled: ${PCQ_ENABLED:false}
+      target-storage-account: pcq
+      target-container: ${PCQ_DESTINATION_CONTAINER}
+    - source-container: divorce
+      sas-validity: 600 #In seconds
+      target-storage-account: cft
+      target-container: divorce
+    - source-container: nfd
+      sas-validity: 600 #In seconds
+      target-storage-account: cft
+      target-container: nfd
+      enabled: ${NFD_ENABLED}
+    - source-container: finrem
+      sas-validity: 300 #In seconds
+      target-storage-account: cft
+      target-container: finrem
+    - source-container: probate
+      sas-validity: 300 #In seconds
+      target-storage-account: cft
+      target-container: probate
+    - source-container: sscs
+      sas-validity: 300 #In seconds
+      target-storage-account: cft
+      target-container: sscs
+    - source-container: publiclaw
+      sas-validity: 300 #In seconds
+      target-storage-account: cft
+      target-container: publiclaw
+    - source-container: privatelaw
+      sas-validity: 300 #In seconds
+      target-storage-account: cft
+      target-container: privatelaw
+      enabled: ${PRIVATELAW_ENABLED}
     - source-container: jason
       sas-validity: 600 #In seconds
       target-storage-account: cft
@@ -75,7 +123,7 @@ storage-blob-lease-timeout-in-minutes: ${STORAGE_BLOB_LEASE_TIMEOUT_IN_MINUTES}
 public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY} # public key file in der format
 
 sas-token-cache:
-    refresh-before-expire-in-sec: 30
+  refresh-before-expire-in-sec: 30
 
 upload-chunk-size-in-bytes:  6291456 #6 MB
 
@@ -120,9 +168,9 @@ scheduling:
 reconciliation:
   api-key: ${RECONCILIATION_API_KEY}
   report:
-      mail-from: ${SMTP_USERNAME}
-      mail-recipients: ${RECONCILIATION_REPORT_RECIPIENTS}
-      api-key: ${RECONCILIATION_REPORT_API_KEY}
+    mail-from: ${SMTP_USERNAME}
+    mail-recipients: ${RECONCILIATION_REPORT_RECIPIENTS}
+    api-key: ${RECONCILIATION_REPORT_API_KEY}
 
 idam:
   s2s-auth:
