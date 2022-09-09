@@ -1,1 +1,1 @@
-allowed_client_certificate_thumbprints = ["787FFA318C11478FD334A0C7153406991F02B9FE"]
+allowed_client_certificate_thumbprints = ["F4C75EE33A46FBFF1D284429B1DB207398181F4A"]
