@@ -5,7 +5,7 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.0.13.RELEASE'
   id 'org.springframework.boot' version '2.7.2'
-  id 'org.owasp.dependencycheck' version '7.1.2'
+  id 'org.owasp.dependencycheck' version '7.2.0'
   id 'com.github.ben-manes.versions' version '0.42.0'
   id 'org.sonarqube' version '3.4.0.2513'
   id 'org.flywaydb.flyway' version '9.3.0'
@@ -284,7 +284,7 @@ dependencies {
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
-  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.0.3'
+  implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '4.1.0'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
