@@ -15,4 +15,7 @@
     <suppress until="2022-10-18">
       <cve>CVE-2022-31569</cve>
     </suppress>
+    <suppress until="2022-12-30">
+      <cve>CVE-2022-34305</cve>
+    </suppress>
 </suppressions>
