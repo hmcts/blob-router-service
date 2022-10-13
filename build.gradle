@@ -308,7 +308,7 @@ dependencies {
   integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.17.5', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.3'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.17.5'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.11'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
