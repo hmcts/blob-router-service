@@ -8,7 +8,6 @@ import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.google.common.io.ByteStreams;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import static com.microsoft.applicationinsights.web.dependencies.apachecommons.io.FileUtils.byteCountToDisplaySize;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
 
@@ -141,7 +141,7 @@ public class BlobMover {
                 "Upload committed  to {}, num of  block {}, total size {}",
                 blockBlobClient.getBlobUrl(),
                 blockList.size(),
-                FileUtils.byteCountToDisplaySize(totalSize)
+                byteCountToDisplaySize(totalSize)
             );
         } catch (Exception ex) {
             logger.info("Upload  to {}. FAILED", blockBlobClient.getBlobUrl());
