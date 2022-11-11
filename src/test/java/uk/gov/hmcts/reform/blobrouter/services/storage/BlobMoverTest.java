@@ -97,7 +97,7 @@ class BlobMoverTest {
     }
 
     @Test
-    void should_try_to_delete_when_upload_with_chunks_get_error() throws IOException {
+    void should_try_to_delete_when_upload_with_chunks_get_error() {
 
         //given
         var content = "test1234".getBytes();
@@ -118,7 +118,7 @@ class BlobMoverTest {
     }
 
     @Test
-    void should_not_throw_exception_when_chunk_upload_delete_fails() throws IOException {
+    void should_not_throw_exception_when_chunk_upload_delete_fails() {
 
         //given
         var content = "test1234".getBytes();
@@ -240,7 +240,6 @@ class BlobMoverTest {
         given(targetBlob.beginCopy(any(), any(), any(), any(), any(), any(), any()))
             .willReturn(syncPoller);
 
-        var pollResponse = mock(PollResponse.class);
         willThrow(new BlobStorageException("Copy Failed", mock(HttpResponse.class), null))
             .given(syncPoller).waitForCompletion(Duration.ofMinutes(5));
 
