@@ -14,10 +14,6 @@
         <cve>CVE-2022-33915</cve>
     </suppress>
     <suppress until="2023-01-07">
-      <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
-      <cve>CVE-2022-42003</cve>
-    </suppress>
-    <suppress until="2023-01-07">
       <notes>spring-security 2.7.2 has new vulnerabilities, fixed in version 2.7.5 but springboot currently uses 2.7.2</notes>
       <cve>CVE-2022-31692</cve>
       <cve>CVE-2022-31690</cve>
