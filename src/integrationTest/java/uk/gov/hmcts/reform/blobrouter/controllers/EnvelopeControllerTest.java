@@ -1,17 +1,21 @@
 package uk.gov.hmcts.reform.blobrouter.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import reactor.util.function.Tuples;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
+import uk.gov.hmcts.reform.blobrouter.data.envelopes.TeamEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.data.events.EventType;
 import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidRequestParametersException;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeProcessAttempt;
 import uk.gov.hmcts.reform.blobrouter.model.out.IncompleteEnvelopeInfo;
 import uk.gov.hmcts.reform.blobrouter.services.IncompleteEnvelopesService;
 import uk.gov.hmcts.reform.blobrouter.util.DateFormatter;
@@ -33,6 +37,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -364,6 +369,63 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         verify(envelopeService).getEnvelopesByDcnPrefix(dcnPrefix, fromDate, toDate);
     }
 
+    @Test
+    void should_return_empty_list_of_files() throws Exception {
+
+        given(teamEnvelopeService.getEnvelopes(anyString()))
+            .willReturn(emptyList());
+
+        mockMvc
+            .perform(
+                get("/envelopes/nfd")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(0))
+            .andExpect(jsonPath("$.data", hasSize(0)));
+    }
+
+    @Test
+    void should_return_list_of_two_files() throws Exception {
+
+        var teamEnvelope = teamEnvelope();
+
+        given(teamEnvelopeService.getEnvelopes(anyString()))
+            .willReturn(asList(teamEnvelope));
+
+        mockMvc
+            .perform(
+                get("/envelopes/nfd")
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.count").value(1))
+            .andExpect(jsonPath("$.data", hasSize(1)));
+    }
+
+    @Test
+    void should_update_processing_attempt() throws Exception {
+
+        var attempt = new EnvelopeProcessAttempt(UUID.randomUUID(),
+                                                 "anyId",
+                                                 "nfd",
+                                                 "2022-08-18 00:00:00+00:00",
+                                                 "description",
+                                                 emptyList(),
+                                                 emptyList(),
+                                                 "ok");
+        ObjectMapper mapper = new ObjectMapper();
+        var json = mapper.writeValueAsString(attempt);
+        mockMvc
+            .perform(
+                put("/envelopes/nfd/anyId/process-attempt/1234")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(json)
+            )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().json(json));
+    }
+
     private Envelope envelope(String fileName, String container, Instant createdDate) {
         return new Envelope(
             UUID.randomUUID(),
@@ -381,5 +443,14 @@ public class EnvelopeControllerTest extends ControllerTestBase {
 
     private EnvelopeEvent envelopeEvent(UUID envelopeId, int eventId, EventType eventType) {
         return new EnvelopeEvent(eventId, envelopeId, eventType, null, null, now());
+    }
+
+    private TeamEnvelope teamEnvelope() {
+        return new TeamEnvelope("etag",
+                                "fileName",
+                                "https://site.com/fileName",
+                                Instant.now(),
+                                1L,
+                                "application/pdf");
     }
 }

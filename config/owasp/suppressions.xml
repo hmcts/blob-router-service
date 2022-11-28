@@ -22,4 +22,7 @@
       <notes>tomcat-embed 9.0.58 has new vulnerability</notes>
       <cve>CVE-2022-42252</cve>
     </suppress>
+    <suppress until="2022-10-18">
+      <cve>CVE-2016-1000027</cve>
+    </suppress>
 </suppressions>

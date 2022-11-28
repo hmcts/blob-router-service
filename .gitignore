@@ -1,5 +1,6 @@
 .gradle
 /build/
+/bin/
 /infrastructure/.terraform
 !gradle/wrapper/gradle-wrapper.jar
 
@@ -19,3 +20,6 @@
 *.ipr
 
 .DS_Store
+.env
+__azurite_db_blob__.json
+secrets

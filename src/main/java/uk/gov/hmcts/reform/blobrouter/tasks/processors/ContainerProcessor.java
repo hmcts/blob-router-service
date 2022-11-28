@@ -38,6 +38,8 @@ public class ContainerProcessor {
     public void process(String containerName) {
         logger.info("Processing container {}", containerName);
 
+        logger.info("Storage Account: {}", storageClient.getAccountName());
+
         try {
             BlobContainerClient containerClient = storageClient.getBlobContainerClient(containerName);
             containerClient

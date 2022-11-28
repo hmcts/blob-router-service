@@ -209,7 +209,6 @@ dependencyManagement {
       entry 'netty-transport-native-kqueue'
       entry 'netty-transport-native-unix-common'
     }
-    //CVE-2022-22970, CVE-2022-22971
     dependencySet(group: 'org.springframework', version: '5.3.23') {
       entry 'spring-aop'
       entry 'spring-beans'
@@ -289,6 +288,7 @@ dependencies {
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.9.0'
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
   implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
+
 
   testImplementation libraries.junit5
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {

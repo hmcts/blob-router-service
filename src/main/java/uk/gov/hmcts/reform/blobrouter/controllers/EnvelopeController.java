@@ -2,10 +2,14 @@ package uk.gov.hmcts.reform.blobrouter.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.slf4j.Logger;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,31 +17,38 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeEventResponse;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
+import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeProcessAttempt;
 import uk.gov.hmcts.reform.blobrouter.model.out.IncompleteEnvelopeInfo;
 import uk.gov.hmcts.reform.blobrouter.model.out.SearchResult;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.IncompleteEnvelopesService;
+import uk.gov.hmcts.reform.blobrouter.services.TeamEnvelopeService;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
 @RestController
 @RequestMapping(path = "/envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
 public class EnvelopeController {
 
+    private static final Logger logger = getLogger(EnvelopeController.class);
     private final EnvelopeService envelopeService;
+    private final TeamEnvelopeService teamEnvelopeService;
     private final IncompleteEnvelopesService incompleteEnvelopesService;
 
     private static final String DEFAULT_STALE_TIME_HOURS = "2";
 
     public EnvelopeController(
         EnvelopeService envelopeService,
+        TeamEnvelopeService teamEnvelopeService,
         IncompleteEnvelopesService incompleteEnvelopesService
     ) {
         this.envelopeService = envelopeService;
+        this.teamEnvelopeService = teamEnvelopeService;
         this.incompleteEnvelopesService = incompleteEnvelopesService;
     }
 
@@ -97,6 +108,41 @@ public class EnvelopeController {
 
         return new SearchResult(envelopes);
     }
+
+    @GetMapping("/{teamId}")
+    @Operation(
+        summary = "Retrieves envelopes for a team",
+        description = "Returns urls to access envelopes which have been leased for processing. An empty list is "
+            + "returned when there are no leasable files for the team to process. Endpoints for marking an envelope "
+            + "as successfully processed or not is returned with each file."
+    )
+    @ApiResponse(responseCode = "200", description = "Success")
+    @ApiResponse(responseCode = "403", description = "Access denied")
+    public SearchResult findTeamEnvelopes(@PathVariable String teamId) {
+        var envelopes = teamEnvelopeService.getEnvelopes(teamId);
+        return new SearchResult(envelopes);
+    }
+
+    @PutMapping("/{teamId}/{envelopeETag}/process-attempt/{attemptId}")
+    @Operation(
+        summary = "Records an attempt at processing a teams envelope",
+        description = "Returns the created record or an error."
+    )
+    @ApiResponse(responseCode = "403", description = "Access denied")
+    @ApiResponse(responseCode = "201", description = "Success")
+    public EnvelopeProcessAttempt setTeamEnvelopeStatus(@PathVariable String teamId,
+                                                        @PathVariable String envelopeETag,
+                                                        @PathVariable String attemptId,
+                                                        @RequestBody EnvelopeProcessAttempt processAttempt) {
+        // @todo save this to db,add validation etc.
+        logger.info("Process attempt {} by team {} for envelope {}",
+                    attemptId,
+                    teamId,
+                    envelopeETag);
+        return processAttempt;
+    }
+
+
 
     private EnvelopeInfo toResponse(Envelope dbEnvelope, List<EnvelopeEvent> dbEventRecords) {
         return new EnvelopeInfo(
