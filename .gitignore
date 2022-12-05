@@ -3,6 +3,7 @@
 /bin/
 /infrastructure/.terraform
 !gradle/wrapper/gradle-wrapper.jar
+reform-scan/
 
 ### STS ###
 .apt_generated
