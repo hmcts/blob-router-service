@@ -31,7 +31,7 @@ withNightlyPipeline(type, product, component) {
   loadVaultSecrets(secrets)
   enableFortifyScan('reform-scan-aat')
   enableSlackNotifications('#bsp-build-notices')
-  after('fortify-scan') {
+  afterSuccess('fortify-scan') {
     steps.archiveArtifacts allowEmptyArchive: true, artifacts: '**/Fortify Scan/**/*'
   }
 }

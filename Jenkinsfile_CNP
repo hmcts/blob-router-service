@@ -71,7 +71,7 @@ static String previewAccountKey(Kubectl kubectl, String secretName, String names
 GradleBuilder builder = new GradleBuilder(this, product)
 
 withPipeline(type, product, component) {
-  after('test') {
+  afterSuccess('test') {
     builder.gradle('integration')
   }
 
@@ -87,10 +87,10 @@ withPipeline(type, product, component) {
   onPR(){
     loadVaultSecrets(smokeTestSecrets)
   }
-  
+
   def branchesToSync = ['demo', 'perftest']
   syncBranchesWithMaster(branchesToSync)
-  
+
   // Vars needed for smoke / functional testing
   env.TEST_STORAGE_CONTAINER_NAME = 'bulkscan'
   env.TEST_STORAGE_ACCOUNT_URL = 'https://reformscanaatstaging.blob.core.windows.net'
