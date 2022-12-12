@@ -15,8 +15,8 @@ public class SwaggerConfiguration {
     public OpenAPI api() {
         return new OpenAPI()
             .info(
-                new Info().title("Send letter API")
-                    .description("Send letter handlers")
+                new Info().title("Blob Router API")
+                    .description("Blob Router handlers")
                     .version("v0.0.1")
             );
     }
