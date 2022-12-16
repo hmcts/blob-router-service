@@ -35,7 +35,7 @@ public class DuplicateTest extends FunctionalTestBase {
             createZipArchive(
                 asList(
                     "test-data/envelope/envelope.zip",
-                    "test-data/envelope/invalid-signature"
+                    "test-data/envelope/signature"
                 )
             );
 
