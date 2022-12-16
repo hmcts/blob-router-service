@@ -54,10 +54,10 @@ public class DuplicateTest extends FunctionalTestBase {
             .until(() -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName));
 
         // and
-        assertNotificationIsSent(fileName);
+        assertEnvelopeIsRejected(fileName);
     }
 
-    private void assertNotificationIsSent(String fileName) {
+    private void assertEnvelopeIsRejected(String fileName) {
         RestAssured
             .given()
             .baseUri(config.blobRouterUrl)
@@ -68,9 +68,8 @@ public class DuplicateTest extends FunctionalTestBase {
             .then()
             .statusCode(OK.value())
             .body("data[0].status", equalTo(REJECTED.name()))
-            .body("data[0].pending_notification", equalTo(false))
             .body(
-                "data[0].events.event", hasItems(EventType.REJECTED.name(), EventType.NOTIFICATION_SENT.name())
+                "data[0].events.event", hasItems(EventType.REJECTED.name())
             );
     }
 }
