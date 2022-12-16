@@ -55,10 +55,10 @@ public class DuplicateTest extends FunctionalTestBase {
             .until(() -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName));
 
         // and
-        assertEnvelopeIsRejected(fileName);
+        assertEnvelopes(fileName);
     }
 
-    private void assertEnvelopeIsRejected(String fileName) {
+    private void assertEnvelopes(String fileName) {
         RestAssured
             .given()
             .baseUri(config.blobRouterUrl)
