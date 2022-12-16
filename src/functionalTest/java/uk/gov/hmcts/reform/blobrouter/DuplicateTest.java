@@ -10,8 +10,9 @@ import java.util.concurrent.TimeUnit;
 import static com.jayway.awaitility.Awaitility.await;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.http.HttpStatus.OK;
+import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.DISPATCHED;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.REJECTED;
 import static uk.gov.hmcts.reform.blobrouter.envelope.ZipFileHelper.createZipArchive;
 import static uk.gov.hmcts.reform.blobrouter.storage.StorageHelper.blobExists;
@@ -69,7 +70,11 @@ public class DuplicateTest extends FunctionalTestBase {
             .statusCode(OK.value())
             .body("data[0].status", equalTo(REJECTED.name()))
             .body(
-                "data[0].events.event", hasItems(EventType.REJECTED.name())
+                "data[0].events.event", hasItem(EventType.REJECTED.name())
+            )
+            .body("data[1].status", equalTo(DISPATCHED.name()))
+            .body(
+                "data[1].events.event", hasItem(EventType.DISPATCHED.name())
             );
     }
 }
