@@ -219,7 +219,7 @@ public class EnvelopeRepositoryTest {
     void should_update_dispatch_time() {
         // given
         UUID id = repo.insert(new NewEnvelope("a", "b", now(), null, DISPATCHED, 1024L));
-        Instant newDispatchTime = now();
+        Instant newDispatchTime = now().truncatedTo(ChronoUnit.MICROS);
 
         // when
         repo.updateDispatchDateTime(id, newDispatchTime);
@@ -295,7 +295,7 @@ public class EnvelopeRepositoryTest {
             assertThat(env.container).isEqualTo(envelope.container);
             assertThat(env.fileName).isEqualTo(envelope.fileName);
             assertThat(env.dispatchedAt).isEqualTo(envelope.dispatchedAt);
-            assertThat(env.fileCreatedAt).isEqualTo(envelope.fileCreatedAt);
+            assertThat(env.fileCreatedAt).isEqualTo(envelope.fileCreatedAt.truncatedTo(ChronoUnit.MICROS));
             assertThat(env.status).isEqualTo(envelope.status);
             assertThat(env.isDeleted).isEqualTo(true);
             assertThat(env.createdAt).isNotNull();
