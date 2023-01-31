@@ -296,8 +296,8 @@ public class EnvelopeRepositoryTest {
             assertThat(env.id).isEqualTo(id);
             assertThat(env.container).isEqualTo(envelope.container);
             assertThat(env.fileName).isEqualTo(envelope.fileName);
-            assertThat(env.dispatchedAt).isEqualTo(envelope.dispatchedAt.truncatedTo(ChronoUnit.MICROS));
-            assertThat(env.fileCreatedAt).isEqualTo(envelope.fileCreatedAt.truncatedTo(ChronoUnit.MICROS));
+            assertThat(env.dispatchedAt).isEqualTo(envelope.dispatchedAt);
+            assertThat(env.fileCreatedAt).isEqualTo(envelope.fileCreatedAt);
             assertThat(env.status).isEqualTo(envelope.status);
             assertThat(env.isDeleted).isEqualTo(true);
             assertThat(env.createdAt).isNotNull();
@@ -576,7 +576,8 @@ public class EnvelopeRepositoryTest {
     }
 
     private UUID addEnvelope(String container, String fileName, Status status, boolean isDeleted) {
-        UUID id = repo.insert(new NewEnvelope(container, fileName, now(), now(), status, null));
+        Instant createdAt = now().truncatedTo(ChronoUnit.MICROS);
+        UUID id = repo.insert(new NewEnvelope(container, fileName, createdAt, createdAt, status, null));
         if (isDeleted) {
             repo.markAsDeleted(id);
         }
@@ -597,11 +598,12 @@ public class EnvelopeRepositoryTest {
     }
 
     private NewEnvelope newEnvelope(Status status, String container) {
+        Instant createdAt = now().truncatedTo(ChronoUnit.MICROS);
         return new NewEnvelope(
             container,
             UUID.randomUUID().toString(),
-            now(),
-            now().plusSeconds(100),
+            createdAt,
+            createdAt.plusSeconds(100),
             status,
             1024L
         );
