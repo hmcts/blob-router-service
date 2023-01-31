@@ -44,11 +44,13 @@ public class EnvelopeRepositoryTest {
     @Test
     void should_save_and_read_envelope_by_id() {
         // given
+        Instant createdAt = now().truncatedTo(ChronoUnit.MICROS);
+        Instant dispatchedAt = createdAt.plusSeconds(100);
         var newEnvelope = new NewEnvelope(
             "container",
             "hello.zip",
-            now(),
-            now().plusSeconds(100),
+            createdAt,
+            dispatchedAt,
             DISPATCHED,
             1024L
         );
@@ -63,8 +65,8 @@ public class EnvelopeRepositoryTest {
         assertThat(envelopeInDb).hasValueSatisfying(env -> {
             assertThat(env.container).isEqualTo(newEnvelope.container);
             assertThat(env.fileName).isEqualTo(newEnvelope.fileName);
-            assertThat(env.dispatchedAt).isEqualTo(newEnvelope.dispatchedAt);
-            assertThat(env.fileCreatedAt).isEqualTo(newEnvelope.fileCreatedAt);
+            assertThat(env.dispatchedAt.truncatedTo(ChronoUnit.MICROS)).isEqualTo(newEnvelope.dispatchedAt);
+            assertThat(env.fileCreatedAt.truncatedTo(ChronoUnit.MICROS)).isEqualTo(newEnvelope.fileCreatedAt);
             assertThat(env.status).isEqualTo(newEnvelope.status);
             assertThat(env.isDeleted).isEqualTo(false);
             assertThat(env.createdAt).isNotNull();
@@ -294,7 +296,7 @@ public class EnvelopeRepositoryTest {
             assertThat(env.id).isEqualTo(id);
             assertThat(env.container).isEqualTo(envelope.container);
             assertThat(env.fileName).isEqualTo(envelope.fileName);
-            assertThat(env.dispatchedAt).isEqualTo(envelope.dispatchedAt);
+            assertThat(env.dispatchedAt).isEqualTo(envelope.dispatchedAt.truncatedTo(ChronoUnit.MICROS));
             assertThat(env.fileCreatedAt).isEqualTo(envelope.fileCreatedAt.truncatedTo(ChronoUnit.MICROS));
             assertThat(env.status).isEqualTo(envelope.status);
             assertThat(env.isDeleted).isEqualTo(true);
