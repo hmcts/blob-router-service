@@ -130,7 +130,7 @@ public class EnvelopeRepositoryTest {
         var newEnvelope = new NewEnvelope(
             "container",
             "hello.zip",
-            now(),
+            now().truncatedTo(ChronoUnit.MICROS),
             null,
             REJECTED,
             1024L
@@ -147,7 +147,7 @@ public class EnvelopeRepositoryTest {
             assertThat(env.container).isEqualTo(newEnvelope.container);
             assertThat(env.fileName).isEqualTo(newEnvelope.fileName);
             assertThat(env.dispatchedAt).isNull();
-            assertThat(env.fileCreatedAt).isEqualTo(newEnvelope.fileCreatedAt);
+            assertThat(env.fileCreatedAt.truncatedTo(ChronoUnit.MICROS)).isEqualTo(newEnvelope.fileCreatedAt);
             assertThat(env.status).isEqualTo(newEnvelope.status);
             assertThat(env.isDeleted).isEqualTo(false);
             assertThat(env.createdAt).isNotNull();
