@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.hmcts.reform.blobrouter.util.DateTimeUtils.instant;
 
@@ -290,20 +291,16 @@ public class EnvelopeSummaryRepositoryTest {
             createdAt3
         );
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(dateReportedFor, containerNames);
-        assertThat(result)
-            .usingFieldByFieldElementComparator()
+        assertThat(result).usingRecursiveFieldByFieldElementComparator()
             .extracting(env -> env.received)
             .containsExactlyInAnyOrder(1,1,0,0);
-        assertThat(result)
-            .usingFieldByFieldElementComparator()
+        assertThat(result).usingRecursiveFieldByFieldElementComparator()
             .extracting(env -> env.rejected)
             .containsExactlyInAnyOrder(1,0,0,0);
-        assertThat(result)
-            .usingFieldByFieldElementComparator()
-            .extracting(env -> env.date)
-            .containsOnly(dateReportedFor);
-        assertThat(result)
-             .usingFieldByFieldElementComparator()
+        assertThat(result).usingRecursiveFieldByFieldElementComparator()
+            .extracting(env -> env.date.format(ISO_DATE))
+            .containsOnly(dateReportedFor.format(ISO_DATE));
+        assertThat(result).usingRecursiveFieldByFieldElementComparator()
              .extracting(env -> env.container)
              .containsExactlyInAnyOrder(CONTAINER_CRIME, CONTAINER_SSCS, CONTAINER_PROBATE, CONTAINER_PCQ);
 
@@ -379,21 +376,18 @@ public class EnvelopeSummaryRepositoryTest {
         );
 
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR, containerNames);
-        assertThat(result)
-            .usingFieldByFieldElementComparator()
+        assertThat(result).usingRecursiveFieldByFieldElementComparator()
             .extracting(env -> env.received)
             .containsExactlyInAnyOrder(1, 2,3,0);
-        assertThat(result)
-            .usingFieldByFieldElementComparator()
+        assertThat(result).usingRecursiveFieldByFieldElementComparator()
             .extracting(env -> env.rejected)
             .containsExactlyInAnyOrder(0,1,2,0);
         assertThat(result)
             .extracting(env -> env.container)
             .containsExactlyInAnyOrder(CONTAINER_CRIME, CONTAINER_PCQ, CONTAINER_SSCS, CONTAINER_PROBATE);
-        assertThat(result)
-            .usingFieldByFieldElementComparator()
-            .extracting(env -> env.date)
-            .containsOnly(DATE_REPORTED_FOR);
+        assertThat(result).usingRecursiveFieldByFieldElementComparator()
+            .extracting(env -> env.date.format(ISO_DATE))
+            .containsOnly(DATE_REPORTED_FOR.format(ISO_DATE));
     }
 
     //containers have no rejected envelopes for the date
@@ -421,11 +415,9 @@ public class EnvelopeSummaryRepositoryTest {
             )
         );
         List<EnvelopeCountSummaryReportItem> result = reportRepository.getReportFor(DATE_REPORTED_FOR, containerNames);
-        assertThat(result)
-            .usingFieldByFieldElementComparator()
+        assertThat(result).usingRecursiveFieldByFieldElementComparator()
             .extracting(env -> env.received).containsExactlyInAnyOrder(1, 1, 0, 0);
-        assertThat(result)
-            .usingFieldByFieldElementComparator()
+        assertThat(result).usingRecursiveFieldByFieldElementComparator()
             .extracting(env -> env.rejected).containsExactlyInAnyOrder(0, 0, 0, 0);
         assertThat(result)
             .extracting(env -> env.container)
