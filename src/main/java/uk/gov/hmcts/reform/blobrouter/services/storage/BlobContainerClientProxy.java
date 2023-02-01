@@ -34,24 +34,27 @@ public class BlobContainerClientProxy {
 
     private BlobContainerClient get(TargetStorageAccount targetStorageAccount, String containerName) {
         switch (targetStorageAccount) {
-            case CFT:
+            case CFT -> {
                 return blobContainerClientBuilderProvider
                     .getBlobContainerClientBuilder()
                     .sasToken(sasTokenCache.getSasToken(containerName))
                     .containerName(containerName)
                     .buildClient();
-            case CRIME:
+            }
+            case CRIME -> {
                 return crimeClient;
-            case PCQ:
+            }
+            case PCQ -> {
                 return blobContainerClientBuilderProvider
                     .getPcqBlobContainerClientBuilder()
                     .sasToken(sasTokenCache.getPcqSasToken(containerName))
                     .containerName(containerName)
                     .buildClient();
-            default:
+            }
+            default ->
                 throw new UnknownStorageAccountException(
                     String.format("Client requested for an unknown storage account: %s", targetStorageAccount)
-                );
+            );
         }
     }
 
@@ -63,8 +66,9 @@ public class BlobContainerClientProxy {
     ) {
         try {
             var blobName = sourceBlob.getBlobName();
-            logger.info(
-                "Start streaming from blob {} to Container: {}",
+            logger.info("""
+                    Start streaming from blob {} to Container: {}
+                """,
                 sourceBlob.getBlobUrl(),
                 destinationContainer
             );
