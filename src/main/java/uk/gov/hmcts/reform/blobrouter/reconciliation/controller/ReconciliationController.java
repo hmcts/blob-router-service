@@ -65,7 +65,7 @@ public class ReconciliationController {
             responseCode = "200",
             content = @Content(schema = @Schema(implementation = SuccessfulResponse.class)),
             description = "The report has been accepted"
-        ),
+            ),
         @ApiResponse(responseCode = "400",
             description = "Request failed due to malformed syntax in either body or path parameter"),
         @ApiResponse(responseCode = "401", description = "Invalid API Key")
