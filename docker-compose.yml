@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
-      - 5432:5432
+      - 5434:5432
 
   azure-storage-emulator-azurite:
     image: mcr.microsoft.com/azure-storage/azurite
