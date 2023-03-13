@@ -5,10 +5,10 @@ plugins {
   id 'jacoco'
   id 'io.spring.dependency-management' version '1.1.0'
   id 'org.springframework.boot' version '2.7.2'
-  id 'org.owasp.dependencycheck' version '8.1.0'
+  id 'org.owasp.dependencycheck' version '8.1.2'
   id 'com.github.ben-manes.versions' version '0.46.0'
   id 'org.sonarqube' version '4.0.0.2929'
-  id 'org.flywaydb.flyway' version '9.15.1'
+  id 'org.flywaydb.flyway' version '9.15.2'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -182,7 +182,7 @@ dependencyManagement {
       entry 'log4j-to-slf4j'
     }
     //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.72') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.73') {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
@@ -234,6 +234,10 @@ dependencyManagement {
     dependencySet(group: 'org.yaml', version: '1.33') {
       entry 'snakeyaml'
     }
+    // CVE-2023-24998
+    dependencySet(group: 'commons-fileupload', version: '1.5') {
+      entry 'commons-fileupload'
+    }
   }
 }
 
@@ -266,8 +270,8 @@ dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.5.4'
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.5.13'
 
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '4.44.0'
-  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '4.44.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.2.0'
+  implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.2.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.19.1'
   implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.13.2'
@@ -286,8 +290,8 @@ dependencies {
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '12.2'
   // end region
 
-  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.14'
-  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.4'
+  implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.15'
+  implementation group: 'com.github.ben-manes.caffeine', name: 'caffeine', version: '3.1.5'
 
   implementation group: 'com.github.hmcts.java-logging', name: 'logging', version: versions.reformLogging
   implementation group: 'com.github.hmcts.java-logging', name: 'logging-appinsights', version: versions.reformLogging
