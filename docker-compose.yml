@@ -1,4 +1,4 @@
-version: '2.1'
+version: '2.2'
 
 services:
   blob-router-service-db:
@@ -20,7 +20,12 @@ services:
       - 10000:10000
   blob-router-service:
     build:
-      context: ./
+      context: .
+      args:
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    image: hmctspublic.azurecr.io/reform-scan/blob-router
     links:
       - blob-router-service-db
     ports:
