@@ -101,6 +101,10 @@ service:
       target-storage-account: cft
       target-container: privatelaw
       enabled: ${PRIVATELAW_ENABLED}
+    - source-container: mosh
+      sas-validity: 600 #In seconds
+      target-storage-account: cft
+      target-container: mosh
 
 queue:
   notifications:
