@@ -86,7 +86,7 @@ reformblobstorage:
   enabled: true
   resourceGroup: reform-scan-aks
   teamName: "BSP"
-  location: ukwest
+  location: uksouth
   setup:
     containers:
       - bulkscan
@@ -111,7 +111,7 @@ crimeblobstorage:
   resourceGroup: reform-scan-aks
   releaseNameOverride: crime-{{ .Release.Name }}
   teamName: "BSP"
-  location: ukwest
+  location: uksouth
   setup:
     containers:
       - bs-sit-scans-received
@@ -121,7 +121,7 @@ pcqblobstorage:
   resourceGroup: reform-scan-aks
   releaseNameOverride: pcq-{{ .Release.Name }}
   teamName: "BSP"
-  location: ukwest
+  location: uksouth
   setup:
     containers:
       - pcq
