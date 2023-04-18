@@ -274,7 +274,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.2.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.19.1'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.13.3'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.13.4'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-aop'
