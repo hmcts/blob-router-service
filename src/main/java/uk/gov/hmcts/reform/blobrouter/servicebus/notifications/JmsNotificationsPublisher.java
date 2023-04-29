@@ -1,42 +1,47 @@
 package uk.gov.hmcts.reform.blobrouter.servicebus.notifications;
 
-import com.azure.messaging.servicebus.ServiceBusMessage;
-import com.azure.messaging.servicebus.ServiceBusSenderClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessagePostProcessor;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import javax.jms.JMSException;
+import javax.jms.Message;
 
 @Service
-@ConditionalOnExpression("!${jms.enabled}")
-public class NotificationsPublisher {
+@ConditionalOnProperty(name = "jms.enabled", havingValue = "true")
+public class JmsNotificationsPublisher {
 
-    private static final Logger logger = LoggerFactory.getLogger(NotificationsPublisher.class);
+    private static final Logger logger = LoggerFactory.getLogger(JmsNotificationsPublisher.class);
 
-    private final ServiceBusSenderClient queueClient;
+    @Autowired
+    private JmsTemplate jmsTemplate;
+
     private final ObjectMapper objectMapper;
 
-    public NotificationsPublisher(
-        ServiceBusSenderClient queueClient,
+    public JmsNotificationsPublisher(
+        JmsTemplate jmsTemplate,
         ObjectMapper objectMapper
     ) {
-        this.queueClient = queueClient;
+        this.jmsTemplate = jmsTemplate;
         this.objectMapper = objectMapper;
     }
 
     public void publish(NotificationMsg notificationMsg, String messageId) {
         try {
             String messageBody = objectMapper.writeValueAsString(notificationMsg);
-
-            ServiceBusMessage message = new ServiceBusMessage(messageBody);
-            message.setMessageId(messageId);
-            message.setContentType(APPLICATION_JSON_VALUE);
-
-            queueClient.sendMessage(message);
+            jmsTemplate.convertAndSend("notifications", messageBody, new MessagePostProcessor() {
+                @Override
+                public Message postProcessMessage(Message message) throws JMSException {
+                    message.setJMSMessageID(messageId);
+                    return message;
+                }
+            });
 
             logger.info(
                 "Sent message to Notifications queue. File name: {} Container: {} Error code: {}",
