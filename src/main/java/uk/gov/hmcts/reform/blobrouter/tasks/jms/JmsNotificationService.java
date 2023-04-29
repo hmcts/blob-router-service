@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.services;
+package uk.gov.hmcts.reform.blobrouter.tasks.jms;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.JmsNotificationsPublisher;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.util.List;
 
