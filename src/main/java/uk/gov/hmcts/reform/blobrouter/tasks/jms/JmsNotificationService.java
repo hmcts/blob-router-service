@@ -1,36 +1,36 @@
-package uk.gov.hmcts.reform.blobrouter.services;
+package uk.gov.hmcts.reform.blobrouter.tasks.jms;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelope;
 import uk.gov.hmcts.reform.blobrouter.data.rejectedenvelope.RejectedEnvelopeRepository;
-import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.NotificationsPublisher;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
+import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.util.List;
 
 @Service
-@ConditionalOnExpression("!${jms.enabled}")
-public class NotificationService {
+@ConditionalOnProperty(name = "jms.enabled", havingValue = "true")
+public class JmsNotificationService {
 
-    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+    private static final Logger log = LoggerFactory.getLogger(JmsNotificationService.class);
 
     private static final String SERVICE_NAME = "blob_router";
 
-    private final NotificationsPublisher notificationsPublisher;
+    private final JmsNotificationsPublisher jmsNotificationsPublisher;
 
     private final EnvelopeService envelopeService;
 
     private final RejectedEnvelopeRepository rejectedEnvelopeRepository;
 
-    public NotificationService(
-        NotificationsPublisher notificationsPublisher,
+    public JmsNotificationService(
+        JmsNotificationsPublisher jmsNotificationsPublisher,
         RejectedEnvelopeRepository rejectedEnvelopeRepository,
         EnvelopeService envelopeService
     ) {
-        this.notificationsPublisher = notificationsPublisher;
+        this.jmsNotificationsPublisher = jmsNotificationsPublisher;
         this.rejectedEnvelopeRepository = rejectedEnvelopeRepository;
         this.envelopeService = envelopeService;
     }
@@ -42,7 +42,7 @@ public class NotificationService {
                 log.info(
                     "Send message to notifications queue. File name: {} Container: {}", env.fileName, env.container
                 );
-                notificationsPublisher.publish(mapToNotificationMessage(env), env.envelopeId.toString());
+                jmsNotificationsPublisher.publish(mapToNotificationMessage(env), env.envelopeId.toString());
                 envelopeService.markPendingNotificationAsSent(env.envelopeId);
             }
         );
