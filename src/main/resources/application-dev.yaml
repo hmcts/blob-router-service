@@ -104,18 +104,12 @@ service:
       target-container: privatelaw
       enabled: ${PRIVATELAW_ENABLED}
 
-queue:
-  notifications:
-    access-key: ${NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY}
-    access-key-name: ${NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME}
-    namespace: ${NOTIFICATIONS_QUEUE_NAMESPACE}
-    queue-name: ${NOTIFICATIONS_QUEUE_NAME}
-
 reports:
   recipients: ${REPORTS_RECIPIENTS}
 
 flyway:
   skip-migrations: ${FLYWAY_SKIP_MIGRATIONS}
+  noop: false
 
 storage-blob-lease-timeout-in-minutes: ${STORAGE_BLOB_LEASE_TIMEOUT_IN_MINUTES}
 public_key_der_file: ${STORAGE_BLOB_PUBLIC_KEY} # public key file in der format
@@ -139,7 +133,7 @@ scheduling:
       cron: ${REJECT_DUPLICATES_CRON}
     send-notifications:
       enabled: true
-      cron: ${SEND_NOTIFICATIONS_CRON}
+      cron: 0/10 * * * * * #${SEND_NOTIFICATIONS_CRON}
     delete-rejected-files:
       enabled: true
       ttl: PT72H # ISO-8601
@@ -190,5 +184,12 @@ actions:
   api-key: ${ACTIONS_API_KEY}
 
 jms:
-  # Set to disable configuration in envs besides local/dev
+  # JMS Configuration for local dev
+  application-name: BlobRouterServiceDev
   enabled: ${JMS_ENABLED:false}
+  namespace: ${JMS_NAMESPACE:5672}
+  amqp-connection-string-template: ${JMS_AMQP_CONNECTION_TEMPLATE:amqp://localhost:%1s?amqp.idleTimeout=%2d}
+  username: ${JMS_USERNAME:admin}
+  password: ${JMS_PASSWORD:admin}
+  receiveTimeout: ${JMS_RECEIVE_TIMEOUT:30000}
+  idleTimeout: ${JMS_IDLE_TIMEOUT:30000}
