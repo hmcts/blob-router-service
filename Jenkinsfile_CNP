@@ -112,6 +112,9 @@ withPipeline(type, product, component) {
       env.TEST_STORAGE_ACCOUNT_NAME = previewAccountName(kubectl, storageSecret, namespace)
       env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
       env.TEST_STORAGE_ACCOUNT_KEY = previewAccountKey(kubectl, storageSecret, namespace)
+      env.NOTIFICATIONS_QUEUE_NAME = "${aksServiceName}-servicebus-notifications"
+      env.NOTIFICATIONS_QUEUE_NAMESPACE = "reform-scan-sb-preview"
+      env.NOTIFICATIONS_QUEUE_ACCESS_KEY_WRITE = kubectl.getSecret("reform-scan-sb-preview", namespace, "{.data.primaryKey}")
       env.JMS_ENABLED = false
       env.SPRING_PROFILES_ACTIVE = 'default'
     }
