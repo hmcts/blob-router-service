@@ -1,17 +1,20 @@
 java:
   secrets:
     STORAGE_ACCOUNT_NAME:
+      secretRef: storage-account-{{ .Release.Name }}-blobstorage
+      key: storage_account_name
+    STORAGE_ACCOUNT_URL:
       secretRef: storage-secret-{{ .Release.Name }}-blobstorage
-      key: storageAccountName
+      key: blobEndpoint
     STORAGE_ACCOUNT_KEY:
       secretRef: storage-secret-{{ .Release.Name }}-blobstorage
       key: accessKey
-    STORAGE_ACCOUNT_SECONDARY_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}-blobstorage
-      key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
+      secretRef: storage-account-crime-{{ .Release.Name }}-blobstorage
+      key: storage_account_name
+    STORAGE_CRIME_ACCOUNT_URL:
       secretRef: storage-secret-crime-{{ .Release.Name }}-blobstorage
-      key: storageAccountName
+      key: blobEndpoint
     STORAGE_CRIME_ACCOUNT_KEY:
       secretRef: storage-secret-crime-{{ .Release.Name }}-blobstorage
       key: accessKey

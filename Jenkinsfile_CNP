@@ -101,8 +101,9 @@ withPipeline(type, product, component) {
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME, env.GIT_COMMIT, env.LAST_COMMIT_TIMESTAMP)
       def subscription = env.SUBSCRIPTION_NAME
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
-      def storageSecret = "storage-secret-${aksServiceName}"
-      def crimeStorageAccountSecret = "storage-secret-crime-${aksServiceName}"
+      def storageSecret = "storage-secret-${aksServiceName}-blobstorage"
+      def storageSecretName = "storage-account-${aksServiceName}-blobstorage"
+      def crimeStorageAccountSecret = "storage-secret-crime-${aksServiceName}-blobstorage"
       def serviceBusSecret = "reform-scan-sb-preview"
 
       def namespace = new TeamConfig(this).getNameSpace(product)
@@ -110,9 +111,15 @@ withPipeline(type, product, component) {
       kubectl.login()
 
       // Get storage account details from kubernetes
-      env.TEST_STORAGE_ACCOUNT_NAME = previewAccountName(kubectl, storageSecret, namespace)
-      env.TEST_STORAGE_ACCOUNT_URL = "https://${env.TEST_STORAGE_ACCOUNT_NAME}.blob.core.windows.net"
-      env.TEST_STORAGE_ACCOUNT_KEY = previewAccountKey(kubectl, storageSecret, namespace)
+       env.TEST_STORAGE_ACCOUNT_KEY = kubectl.getSecret(storageSecret, namespace, "{.data.accessKey}")
+       env.TEST_STORAGE_ACCOUNT_URL = kubectl.getSecret(storageSecret, namespace, "{.data.blobEndpoint}")
+       env.TEST_STORAGE_ACCOUNT_NAME = kubectl.getSecret(storageSecretName, namespace, "{.data.storage_account_name}")
+
+       // log the values
+       echo "storage account url : ${env.TEST_STORAGE_ACCOUNT_URL}"
+       echo "storage account name : ${env.TEST_STORAGE_ACCOUNT_NAME}"
+       echo "storage account key : ${env.TEST_STORAGE_ACCOUNT_KEY}"
+
       env.NOTIFICATIONS_QUEUE_NAME = "${aksServiceName}-servicebus-notifications"
       env.NOTIFICATIONS_QUEUE_NAMESPACE = "reform-scan-sb-preview"
       env.NOTIFICATIONS_QUEUE_ACCESS_KEY_WRITE = kubectl.getSecret("reform-scan-sb-preview", namespace, "{.data.primaryKey}")
