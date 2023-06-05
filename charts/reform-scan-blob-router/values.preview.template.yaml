@@ -18,7 +18,7 @@ java:
     SB_ACCESS_KEY:
       secretRef: reform-scan-sb-preview
       key: primaryKey
-    SB_CONNECTION_STRING:
+    SB_NAMESPACE:
       secretRef: reform-scan-sb-preview
       key: connectionString
   keyVaults:
