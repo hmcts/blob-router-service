@@ -1,19 +1,19 @@
 java:
   secrets:
     STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-{{ .Release.Name }}
+      secretRef: storage-secret-{{ .Release.Name }}-blobstorage
       key: storageAccountName
     STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
+      secretRef: storage-secret-{{ .Release.Name }}-blobstorage
       key: accessKey
     STORAGE_ACCOUNT_SECONDARY_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
+      secretRef: storage-secret-{{ .Release.Name }}-blobstorage
       key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
-      secretRef: storage-secret-crime-{{ .Release.Name }}
+      secretRef: storage-secret-crime-{{ .Release.Name }}-blobstorage
       key: storageAccountName
     STORAGE_CRIME_ACCOUNT_KEY:
-      secretRef: storage-secret-crime-{{ .Release.Name }}
+      secretRef: storage-secret-crime-{{ .Release.Name }}-blobstorage
       key: accessKey
     SB_ACCESS_KEY:
       secretRef: reform-scan-sb-preview
