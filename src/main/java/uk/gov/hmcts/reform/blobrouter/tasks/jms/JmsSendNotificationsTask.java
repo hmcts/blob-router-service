@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.blobrouter.tasks;
+package uk.gov.hmcts.reform.blobrouter.tasks.jms;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
@@ -6,23 +6,22 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.blobrouter.services.NotificationService;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
 @Component
 @ConditionalOnProperty(value = "scheduling.task.send-notifications.enabled")
-@ConditionalOnExpression("!${jms.enabled}")
-public class SendNotificationsTask {
+@ConditionalOnExpression("${jms.enabled}")
+public class JmsSendNotificationsTask {
 
     private static final String TASK_NAME = "send-notifications";
-    private static final Logger logger = getLogger(SendNotificationsTask.class);
+    private static final Logger logger = getLogger(JmsSendNotificationsTask.class);
 
-    private final NotificationService notificationService;
+    private final JmsNotificationService jmsNotificationService;
 
-    public SendNotificationsTask(NotificationService notificationService) {
-        this.notificationService = notificationService;
+    public JmsSendNotificationsTask(JmsNotificationService jmsNotificationService) {
+        this.jmsNotificationService = jmsNotificationService;
     }
 
     @Scheduled(cron = "${scheduling.task.send-notifications.cron}", zone = EUROPE_LONDON)
@@ -30,7 +29,7 @@ public class SendNotificationsTask {
     public void run() {
         logger.info("Started {} job", TASK_NAME);
 
-        notificationService.sendNotifications();
+        jmsNotificationService.sendNotifications();
 
         logger.info("Finished {} job", TASK_NAME);
     }

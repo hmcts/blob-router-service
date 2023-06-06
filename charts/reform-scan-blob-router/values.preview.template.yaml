@@ -1,26 +1,29 @@
 java:
   secrets:
     STORAGE_ACCOUNT_NAME:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: storageAccountName
+      secretRef: storage-account-reform-scan
+      key: storage_account_name
+    STORAGE_ACCOUNT_URL:
+      secretRef: storage-secret-reform-scan
+      key: blobEndpoint
     STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
-      key: accessKey
-    STORAGE_ACCOUNT_SECONDARY_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}
+      secretRef: storage-secret-reform-scan
       key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
-      secretRef: storage-secret-crime-{{ .Release.Name }}
-      key: storageAccountName
+      secretRef: storage-account-crime-reform-scan
+      key: storage_account_name
+    STORAGE_CRIME_ACCOUNT_URL:
+      secretRef: storage-secret-crime-reform-scan
+      key: blobEndpoint
     STORAGE_CRIME_ACCOUNT_KEY:
-      secretRef: storage-secret-crime-{{ .Release.Name }}
+      secretRef: storage-secret-crime-reform-scan
       key: accessKey
     SB_ACCESS_KEY:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
+      secretRef: reform-scan-sb-preview
       key: primaryKey
-    SB_NAMESPACE:
-      secretRef: servicebus-secret-namespace-{{ .Release.Name }}-servicebus
-      key: namespaceName
+    SB_CONNECTION_STRING:
+      secretRef: reform-scan-sb-preview
+      key: connectionString
   keyVaults:
     reform-scan:
       resourceGroup: reform-scan
@@ -67,8 +70,10 @@ java:
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
 
     NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
-    NOTIFICATIONS_QUEUE_NAMESPACE: "$(SB_NAMESPACE)"
+    NOTIFICATIONS_QUEUE_NAME: "{{ .Release.Name }}-servicebus-notifications"
+    NOTIFICATIONS_QUEUE_NAMESPACE: "reform-scan-sb-preview"
     NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
+    SB_NAMESPACE: "reform-scan-sb-preview"
 
     S2S_NAME: "reform_scan_blob_router"
     S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
@@ -84,7 +89,8 @@ java:
 
 reformblobstorage:
   enabled: true
-  resourceGroup: reform-scan-aks
+  resourceGroup: reform-scan-aso-preview-rg
+  releaseNameOverride: reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
@@ -108,8 +114,8 @@ reformblobstorage:
 
 crimeblobstorage:
   enabled: true
-  resourceGroup: reform-scan-aks
-  releaseNameOverride: crime-{{ .Release.Name }}
+  resourceGroup: reform-scan-aso-preview-rg
+  releaseNameOverride: crime-reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
@@ -118,8 +124,8 @@ crimeblobstorage:
 
 pcqblobstorage:
   enabled: true
-  resourceGroup: reform-scan-aks
-  releaseNameOverride: pcq-{{ .Release.Name }}
+  resourceGroup: reform-scan-aso-preview-rg
+  releaseNameOverride: pcq-reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
@@ -127,10 +133,11 @@ pcqblobstorage:
       - pcq
 
 servicebus:
-  resourceGroup: reform-scan-aks
+  resourceGroup: reform-scan-aso-preview-rg
   teamName: "BSP"
   location: uksouth
   serviceplan: basic
+  sbNamespace: reform-scan
   setup:
     queues:
       - name: notifications
