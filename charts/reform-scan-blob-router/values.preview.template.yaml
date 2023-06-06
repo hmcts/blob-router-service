@@ -1,22 +1,22 @@
 java:
   secrets:
     STORAGE_ACCOUNT_NAME:
-      secretRef: storage-account-{{ .Release.Name }}-blobstorage
+      secretRef: storage-account-reform-scan
       key: storage_account_name
     STORAGE_ACCOUNT_URL:
-      secretRef: storage-secret-{{ .Release.Name }}-blobstorage
+      secretRef: storage-secret-reform-scan
       key: blobEndpoint
     STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-{{ .Release.Name }}-blobstorage
+      secretRef: storage-secret-reform-scan
       key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
-      secretRef: storage-account-crime-{{ .Release.Name }}-blobstorage
+      secretRef: storage-account-crime-reform-scan
       key: storage_account_name
     STORAGE_CRIME_ACCOUNT_URL:
-      secretRef: storage-secret-crime-{{ .Release.Name }}-blobstorage
+      secretRef: storage-secret-crime-reform-scan
       key: blobEndpoint
     STORAGE_CRIME_ACCOUNT_KEY:
-      secretRef: storage-secret-crime-{{ .Release.Name }}-blobstorage
+      secretRef: storage-secret-crime-reform-scan
       key: accessKey
     SB_ACCESS_KEY:
       secretRef: reform-scan-sb-preview
@@ -90,6 +90,7 @@ java:
 reformblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
+  releaseNameOverride: pcq-reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
@@ -114,7 +115,7 @@ reformblobstorage:
 crimeblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: crime-{{ .Release.Name }}
+  releaseNameOverride: crime-reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
@@ -124,7 +125,7 @@ crimeblobstorage:
 pcqblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: pcq-{{ .Release.Name }}
+  releaseNameOverride: pcq-reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
