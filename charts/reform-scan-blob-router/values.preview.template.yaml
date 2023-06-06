@@ -90,7 +90,7 @@ java:
 reformblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: pcq-reform-scan
+  releaseNameOverride: reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
