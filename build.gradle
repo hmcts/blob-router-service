@@ -8,7 +8,7 @@ plugins {
   id 'org.owasp.dependencycheck' version '8.2.1'
   id 'com.github.ben-manes.versions' version '0.46.0'
   id 'org.sonarqube' version '4.0.0.2929'
-  id 'org.flywaydb.flyway' version '9.19.1'
+  id 'org.flywaydb.flyway' version '9.19.4'
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -182,7 +182,7 @@ dependencyManagement {
       entry 'log4j-to-slf4j'
     }
     //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.75') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.76') {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
@@ -195,7 +195,7 @@ dependencyManagement {
       entry 'logback-classic'
     }
     //CVE-2022-24823
-    dependencySet(group: 'io.netty', version: '4.1.92.Final') {
+    dependencySet(group: 'io.netty', version: '4.1.93.Final') {
       entry 'netty-buffer'
       entry 'netty-codec'
       entry 'netty-codec-dns'
@@ -267,13 +267,13 @@ ext.libraries = [
 
 dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.6.0'
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '8.5.13'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: '9.19.4'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.3.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.3.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.19.1'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.14.0'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.14.1'
 
   implementation group: 'org.apache.qpid', name: 'qpid-jms-client', version: '1.9.0'
 
@@ -319,10 +319,10 @@ dependencies {
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.1.7'
 
   integrationTestImplementation group: 'com.github.tomakehurst', name: 'wiremock', version: '2.33.2'
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.18.1', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.18.3', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.18.1'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.18.3'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.14'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
