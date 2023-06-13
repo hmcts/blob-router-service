@@ -217,7 +217,7 @@ dependencyManagement {
       entry 'netty-transport-native-unix-common'
     }
     //CVE-2022-22970, CVE-2022-22971
-    dependencySet(group: 'org.springframework', version: '5.3.27') {
+    dependencySet(group: 'org.springframework', version: '6.0.9') {
       entry 'spring-aop'
       entry 'spring-beans'
       entry 'spring-context'
