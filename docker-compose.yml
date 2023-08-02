@@ -1,6 +1,23 @@
-version: '2.1'
+version: '2.2'
 
 services:
+  blob-router-service-db:
+    build:
+      context: ./docker/database
+    image: hmcts/dm-store-db:latest
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5434:5432
+  azure-storage-emulator-azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    command: azurite-blob --blobHost 0.0.0.0 --loose --skipApiVersionCheck
+    environment:
+      AZURITE_ACCOUNTS: crime:Y3JpbWVrZXkK;reformscanlocal:cmVmb3Jtc2NhbmtleQo=;bulkscanlocal:cmVmb3Jtc2NhbmtleQo=;pcqlocal:cmVmb3Jtc2NhbmtleQo=;jason:cmVmb3Jtc2NhbmtleQo=;mosh:cmVmb3Jtc2NhbmtleQo=;
+    volumes:
+      - ./bulk-scan-azure-blob-data:/opt/azurite/folder
+    ports:
+      - 10000:10000
   blob-router-service:
     build:
       context: .
@@ -9,16 +26,16 @@ services:
         - https_proxy
         - no_proxy
     image: hmctspublic.azurecr.io/reform-scan/blob-router
-    environment:
-      # these environment variables are used by java-logging library
-      - ROOT_APPENDER
-      - JSON_CONSOLE_PRETTY_PRINT
-      - ROOT_LOGGING_LEVEL
-      - REFORM_SERVICE_TYPE
-      - REFORM_SERVICE_NAME
-      - REFORM_TEAM
-      - REFORM_ENVIRONMENT
-      - LOGBACK_DATE_FORMAT
-      - LOGBACK_REQUIRE_THREAD
+    links:
+      - blob-router-service-db
     ports:
-      - $SERVER_PORT:$SERVER_PORT
+      - 8584:8584
+    env_file:
+      - .env
+  init-storage:
+    build:
+      context: ./docker/storage
+    links:
+      - azure-storage-emulator-azurite
+    depends_on:
+      - azure-storage-emulator-azurite
