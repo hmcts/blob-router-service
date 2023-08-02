@@ -26,8 +26,8 @@ public class DeleteRejectedFilesTask {
     @Scheduled(cron = "${scheduling.task.delete-rejected-files.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
-        logger.info("Started {} job", TASK_NAME);
+        logger.debug("Started {} job", TASK_NAME);
         cleaner.cleanUp();
-        logger.info("Finished {} job", TASK_NAME);
+        logger.debug("Finished {} job", TASK_NAME);
     }
 }

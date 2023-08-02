@@ -26,7 +26,7 @@ public class CheckNewEnvelopesTask {
     @Scheduled(cron = "${scheduling.task.check-new-envelopes.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
-        logger.info("Started {} job", TASK_NAME);
+        logger.debug("Started {} job", TASK_NAME);
 
         newEnvelopesFinder.checkNewCftEnvelopesCreated();
 
@@ -36,6 +36,6 @@ public class CheckNewEnvelopesTask {
         // TODO: enable once 'pcq' envelopes are enabled. (and update test)
         // newEnvelopesFinder.checkNewEnvelopesCreatedInContainer("pcq", "PCQ");
 
-        logger.info("Finished {} job", TASK_NAME);
+        logger.debug("Finished {} job", TASK_NAME);
     }
 }

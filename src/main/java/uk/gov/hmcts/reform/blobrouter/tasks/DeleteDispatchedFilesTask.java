@@ -38,11 +38,11 @@ public class DeleteDispatchedFilesTask {
     @Scheduled(cron = "${scheduling.task.delete-dispatched-files.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = "delete-dispatched-files")
     public void run() {
-        logger.info("Started {} job", TASK_NAME);
+        logger.debug("Started {} job", TASK_NAME);
 
         getAvailableContainerNames().forEach(containerCleaner::process);
 
-        logger.info("Finished {} job", TASK_NAME);
+        logger.debug("Finished {} job", TASK_NAME);
     }
 
     private Stream<String> getAvailableContainerNames() {
