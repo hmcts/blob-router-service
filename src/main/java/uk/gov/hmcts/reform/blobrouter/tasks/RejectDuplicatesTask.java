@@ -26,8 +26,8 @@ public class RejectDuplicatesTask {
     @Scheduled(cron = "${scheduling.task.reject-duplicates.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
-        logger.info("Started {} job", TASK_NAME);
+        logger.debug("Started {} job", TASK_NAME);
         duplicateFileHandler.handle();
-        logger.info("Finished {} job", TASK_NAME);
+        logger.debug("Finished {} job", TASK_NAME);
     }
 }

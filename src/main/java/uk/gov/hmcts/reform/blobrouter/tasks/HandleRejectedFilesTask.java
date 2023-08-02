@@ -29,10 +29,10 @@ public class HandleRejectedFilesTask {
     @Scheduled(cron = "${scheduling.task.handle-rejected-files.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
-        logger.info("Started {} job", TASK_NAME);
+        logger.debug("Started {} job", TASK_NAME);
 
         rejectedFilesHandler.handle();
 
-        logger.info("Finished {} job", TASK_NAME);
+        logger.debug("Finished {} job", TASK_NAME);
     }
 }

@@ -35,11 +35,11 @@ public class BlobDispatcherTask {
 
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void run() {
-        logger.info("Started {} job", TASK_NAME);
+        logger.debug("Started {} job", TASK_NAME);
 
         Collections.shuffle(containers);
         containers.forEach(containerProcessor::process);
 
-        logger.info("Finished {} job", TASK_NAME);
+        logger.debug("Finished {} job", TASK_NAME);
     }
 }
