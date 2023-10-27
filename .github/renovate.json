@@ -1,26 +1,7 @@
 {
-  "enabledManagers": ["helm-requirements","gradle-wrapper"],
-  "helm-requirements": {
-    "fileMatch": [
-      "\\Chart.yaml$"
-    ],
-    "aliases": {
-      "hmctspublic": "https://hmctspublic.azurecr.io/helm/v1/repo/"
-    }
-  },
-  "groupName": "all dependencies",
-  "separateMajorMinor": false,
-  "groupSlug": "all",
-  "packageRules": [
-    {
-      "matchPackagePatterns": [
-        "*"
-      ],
-      "groupName": "all dependencies",
-      "groupSlug": "all"
-    }
-  ],
-  "lockFileMaintenance": {
-    "enabled": false
-  }
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "local>hmcts/.github:renovate-config",
+    "local>hmcts/.github//renovate/automerge-all"
+  ]
 }
