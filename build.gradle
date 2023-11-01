@@ -182,12 +182,12 @@ dependencyManagement {
       entry 'log4j-to-slf4j'
     }
     //CVE-2022-23181
-    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.76') {
+    dependencySet(group: 'org.apache.tomcat.embed', version: '9.0.82') {
       entry 'tomcat-embed-core'
       entry 'tomcat-embed-websocket'
     }
     // CVE-2020-36518
-    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.14.2') {
+    dependencySet(group: 'com.fasterxml.jackson.core', version: '2.14.3') {
       entry 'jackson-databind'
     }
     // CVE-2021-42550
@@ -195,7 +195,7 @@ dependencyManagement {
       entry 'logback-classic'
     }
     //CVE-2022-24823
-    dependencySet(group: 'io.netty', version: '4.1.94.Final') {
+    dependencySet(group: 'io.netty', version: '4.1.100.Final') {
       entry 'netty-buffer'
       entry 'netty-codec'
       entry 'netty-codec-dns'
