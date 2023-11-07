@@ -44,7 +44,10 @@ public class RejectedEnvelopesNotificationTest extends FunctionalTestBase {
         assertNotificationIsSent(fileName);
     }
 
-    private void assertNotificationIsSent(String fileName) {
+    private void assertNotificationIsSent(String fileName) throws InterruptedException {
+        // There is a timing issue at present with the notification service, so wait
+        // to give it time to process the request
+        Thread.sleep(30000);
         RestAssured
             .given()
             .baseUri(config.blobRouterUrl)
