@@ -137,9 +137,8 @@ servicebus:
   teamName: "BSP"
   location: uksouth
   serviceplan: basic
-  sbNamespace: reform-scan
+  sbNamespace: reform-scan-sb-preview
   setup:
     queues:
       - name: notifications
   enabled: true
-
