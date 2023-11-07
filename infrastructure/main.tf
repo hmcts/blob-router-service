@@ -15,9 +15,9 @@ locals {
   bulk-scan-vault-name   = "bulk-scan-${var.env}"
   s2s-vault-name         = "s2s-${var.env}"
   resource_group_name = "${var.product}-${var.env}"
-  db_host_name = "${var.product}-${var.component}-flexible-postgres-db-v15"
+  db_host_name = "${var.component}-flexible-postgres-db-v15"
   db_name = "blob_router"
-  postgresql_user = "${var.component}_user"
+  postgresql_user = "api_user"
 }
 
 module "postgresql" {
