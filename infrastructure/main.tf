@@ -16,8 +16,8 @@ locals {
   s2s-vault-name         = "s2s-${var.env}"
   resource_group_name = "${var.product}-${var.env}"
   db_host_name = "${var.product}-${var.component}-flexible-postgres-db-v15"
-  db_name = replace(var.component, "-", "")
-  postgresql_user = "${local.db_name}_user"
+  db_name = "blob_router"
+  postgresql_user = "${var.component}_user"
 }
 
 module "postgresql" {
@@ -34,7 +34,7 @@ module "postgresql" {
   pgsql_admin_username = local.postgresql_user
   pgsql_databases = [
     {
-      name : "fact"
+      name : local.db_name
     }
   ]
   common_tags   = var.common_tags
