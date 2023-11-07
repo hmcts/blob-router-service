@@ -78,7 +78,7 @@ public class RejectedEnvelopesNotificationTest extends FunctionalTestBase {
             .pollInterval(5, TimeUnit.SECONDS) // Adjust the polling interval as needed
             .until(() -> {
                 String responseData = response.getBody().asString();
-                String pendingNotificationValue = response.then().extract().path("data[0].pending_notification");
+                Boolean pendingNotificationValue = response.then().extract().path("data[0].pending_notification");
                 String statusValue = response.then().extract().path("data[0].status");
                 List<String> events = response.then().extract().path("data[0].events.event");
 
@@ -87,8 +87,7 @@ public class RejectedEnvelopesNotificationTest extends FunctionalTestBase {
                 System.out.println(statusValue);
                 System.out.println(Arrays.toString(events.toArray()));
 
-                return responseData != null
-                    && "false".equals(pendingNotificationValue)
+                return !pendingNotificationValue
                     && REJECTED.name().equals(statusValue)
                     && events.contains(EventType.REJECTED.name())
                     && events.contains(EventType.NOTIFICATION_SENT.name());
