@@ -75,6 +75,30 @@ module "reform-blob-router-staging-db" {
   subscription       = var.subscription
 }
 
+module "postgresql-staging" {
+  providers = {
+    azurerm.postgres_network = azurerm.postgres_network
+  }
+
+  source               = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
+  name                 = local.db_host_name
+  product              = "${var.component}-staging"
+  component            = var.component
+  location             = var.location
+  env                  = "aat"
+  pgsql_admin_username = "blob_router"
+  pgsql_databases = [
+    {
+      name : local.db_name
+    }
+  ]
+  common_tags   = var.common_tags
+  business_area = "cft"
+  pgsql_version = "15"
+
+  admin_user_object_id = var.jenkins_AAD_objectId
+}
+
 # region: key vault definitions
 
 data "azurerm_key_vault" "bulk_scan_key_vault" {
