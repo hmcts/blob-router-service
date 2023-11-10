@@ -28,7 +28,7 @@ module "postgresql-staging" {
   }
 
   source               = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
-  name                 = local.db_host_name
+  name                 = "${local.db_host_name}-staging"
   product              = "${var.component}-staging"
   component            = var.component
   location             = var.location
