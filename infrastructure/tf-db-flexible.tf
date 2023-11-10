@@ -15,6 +15,7 @@ module "postgresql" {
       name : local.db_name
     }
   ]
+  subnet_suffix = "expanded"
   common_tags   = var.common_tags
   business_area = "cft"
   pgsql_version = "15"
@@ -39,6 +40,7 @@ module "postgresql-staging" {
       name : local.db_name
     }
   ]
+  subnet_suffix = "expanded"
   common_tags   = var.common_tags
   business_area = "cft"
   pgsql_version = "15"
