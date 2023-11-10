@@ -66,7 +66,7 @@ resource "azurerm_key_vault_secret" "flexible_secret" {
   expiration_date = timeadd(timestamp(), "17520h")
 }
 
-resource "azurerm_key_vault_secret_staging" "flexible_secret_staging" {
+resource "azurerm_key_vault_secret" "flexible_secret_staging" {
   for_each     = { for secret in local.flexible_secrets_staging : secret.name_suffix => secret }
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
   name         = "${local.flexible_secret_prefix_staging}-${each.value.name_suffix}"
