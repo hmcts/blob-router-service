@@ -9,4 +9,8 @@
     <packageUrl regex="true">^pkg:maven/io\.netty/netty.*$</packageUrl>
     <cve>CVE-2023-4586</cve>
   </suppress>
+  <suppress until="2024-04-29">
+    <notes>Wait until a version exists that fixes this</notes>
+    <cve>CVE-2023-46604</cve>
+  </suppress>
 </suppressions>
