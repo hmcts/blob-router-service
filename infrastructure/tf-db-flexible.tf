@@ -23,7 +23,8 @@ module "postgresql" {
   admin_user_object_id = var.jenkins_AAD_objectId
 }
 
-module "postgresql-staging" {
+module "postgresql_staging" {
+  count = var.env == "aat" ? 1 : 0
   providers = {
     azurerm.postgres_network = azurerm.postgres_network
   }
