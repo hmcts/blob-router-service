@@ -33,14 +33,17 @@ locals {
     {
       name_suffix = "password"
       value       = module.postgresql_staging[0].password
+      count       = var.num_staging_dbs
     },
     {
       name_suffix = "host"
       value       = module.postgresql_staging[0].fqdn
+      count       = var.num_staging_dbs
     },
     {
       name_suffix = "user"
       value       = module.postgresql_staging[0].username
+      count       = var.num_staging_dbs
     },
     {
       name_suffix = "port"

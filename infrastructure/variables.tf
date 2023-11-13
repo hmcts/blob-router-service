@@ -41,3 +41,7 @@ variable "location_db" {
 variable "deployment_namespace" {
   default = ""
 }
+
+variable "num_staging_dbs" {
+  default = 0
+}
