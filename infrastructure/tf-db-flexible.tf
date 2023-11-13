@@ -24,9 +24,9 @@ module "postgresql" {
 }
 
 module "postgresql-staging" {
+  count = var.env == "aat" ? 1 : 0
   providers = {
     azurerm.postgres_network = azurerm.postgres_network
-    count = var.env == "aat" ? 1 : 0
   }
 
   source               = "git@github.com:hmcts/terraform-module-postgresql-flexible?ref=master"
