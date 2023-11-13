@@ -32,15 +32,15 @@ locals {
   flexible_secrets_staging = [
     {
       name_suffix = "password"
-      value       = module.postgresql-staging.password
+      value       = module.postgresql_staging.password
     },
     {
       name_suffix = "host"
-      value       = module.postgresql-staging.fqdn
+      value       = module.postgresql_staging.fqdn
     },
     {
       name_suffix = "user"
-      value       = module.postgresql-staging.username
+      value       = module.postgresql_staging.username
     },
     {
       name_suffix = "port"
