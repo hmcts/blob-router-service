@@ -29,20 +29,20 @@ locals {
 locals {
   flexible_secret_prefix_staging = "${var.component}-staging-flexible-db"
 
-  flexible_secrets_staging = [
+  flexible_secrets_staging = var.env == prod ? [] : [
     {
       name_suffix = "password"
-      value       = var.env == "prod" ? module.postgresql_staging.password : module.postgresql_staging[0].password
+      value       = module.postgresql_staging[0].password
       count       = var.num_staging_dbs
     },
     {
       name_suffix = "host"
-      value       = var.env == "prod" ? module.postgresql_staging.fqdn : module.postgresql_staging[0].fqdn
+      value       = module.postgresql_staging[0].fqdn
       count       = var.num_staging_dbs
     },
     {
       name_suffix = "user"
-      value       = var.env == "prod" ? module.postgresql_staging.username : module.postgresql_staging[0].username
+      value       = module.postgresql_staging[0].username
       count       = var.num_staging_dbs
     },
     {
