@@ -30,8 +30,9 @@ locals {
   flexible_secret_prefix_staging = "${var.component}-staging-flexible-db"
 
   flexible_secrets_staging = var.env == prod ? [{
-    name_suffix   = "ignore"
-    count         = 0
+    name_suffix            = "ignore"
+    value                  = "ignore"
+    count                  = 0
   }] : [
     {
       name_suffix = "password"
