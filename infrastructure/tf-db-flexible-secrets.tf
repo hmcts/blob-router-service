@@ -32,17 +32,17 @@ locals {
   flexible_secrets_staging = [
     {
       name_suffix = "password"
-      value       = module.postgresql_staging[0].password
+      value       = var.env == "prod" ? module.postgresql_staging.password : module.postgresql_staging[0].password
       count       = var.num_staging_dbs
     },
     {
       name_suffix = "host"
-      value       = module.postgresql_staging[0].fqdn
+      value       = var.env == "prod" ? module.postgresql_staging.fqdn : module.postgresql_staging[0].fqdn
       count       = var.num_staging_dbs
     },
     {
       name_suffix = "user"
-      value       = module.postgresql_staging[0].username
+      value       = var.env == "prod" ? module.postgresql_staging.username : module.postgresql_staging[0].username
       count       = var.num_staging_dbs
     },
     {
