@@ -29,7 +29,9 @@ locals {
 locals {
   flexible_secret_prefix_staging = "${var.component}-staging-flexible-db"
 
-  flexible_secrets_staging = var.env == prod ? [{}] : [
+  flexible_secrets_staging = var.env == prod ? [{
+    name_suffix   = "ignore"
+  }] : [
     {
       name_suffix = "password"
       value       = module.postgresql_staging[0].password
