@@ -29,7 +29,7 @@ locals {
 locals {
   flexible_secret_prefix_staging = "${var.component}-staging-flexible-db"
 
-  flexible_secrets_staging = var.env == "prod" ? [] : [
+  flexible_secrets_staging = var.env == "aat" ? [
     {
       name_suffix = "password"
       value       = module.postgresql_staging[0].password
@@ -53,8 +53,7 @@ locals {
       name_suffix = "name"
       value       = local.db_name
     }
-  ]
-
+  ] : []
 }
 
 resource "azurerm_key_vault_secret" "flexible_secret" {
