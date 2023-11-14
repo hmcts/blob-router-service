@@ -31,6 +31,7 @@ locals {
 
   flexible_secrets_staging = var.env == prod ? [{
     name_suffix   = "ignore"
+    count         = 0
   }] : [
     {
       name_suffix = "password"
