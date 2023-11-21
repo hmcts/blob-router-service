@@ -28,6 +28,8 @@ java:
     reform-scan:
       resourceGroup: reform-scan
       secrets:
+        - name: all-preview-queue-access-key
+          alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
         - name: reports-email-username
           alias: SMTP_USERNAME
         - name: reports-email-password
