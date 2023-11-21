@@ -12,5 +12,6 @@
   <suppress until="2024-04-29">
     <notes>Wait until a version exists that fixes this</notes>
     <cve>CVE-2023-46604</cve>
+    <cve>CVE-2023-36052</cve>
   </suppress>
 </suppressions>
