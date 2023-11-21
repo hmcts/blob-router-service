@@ -28,7 +28,7 @@ java:
     reform-scan:
       resourceGroup: reform-scan
       secrets:
-        - name: all-preview-queue-access-key
+        - name: notification-queue-send-shared-access-key-premium
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
         - name: reports-email-username
           alias: SMTP_USERNAME
@@ -71,10 +71,9 @@ java:
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
 
-    NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
-    NOTIFICATIONS_QUEUE_NAME: "{{ .Release.Name }}-servicebus-notifications"
-    NOTIFICATIONS_QUEUE_NAMESPACE: "reform-scan-sb-preview"
-    SB_NAMESPACE: "reform-scan-sb-preview"
+    NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "SendSharedAccessKey"
+    NOTIFICATIONS_QUEUE_NAME: "notifications"
+    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}-premium
 
     S2S_NAME: "reform_scan_blob_router"
     S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
@@ -132,15 +131,3 @@ pcqblobstorage:
   setup:
     containers:
       - pcq
-
-servicebus:
-  resourceGroup: reform-scan-aso-preview-rg
-  teamName: "BSP"
-  location: uksouth
-  serviceplan: basic
-  sbNamespace: reform-scan-servicebus-preview
-  setup:
-    queues:
-      - name: notifications
-  enabled: true
-
