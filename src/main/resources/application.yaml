@@ -149,7 +149,8 @@ scheduling:
       cron: ${CHECK_NEW_ENVELOPES_CRON}
       enabled: true
     scan:
-      delay: ${TASK_SCAN_DELAY} # In milliseconds
+      enabled: false
+      delay: 172800000 # In milliseconds
     send-daily-report:
       cron: ${SEND_DAILY_REPORT_CRON}
       enabled: ${SEND_DAILY_REPORT_ENABLED}
