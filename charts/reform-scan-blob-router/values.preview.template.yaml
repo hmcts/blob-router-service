@@ -74,7 +74,6 @@ java:
     NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     NOTIFICATIONS_QUEUE_NAME: "{{ .Release.Name }}-servicebus-notifications"
     NOTIFICATIONS_QUEUE_NAMESPACE: "reform-scan-sb-preview"
-    NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
     SB_NAMESPACE: "reform-scan-sb-preview"
 
     S2S_NAME: "reform_scan_blob_router"
