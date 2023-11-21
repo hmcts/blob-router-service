@@ -18,12 +18,6 @@ java:
     STORAGE_CRIME_ACCOUNT_KEY:
       secretRef: storage-secret-crime-reform-scan
       key: accessKey
-    SB_ACCESS_KEY:
-      secretRef: reform-scan-sb-preview
-      key: primaryKey
-    SB_CONNECTION_STRING:
-      secretRef: reform-scan-sb-preview
-      key: connectionString
   keyVaults:
     reform-scan:
       resourceGroup: reform-scan
