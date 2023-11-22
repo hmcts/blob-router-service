@@ -1,4 +1,12 @@
 java:
+
+  queue:
+    notifications:
+      access-key: ${NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY}
+      access-key-name: ${NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME}
+      namespace: ${NOTIFICATIONS_QUEUE_NAMESPACE}
+      queue-name: ${NOTIFICATIONS_QUEUE_NAME}
+
   secrets:
     STORAGE_ACCOUNT_NAME:
       secretRef: storage-account-reform-scan
@@ -28,6 +36,8 @@ java:
     reform-scan:
       resourceGroup: reform-scan
       secrets:
+        - name: all-preview-queue-access-key
+          alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
         - name: reports-email-username
           alias: SMTP_USERNAME
         - name: reports-email-password
@@ -72,8 +82,6 @@ java:
     NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
     NOTIFICATIONS_QUEUE_NAME: "{{ .Release.Name }}-servicebus-notifications"
     NOTIFICATIONS_QUEUE_NAMESPACE: "reform-scan-sb-preview"
-    NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
-    SB_NAMESPACE: "reform-scan-sb-preview"
 
     S2S_NAME: "reform_scan_blob_router"
     S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"

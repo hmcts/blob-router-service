@@ -29,3 +29,7 @@ dependencies:
     version: 1.0.1
     repository: https://hmctspublic.azurecr.io/helm/v1/repo/
     condition: pcqblobstorage.enabled
+  - name: reform-scan-notification-service
+    version: latest
+    repository: 'https://hmctspublic.azurecr.io/helm/v1/repo/'
+    condition: reform-scan-notification-service.enabled
