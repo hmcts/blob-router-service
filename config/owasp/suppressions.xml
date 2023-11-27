@@ -17,5 +17,4 @@
     <notes>Azure cli. Wait for fix.</notes>
     <cve>CVE-2023-36052</cve>
   </suppress>
-  </suppress>
 </suppressions>
