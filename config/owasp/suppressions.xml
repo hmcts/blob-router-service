@@ -13,4 +13,8 @@
     <notes>Wait until a version exists that fixes this</notes>
     <cve>CVE-2023-46604</cve>
   </suppress>
+  <suppress>
+    <notes>Azure cli. Wait for fix.</notes>
+    <cve>CVE-2023-36052</cve>
+  </suppress>
 </suppressions>

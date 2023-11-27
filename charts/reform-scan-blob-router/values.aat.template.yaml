@@ -5,7 +5,7 @@ java:
     FLYWAY_SKIP_MIGRATIONS: false
     STORAGE_URL: https://reformscanstg.aat.platform.hmcts.net
     NOTIFICATIONS_QUEUE_NAME: "notifications-staging"
-    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}
+    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}-premium
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
@@ -49,5 +49,5 @@ java:
           alias: DB_PORT
         - name: blob-router-staging-db-name
           alias: DB_NAME
-        - name: notification-staging-queue-send-shared-access-key
+        - name: notification-queue-send-shared-access-key-premium
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
