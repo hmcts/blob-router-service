@@ -17,4 +17,16 @@
     <notes>Azure cli. Wait for fix.</notes>
     <cve>CVE-2023-36052</cve>
   </suppress>
+  <suppress>
+    <notes>Pulled in by springboot, waiting for them to release fix.</notes>
+    <cve>CVE-2023-34055</cve>
+  </suppress>
+  <suppress>
+    <notes>Pulled in by springboot, waiting for them to release fix.</notes>
+    <cve>CVE-2023-46589</cve>
+  </suppress>
+  <suppress>
+    <notes>Logback, waiting for fix</notes>
+    <cve>CVE-2023-6378</cve>
+  </suppress>
 </suppressions>
