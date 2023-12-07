@@ -232,6 +232,20 @@ data "azurerm_key_vault_secret" "bulk_scan_reports_recipients" {
 
 # endregion
 
+# region launchdarkly secrets
+
+data "azurerm_key_vault_secret" "launch_darkly_sdk_key" {
+  key_vault_id = data.azurerm_key_vault.bulk_scan_key_vault.id
+  name         = "launch-darkly-sdk-key"
+}
+
+data "azurerm_key_vault_secret" "launch_darkly_offline_mode" {
+  key_vault_id = data.azurerm_key_vault.bulk_scan_key_vault.id
+  name         = "launch-darkly-offline-mode"
+}
+
+# endregion
+
 # region: copy reports secrets from bulk scan to reform scan
 
 resource "azurerm_key_vault_secret" "reports_email_username" {

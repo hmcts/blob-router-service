@@ -51,3 +51,7 @@ java:
           alias: DB_NAME
         - name: notification-staging-queue-send-shared-access-key
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
+        - name: launch-darkly-sdk-key
+          alias: LAUNCH_DARKLY_SDK_KEY
+        - name: launch-darkly-offline-mode
+          alias: LAUNCH_DARKLY_OFFLINE_MODE

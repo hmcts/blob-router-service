@@ -1,0 +1,3 @@
+# Currently only used by LaunchDarklyTest, but could be used by other tests in the future
+sdk-key: ${LAUNCH_DARKLY_SDK_KEY:AAAAAA}
+offline-mode: ${LAUNCH_DARKLY_OFFLINE_MODE:false}

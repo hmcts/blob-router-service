@@ -192,3 +192,7 @@ actions:
 jms:
   # Set to disable configuration in envs besides local/dev
   enabled: ${JMS_ENABLED:false}
+
+launchdarkly:
+  sdk-key: ${LAUNCH_DARKLY_SDK_KEY:XXXXX}
+  offline-mode: ${LAUNCH_DARKLY_OFFLINE_MODE:false}
