@@ -49,7 +49,7 @@ java:
           alias: DB_PORT
         - name: blob-router-staging-db-name
           alias: DB_NAME
-        - name: notification-queue-send-shared-access-key-premium
+        - name: notification-staging-queue-send-shared-access-key
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
         - name: launch-darkly-sdk-key
           alias: LAUNCH_DARKLY_SDK_KEY
