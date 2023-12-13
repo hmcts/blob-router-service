@@ -284,8 +284,8 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-activemq'
   // region: feign clients
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.7'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '12.3'
-  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '12.3'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '12.5'
+  implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '12.5'
   // end region
 
   implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
