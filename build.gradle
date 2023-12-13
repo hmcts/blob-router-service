@@ -319,7 +319,7 @@ dependencies {
     exclude group: 'junit', module: 'junit'
   }
   integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.18.3'
-  integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.14'
+  integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '1.6.15'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
   functionalTestImplementation libraries.junit5
