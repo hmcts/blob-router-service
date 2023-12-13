@@ -191,8 +191,10 @@ dependencyManagement {
       entry 'jackson-databind'
     }
     // CVE-2021-42550
+    // CVE-2023-6481
     dependencySet(group: 'ch.qos.logback', version: '1.4.14') {
       entry 'logback-classic'
+      entry 'logback-core'
     }
     // solves CVE-2023-4586
     dependencySet(group: 'io.netty', version: '4.1.103.Final') {
