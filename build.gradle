@@ -173,7 +173,7 @@ configurations.all {
 dependencyManagement {
   dependencies {
     // avoid CVE-2021-29425
-    dependencySet(group: 'commons-io', version: '2.13.0') {
+    dependencySet(group: 'commons-io', version: '2.15.1') {
       entry 'commons-io'
     }
 
