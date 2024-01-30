@@ -60,7 +60,7 @@ public class BlobVerifier {
         List<PublicKey> publicKeyList = List.of(excelaPublicKey, ironMountainPublicKey);
         byte[] zipBytes;
 
-        // Read zip source into byte array to ensure that verification uses an unmodified input each time
+        // Read zip source into byte array to ensure that verification uses an unmodified input each time.
         try {
             zipBytes = zipSource.readAllBytes();
         } catch (IOException ex) {
@@ -68,6 +68,7 @@ public class BlobVerifier {
             return INVALID_ZIP_ARCHIVE_VERIFICATION_RESULT;
         }
 
+        // Verify zip file, try both public keys, if fails for any other reason it won't check the other public key.
         for (PublicKey publicKey : publicKeyList) {
             try {
                 ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes);
