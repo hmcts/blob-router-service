@@ -10,6 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidZipArchiveException;
 import uk.gov.hmcts.reform.blobrouter.util.PublicKeyDecoder;
 import uk.gov.hmcts.reform.blobrouter.util.zipverification.ZipVerifiers;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.PublicKey;
@@ -37,7 +38,7 @@ public class BlobVerifier {
 
     public BlobVerifier(
         @Value("${public-key-der-file}") String excelaPublicKeyDerFilename,
-        @Value("${public-key-der-file}") String ironMountainPublicKeyDerFilename
+        @Value("${public-key-der-file-two}") String ironMountainPublicKeyDerFilename
     ) {
         try {
             this.excelaPublicKey = PublicKeyDecoder.decode(toByteArray(getResource(excelaPublicKeyDerFilename)));
@@ -57,12 +58,25 @@ public class BlobVerifier {
 
     public VerificationResult verifyZip(String blobName, InputStream zipSource) {
         List<PublicKey> publicKeyList = List.of(excelaPublicKey, ironMountainPublicKey);
+        byte[] zipBytes;
+
+        // Read zip source into byte array to ensure that verification uses an unmodified input each time
+        try {
+            zipBytes = zipSource.readAllBytes();
+        } catch (IOException ex) {
+            logger.error("Error reading zip file into byte array", ex);
+            return INVALID_ZIP_ARCHIVE_VERIFICATION_RESULT;
+        }
+
         for (PublicKey publicKey : publicKeyList) {
-            try (var zis = new ZipInputStream(zipSource)) {
+            try {
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(zipBytes);
+                ZipInputStream zis = new ZipInputStream(byteArrayInputStream);
                 ZipVerifiers.verifyZip(zis, publicKey);
+                zis.close();
                 return OK_VERIFICATION_RESULT;
             } catch (DocSignatureFailureException ex) {
-                logger.info("Invalid signature using public key {}. Blob name: {}", publicKey, blobName, ex);
+                logger.info("Invalid signature. Blob name: {}", blobName, ex);
             } catch (InvalidZipArchiveException ex) {
                 logger.info("Invalid zip archive. Blob name: {}", blobName, ex);
                 return INVALID_ZIP_ARCHIVE_VERIFICATION_RESULT;
