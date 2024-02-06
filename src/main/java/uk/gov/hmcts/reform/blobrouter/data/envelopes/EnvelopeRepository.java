@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -217,13 +218,13 @@ public class EnvelopeRepository {
         );
     }
 
-    public List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") Instant dateTime) {
+    public List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime) {
         return jdbcTemplate.query(
             "SELECT * FROM envelopes"
                 + " WHERE file_created_at < :datetime AND status = 'CREATED'"
                 + " ORDER BY created_at DESC",
             new MapSqlParameterSource()
-                .addValue("datetime", Timestamp.from(dateTime)),
+                .addValue("datetime", dateTime),
             mapper
         );
     }
@@ -240,6 +241,16 @@ public class EnvelopeRepository {
                 .addValue("fromDate", fromDate)
                 .addValue("toDate", toDate),
             this.mapper
+        );
+    }
+
+    public int deleteEnvelopesBefore(LocalDateTime dateTime, List<UUID> envelopeIds) {
+        return jdbcTemplate.update(
+            "DELETE FROM envelopes e WHERE e.file_created_at < :dateTime AND e.status != 'DISPATCHED' "
+                + "AND e.id IN (:envelopeIds)",
+            new MapSqlParameterSource()
+                .addValue("dateTime", dateTime)
+                .addValue("envelopeIds", envelopeIds)
         );
     }
 }

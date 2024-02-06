@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 import uk.gov.hmcts.reform.blobrouter.model.out.IncompleteEnvelopeInfo;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +20,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.hmcts.reform.blobrouter.data.envelopes.Status.CREATED;
 
@@ -42,7 +43,7 @@ class IncompleteEnvelopesServiceTest {
             envelope("file1.zip", "cmc", CREATED),
             envelope("file2.zip", "sscs", CREATED)
         );
-        given(envelopeRepository.getIncompleteEnvelopesBefore(any(Instant.class)))
+        given(envelopeRepository.getIncompleteEnvelopesBefore(any(LocalDateTime.class)))
             .willReturn(envelopes);
 
         // when
@@ -61,7 +62,7 @@ class IncompleteEnvelopesServiceTest {
     @Test
     void should_propagate_empty_result() {
         // given
-        given(envelopeRepository.getIncompleteEnvelopesBefore(any(Instant.class)))
+        given(envelopeRepository.getIncompleteEnvelopesBefore(any(LocalDateTime.class)))
             .willReturn(emptyList());
 
         // when
@@ -88,5 +89,25 @@ class IncompleteEnvelopesServiceTest {
             false,
             null
         );
+    }
+
+    @Test
+    void should_delete_multiple_envelopes() {
+        given(envelopeRepository.deleteEnvelopesBefore(any(), anyList())).willReturn(3);
+
+        int rowsDeleted = incompleteEnvelopesService
+            .deleteIncompleteEnvelopes(3,
+                                       List.of("e0f61751-0801-4e90-999f-182a9a1a7922",
+                                               "de4694ee-968f-47f0-8b5b-3c26b8dc92c7",
+                                               "a0e7429f-1960-43c9-8511-241559ade310"));
+
+        assertThat(rowsDeleted).isEqualTo(3);
+    }
+
+    @Test
+    void should_delete_no_envelopes() {
+        int rowsDeleted = incompleteEnvelopesService.deleteIncompleteEnvelopes(4, emptyList());
+
+        assertThat(rowsDeleted).isEqualTo(0);
     }
 }
