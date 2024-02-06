@@ -1,16 +1,22 @@
 package uk.gov.hmcts.reform.blobrouter.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.Envelope;
 import uk.gov.hmcts.reform.blobrouter.data.events.EnvelopeEvent;
+import uk.gov.hmcts.reform.blobrouter.exceptions.EnvelopeNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeEventResponse;
 import uk.gov.hmcts.reform.blobrouter.model.out.EnvelopeInfo;
 import uk.gov.hmcts.reform.blobrouter.model.out.IncompleteEnvelopeInfo;
@@ -20,10 +26,13 @@ import uk.gov.hmcts.reform.blobrouter.services.IncompleteEnvelopesService;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
+import javax.validation.constraints.Min;
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 
+@Validated
 @RestController
 @RequestMapping(path = "/envelopes", produces = MediaType.APPLICATION_JSON_VALUE)
 public class EnvelopeController {
@@ -96,6 +105,52 @@ public class EnvelopeController {
         List<IncompleteEnvelopeInfo> envelopes = incompleteEnvelopesService.getIncompleteEnvelopes(2);
 
         return new SearchResult(envelopes);
+    }
+
+    @DeleteMapping(path = "/stale/{envelopeId}")
+    @Operation(
+        summary = "Remove one stale envelope",
+        description = "If an envelope is older than a certain period of time then it will be removed."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Success",
+        content = @Content(schema = @Schema(implementation = SearchResult.class))
+    )
+    @ApiResponse(responseCode = "404", description = "envelope not found")
+    public SearchResult deleteOneStaleEnvelope(
+        @RequestParam(name = "stale_time", required = false, defaultValue = "168")
+        @Min(value = 168, message = "stale_time must be at least 168 hours (a week)")
+        int staleTime,
+        @PathVariable UUID envelopeId
+    ) {
+        if (incompleteEnvelopesService.deleteIncompleteEnvelopes(staleTime, List.of(envelopeId.toString())) == 0) {
+            throw new EnvelopeNotFoundException("Envelope not removed, as it is not found/not stale");
+        }
+        return new SearchResult(List.of(envelopeId));
+    }
+
+    @DeleteMapping(path = "/stale/all")
+    @Operation(
+        summary = "Remove all stale envelopes",
+        description = "If an envelope is older than a certain period of time then it will be removed."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "Success",
+        content = @Content(schema = @Schema(implementation = SearchResult.class))
+    )
+    public SearchResult deleteAllStaleEnvelopes(
+        @RequestParam(name = "stale_time", required = false, defaultValue = "168")
+        @Min(value = 48, message = "stale_time must be at least 48 hours")
+        int staleTime
+    ) {
+        List<IncompleteEnvelopeInfo> incompleteEnvelopesInfo =
+            incompleteEnvelopesService.getIncompleteEnvelopes(staleTime);
+        List<String> envelopeIds = incompleteEnvelopesInfo.stream().map(s -> s.envelopeId.toString()).toList();
+        incompleteEnvelopesService.deleteIncompleteEnvelopes(staleTime, envelopeIds);
+
+        return new SearchResult(envelopeIds);
     }
 
     private EnvelopeInfo toResponse(Envelope dbEnvelope, List<EnvelopeEvent> dbEventRecords) {
