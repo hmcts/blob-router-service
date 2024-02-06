@@ -191,7 +191,7 @@ dependencyManagement {
       entry 'jackson-databind'
     }
     // CVE-2021-42550
-    dependencySet(group: 'ch.qos.logback', version: '1.2.10') {
+    dependencySet(group: 'ch.qos.logback', version: '1.4.14') {
       entry 'logback-classic'
     }
     // solves CVE-2023-4586
