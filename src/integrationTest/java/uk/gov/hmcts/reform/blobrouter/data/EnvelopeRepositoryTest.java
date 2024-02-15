@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.blobrouter.data.envelopes.Status;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
@@ -483,7 +484,7 @@ public class EnvelopeRepositoryTest {
 
     @Test
     void should_get_empty_result_when_no_incomplete_envelopes_are_there_in_db() {
-        assertThat(repo.getIncompleteEnvelopesBefore(currentTime().minusSeconds(3600))).isEmpty();
+        assertThat(repo.getIncompleteEnvelopesBefore(LocalDateTime.now().minusSeconds(3600))).isEmpty();
     }
 
     @Test
@@ -497,7 +498,7 @@ public class EnvelopeRepositoryTest {
         repo.insert(new NewEnvelope("Z", "E.zip", now.minusSeconds(10), null, CREATED, null));
 
         // when
-        List<Envelope> result = repo.getIncompleteEnvelopesBefore(now.minusSeconds(3600));
+        List<Envelope> result = repo.getIncompleteEnvelopesBefore(LocalDateTime.now().minusSeconds(3600));
 
         // then
         assertThat(result)

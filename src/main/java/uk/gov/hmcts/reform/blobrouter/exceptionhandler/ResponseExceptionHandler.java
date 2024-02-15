@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.exceptionhandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,6 +16,12 @@ import uk.gov.hmcts.reform.blobrouter.exceptions.InvalidSupplierStatementExcepti
 import uk.gov.hmcts.reform.blobrouter.exceptions.ServiceConfigNotFoundException;
 import uk.gov.hmcts.reform.blobrouter.exceptions.UnableToGenerateSasTokenException;
 import uk.gov.hmcts.reform.blobrouter.model.out.ErrorResponse;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
@@ -71,5 +78,20 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     protected ErrorResponse handleInternalException(Exception exception) {
         log.error(exception.getMessage(), exception);
         return new ErrorResponse(exception.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<Map<String, String>> handleInternalException(ConstraintViolationException exception) {
+        log.error(exception.getMessage(), exception);
+        Map<String, String> errors = new HashMap<>();
+        Set<ConstraintViolation<?>> violations = exception.getConstraintViolations();
+
+        for (ConstraintViolation<?> violation : violations) {
+            String propertyPath = violation.getPropertyPath().toString();
+            String message = violation.getMessage();
+            errors.put(propertyPath, message);
+        }
+        return ResponseEntity.badRequest().body(errors);
     }
 }
