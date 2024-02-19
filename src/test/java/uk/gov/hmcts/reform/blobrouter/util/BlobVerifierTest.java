@@ -83,6 +83,15 @@ class  BlobVerifierTest {
     }
 
     @Test
+    void should_throw_exception_if_second_invalid_file_name_is_provided() {
+        assertThatThrownBy(() -> new BlobVerifier("signature/test_public_key.der",
+                                                  "signature/i_dont_exist_two.der"))
+            .isInstanceOf(InvalidConfigException.class)
+            .hasMessageContaining("Error loading Iron Mountain public key. File name: signature/i_dont_exist_two.der")
+            .hasCauseInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void should_throw_exception_if_invalid_public_key_is_provided() {
         assertThatThrownBy(() -> new BlobVerifier("signature/invalid_public_key_format.der",
                                                   "signature/i_dont_exist_two.der"))
