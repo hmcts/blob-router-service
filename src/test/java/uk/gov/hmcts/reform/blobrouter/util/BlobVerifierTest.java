@@ -23,7 +23,8 @@ class  BlobVerifierTest {
 
     @BeforeEach
     void setUp() {
-        this.verifier = new BlobVerifier("signature/test_public_key.der");
+        this.verifier = new BlobVerifier("signature/test_public_key.der",
+                                         "signature/test_public_key_two.der");
     }
 
     @Test
@@ -74,17 +75,19 @@ class  BlobVerifierTest {
 
     @Test
     void should_throw_exception_if_invalid_file_name_is_provided() {
-        assertThatThrownBy(() -> new BlobVerifier("signature/i_dont_exist.der"))
+        assertThatThrownBy(() -> new BlobVerifier("signature/i_dont_exist.der",
+                                                  "signature/i_dont_exist_two.der"))
             .isInstanceOf(InvalidConfigException.class)
-            .hasMessageContaining("Error loading public key")
+            .hasMessageContaining("Error loading Excela public key. File name: signature/i_dont_exist.der")
             .hasCauseInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void should_throw_exception_if_invalid_public_key_is_provided() {
-        assertThatThrownBy(() -> new BlobVerifier("signature/invalid_public_key_format.der"))
+        assertThatThrownBy(() -> new BlobVerifier("signature/invalid_public_key_format.der",
+                                                  "signature/i_dont_exist_two.der"))
             .isInstanceOf(InvalidConfigException.class)
-            .hasMessageContaining("Error loading public key")
+            .hasMessageContaining("Error loading Excela public key. File name: signature/invalid_public_key_format.der")
             .hasCauseInstanceOf(InvalidKeySpecException.class);
     }
 }
