@@ -4,6 +4,7 @@ import com.azure.core.http.HttpClient;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import feign.Client;
 import feign.httpclient.ApacheHttpClient;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -27,7 +28,20 @@ public class HttpConfiguration {
 
     @Bean
     public HttpComponentsClientHttpRequestFactory clientHttpRequestFactory() {
-        return new HttpComponentsClientHttpRequestFactory(getHttpClient());
+        return new HttpComponentsClientHttpRequestFactory(getHttp5Client());
+    }
+
+    private org.apache.hc.client5.http.classic.HttpClient getHttp5Client() {
+        org.apache.hc.client5.http.config.RequestConfig config =
+            org.apache.hc.client5.http.config.RequestConfig.custom()
+                .setConnectionRequestTimeout(Timeout.ofSeconds(30))
+                .build();
+
+        return org.apache.hc.client5.http.impl.classic.HttpClientBuilder
+            .create()
+            .useSystemProperties()
+            .setDefaultRequestConfig(config)
+            .build();
     }
 
     @Bean

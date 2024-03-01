@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
+import jakarta.validation.ClockProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,7 +19,6 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
-import javax.validation.ClockProvider;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;

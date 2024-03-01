@@ -1,7 +1,8 @@
 package uk.gov.hmcts.reform.blobrouter.config.jms;
 
-import org.apache.qpid.jms.JmsConnectionFactory;
-import org.apache.qpid.jms.policy.JmsDefaultRedeliveryPolicy;
+import jakarta.jms.ConnectionFactory;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.RedeliveryPolicy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -9,8 +10,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.connection.CachingConnectionFactory;
 import org.springframework.jms.core.JmsTemplate;
-
-import javax.jms.ConnectionFactory;
 
 @Configuration
 @EnableJms
@@ -41,14 +40,14 @@ public class JmsConfiguration {
     @Bean
     public ConnectionFactory connectionFactory(@Value("${jms.application-name}") final String clientId) {
         String connection = String.format(amqpConnectionStringTemplate, namespace, idleTimeout);
-        JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory(connection);
-        jmsConnectionFactory.setUsername(username);
-        jmsConnectionFactory.setPassword(password);
-        JmsDefaultRedeliveryPolicy jmsDefaultRedeliveryPolicy = new JmsDefaultRedeliveryPolicy();
-        jmsDefaultRedeliveryPolicy.setMaxRedeliveries(3);
-        jmsConnectionFactory.setRedeliveryPolicy(jmsDefaultRedeliveryPolicy);
-        jmsConnectionFactory.setClientID(clientId);
-        return new CachingConnectionFactory(jmsConnectionFactory);
+        ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(connection);
+        activeMQConnectionFactory.setUserName(username);
+        activeMQConnectionFactory.setPassword(password);
+        RedeliveryPolicy redeliveryPolicy = new RedeliveryPolicy();
+        redeliveryPolicy.setMaximumRedeliveries(3);
+        activeMQConnectionFactory.setRedeliveryPolicy(redeliveryPolicy);
+        activeMQConnectionFactory.setClientID(clientId);
+        return new CachingConnectionFactory(activeMQConnectionFactory);
     }
 
     @Bean

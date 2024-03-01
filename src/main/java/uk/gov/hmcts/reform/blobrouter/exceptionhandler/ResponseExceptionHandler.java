@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.exceptionhandler;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,8 +22,6 @@ import uk.gov.hmcts.reform.blobrouter.model.out.ErrorResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
