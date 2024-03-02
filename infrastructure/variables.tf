@@ -45,3 +45,7 @@ variable "deployment_namespace" {
 variable "num_staging_dbs" {
   default = 0
 }
+
+variable "deploy_single_server_db" {
+  default = 0
+}
