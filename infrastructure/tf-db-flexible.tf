@@ -21,6 +21,7 @@ module "postgresql" {
   pgsql_version = "15"
 
   admin_user_object_id = var.jenkins_AAD_objectId
+  force_user_permissions_trigger = "true"
 }
 
 module "postgresql_staging" {
