@@ -39,15 +39,15 @@ java:
           alias: storage.account-secondary-key
         - name: crime-storage-connection-string
           alias: storage.crime.connection-string
-        - name: blob-router-staging-db-password
+        - name: blob-router-staging-flexible-db-password
           alias: DB_PASSWORD
-        - name: blob-router-staging-db-user
+        - name: blob-router-staging-flexible-db-user
           alias: DB_USER
-        - name: blob-router-staging-db-host
+        - name: blob-router-staging-flexible-db-host
           alias: DB_HOST
-        - name: blob-router-staging-db-port
+        - name: blob-router-staging-flexible-db-port
           alias: DB_PORT
-        - name: blob-router-staging-db-name
+        - name: blob-router-staging-flexible-db-name
           alias: DB_NAME
         - name: notification-staging-queue-send-shared-access-key
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
