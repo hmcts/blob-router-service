@@ -147,9 +147,10 @@ scheduling:
     check-new-envelopes:
       time-interval: PT60M # ISO-8601
       cron: ${CHECK_NEW_ENVELOPES_CRON}
-      enabled: true
+      enabled: false
     scan:
-      delay: ${TASK_SCAN_DELAY} # In milliseconds
+      delay: 400000000 # In milliseconds
+      enabled: false
     send-daily-report:
       cron: ${SEND_DAILY_REPORT_CRON}
       enabled: ${SEND_DAILY_REPORT_ENABLED}
