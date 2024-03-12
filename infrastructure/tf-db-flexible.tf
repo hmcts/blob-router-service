@@ -21,10 +21,9 @@ module "postgresql" {
   pgsql_version = "15"
 
   admin_user_object_id = var.jenkins_AAD_objectId
-  force_user_permissions_trigger = "true"
-
   enable_schema_ownership = true
   force_schema_ownership_trigger = "true"
+  force_user_permissions_trigger = "1"
 }
 
 module "postgresql_staging" {
