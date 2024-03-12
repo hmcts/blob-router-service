@@ -35,15 +35,15 @@ java:
           alias: storage.account-secondary-key
         - name: crime-storage-connection-string
           alias: storage.crime.connection-string
-        - name: blob-router-POSTGRES-PASS
+        - name: blob-router-POSTGRES-FLEXIBLE-PASS
           alias: DB_PASSWORD
-        - name: blob-router-POSTGRES-USER
+        - name: blob-router-POSTGRES-FLEXIBLE-USER
           alias: DB_USER
-        - name: blob-router-POSTGRES-HOST
+        - name: blob-router-POSTGRES-FLEXIBLE-HOST
           alias: DB_HOST
-        - name: blob-router-POSTGRES-PORT
+        - name: blob-router-POSTGRES-FLEXIBLE-PORT
           alias: DB_PORT
-        - name: blob-router-POSTGRES-DATABASE
+        - name: blob-router-POSTGRES-FLEXIBLE-DATABASE
           alias: DB_NAME
         - name: notification-queue-send-shared-access-key-premium
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
