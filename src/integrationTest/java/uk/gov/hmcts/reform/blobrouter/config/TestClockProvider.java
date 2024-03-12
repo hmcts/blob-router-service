@@ -16,12 +16,26 @@ public class TestClockProvider {
 
     public static Instant stoppedInstant = Instant.now();
 
+    /**
+     * The function stoppedClock() returns a ClockProvider that provides a clock set to the Europe/London time zone.
+     *
+     * @return A `ClockProvider` bean is being returned, which provides a stopped clock set to the time zone
+     *      `Europe/London`.
+     */
     @Bean
     @Primary
     public ClockProvider stoppedClock() {
         return () -> provideClock(TimeZones.EUROPE_LONDON_ZONE_ID);
     }
 
+    /**
+     * The `provideClock` function creates a custom Clock instance based on a specified ZoneId.
+     *
+     * @param zoneId ZoneId is a class in Java that represents a time zone identifier. It is used to identify the time zone
+     * for which the clock is being created in the `provideClock` method.
+     * @return A custom implementation of the Clock interface is being returned. This implementation uses the provided
+     * zoneId for time zone information and handles the instant based on whether a stoppedInstant is set or not.
+     */
     private Clock provideClock(ZoneId zoneId) {
         return new Clock() {
             @Override
