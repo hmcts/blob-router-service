@@ -2,6 +2,10 @@ package uk.gov.hmcts.reform.blobrouter.config;
 
 import javax.validation.constraints.NotNull;
 
+/**
+ * The `StorageConfigItem` class represents a configuration item for storage with properties such as SAS validity,
+ * storage accounts, and container names.
+ */
 public class StorageConfigItem {
 
     private int sasValidity;

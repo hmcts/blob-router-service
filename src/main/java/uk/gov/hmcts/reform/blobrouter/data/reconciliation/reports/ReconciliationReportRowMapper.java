@@ -10,9 +10,25 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * The `ReconciliationReportRowMapper` class in Java implements a `RowMapper` interface to map database query results to
+ * `ReconciliationReport` objects, including a method to convert `Timestamp` to `LocalDateTime`.
+ */
 @Component
 public class ReconciliationReportRowMapper implements RowMapper<ReconciliationReport> {
 
+    /**
+     * The mapRow function maps a row from a ResultSet to a ReconciliationReport object in Java.
+     *
+     * @param rs The `rs` parameter in the `mapRow` method is a `ResultSet` object, which represents a set of
+     *      results from a database query. It contains the data retrieved from the database that needs to be mapped to a
+     *      `ReconciliationReport` object.
+     * @param rowNum The `rowNum` parameter in the `mapRow` method represents the current row number being
+     *      processed by the ResultSet. It is an integer value that indicates the position of the current row
+     *      within the result set.
+     * @return A new instance of `ReconciliationReport` is being returned, with the values extracted
+     *      from the `ResultSet` `rs`.
+     */
     @Override
     public ReconciliationReport mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new ReconciliationReport(
@@ -27,6 +43,15 @@ public class ReconciliationReportRowMapper implements RowMapper<ReconciliationRe
         );
     }
 
+    /**
+     * The function `toDateTime` converts a `Timestamp` object to a `LocalDateTime` object in Java.
+     *
+     * @param timestamp The `timestamp` parameter is of type `Timestamp`, which is a class in Java that represents a
+     *      specific point in time, including date and time information.
+     * @return The method `toDateTime` returns a `LocalDateTime` object. If the input `timestamp` is `null`, then the
+     *      method returns `null`. Otherwise, it converts the `timestamp` to a `LocalDateTime` object using the
+     *      `toLocalDateTime()` method of the `Timestamp` class.
+     */
     private LocalDateTime toDateTime(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toLocalDateTime();
     }

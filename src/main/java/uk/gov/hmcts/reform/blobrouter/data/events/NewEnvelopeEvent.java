@@ -2,6 +2,10 @@ package uk.gov.hmcts.reform.blobrouter.data.events;
 
 import java.util.UUID;
 
+/**
+ * The class `NewEnvelopeEvent` represents an event related to a specific envelope with details such as ID, type, error
+ * code, and notes.
+ */
 public class NewEnvelopeEvent {
 
     public final UUID envelopeId;
