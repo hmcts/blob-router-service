@@ -49,6 +49,19 @@ public class StaleBlobFinder {
             .sorted(Comparator.comparing(o -> o.createdAt));
     }
 
+    /**
+     * The function `isStale` determines if a `BlobItem` object is considered stale based on a specified stale time in
+     * minutes.
+     *
+     * @param blobItem BlobItem is an object representing a blob in a storage system.
+     *                 It contains properties such as creation time.
+     * @param staleTime The `staleTime` parameter in the `isStale` method represents the duration in
+     *                  minutes after which a `BlobItem` object is considered stale. This method checks
+     *                  if the current time is after the creation time of the `BlobItem` plus the
+     *                  specified `staleTime` duration.
+     * @return The method `isStale` is returning a boolean value indicating whether the `BlobItem`
+     *      object is considered stale based on the provided `staleTime`.
+     */
     private boolean isStale(BlobItem blobItem, int staleTime) {
         return
             Instant.now().isAfter(
@@ -59,5 +72,4 @@ public class StaleBlobFinder {
                     .plus(staleTime, ChronoUnit.MINUTES)
             );
     }
-
 }
