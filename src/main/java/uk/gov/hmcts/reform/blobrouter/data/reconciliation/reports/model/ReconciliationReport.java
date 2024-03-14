@@ -6,6 +6,10 @@ import com.fasterxml.jackson.annotation.JsonRawValue;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * The `ReconciliationReport` class represents a reconciliation report with various properties including IDs, content,
+ * timestamps, and account information.
+ */
 public class ReconciliationReport {
 
     @JsonProperty("id")

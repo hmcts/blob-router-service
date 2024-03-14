@@ -17,6 +17,10 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+/**
+ * The `EnvelopeRepository` class in Java provides methods to interact with a database table storing envelope data,
+ * including finding, inserting, updating, and deleting envelope records based on various criteria.
+ */
 @Repository
 public class EnvelopeRepository {
 
@@ -28,6 +32,15 @@ public class EnvelopeRepository {
         this.mapper = mapper;
     }
 
+    /**
+     * The function finds an Envelope object by its UUID using a jdbcTemplate query and returns it wrapped
+     * in an Optional, handling EmptyResultDataAccessException by returning an empty Optional.
+     *
+     * @param id The `id` parameter is a `UUID` representing the unique identifier of the envelope
+     *      that you want to find in the database.
+     * @return An Optional object containing either the Envelope object with the specified UUID if
+     *      found in the database, or an empty Optional if no Envelope with that UUID is found.
+     */
     public Optional<Envelope> find(UUID id) {
         try {
             Envelope envelope = jdbcTemplate.queryForObject(
@@ -41,6 +54,19 @@ public class EnvelopeRepository {
         }
     }
 
+    /**
+     * This Java function retrieves a list of Envelope objects based on specified status, container, and deletion status
+     * criteria from a database using JDBC template.
+     *
+     * @param status Status enum representing the status of the envelope (e.g., PENDING, DELIVERED, RETURNED)
+     * @param container The `container` parameter in the `find` method is used to specify the container
+     *      value to search for in the database query. It is a String type parameter that represents the
+     *      container value to match in the database query.
+     * @param isDeleted The `isDeleted` parameter is a boolean value that indicates whether
+     *      the envelope has been marked as deleted or not. It is used in the SQL query to filter envelopes
+     *      based on their deletion status.
+     * @return A List of Envelope objects is being returned from the method.
+     */
     public List<Envelope> find(Status status, String container, boolean isDeleted) {
         return jdbcTemplate.query(
             "SELECT * FROM envelopes WHERE status = :status AND container = :container AND is_deleted = :isDeleted",
@@ -52,6 +78,17 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * The function `find` retrieves a list of `Envelope` objects from the database based on the provided `status` and
+     * `isDeleted` parameters.
+     *
+     * @param status Status is an enum representing the status of an envelope. It could be one of the following values:
+     *      PENDING, SENT, DELIVERED, or FAILED.
+     * @param isDeleted The `isDeleted` parameter in the `find` method is a boolean flag that indicates whether the
+     *      envelopes being searched for have been marked as deleted or not.
+     *      It is used in the SQL query to filter out envelopes based on their deletion status.
+     * @return A list of Envelope objects that match the specified status and isDeleted criteria from the database.
+     */
     public List<Envelope> find(Status status, boolean isDeleted) {
         return jdbcTemplate.query(
             "SELECT * FROM envelopes WHERE status = :status AND is_deleted = :isDeleted",
@@ -62,6 +99,18 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * The `find` function retrieves a list of Envelope objects from a database based on the provided file name and
+     * container values.
+     *
+     * @param fileName The `fileName` parameter is used to specify the name of the file that you want to search
+     *      for in the database. It is a string type parameter that helps in filtering the search results
+     *      based on the file name.
+     * @param container The `container` parameter in the `find` method is used to specify the container
+     *      value that will be used in the SQL query to filter the results. It is a criteria based on which the
+     *      envelopes will be retrieved from the database.
+     * @return A List of Envelope objects is being returned.
+     */
     public List<Envelope> find(String fileName, String container) {
         return jdbcTemplate.query(
             "SELECT * FROM envelopes WHERE file_name = :fileName AND container = :container",
@@ -72,6 +121,18 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * This Java function finds an envelope in a database table that matches the given file name and container, has a
+     * status other than 'CREATED', and returns it wrapped in an Optional.
+     *
+     * @param fileName The `fileName` parameter is a String representing the name of the file for which
+     *      you want to find an envelope that is not in the 'CREATED' status.
+     * @param container Container is a parameter that specifies the location or storage unit
+     *      where the envelope is stored. It helps identify the specific location of the envelope
+     *      within a system or database.
+     * @return An Optional object containing an Envelope that is not in the 'CREATED' status, based on the provided file
+     *      name and container. If no such Envelope is found, an empty Optional is returned.
+     */
     public Optional<Envelope> findEnvelopeNotInCreatedStatus(String fileName, String container) {
         try {
             Envelope envelope = jdbcTemplate.queryForObject(
@@ -92,6 +153,17 @@ public class EnvelopeRepository {
         }
     }
 
+    /**
+     * This Java function finds the last envelope with a specific file name and container in a database table.
+     *
+     * @param fileName The `fileName` parameter is used to specify the name of the file that you want to
+     *      search for in the database when retrieving the last envelope.
+     * @param container The `container` parameter in the `findLast` method is used to specify the container
+     *      value that will be used in the SQL query to filter the envelopes. It is a String parameter that
+     *      represents the container value to search for in the database table.
+     * @return An Optional object containing either the Envelope object found in the database based on the provided file
+     *      name and container, or an empty Optional if no matching Envelope is found.
+     */
     public Optional<Envelope> findLast(String fileName, String container) {
         try {
             Envelope envelope = jdbcTemplate.queryForObject(

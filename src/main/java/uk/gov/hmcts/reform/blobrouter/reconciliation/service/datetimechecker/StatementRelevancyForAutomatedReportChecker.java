@@ -28,11 +28,25 @@ public class StatementRelevancyForAutomatedReportChecker {
 
     public StatementRelevancyForAutomatedReportChecker(
         @Value("${scheduling.task.create-reconciliation-summary-report.cron}")
-        String cron
+            String cron
     ) {
         this.cron = cron;
     }
 
+    /**
+     * The function `isTimeRelevant` determines if a statement uploaded at a specific date
+     * and time is within the deadline for processing based on a given report day.
+     *
+     * @param statetementUploadDateTime The `statetementUploadDateTime` parameter represents the date and time when a
+     *                                  statement was uploaded. This method is checking if the uploaded statement
+     *                                  is relevant based on the `reportDay` provided.
+     * @param reportDay                 The `reportDay` parameter represents the day for which the report is being
+     *                                  generated. In the provided code snippet, it is used to calculate the day for
+     *                                  which the cron job is triggered (`cronRunForSpecifiedReport`) by adding
+     *                                  one day to the `reportDay`.
+     * @return The method `isTimeRelevant` returns a boolean value indicating whether the statement upload date and the
+     * next cron run date are within a certain number of days of each other.
+     */
     public boolean isTimeRelevant(ZonedDateTime statetementUploadDateTime, LocalDate reportDay) {
         //reports are always run for day before so, cron triggered today should process yesterday envelopes
         //we want to ensure if Cron narrowed down to requested reportDay + 1, is going to be run in 24 hrs
@@ -59,6 +73,21 @@ public class StatementRelevancyForAutomatedReportChecker {
         );
     }
 
+    /**
+     * The function `isWithinDays` checks if the difference in milliseconds between two dates is within a
+     * specified number of days.
+     *
+     * @param statementUploadTime        The `statementUploadTime` parameter represents the time when a statement was
+     *                                   uploaded. It is of type `Date`.
+     * @param nextCronRunAfterUploadTime nextCronRunAfterUploadTime is the timestamp of the next scheduled cron
+     *                                   job after the statement upload time.
+     * @param daysDifference             The `daysDifference` parameter represents the number of days within which
+     *                                   you want to check if the `statementUploadTime` is within,
+     *                                   relative to the `nextCronRunAfterUploadTime`.
+     * @return The method is returning a boolean value indicating whether the difference in milliseconds between the
+     * scheduled cron run time and the statement upload time is less than the specified
+     * number of milliseconds within the requested number of days.
+     */
     private boolean isWithinDays(Date statementUploadTime, Date nextCronRunAfterUploadTime, long daysDifference) {
         long differenceInMilisecondsBetweenScheduledCronAndUploadTime =
             nextCronRunAfterUploadTime.getTime() - statementUploadTime.getTime();
@@ -66,6 +95,16 @@ public class StatementRelevancyForAutomatedReportChecker {
         return differenceInMilisecondsBetweenScheduledCronAndUploadTime < milisecondsWithinRequestsDays;
     }
 
+    /**
+     * The function prepares a cron expression by updating the day and month values based on a specified report day.
+     *
+     * @param cronRunForSpecifiedReport The method `prepareCronExpressionForSpecifiedReportDay` takes a `LocalDate`
+     *                                  parameter named `cronRunForSpecifiedReport`, which represents the date for
+     *                                  which the cron expression
+     *                                  needs to be prepared.
+     * @return The method `prepareCronExpressionForSpecifiedReportDay` returns a modified cron expression where the
+     * day and month fields are updated based on the `cronRunForSpecifiedReport` parameter.
+     */
     private String prepareCronExpressionForSpecifiedReportDay(LocalDate cronRunForSpecifiedReport) {
         String[] cronParts = cron.split(" "); //0 - second 1 - minute 2 - hour 3 - day 4 - month
         cronParts[3] = "" + cronRunForSpecifiedReport.getDayOfMonth();
