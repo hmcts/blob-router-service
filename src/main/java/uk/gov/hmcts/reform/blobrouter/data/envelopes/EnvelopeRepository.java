@@ -111,6 +111,17 @@ public class EnvelopeRepository {
         }
     }
 
+    /**
+     * The `insert` method generates a UUID, inserts data from a `NewEnvelope` object into a database table using JDBC
+     * template, and returns the generated UUID.
+     *
+     * @param envelope The `insert` method you provided is inserting a new envelope into a database table named
+     *      `envelopes`. The method generates a new UUID for the envelope, maps the envelope data to the
+     *       corresponding columns in the table, and then executes an SQL `INSERT` statement using
+     *      Spring's `JdbcTemplate`.
+     * @return The method `insert` is returning a `UUID` which is generated using `UUID.randomUUID()`
+     *      after inserting the data from the `NewEnvelope` object into the database table `envelopes`.
+     */
     public UUID insert(NewEnvelope envelope) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
@@ -133,6 +144,13 @@ public class EnvelopeRepository {
         return id;
     }
 
+    /**
+     * The `updateStatus` function updates the status of an envelope in a database using JDBC template in Java.
+     *
+     * @param id A unique identifier for the envelope that needs its status updated.
+     * @param newStatus The `newStatus` parameter in the `updateStatus` method is of type `Status`, which is an enum
+     *      representing the status of an envelope. It is used to update the status of an envelope in the database.
+     */
     public void updateStatus(UUID id, Status newStatus) {
         jdbcTemplate.update(
             "UPDATE envelopes "
@@ -144,6 +162,17 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * The function updates the dispatched_at field of an envelope in a database table using the
+     * provided UUID and Instant values.
+     *
+     * @param id The `id` parameter is of type `UUID`, which stands for Universally Unique Identifier. It is a 128-bit
+     *      value typically used as a unique identifier for entities in a system.
+     * @param dispatchedAt The `dispatchedAt` parameter is of type `Instant`, which represents a moment
+     *      on the timeline in UTC with a resolution of nanoseconds. In the provided code snippet, the
+     *      `dispatchedAt` parameter is converted to a `Timestamp`
+     *      object using `Timestamp.from(dispatchedAt)`.
+     */
     public void updateDispatchDateTime(UUID id, Instant dispatchedAt) {
         jdbcTemplate.update(
             "UPDATE envelopes "
@@ -155,6 +184,14 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * The function updates the "is_deleted" field in the "envelopes" table to True for a specific ID using a UUID
+     * parameter.
+     *
+     * @param id UUID id
+     * @return The method `markAsDeleted` is returning an integer value, which represents the number of rows affected by
+     *      the SQL update operation.
+     */
     public int markAsDeleted(UUID id) {
         return jdbcTemplate.update(
             "UPDATE envelopes "
@@ -164,6 +201,17 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * The function updates the pending_notification field in the envelopes table for a specific
+     * id using a boolean value.
+     *
+     * @param id A unique identifier for the envelope.
+     * @param notificationPending The `notificationPending` parameter is a boolean value that indicates whether a
+     *      notification is pending for a specific envelope. It is used in the `updatePendingNotification` method
+     *      to update the `pending_notification` field in the `envelopes` table for a given `id`.
+     * @return The method `updatePendingNotification` returns an integer value, which represents the number of rows
+     *      affected by the update operation in the database table "envelopes".
+     */
     public int updatePendingNotification(UUID id, Boolean notificationPending) {
         return jdbcTemplate.update(
             "UPDATE envelopes "
@@ -175,6 +223,19 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * The function retrieves the count of envelopes within a specified time range and belonging to a set of containers
+     * using JDBC template in Java.
+     *
+     * @param containers A set of container names that you want to query for envelopes within a specific time range.
+     * @param fromDateTime fromDateTime is the starting date and time from which you want to filter the envelopes.
+     * @param toDateTime toDateTime is the timestamp representing the end date and time for the query.
+     *      It is used to filter the envelopes based on their file creation timestamp, ensuring that only envelopes
+     *      created before this specific date and time are included in the count.
+     * @return The method is returning the count of envelopes that meet the specified criteria.
+     *      It queries the database to count the number of envelopes where the container is in the provided
+     *      set of containers and the file creation timestamp is between the specified fromDateTime and toDateTime.
+     */
     public Integer getEnvelopesCount(Set<String> containers, Instant fromDateTime, Instant toDateTime) {
         return jdbcTemplate.queryForObject(
             "SELECT count(*) FROM envelopes "
