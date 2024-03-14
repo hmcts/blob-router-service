@@ -31,10 +31,10 @@ public class TestClockProvider {
     /**
      * The `provideClock` function creates a custom Clock instance based on a specified ZoneId.
      *
-     * @param zoneId ZoneId is a class in Java that represents a time zone identifier. It is used to identify the time zone
-     * for which the clock is being created in the `provideClock` method.
+     * @param zoneId ZoneId is a class in Java that represents a time zone identifier. It is used to identify the
+     *      time zone for which the clock is being created in the `provideClock` method.
      * @return A custom implementation of the Clock interface is being returned. This implementation uses the provided
-     * zoneId for time zone information and handles the instant based on whether a stoppedInstant is set or not.
+     *      zoneId for time zone information and handles the instant based on whether a stoppedInstant is set or not.
      */
     private Clock provideClock(ZoneId zoneId) {
         return new Clock() {

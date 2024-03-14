@@ -188,6 +188,22 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * This Java function retrieves envelopes based on specified criteria such as file name, container, and date.
+     *
+     * @param fileName The `fileName` parameter is used to filter the envelopes based on the file name. If a
+     *      `fileName` is provided, the SQL query will include a condition to match the `file_name` column with
+     *      the provided `fileName` value.
+     * @param container The `container` parameter in the `findEnvelopes` method is used to filter the envelopes based on
+     *      the container they belong to. If a `container` value is provided, the SQL query will include a condition
+     *      to filter envelopes where the `container` column matches the provided value.
+     * @param date The `date` parameter in the `findEnvelopes` method is used to filter envelopes based on the creation
+     *      date. If a date is provided, the method will include a condition in the SQL query to only retrieve
+     *      envelopes that were created on that specific date.
+     * @return A List of Envelope objects that match the specified criteria of file name, container, and creation date.
+     *      The query is executed on the "envelopes" table, filtering the results based on the provided parameters
+     *      and ordering the results by the creation date in descending order.
+     */
     public List<Envelope> findEnvelopes(String fileName, String container, LocalDate date) {
         StringJoiner whereClause = new StringJoiner(" AND ", " WHERE ", "");
         whereClause.setEmptyValue(""); // default value when all query params are null/empty
@@ -218,6 +234,15 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * This Java function retrieves a list of incomplete envelopes created before a specified datetime.
+     *
+     * @param dateTime The `dateTime` parameter is a LocalDateTime object that represents a specific date and time.
+     *      In the provided method `getIncompleteEnvelopesBefore`, this parameter is used to retrieve a list of
+     *      incomplete envelopes that were created before the specified date and time.
+     * @return A list of incomplete envelopes that were created before the specified datetime and have a status of
+     *      'CREATED', ordered by their creation date in descending order.
+     */
     public List<Envelope> getIncompleteEnvelopesBefore(@Param("datetime") LocalDateTime dateTime) {
         return jdbcTemplate.query(
             "SELECT * FROM envelopes"
@@ -229,6 +254,22 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * The function `findEnvelopesByDcnPrefix` retrieves a list of envelopes based on a given
+     * prefix, creation date range, and orders them by creation date in descending order.
+     *
+     * @param dcnPrefix The `dcnPrefix` parameter is used to search for envelopes based on a
+     *      prefix of the file name. The query will look for file names that start with the specified `dcnPrefix`.
+     * @param fromDate The `fromDate` parameter represents the starting date for the search criteria in the
+     *      `findEnvelopesByDcnPrefix` method. It is used to filter envelopes based on their creation date,
+     *      ensuring that only envelopes created on or after this date are included in the result set.
+     * @param toDate The `toDate` parameter in the `findEnvelopesByDcnPrefix` method is used to specify the end date for
+     *      filtering envelopes based on their creation date. Envelopes with a creation date up to and including
+     *      this `toDate` will be included in the result set.
+     * @return A List of Envelope objects that match the criteria specified in the SQL query. The envelopes are filtered
+     *      based on the `dcnPrefix`, `fromDate`, and `toDate` parameters, and are ordered by `file_created_at`
+     *      in descending order.
+     */
     public List<Envelope> findEnvelopesByDcnPrefix(String dcnPrefix, LocalDate fromDate, LocalDate toDate) {
 
         return jdbcTemplate.query(
@@ -244,6 +285,19 @@ public class EnvelopeRepository {
         );
     }
 
+    /**
+     * The function deletes envelopes with file creation date before a specified datetime and with status not equal to
+     * 'DISPATCHED' based on a list of envelope IDs.
+     *
+     * @param dateTime The `dateTime` parameter represents a specific point in time as a `LocalDateTime` object. In the
+     *      `deleteEnvelopesBefore` method, it is used to specify a cutoff time before which envelopes
+     *      should be deleted.
+     * @param envelopeIds The `envelopeIds` parameter is a list of UUIDs representing the unique
+     *      identifiers of envelopes that you want to delete. In the `deleteEnvelopesBefore` method, these envelope
+     *      IDs are used to specify which envelopes should be deleted from the database based on the given criteria.
+     * @return The method `deleteEnvelopesBefore` returns an integer value representing the number of rows
+     *      affected by the deletion operation in the database table `envelopes`.
+     */
     public int deleteEnvelopesBefore(LocalDateTime dateTime, List<UUID> envelopeIds) {
         return jdbcTemplate.update(
             "DELETE FROM envelopes e WHERE e.file_created_at < :dateTime AND e.status != 'DISPATCHED' "
