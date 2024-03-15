@@ -92,7 +92,7 @@ public class BlobContainerClientProxy {
      *                             type `TargetStorageAccount`, which seems to be an enum or a custom class
      *                             that defines different types of storage accounts
      *                             (e.g., CFT, PC and so forth).
-     * @param upload The `upload` parameter in the `runUpload` method is a `Consumer<BlockBlobClient>`.
+     * @param upload The `upload` parameter in the `runUpload` method is a BlockBlobClient Consumer.
      *               This means that it is a functional interface that takes an input of type
      *               `BlockBlobClient` and performs some operation without returning any result.
      */

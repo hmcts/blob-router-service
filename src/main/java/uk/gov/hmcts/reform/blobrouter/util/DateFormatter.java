@@ -22,7 +22,7 @@ public final class DateFormatter {
      *
      * @param instant An Instant object representing a point in time.
      * @return The method `getSimpleDateTime` returns a formatted string representing the date
-     * and time of the provided `Instant` object in UTC time zone.
+     *      and time of the provided `Instant` object in UTC time zone.
      */
     public static String getSimpleDateTime(final Instant instant) {
         return formatter.format(ZonedDateTime.ofInstant(instant, ZoneId.from(UTC)));

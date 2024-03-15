@@ -132,8 +132,8 @@ public class BlobMover {
     }
 
     /**
-     * This Java function uploads a file in chunks to a block blob storage and handles exceptions by clearing uncommitted
-     * blocks if needed.
+     * This Java function uploads a file in chunks to a block blob storage and handles exceptions by
+     * clearing uncommitted blocks if needed.
      *
      * @param blockBlobClient The `blockBlobClient` parameter in the `uploadWithChunks` method is an
      *                        instance of `BlockBlobClient` class, which is used to interact with a block
@@ -143,7 +143,7 @@ public class BlobMover {
      *                 represents the data source from which the file content will be read and uploaded in
      *                 chunks to the specified `BlockBlobClient`. This input stream allows the method to
      *                 read the file content in smaller chunks, stage and commit them appropriately.
-     * @return The method `uploadWithChunks` returns a `List<String>` containing the block IDs of the
+     * @return The method `uploadWithChunks` returns a list of strings containing the block IDs of the
      *      uploaded chunks.
      */
     public List<String> uploadWithChunks(BlockBlobClient blockBlobClient, InputStream inStream) {

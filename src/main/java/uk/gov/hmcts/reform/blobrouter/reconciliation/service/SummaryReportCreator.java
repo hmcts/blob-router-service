@@ -26,8 +26,8 @@ public class SummaryReportCreator {
      *
      * @param receivedEnvelopes receivedEnvelopes is a list of SummaryReportItem
      *                          objects representing envelopes that have been received and processed.
-     * @param reportedEnvelopes The `createSummaryReport` method takes two parameters: `receivedEnvelopes` and
-     *                          `reportedEnvelopes`, both of type `List<SummaryReportItem>`.
+     * @param reportedEnvelopes The `createSummaryReport` method takes two parameters: `receivedEnvelopes`
+     *                          and `reportedEnvelopes`.
      * @return A `SummaryReport` object is being returned, which contains the
      *      actual count of processed envelopes, reported count of supplier envelopes, a
      *      list of envelopes received but not reported, and a list of envelopes reported but not

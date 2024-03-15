@@ -45,7 +45,7 @@ public class EmailSender implements MessageSender {
      *                   will be sent. You can specify one or more email addresses in this array to send
      *                   the email to multiple recipients.
      * @param attachments The `sendMessageWithAttachments` method you provided is used to send an email
-     *                    with attachments. The `attachments` parameter is a `Map<String, File>` where the
+     *                    with attachments. The `attachments` parameter is a map of String and File where the
      *                    key is the name of the attachment and the value is the corresponding `File` object
      *                    representing the attachment file.
      */

@@ -30,8 +30,8 @@ public class SummaryReportTask {
     }
 
     /**
-     * This Java function runs a scheduled task to create a reconciliation summary report and logs the start and finish of
-     * the job.
+     * This Java function runs a scheduled task to create a reconciliation summary report and
+     * logs the start and finish of the job.
      */
     @Scheduled(cron = "${scheduling.task.create-reconciliation-summary-report.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)

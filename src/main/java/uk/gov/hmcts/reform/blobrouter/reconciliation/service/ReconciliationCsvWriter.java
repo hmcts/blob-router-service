@@ -86,7 +86,8 @@ public class ReconciliationCsvWriter {
      *             `data` as a parameter. This object contains a list of `DiscrepancyItem` objects, each
      *             representing a discrepancy in the reconciliation report.
      * @return The method `writeDetailedReconciliationToCsv` is returning a `File` object, which represents the CSV file
-     * that was created and written with the reconciliation data provided in the `ReconciliationReportResponse` object.
+     *      that was created and written with the reconciliation data provided in
+     *      the `ReconciliationReportResponse` object.
      */
     public File writeDetailedReconciliationToCsv(ReconciliationReportResponse data)
         throws IOException {
