@@ -11,6 +11,10 @@ import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.Notificatio
 
 import java.util.List;
 
+/**
+ * The `NotificationService` class in Java handles sending notifications for rejected envelopes,
+ * mapping envelope data to notification messages.
+ */
 @Service
 @ConditionalOnExpression("!${jms.enabled}")
 public class NotificationService {
@@ -48,6 +52,16 @@ public class NotificationService {
         );
     }
 
+    /**
+     * The function `mapToNotificationMessage` creates a `NotificationMsg` object using information from a
+     * `RejectedEnvelope` object.
+     *
+     * @param envelope The `mapToNotificationMessage` method takes a `RejectedEnvelope` object as a parameter.
+     *                 The `RejectedEnvelope` object likely contains information about a rejected message
+     *                 or file, such as the file name, container, error code, and error description.
+     * @return A `NotificationMsg` object is being returned, which is created using the data from the
+     *      `RejectedEnvelope` object `envelope`.
+     */
     private NotificationMsg mapToNotificationMessage(RejectedEnvelope envelope) {
         return new NotificationMsg(
             envelope.fileName,

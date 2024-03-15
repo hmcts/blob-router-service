@@ -22,6 +22,10 @@ import javax.validation.ClockProvider;
 import static java.util.Collections.singleton;
 import static org.slf4j.LoggerFactory.getLogger;
 
+/**
+ * The `NewEnvelopesFinder` class in Java checks for new envelopes created in specified containers during business hours
+ * based on certain criteria.
+ */
 @Component
 public class NewEnvelopesFinder {
 
@@ -60,6 +64,18 @@ public class NewEnvelopesFinder {
         }
     }
 
+    /**
+     * The function checks for new envelopes created in a specified container during business hours if the container is
+     * enabled.
+     *
+     * @param container The `container` parameter is a String that represents the name or identifier of a specific
+     *      container where envelopes are stored or managed.
+     * @param containerGroup The `containerGroup` parameter is used to specify the group to which the
+     *                       container belongs. It is passed as an argument to the
+     *                       `checkNewEnvelopesCreatedInContainer` method along with the `container`
+     *                       parameter.
+     *                       The method then checks if the specified `container` is enabled and if the
+     */
     public void checkNewEnvelopesCreatedInContainer(String container, String containerGroup) {
         Assert.hasText(container, "'container' value is required");
         if (isCurrentTimeInBusinessHours(clock)) {
@@ -73,6 +89,13 @@ public class NewEnvelopesFinder {
         }
     }
 
+    /**
+     * The function checks for new envelopes in containers within a specified time
+     * interval and logs a message if none are found.
+     *
+     * @param containers A set of container IDs where you want to check for new envelopes.
+     * @param containersGroupName containersGroupName is a String that represents the name of a group of containers.
+     */
     private void checkNewEnvelopesInContainers(Set<String> containers, String containersGroupName) {
         Instant toDateTime = Instant.now();
         Instant fromDateTime = toDateTime.minus(timeInterval);
@@ -86,6 +109,13 @@ public class NewEnvelopesFinder {
         }
     }
 
+    /**
+     * The function `getCftContainers` returns a set of enabled source containers that are not present in the
+     * `nonCftContainers` set.
+     *
+     * @return A Set of Strings containing the enabled source containers that are
+     *      not present in the nonCftContainers set.
+     */
     private Set<String> getCftContainers() {
         return serviceConfig.getEnabledSourceContainers()
             .stream()
@@ -93,6 +123,16 @@ public class NewEnvelopesFinder {
             .collect(Collectors.toSet());
     }
 
+    /**
+     * The function `isCurrentTimeInBusinessHours` checks if the current time, based on a provided clock, falls within
+     * business hours (10am-6pm) on weekdays.
+     *
+     * @param clock The `clock` parameter in the `isCurrentTimeInBusinessHours` method is an
+     *              instance of the `Clock` class. It is used to provide the current time for
+     *              the method to determine if it falls within the business hours.
+     * @return The method `isCurrentTimeInBusinessHours` returns a boolean value indicating
+     *      whether the current time, as per the provided clock, falls within the business hours criteria.
+     */
     private boolean isCurrentTimeInBusinessHours(Clock clock) {
         LocalDateTime now = LocalDateTime.now(clock);
         return !WEEKEND.contains(now.getDayOfWeek()) // not weekend
