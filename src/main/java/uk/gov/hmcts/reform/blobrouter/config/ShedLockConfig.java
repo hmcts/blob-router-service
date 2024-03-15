@@ -12,6 +12,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.sql.DataSource;
 
+/**
+ * The `ShedLockConfig` class in Java configures scheduling with lock management using ShedLock and
+ * JdbcTemplateLockProvider.
+ */
 @Configuration
 @AutoConfigureAfter(FlywayConfiguration.class)
 @DependsOn({"flyway", "flywayInitializer"})

@@ -11,8 +11,9 @@ import org.springframework.context.annotation.Configuration;
 import static org.mockito.Mockito.mock;
 
 /**
- * The `StorageConfiguration` class in Java provides configuration for creating storage credentials,
- * a BlobServiceClient, and a mocked BlobContainerClient.
+ * The `StorageConfiguration` class in Java provides configuration for creating storage credentials and
+ * clients for Azure Blob Storage, including methods for creating a `StorageSharedKeyCredential`
+ * object and a `BlobServiceClient` object for local testing.
  */
 @Configuration
 public class StorageConfiguration {

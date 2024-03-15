@@ -2,6 +2,10 @@ package uk.gov.hmcts.reform.blobrouter.data.envelopes;
 
 import java.time.Instant;
 
+/**
+ * The `NewEnvelope` class represents an envelope containing file information with specific attributes
+ * like container, filename, creation and dispatch timestamps, status, and file size.
+ */
 public class NewEnvelope {
 
     public final String container;

@@ -7,12 +7,14 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import static org.mockito.Mockito.mock;
 
 /**
- * The `AuthConfig` class creates a mock instance of `AuthTokenGenerator` bean based on a specific property value.
+ * The `AuthConfig` class creates a mock instance of `AuthTokenGenerator`
+ * based on a specific property value.
  */
 public class AuthConfig {
 
     /**
-     * This function creates a bean for an AuthTokenGenerator only if a specific property is set to "false".
+     * This function creates a bean for an AuthTokenGenerator only if the property
+     * "idam.s2s-auth.url" is set to "false".
      *
      * @return A mock instance of the `AuthTokenGenerator` class is being returned.
      */

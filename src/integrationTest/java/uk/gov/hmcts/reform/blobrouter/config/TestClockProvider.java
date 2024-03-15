@@ -11,6 +11,10 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import javax.validation.ClockProvider;
 
+/**
+ * The `TestClockProvider` class provides a custom `ClockProvider` bean with a stopped clock set to the
+ * Europe/London time zone.
+ */
 @TestConfiguration
 public class TestClockProvider {
 

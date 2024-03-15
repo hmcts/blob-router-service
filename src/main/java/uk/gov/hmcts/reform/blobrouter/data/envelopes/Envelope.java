@@ -3,6 +3,10 @@ package uk.gov.hmcts.reform.blobrouter.data.envelopes;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * The Envelope class represents an envelope object with various properties such as ID, file name, container, status,
+ * and file size.
+ */
 public class Envelope {
 
     public final UUID id;
