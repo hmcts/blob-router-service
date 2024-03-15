@@ -17,6 +17,10 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
 
+/**
+ * The `RejectedContainerCleaner` class in Java provides methods to clean up rejected files from Azure Blob Storage
+ * containers based on specific criteria.
+ */
 @Component
 public class RejectedContainerCleaner {
 
@@ -44,6 +48,10 @@ public class RejectedContainerCleaner {
     }
     // endregion
 
+    /**
+     * The `cleanUp` method iterates through blob containers, filters out those ending with a specific suffix, and then
+     * calls a cleanup operation on each matching container.
+     */
     public void cleanUp() {
         storageClient
             .listBlobContainers()
@@ -53,6 +61,13 @@ public class RejectedContainerCleaner {
             .forEach(this::cleanUpContainer);
     }
 
+    /**
+     * The `cleanUpContainer` function deletes rejected files from a specified container using Azure Storage Blob SDK in
+     * Java.
+     *
+     * @param containerName The `containerName` parameter is a string that represents the name of the
+     *                      container from which rejected files need to be cleaned up.
+     */
     private void cleanUpContainer(String containerName) {
         logger.info("Looking for rejected files to delete. Container: {}", containerName);
         var containerClient = storageClient.getBlobContainerClient(containerName);
@@ -72,6 +87,15 @@ public class RejectedContainerCleaner {
         logger.info("Finished removing rejected files. Container: {}", containerName);
     }
 
+    /**
+     * The `delete` function deletes a blob from a Blob storage container, including any associated snapshots, and logs
+     * relevant information.
+     *
+     * @param blobClient The `blobClient` parameter in the `delete` method represents a client for
+     *                   interacting with a specific blob in Azure Blob Storage. It contains information
+     *                   about the blob such as the container name, blob name, and snapshot ID. The method
+     *                   uses this information to delete the blob along with its snapshots.
+     */
     private void delete(BlobClient blobClient) {
         String containerName = blobClient.getContainerName();
         String blobName = blobClient.getBlobName();

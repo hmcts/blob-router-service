@@ -35,6 +35,9 @@ public class DeleteDispatchedFilesTask {
         this.serviceConfiguration = serviceConfiguration;
     }
 
+    /**
+     * This Java function runs periodically to delete dispatched files from available containers.
+     */
     @Scheduled(cron = "${scheduling.task.delete-dispatched-files.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = "delete-dispatched-files")
     public void run() {
@@ -45,6 +48,12 @@ public class DeleteDispatchedFilesTask {
         logger.debug("Finished {} job", TASK_NAME);
     }
 
+    /**
+     * The function `getAvailableContainerNames` returns a stream of names of enabled storage containers
+     * from the service configuration.
+     *
+     * @return A stream of available container names is being returned.
+     */
     private Stream<String> getAvailableContainerNames() {
         return serviceConfiguration.getStorageConfig()
             .values()
@@ -52,5 +61,4 @@ public class DeleteDispatchedFilesTask {
             .filter(StorageConfigItem::isEnabled)
             .map(StorageConfigItem::getSourceContainer);
     }
-
 }

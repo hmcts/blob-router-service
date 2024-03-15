@@ -14,6 +14,10 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.LeaseAcquirer;
 import static com.azure.storage.blob.models.BlobErrorCode.BLOB_NOT_FOUND;
 import static org.slf4j.LoggerFactory.getLogger;
 
+/**
+ * The `ContainerCleaner` class in Java provides methods to delete dispatched blobs from a specified container in Azure
+ * Blob Storage, handling scenarios such as acquiring leases and marking envelopes as deleted.
+ */
 @Component
 public class ContainerCleaner {
 
@@ -33,6 +37,14 @@ public class ContainerCleaner {
         this.leaseAcquirer = leaseAcquirer;
     }
 
+    /**
+     * The `process` method deletes dispatched blobs from a specified container in a storage account.
+     *
+     * @param containerName The `process` method takes a `containerName` parameter, which is used to
+     *                      specify the name of the container from which blobs will be deleted. The
+     *                      method first logs a message indicating the start of the deletion process for
+     *                      the specified container.
+     */
     public void process(String containerName) {
         logger.info("Started deleting dispatched blobs from container {}", containerName);
 
