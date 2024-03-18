@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipInputStream;
 
 import static com.google.common.io.Resources.getResource;
@@ -77,12 +79,13 @@ public class BlobVerifier {
                 zis.close();
                 return OK_VERIFICATION_RESULT;
             } catch (DocSignatureFailureException ex) {
-                logger.info("Invalid signature. Blob name: {}", blobName, ex);
+                logger.info(createLogMessage("Invalid signature", blobName, publicKey, ex));
             } catch (InvalidZipArchiveException ex) {
-                logger.info("Invalid zip archive. Blob name: {}", blobName, ex);
+                logger.info(createLogMessage("Invalid zip archive", blobName, publicKey, ex));
                 return INVALID_ZIP_ARCHIVE_VERIFICATION_RESULT;
             } catch (IOException ex) {
-                logger.info("Error occurred when verifying file. Blob name: {}", blobName, ex);
+                logger.info(createLogMessage("Error occurred when verifying file", blobName,
+                                             publicKey, ex));
                 return INVALID_ZIP_ARCHIVE_VERIFICATION_RESULT;
             }
         }
@@ -106,5 +109,24 @@ public class BlobVerifier {
         static VerificationResult getError(ErrorCode error, String reason) {
             return new VerificationResult(false, error, reason);
         }
+    }
+
+    /**
+     * Creates a formatted String with the provided parameters to be logged, used when checking an uploaded file.
+     * @param verificationResult A string for the reason it failed e.g. Invalid signature or Invalid Zip Archive.
+     * @param blobName The name of the blob that has failed processing.
+     * @param publicKey The public key that was being used when the check failed so we know which supplier it was.
+     * @param ex The exception that occurred.
+     * @return A formatted string with all the required details that can be info logged.
+     */
+    private String createLogMessage(String verificationResult, String blobName, PublicKey publicKey, Exception ex) {
+        Map<PublicKey, String> publicKeyMap = new ConcurrentHashMap<>();
+        publicKeyMap.put(excelaPublicKey, "Excela");
+        publicKeyMap.put(ironMountainPublicKey, "Iron Mountain");
+
+        String publicKeyName = publicKeyMap.getOrDefault(publicKey, "Unknown");
+
+        return String.format("%s. Blob name: %s. Public key: %s. Exception: %s", verificationResult, blobName,
+                             publicKeyName, ex);
     }
 }
