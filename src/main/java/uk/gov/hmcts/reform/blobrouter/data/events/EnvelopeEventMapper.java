@@ -7,6 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+/**
+ * The `EnvelopeEventMapper` class is a Spring component that maps database rows to `EnvelopeEvent` objects.
+ */
 @Component
 public class EnvelopeEventMapper implements RowMapper<EnvelopeEvent> {
     @Override

@@ -13,6 +13,10 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.stream.Stream;
 
+/**
+ * The `FlywayConfig` class in Java checks if all Flyway migrations have been applied and throws an exception
+ * if any are pending.
+ */
 @AutoConfigureAfter({DataSourceAutoConfiguration.class})
 @AutoConfigureBefore({FlywayAutoConfiguration.class})
 @Configuration
@@ -20,6 +24,14 @@ import java.util.stream.Stream;
 @ConditionalOnProperty(prefix = "spring.flyway", name = "enabled", matchIfMissing = true)
 public class FlywayConfig {
 
+    /**
+     * This function checks if all Flyway migrations have been applied and throws an exception if any are pending.
+     *
+     * @return A `FlywayMigrationStrategy` bean is being returned. This bean is conditional on the property
+     *      `flyway.skip-migrations` being set to `true`. If this property is set to `true`, the bean will be
+     *      created and it will check if all migrations have been applied. If there are any pending migrations, a
+     *      `PendingMigrationException` will be thrown with the details of the pending migration.
+     */
     @Bean
     @ConditionalOnProperty(prefix = "flyway", name = "skip-migrations", havingValue = "true")
     public FlywayMigrationStrategy flywayMigrationStrategy() {

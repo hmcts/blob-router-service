@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
+/**
+ * The ZipFileResponse class represents a response containing a file name, envelopes, and events.
+ */
 public class ZipFileResponse {
 
     public final String fileName;
