@@ -42,6 +42,15 @@ public class CftDetailedReportService {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * The `process` method retrieves the latest reconciliation report for a given date and processes it if it exists,
+     * logging a message if no report is found.
+     *
+     * @param date The `process` method takes a `LocalDate` parameter named `date`. This method is responsible for
+     *             processing reconciliation reports based on the provided date. It retrieves the latest
+     *             reconciliation report for a specific storage account (in this case, "CFT") and
+     *             then processes it if it exists.
+     */
     public void process(LocalDate date) {
         // get the latest one and check its detailed content.
         // if there are older records without detailed report we do not need to process them.
@@ -54,6 +63,17 @@ public class CftDetailedReportService {
         );
     }
 
+    /**
+     * The `processReconciliationReport` method processes a reconciliation report by checking if a detailed report
+     * exists, logging information if it does, and creating a detailed report if a supplier statement is present.
+     *
+     * @param reconciliationReport The `reconciliationReport` parameter is an object of type `ReconciliationReport`,
+     *                             which contains information related to a reconciliation report. It has properties
+     *                             such as `detailedContent`, `supplierStatementId`, `id`, and `createdAt`.
+     * @param date                 The `date` parameter in the `processReconciliationReport` method is of type
+     *                             `LocalDate`. It is used to specify the date for which the reconciliation
+     *                             report is being processed.
+     */
     private void processReconciliationReport(ReconciliationReport reconciliationReport, LocalDate date) {
 
         if (Objects.nonNull(reconciliationReport.detailedContent)) {
@@ -77,6 +97,17 @@ public class CftDetailedReportService {
             );
     }
 
+    /**
+     * This function creates a detailed reconciliation report based on a supplier statement and updates the content in
+     * the reconciliation report repository.
+     *
+     * @param supplierStatement    The `supplierStatement` parameter is an object of type `EnvelopeSupplierStatement`,
+     *                             which likely contains information related to a supplier's statement such as ID, date,
+     *                             and other relevant details.
+     * @param reconciliationReport The `createDetailedReport` method takes in two parameters: `supplierStatement`
+     *                             of type `EnvelopeSupplierStatement` and `reconciliationReport` of type
+     *                             `ReconciliationReport`.
+     */
     private void createDetailedReport(
         EnvelopeSupplierStatement supplierStatement,
         ReconciliationReport reconciliationReport
@@ -112,5 +143,4 @@ public class CftDetailedReportService {
             );
         }
     }
-
 }

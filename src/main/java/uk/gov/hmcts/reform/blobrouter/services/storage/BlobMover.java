@@ -28,6 +28,10 @@ import static com.microsoft.applicationinsights.web.dependencies.apachecommons.i
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
 
+/**
+ * The `BlobMover` class in Java provides methods for moving blobs between
+ * containers, uploading files in chunks to Azure Blob Storage, and handling exceptions related to blob operations.
+ */
 @Component
 public class BlobMover {
 
@@ -44,6 +48,17 @@ public class BlobMover {
         this.uploadChunkSize = chunkSizeInBytes;
     }
 
+    /**
+     * The `moveToRejectedContainer` function moves a blob from a source container to a rejected
+     * container, handling copy operations and error scenarios.
+     *
+     * @param blobName Blob name is a unique identifier for a blob within a storage container. It is used
+     *                 to reference and access the specific blob in Azure Blob Storage.
+     * @param containerName The `containerName` parameter in the `moveToRejectedContainer` method represents
+     *                     the name of the container where the blob is currently located. This method is
+     *                      designed to move a blob from its current container to a rejected container by
+     *                      creating a snapshot of the blob and then copying it to the target container.
+     */
     public void moveToRejectedContainer(String blobName, String containerName) {
 
         BlockBlobClient sourceBlob = getBlobClient(containerName, blobName);
@@ -116,6 +131,21 @@ public class BlobMover {
         }
     }
 
+    /**
+     * This Java function uploads a file in chunks to a block blob storage and handles exceptions by
+     * clearing uncommitted blocks if needed.
+     *
+     * @param blockBlobClient The `blockBlobClient` parameter in the `uploadWithChunks` method is an
+     *                        instance of `BlockBlobClient` class, which is used to interact with a block
+     *                        blob in Azure Blob Storage. It provides methods for uploading data in chunks
+     *                        and committing the blocks to the blob.
+     * @param inStream The `inStream` parameter in the `uploadWithChunks` method is an `InputStream` that
+     *                 represents the data source from which the file content will be read and uploaded in
+     *                 chunks to the specified `BlockBlobClient`. This input stream allows the method to
+     *                 read the file content in smaller chunks, stage and commit them appropriately.
+     * @return The method `uploadWithChunks` returns a list of strings containing the block IDs of the
+     *      uploaded chunks.
+     */
     public List<String> uploadWithChunks(BlockBlobClient blockBlobClient, InputStream inStream) {
         byte[] envelopeData = new byte[uploadChunkSize];
         int blockNumber = 0;
@@ -153,6 +183,15 @@ public class BlobMover {
         return blockList;
     }
 
+    /**
+     * The function `tryToDelete` attempts to delete a block blob client and logs
+     * an error message if the deletion fails.
+     *
+     * @param blockBlobClient The `blockBlobClient` parameter is an instance of `BlockBlobClient` class,
+     *                       which represents a client to interact with a block blob in Azure Storage.
+     *                        In the provided code snippet, the `tryToDelete` method attempts to delete
+     *                        the block blob using the `delete` method of the `BlockBlobClient`.
+     */
     private void tryToDelete(BlockBlobClient blockBlobClient) {
         try {
             blockBlobClient.delete();
@@ -165,6 +204,14 @@ public class BlobMover {
         }
     }
 
+    /**
+     * The function `getBlobClient` returns a BlockBlobClient for a specified blob within a given container.
+     *
+     * @param containerName The `containerName` parameter is the name of the container where the blob is stored.
+     * @param blobName The `blobName` parameter refers to the name of the blob that you want to retrieve from
+     *                 the specified blob container. It is used to uniquely identify the blob within the container.
+     * @return A `BlockBlobClient` object is being returned.
+     */
     private BlockBlobClient getBlobClient(String containerName, String blobName) {
         return storageClient.getBlobContainerClient(containerName).getBlobClient(blobName).getBlockBlobClient();
     }

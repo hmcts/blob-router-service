@@ -12,7 +12,7 @@ import java.util.UUID;
 
 /**
  * The `ReconciliationReportRowMapper` class in Java implements a `RowMapper` interface to map database query results to
- * `ReconciliationReport` objects, including a method to convert `Timestamp` to `LocalDateTime`.
+ * `ReconciliationReport` objects, with a method to convert `Timestamp` to `LocalDateTime`.
  */
 @Component
 public class ReconciliationReportRowMapper implements RowMapper<ReconciliationReport> {
@@ -20,14 +20,13 @@ public class ReconciliationReportRowMapper implements RowMapper<ReconciliationRe
     /**
      * The mapRow function maps a row from a ResultSet to a ReconciliationReport object in Java.
      *
-     * @param rs The `rs` parameter in the `mapRow` method is a `ResultSet` object, which represents a set of
-     *      results from a database query. It contains the data retrieved from the database that needs to be mapped to a
-     *      `ReconciliationReport` object.
-     * @param rowNum The `rowNum` parameter in the `mapRow` method represents the current row number being
-     *      processed by the ResultSet. It is an integer value that indicates the position of the current row
-     *      within the result set.
-     * @return A new instance of `ReconciliationReport` is being returned, with the values extracted
-     *      from the `ResultSet` `rs`.
+     * @param rs ResultSet rs is a Java ResultSet object that represents a set of results from a database query. It
+     *      contains the data retrieved from the database based on the query executed.
+     * @param rowNum The `rowNum` parameter in the `mapRow` method represents the current row number being processed
+     *      by the ResultSet. It is an integer value that indicates the position of the current row within
+     *      the result set.
+     * @return A new instance of `ReconciliationReport` is being returned, with the values extracted from
+     *      the `ResultSet` `rs`.
      */
     @Override
     public ReconciliationReport mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -11,6 +11,10 @@ import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.Notificatio
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+/**
+ * The `NotificationsPublisher` class in Java is responsible for publishing
+ * notification messages to a Service Bus queue, handling exceptions, and logging relevant information.
+ */
 @Service
 @ConditionalOnExpression("!${jms.enabled}")
 public class NotificationsPublisher {
@@ -28,6 +32,18 @@ public class NotificationsPublisher {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * The `publish` method sends a notification message to a Service Bus queue and logs relevant information, handling
+     * exceptions by throwing a custom exception.
+     *
+     * @param notificationMsg The `notificationMsg` parameter is an object of type `NotificationMsg` which contains
+     *      information about a notification message. It includes properties such as `zipFileName`, `container`, and
+     *      `errorCode`.
+     * @param messageId The `messageId` parameter in the `publish` method is a unique identifier
+     *                  for the message being sent to the queue. It helps in tracking and identifying
+     *                  messages within the messaging system. This identifier can be used for message
+     *                  deduplication, message correlation, or for other message processing purposes.
+     */
     public void publish(NotificationMsg notificationMsg, String messageId) {
         try {
             String messageBody = objectMapper.writeValueAsString(notificationMsg);

@@ -18,6 +18,10 @@ import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.CRIME;
 import static uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount.PCQ;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * The `ReconciliationMailTask` class in Java is a scheduled task component that sends a reconciliation report mail and
+ * logs the start and end of the job.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.send-reconciliation-report-mail.enabled")
 public class ReconciliationMailTask {
@@ -34,6 +38,10 @@ public class ReconciliationMailTask {
         this.reconciliationMailService = reconciliationMailService;
     }
 
+    /**
+     * This Java function runs a scheduled task to send a reconciliation
+     * report mail and logs the start and end of the job.
+     */
     @Scheduled(cron = "${scheduling.task.send-reconciliation-report-mail.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {

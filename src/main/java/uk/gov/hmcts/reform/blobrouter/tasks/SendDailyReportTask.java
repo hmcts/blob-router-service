@@ -18,6 +18,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The `SendDailyReportTask` class in Java sends a daily report via email with an attachment containing envelope summary
+ * data.
+ */
 @Component
 @ConditionalOnProperty("scheduling.task.send-daily-report.enabled")
 public class SendDailyReportTask {
@@ -86,10 +90,25 @@ public class SendDailyReportTask {
         logger.info("Finished {} job", TASK_NAME);
     }
 
+    /**
+     * The function `getPreviousDay()` returns the LocalDate object representing the previous day from the current date.
+     *
+     * @return The method `getPreviousDay()` returns the LocalDate object representing the previous day from the current
+     *      date.
+     */
     private LocalDate getPreviousDay() {
         return LocalDate.now().minusDays(1);
     }
 
+    /**
+     * The function `getReportAttachmentName` returns a string by concatenating a prefix, a given report date, and a
+     * suffix.
+     *
+     * @param reportDate The `reportDate` parameter is of type `LocalDate`,
+     *                   which represents a date without a time zone in the ISO-8601 calendar system.
+     * @return The method `getReportAttachmentName` returns a String that is a concatenation of
+     *      `ATTACHMENT_PREFIX`, `reportDate`, and `ATTACHMENT_SUFFIX`.
+     */
     private String getReportAttachmentName(LocalDate reportDate) {
         return ATTACHMENT_PREFIX + reportDate + ATTACHMENT_SUFFIX;
     }

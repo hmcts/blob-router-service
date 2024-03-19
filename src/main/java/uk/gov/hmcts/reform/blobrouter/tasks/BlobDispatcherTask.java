@@ -13,6 +13,10 @@ import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+/**
+ * This Java class represents a scheduled task that shuffles a list of containers and processes each container using a
+ * container processor.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.scan.enabled", matchIfMissing = true)
 @EnableConfigurationProperties(ServiceConfiguration.class)
@@ -33,6 +37,10 @@ public class BlobDispatcherTask {
         this.containers = serviceConfiguration.getEnabledSourceContainers();
     }
 
+    /**
+     * This Java function runs a scheduled task that shuffles a list of containers and processes each container using a
+     * container processor.
+     */
     @Scheduled(fixedDelayString = "${scheduling.task.scan.delay}")
     public void run() {
         logger.debug("Started {} job", TASK_NAME);

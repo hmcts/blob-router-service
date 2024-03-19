@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * The `EnvelopeEventRepository` class in Java provides methods to interact with a database table storing
- * envelope events, including retrieving events by envelope ID, multiple envelope IDs, and inserting
- * new envelope events.
+ * The `EnvelopeEventRepository` class in Java provides methods to interact with a database table
+ * storing envelope events, including retrieving events by envelope ID, multiple envelope IDs,
+ * and inserting new events.
  */
 @Repository
 public class EnvelopeEventRepository {
@@ -26,12 +26,12 @@ public class EnvelopeEventRepository {
     }
 
     /**
-     * The function `findForEnvelope` retrieves a list of `EnvelopeEvent` objects associated with a
-     * specific `envelopeId` from a database table.
+     * The function `findForEnvelope` retrieves a list of `EnvelopeEvent` objects from the database based
+     * on the provided `envelopeId`.
      *
-     * @param envelopeId The `envelopeId` parameter is a UUID (Universally Unique Identifier) that is used to uniquely
-     *      identify an envelope in the database. This method `findForEnvelope` is querying the database to retrieve
-     *      a list of `EnvelopeEvent` objects associated with the specified `envelopeId`.
+     * @param envelopeId The `envelopeId` parameter is a UUID that is used to search for envelope events
+     *      in the database. The `findForEnvelope` method executes a SQL query to retrieve all envelope events
+     *      associated with the specified `envelopeId`.
      * @return A List of EnvelopeEvent objects that correspond to the given envelopeId.
      */
     public List<EnvelopeEvent> findForEnvelope(UUID envelopeId) {
@@ -43,13 +43,13 @@ public class EnvelopeEventRepository {
     }
 
     /**
-     * The function `findForEnvelopes` retrieves a list of `EnvelopeEvent` objects for a
-     * given list of envelope IDs from a database table.
+     * This Java function retrieves envelope events for a list of envelope IDs from a database table.
      *
-     * @param envelopeIds A list of UUIDs representing envelope IDs.
-     * @return A list of `EnvelopeEvent` objects that correspond to the envelope IDs provided in the `envelopeIds` list.
-     *      The query retrieves data from the `envelope_events` table for the specified envelope
-     *      IDs and orders the results by the `id` field in descending order.
+     * @param envelopeIds A list of UUIDs representing envelope IDs for which you want to find corresponding envelope
+     *      events.
+     * @return A list of `EnvelopeEvent` objects corresponding to the envelope IDs provided in the `envelopeIds` list.
+     *      The query selects all records from the `envelope_events` table where the `envelope_id` is in the list of
+     *      `envelopeIds`, and the results are ordered by the `id` in descending order.
      */
     public List<EnvelopeEvent> findForEnvelopes(List<UUID> envelopeIds) {
         return jdbcTemplate.query(
@@ -60,13 +60,12 @@ public class EnvelopeEventRepository {
     }
 
     /**
-     * The insert method inserts a new envelope event into a database table and returns the generated key.
+     * The function inserts a new envelope event into a database table and returns the generated key.
      *
      * @param event The `insert` method you provided is used to insert a new record into the `envelope_events`
-     *      table in a database using Spring's `JdbcTemplate`. The method takes a `NewEnvelopeEvent`
-     *      object as a parameter.
-     * @return The method `insert` is returning a `long` value, which is the generated key from the database after
-     *      inserting a new record into the `envelope_events` table.
+     *      table in a database using Spring's `JdbcTemplate`.
+     * @return The method `insert` is returning the generated key value of the inserted record in the `envelope_events`
+     *      table. This key value is retrieved using the `KeyHolder` object after the insertion operation is performed.
      */
     public long insert(NewEnvelopeEvent event) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
