@@ -12,6 +12,10 @@ import java.time.LocalDate;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * The DetailedReportTask class in Java runs a scheduled task to create a
+ * reconciliation detailed report using a specified cron expression and time zone.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.create-reconciliation-detailed-report.enabled")
 public class DetailedReportTask {
@@ -25,6 +29,10 @@ public class DetailedReportTask {
         this.cftDetailedReportService = cftDetailedReportService;
     }
 
+    /**
+     * This Java function runs a scheduled task to create a reconciliation detailed report using a specified cron
+     * expression and time zone.
+     */
     @Scheduled(cron = "${scheduling.task.create-reconciliation-detailed-report.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {

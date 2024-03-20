@@ -10,6 +10,10 @@ import java.util.List;
 import static java.util.stream.Collectors.groupingBy;
 import static org.slf4j.LoggerFactory.getLogger;
 
+/**
+ * The `RejectedFilesHandler` class in Java handles files that were rejected by moving them to a container for rejected
+ * files, removing them from the original container, and marking corresponding envelopes in the database as deleted.
+ */
 @Component
 public class RejectedFilesHandler {
 

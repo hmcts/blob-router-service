@@ -10,6 +10,14 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.NotificationsPublishingException;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+
+/**
+ * The `JmsNotificationsPublisher` class in Java is a service component that publishes
+ * notification messages to a JMS queue if the `jms.enabled` property is set to true, handling message
+ * serialization and logging relevant information.
+ */
 @Service
 @ConditionalOnProperty(name = "jms.enabled", havingValue = "true")
 public class JmsNotificationsPublisher {
@@ -29,6 +37,17 @@ public class JmsNotificationsPublisher {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * The `publish` method sends a notification message to a JMS queue with specified message ID and logs relevant
+     * information.
+     *
+     * @param notificationMsg The `notificationMsg` parameter is an object of type `NotificationMsg`
+     *                        which contains information about a notification message. It likely includes
+     *                        details such as `zipFileName`, `container`, and `errorCode`.
+     * @param messageId The `messageId` parameter in the `publish` method is used to set the JMS Message ID
+     *                  for the message being sent to the "notifications" queue. This ID helps uniquely
+     *                  identify the message within the messaging system.
+     */
     public void publish(NotificationMsg notificationMsg, String messageId) {
         try {
             String messageBody = objectMapper.writeValueAsString(notificationMsg);

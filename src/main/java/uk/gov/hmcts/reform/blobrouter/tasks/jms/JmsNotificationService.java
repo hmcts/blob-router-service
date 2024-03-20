@@ -11,6 +11,10 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
 import java.util.List;
 
+/**
+ * The `JmsNotificationService` class in Java sends notifications for rejected envelopes via JMS if the property
+ * `jms.enabled` is set to true.
+ */
 @Service
 @ConditionalOnProperty(name = "jms.enabled", havingValue = "true")
 public class JmsNotificationService {
@@ -48,6 +52,14 @@ public class JmsNotificationService {
         );
     }
 
+    /**
+     * The function `mapToNotificationMessage` creates a `NotificationMsg` object using information from a
+     * `RejectedEnvelope` object.
+     *
+     * @param envelope The `envelope` parameter in the `mapToNotificationMessage` method is of type `RejectedEnvelope`.
+     * @return A `NotificationMsg` object is being returned, which is created using the data from the `RejectedEnvelope`
+     *      object `envelope`.
+     */
     private NotificationMsg mapToNotificationMessage(RejectedEnvelope envelope) {
         return new NotificationMsg(
             envelope.fileName,

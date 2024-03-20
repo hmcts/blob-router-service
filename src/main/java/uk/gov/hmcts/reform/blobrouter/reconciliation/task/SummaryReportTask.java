@@ -13,6 +13,9 @@ import static java.time.ZoneOffset.UTC;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * This Java class represents a scheduled task for creating a reconciliation summary report with logging functionality.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.create-reconciliation-summary-report.enabled")
 public class SummaryReportTask {
@@ -26,6 +29,10 @@ public class SummaryReportTask {
         this.summaryReportService = summaryReportService;
     }
 
+    /**
+     * This Java function runs a scheduled task to create a reconciliation summary report and
+     * logs the start and finish of the job.
+     */
     @Scheduled(cron = "${scheduling.task.create-reconciliation-summary-report.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {
@@ -34,6 +41,5 @@ public class SummaryReportTask {
         summaryReportService.process(LocalDate.now(UTC).minusDays(1));
 
         logger.info("Finished {} job", TASK_NAME);
-
     }
 }

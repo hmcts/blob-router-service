@@ -8,20 +8,23 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 /**
- * The EnvelopeMapper class implements RowMapper to map ResultSet data to an Envelope object in Java.
+ * The `EnvelopeMapper` class in Java implements the `RowMapper` interface to map a row from a `ResultSet`
+ * to an `Envelope` object.
  */
 @Component
 public class EnvelopeMapper implements RowMapper<Envelope> {
 
     /**
-     * The mapRow function maps a ResultSet to an Envelope object by extracting values from the ResultSet and creating a
-     * new Envelope instance.
+     * The `mapRow` function maps a row from a ResultSet to an Envelope object in Java.
      *
-     * @param rs The `rs` parameter in the `mapRow` method is a `ResultSet` object, which represents a set of results
-     *      from a database query. It contains the data retrieved from the database based on the executed query.
-     * @param rowNum The `rowNum` parameter in the `mapRow` method represents the current row number being processed
-     *      by the ResultSetExtractor. It is an integer value that indicates the current row number starting from 0.
-     * @return An Envelope object is being returned, which is created using the data retrieved from the ResultSet rs.
+     * @param rs The `rs` parameter in the `mapRow` method is a `ResultSet` object, which represents a
+     *      set of results from a database query. It contains the data retrieved from the database based
+     *      on the query executed.
+     * @param rowNum The `rowNum` parameter in the `mapRow` method represents the current row number being
+     *      processed by the ResultSet. It is an integer value that indicates the position of the current
+     *      row within the result set.
+     * @return An Envelope object is being returned, which is created using the data retrieved from the
+     *      ResultSet rs.
      */
     @Override
     public Envelope mapRow(ResultSet rs, int rowNum) throws SQLException {

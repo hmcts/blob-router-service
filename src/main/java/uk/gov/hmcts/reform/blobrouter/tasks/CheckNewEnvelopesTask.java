@@ -10,6 +10,10 @@ import uk.gov.hmcts.reform.blobrouter.services.NewEnvelopesFinder;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * This Java class represents a scheduled task that checks for new envelopes created in
+ * different containers and logs the start and end of the job.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.check-new-envelopes.enabled")
 public class CheckNewEnvelopesTask {
@@ -23,6 +27,10 @@ public class CheckNewEnvelopesTask {
         this.newEnvelopesFinder = newEnvelopesFinder;
     }
 
+    /**
+     * This Java function is scheduled to run at a specific time, checks for new envelopes created in
+     * different containers, and logs the start and end of the job.
+     */
     @Scheduled(cron = "${scheduling.task.check-new-envelopes.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {

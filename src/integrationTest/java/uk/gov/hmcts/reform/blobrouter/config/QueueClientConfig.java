@@ -7,14 +7,14 @@ import org.springframework.context.annotation.Bean;
 import static org.mockito.Mockito.mock;
 
 /**
- * The `QueueClientConfig` class creates a bean for a `ServiceBusSenderClient`
- * only if a specific property is set to false,
- * returning a mock `ServiceBusSenderClient`.
+ * The `QueueClientConfig` class creates a bean for a `ServiceBusSenderClient` used for notifications queue based on a
+ * property value.
  */
 public class QueueClientConfig {
 
     /**
-     * This function creates a bean for a ServiceBusSenderClient only if a specific property is set to false.
+     * This function creates a bean for a ServiceBusSenderClient used for notifications queue, conditionally based on
+     * the value of a property.
      *
      * @return A mock `ServiceBusSenderClient` is being returned.
      */
