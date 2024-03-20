@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.NotificationsPublishingException;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
 
-import javax.jms.JMSException;
-import javax.jms.Message;
-
 /**
  * The `JmsNotificationsPublisher` class in Java is a service component that publishes
  * notification messages to a JMS queue if the `jms.enabled` property is set to true, handling message
