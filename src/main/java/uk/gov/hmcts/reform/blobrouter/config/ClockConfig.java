@@ -1,11 +1,11 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
+import jakarta.validation.ClockProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.hmcts.reform.blobrouter.util.TimeZones;
 
 import java.time.Clock;
-import javax.validation.ClockProvider;
 
 /**
  * The `ClockConfig` class creates a bean for providing a clock set to the Europe/London time zone.

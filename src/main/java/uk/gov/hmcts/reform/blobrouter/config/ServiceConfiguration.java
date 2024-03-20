@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.annotation.PostConstruct;
 
 import static java.util.stream.Collectors.toList;
 

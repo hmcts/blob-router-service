@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports;
 
+import jakarta.validation.ClockProvider;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -14,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import javax.validation.ClockProvider;
 
 import static uk.gov.hmcts.reform.blobrouter.data.Utils.toJson;
 

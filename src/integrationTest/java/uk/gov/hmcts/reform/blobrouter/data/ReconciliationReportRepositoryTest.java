@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.data;
 
+import jakarta.validation.ClockProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,6 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import javax.validation.ClockProvider;
 
 import static java.time.LocalDate.now;
 import static org.assertj.core.api.Assertions.assertThat;
