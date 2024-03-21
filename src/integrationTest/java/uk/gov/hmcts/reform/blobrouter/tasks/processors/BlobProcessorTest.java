@@ -81,7 +81,8 @@ class BlobProcessorTest extends BlobStorageBaseTest {
             new BlobProcessor(
                 dispatcher,
                 envelopeService,
-                new BlobVerifier("signing/test_public_key.der"),
+                new BlobVerifier("signing/test_public_key.der",
+                                 "signing/test_public_key_two.der"),
                 serviceConfiguration
             );
 
