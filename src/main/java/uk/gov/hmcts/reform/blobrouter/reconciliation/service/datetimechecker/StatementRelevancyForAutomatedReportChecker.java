@@ -1,15 +1,16 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service.datetimechecker;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.support.CronSequenceGenerator;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Objects;
 
-import static java.util.TimeZone.getTimeZone;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON_ZONE_ID;
 
 /**
@@ -55,13 +56,13 @@ public class StatementRelevancyForAutomatedReportChecker {
         LocalDate cronRunForSpecifiedReport = reportDay.plusDays(1);
         String cronExpressionForGivenReport = prepareCronExpressionForSpecifiedReportDay(cronRunForSpecifiedReport);
 
-        var cronSequenceGenerator = new CronSequenceGenerator(
-            cronExpressionForGivenReport,
-            getTimeZone(EUROPE_LONDON_ZONE_ID)
-        );
+        CronExpression cronExpression = CronExpression.parse(cronExpressionForGivenReport);
 
         Date statementUploadInstant = Date.from(statetementUploadDateTime.toInstant());
-        Date nextCronRunAfterUploadTime = cronSequenceGenerator.next(statementUploadInstant);
+        ZonedDateTime zonedDateTime = statementUploadInstant.toInstant().atZone(ZoneId.of(String.valueOf(
+            EUROPE_LONDON_ZONE_ID)));
+        Date nextCronRunAfterUploadTime = Date.from(
+            Objects.requireNonNull(cronExpression.next(zonedDateTime)).toInstant());
 
         //The shift below is possible if the checking should work for statements uploaded in the future
         //See the unit tests for TODAY and TOMORROW reports, this shift is required to support those scenario

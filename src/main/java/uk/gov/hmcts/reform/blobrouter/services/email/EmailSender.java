@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.email;
 
+import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.Map;
-import javax.mail.internet.MimeMessage;
 
 /**
  * The `EmailSender` class in Java is a component that implements `MessageSender` interface and provides a method

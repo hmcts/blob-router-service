@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services;
 
+import jakarta.validation.ClockProvider;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.validation.ClockProvider;
 
 import static java.util.Collections.singleton;
 import static org.slf4j.LoggerFactory.getLogger;

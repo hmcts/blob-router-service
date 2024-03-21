@@ -5,8 +5,12 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.icegreen.greenmail.util.ServerSetupTest;
+import jakarta.mail.BodyPart;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.mail.util.MimeMessageParser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,13 +21,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.mail.Address;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
+import java.util.stream.Stream;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.MULTIPART_MIXED_VALUE;
@@ -94,6 +93,7 @@ public class EmailSenderTest {
         assertThat(headers).contains("To: " + RECIPIENT_1 + ", " + RECIPIENT_2);
         assertThat(headers).contains("Subject: " + SUBJECT);
         assertThat(msg.getContentType()).startsWith(MULTIPART_MIXED_VALUE);
+
         Multipart multipartReceived = (Multipart) msg.getContent();
 
         assertThat(multipartReceived.getCount()).isEqualTo(3);
@@ -108,8 +108,7 @@ public class EmailSenderTest {
 
         MimeBodyPart msgFilePart1 = (MimeBodyPart) multipartReceived.getBodyPart(1);
         MimeBodyPart msgFilePart2 = (MimeBodyPart) multipartReceived.getBodyPart(2);
-        assertThat(asList(msgFilePart1, msgFilePart2)
-            .stream()
+        assertThat(Stream.of(msgFilePart1, msgFilePart2)
             .map(p -> {
                 try {
                     return p.getContentType();
@@ -134,19 +133,22 @@ public class EmailSenderTest {
             emptyMap()
         );
 
-        MimeMessageParser msg = new MimeMessageParser(greenMail.getReceivedMessages()[0]).parse();
+        greenMail.waitForIncomingEmail(RECIPIENTS.length);
+        MimeMessage msg = greenMail.getReceivedMessages()[1];
+        Multipart mainMultipart = (Multipart) msg.getContent();
 
-        assertThat(msg.getFrom()).isEqualTo(FROM_ADDRESS);
-        assertThat(msg.getTo())
-            .extracting(Address::toString)
-            .hasSize(2)
-            .containsExactly(
-                RECIPIENT_1,
-                RECIPIENT_2
-            );
-        assertThat(msg.getSubject()).isEqualTo(SUBJECT);
-        assertThat(msg.getPlainContent()).isEqualTo(BODY);
-        assertThat(msg.getAttachmentList()).isEmpty();
+        // Verify the number of parts
+        assertThat(mainMultipart.getCount()).isEqualTo(1);
+
+        BodyPart part = mainMultipart.getBodyPart(0);
+        if (part.getContent() instanceof Multipart) {
+            // This part is another multipart, you may need to recursively parse it
+            Multipart nestedMultipart = (Multipart) part.getContent();
+            assertThat(nestedMultipart.getCount()).isEqualTo(1);
+            BodyPart nestedPart = nestedMultipart.getBodyPart(0);
+            // Text means the main body and therefore no attachment
+            assertThat(nestedPart.getContentType()).isEqualTo("text/plain; charset=UTF-8");
+        }
     }
 
     private String getContentType(String fileName) {

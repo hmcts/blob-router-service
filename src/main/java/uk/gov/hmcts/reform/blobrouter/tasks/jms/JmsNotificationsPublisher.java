@@ -6,13 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessagePostProcessor;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.NotificationsPublishingException;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
 
 /**
  * The `JmsNotificationsPublisher` class in Java is a service component that publishes
@@ -52,13 +48,7 @@ public class JmsNotificationsPublisher {
     public void publish(NotificationMsg notificationMsg, String messageId) {
         try {
             String messageBody = objectMapper.writeValueAsString(notificationMsg);
-            jmsTemplate.convertAndSend("notifications", messageBody, new MessagePostProcessor() {
-                @Override
-                public Message postProcessMessage(Message message) throws JMSException {
-                    message.setJMSMessageID(messageId);
-                    return message;
-                }
-            });
+            jmsTemplate.convertAndSend("notifications", messageBody);
 
             logger.info(
                 "Sent message to Notifications queue. File name: {} Container: {} Error code: {}",
