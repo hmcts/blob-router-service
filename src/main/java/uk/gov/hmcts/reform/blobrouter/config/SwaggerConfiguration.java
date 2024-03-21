@@ -4,12 +4,13 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import uk.gov.hmcts.reform.blobrouter.Application;
 
+/**
+ * The SwaggerConfiguration class defines a bean for configuring Swagger documentation with information about the Blob
+ * Router API.
+ */
 @Configuration
 public class SwaggerConfiguration {
-
-    public static final String BASE_PACKAGE = Application.class.getPackage().getName();
 
     @Bean
     public OpenAPI api() {

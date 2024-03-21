@@ -7,9 +7,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+/**
+ * The `EnvelopeMapper` class in Java implements the `RowMapper` interface to map a row from a `ResultSet`
+ * to an `Envelope` object.
+ */
 @Component
 public class EnvelopeMapper implements RowMapper<Envelope> {
 
+    /**
+     * The `mapRow` function maps a row from a ResultSet to an Envelope object in Java.
+     *
+     * @param rs The `rs` parameter in the `mapRow` method is a `ResultSet` object, which represents a
+     *      set of results from a database query. It contains the data retrieved from the database based
+     *      on the query executed.
+     * @param rowNum The `rowNum` parameter in the `mapRow` method represents the current row number being
+     *      processed by the ResultSet. It is an integer value that indicates the position of the current
+     *      row within the result set.
+     * @return An Envelope object is being returned, which is created using the data retrieved from the
+     *      ResultSet rs.
+     */
     @Override
     public Envelope mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Envelope(

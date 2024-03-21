@@ -5,6 +5,10 @@ import com.azure.storage.blob.BlobContainerClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * The `BlobContainerClientBuilderProvider` class in Java provides methods to create BlobContainerClientBuilder objects
+ * with specified HTTP client and endpoint URLs for bulk scan and PCQ storage.
+ */
 @Component
 public class BlobContainerClientBuilderProvider {
 
@@ -22,12 +26,22 @@ public class BlobContainerClientBuilderProvider {
         this.pcqStorageUrl = pcqStorageUrl;
     }
 
+    /**
+     * The function returns a BlobContainerClientBuilder with specified HTTP client and endpoint.
+     *
+     * @return A BlobContainerClientBuilder object is being returned.
+     */
     public BlobContainerClientBuilder getBlobContainerClientBuilder() {
         return new BlobContainerClientBuilder()
             .httpClient(httpClient)
             .endpoint(bulkScanStorageUrl);
     }
 
+    /**
+     * The function returns a BlobContainerClientBuilder configured with an HTTP client and a specified endpoint URL.
+     *
+     * @return A `BlobContainerClientBuilder` object is being returned.
+     */
     public BlobContainerClientBuilder getPcqBlobContainerClientBuilder() {
         return new BlobContainerClientBuilder()
             .httpClient(httpClient)

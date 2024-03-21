@@ -37,6 +37,16 @@ public class JmsConfiguration {
     @Value("${jms.application-name}")
     public String clientId;
 
+    /**
+     * The function creates and configures a JMS ConnectionFactory bean in Java with specified properties.
+     *
+     * @param clientId The `clientId` parameter in the `connectionFactory`
+     *      method is used to set the client ID for the JMS
+     *      connection. This client ID is typically used to uniquely identify a client connection
+     *      when connecting to a JMS provider. It helps in distinguishing different clients that are connected to
+     *      the same JMS provider
+     * @return A `CachingConnectionFactory` is being returned from the `connectionFactory` method.
+     */
     @Bean
     public ConnectionFactory connectionFactory(@Value("${jms.application-name}") final String clientId) {
         String connection = String.format(amqpConnectionStringTemplate, namespace, idleTimeout);
@@ -50,6 +60,17 @@ public class JmsConfiguration {
         return new CachingConnectionFactory(activeMQConnectionFactory);
     }
 
+    /**
+     * This function creates a JmsTemplate bean with a specified connection factory, default destination name,
+     * and receive timeout.
+     *
+     * @param connectionFactory The `connectionFactory` parameter in the `jmsTemplate` method is an instance of
+     *      `javax.jms.ConnectionFactory`. It is used to create connections to the JMS provider, which is
+     *      necessary for sending and receiving messages to and from a JMS destination.
+     *      The `connectionFactory` is typically configured
+     * @return A JmsTemplate bean is being returned with the specified configuration settings, including the connection
+     *      factory, default destination name, and receive timeout of 5 seconds.
+     */
     @Bean
     public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory) {
         JmsTemplate jmsTemplate = new JmsTemplate();
@@ -58,5 +79,4 @@ public class JmsConfiguration {
         jmsTemplate.setReceiveTimeout(5000); // Set the receive timeout to 5 seconds
         return jmsTemplate;
     }
-
 }

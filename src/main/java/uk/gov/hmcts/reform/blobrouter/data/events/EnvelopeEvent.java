@@ -3,6 +3,10 @@ package uk.gov.hmcts.reform.blobrouter.data.events;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * The EnvelopeEvent class represents an event associated with an envelope, storing information such as ID, envelope ID,
+ * event type, error code, notes, and creation timestamp.
+ */
 public class EnvelopeEvent {
 
     public final long id;

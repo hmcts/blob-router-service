@@ -19,6 +19,10 @@ import java.util.UUID;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.data.Utils.toJson;
 
+/**
+ * The `SupplierStatementRepository` class in Java provides methods to save, retrieve, and find envelope supplier
+ * statements in a database using jdbcTemplate.
+ */
 @Repository
 public class SupplierStatementRepository {
     private static final Logger logger = getLogger(SupplierStatementRepository.class);
@@ -37,6 +41,17 @@ public class SupplierStatementRepository {
         this.clock = clockProvider.getClock();
     }
 
+    /**
+     * The function saves a new envelope supplier statement into a database table and returns the generated UUID
+     * identifier.
+     *
+     * @param statement The `save` method you provided is used to save a `NewEnvelopeSupplierStatement` object into a
+     *      database table named `envelope_supplier_statements`. The method generates a random UUID as the
+     *      ID for the statement, inserts the statement data into the database table, and then returns the
+     *      generated UUID.
+     * @return The method `save` is returning a `UUID` which represents the unique identifier of the saved
+     *      `NewEnvelopeSupplierStatement`.
+     */
     public UUID save(NewEnvelopeSupplierStatement statement) throws SQLException {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(
@@ -55,6 +70,16 @@ public class SupplierStatementRepository {
         return id;
     }
 
+    /**
+     * This Java function retrieves an EnvelopeSupplierStatement object by its UUID from a database using
+     * jdbcTemplate and returns it wrapped in an Optional, handling EmptyResultDataAccessException by returning an
+     * empty Optional.
+     *
+     * @param id The `id` parameter is a `UUID` representing the unique identifier of the
+     *      `EnvelopeSupplierStatement` that you are trying to find in the database.
+     * @return An Optional containing an EnvelopeSupplierStatement object is being returned.
+     *      If the query does not find any results, an empty Optional is returned.
+     */
     public Optional<EnvelopeSupplierStatement> findById(UUID id) {
         try {
             EnvelopeSupplierStatement statement = jdbcTemplate.queryForObject(

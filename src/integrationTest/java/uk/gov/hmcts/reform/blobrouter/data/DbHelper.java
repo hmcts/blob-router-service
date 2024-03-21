@@ -10,6 +10,10 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * The `DbHelper` class in Java provides methods to delete all records from multiple tables and insert a new envelope
+ * record with a specified creation timestamp using Spring's JdbcTemplate.
+ */
 @Profile("db-test")
 @Component
 public class DbHelper {
@@ -20,6 +24,9 @@ public class DbHelper {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * The `deleteAll` function deletes all records from multiple tables in a database using Spring's JdbcTemplate.
+     */
     public void deleteAll() {
         jdbcTemplate.update("DELETE FROM envelope_events", new MapSqlParameterSource());
         jdbcTemplate.update("DELETE FROM envelopes", new MapSqlParameterSource());
@@ -27,6 +34,20 @@ public class DbHelper {
         jdbcTemplate.update("DELETE FROM envelope_reconciliation_reports", new MapSqlParameterSource());
     }
 
+    /**
+     * The `insertWithCreatedAt` function inserts a new envelope record into a database table with a specified creation
+     * timestamp and returns the generated UUID identifier.
+     *
+     * @param envelope  The `insertWithCreatedAt` method you provided inserts a new envelope record into a database
+     *                  table named `envelopes`. It generates a UUID for the envelope ID, sets the provided `createdAt`
+     *                  timestamp, and inserts the envelope data into the table using Spring's `JdbcTemplate`.
+     * @param createdAt The `createdAt` parameter in the `insertWithCreatedAt` method represents the
+     *                  timestamp indicating when the envelope was created in the database.
+     *                  This timestamp is used to populate the `created_at` column in the `envelopes` table when
+     *                  inserting a new envelope record.
+     * @return The method `insertWithCreatedAt` returns a `UUID` which is the unique identifier generated
+     *      for the inserted envelope.
+     */
     public UUID insertWithCreatedAt(NewEnvelope envelope, Instant createdAt) {
         UUID id = UUID.randomUUID();
         jdbcTemplate.update(

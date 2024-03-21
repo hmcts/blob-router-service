@@ -20,6 +20,10 @@ import java.util.function.Supplier;
 
 import static java.time.LocalDateTime.now;
 
+/**
+ * The `SchedulerConfiguration` class in Java configures a custom `ThreadPoolTaskScheduler` for routing tasks with error
+ * handling and telemetry context management.
+ */
 @Configuration
 public class SchedulerConfiguration implements SchedulingConfigurer {
 
@@ -38,6 +42,11 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
         taskRegistrar.setTaskScheduler(routerTaskScheduler());
     }
 
+    /**
+     * The function creates a TaskScheduler bean with a ThreadPoolTaskScheduler implementation for routing tasks.
+     *
+     * @return An instance of `ThreadPoolTaskScheduler` named `scheduler` is being returned.
+     */
     @Bean
     public TaskScheduler routerTaskScheduler() {
         ThreadPoolTaskScheduler scheduler = new RouterTaskScheduler();
@@ -99,6 +108,10 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
         }
     }
 
+    /**
+     * The `WrappedRunnable` class implements the `Runnable` interface and wraps another `Runnable` task while
+     * managing a `RequestTelemetryContext` for each run.
+     */
     private static class WrappedRunnable implements Runnable {
 
         private final Runnable task;

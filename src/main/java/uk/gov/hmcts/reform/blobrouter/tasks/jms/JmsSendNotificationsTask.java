@@ -10,6 +10,10 @@ import org.springframework.stereotype.Component;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * This Java class represents a scheduled task that sends notifications using a JMS service
+ * based on specified conditions and a cron expression in the Europe/London time zone.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.send-notifications.enabled")
 @ConditionalOnExpression("${jms.enabled}")
@@ -24,6 +28,10 @@ public class JmsSendNotificationsTask {
         this.jmsNotificationService = jmsNotificationService;
     }
 
+    /**
+     * This Java function is scheduled to run at a specified time using a cron expression
+     * in the Europe/London time zone, and it sends notifications using a JMS service.
+     */
     @Scheduled(cron = "${scheduling.task.send-notifications.cron}", zone = EUROPE_LONDON)
     @SchedulerLock(name = TASK_NAME)
     public void run() {

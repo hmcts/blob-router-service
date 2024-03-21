@@ -13,6 +13,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * The `HttpConfiguration` class in Java configures HTTP clients and RestTemplate with specific timeout settings.
+ */
 @Configuration
 public class HttpConfiguration {
 
@@ -49,6 +52,11 @@ public class HttpConfiguration {
         return new NettyAsyncHttpClientBuilder().build();
     }
 
+    /**
+     * The function returns a CloseableHttpClient with specific timeout configurations set.
+     *
+     * @return A CloseableHttpClient object is being returned.
+     */
     private CloseableHttpClient getHttpClient() {
         RequestConfig config = RequestConfig.custom()
             .setConnectTimeout(30000)

@@ -11,6 +11,10 @@ import uk.gov.hmcts.reform.blobrouter.services.NotificationService;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.util.TimeZones.EUROPE_LONDON;
 
+/**
+ * This Java class represents a scheduled task for sending notifications, conditionally enabled based on properties and
+ * expressions.
+ */
 @Component
 @ConditionalOnProperty(value = "scheduling.task.send-notifications.enabled")
 @ConditionalOnExpression("!${jms.enabled}")

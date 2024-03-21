@@ -9,6 +9,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * The `EnvelopeEventRepository` class in Java provides methods to interact with a database table
+ * storing envelope events, including retrieving events by envelope ID, multiple envelope IDs,
+ * and inserting new events.
+ */
 @Repository
 public class EnvelopeEventRepository {
 
@@ -20,6 +25,15 @@ public class EnvelopeEventRepository {
         this.mapper = mapper;
     }
 
+    /**
+     * The function `findForEnvelope` retrieves a list of `EnvelopeEvent` objects from the database based
+     * on the provided `envelopeId`.
+     *
+     * @param envelopeId The `envelopeId` parameter is a UUID that is used to search for envelope events
+     *      in the database. The `findForEnvelope` method executes a SQL query to retrieve all envelope events
+     *      associated with the specified `envelopeId`.
+     * @return A List of EnvelopeEvent objects that correspond to the given envelopeId.
+     */
     public List<EnvelopeEvent> findForEnvelope(UUID envelopeId) {
         return jdbcTemplate.query(
             "SELECT * FROM envelope_events WHERE envelope_id = :envelopeId",
@@ -28,6 +42,15 @@ public class EnvelopeEventRepository {
         );
     }
 
+    /**
+     * This Java function retrieves envelope events for a list of envelope IDs from a database table.
+     *
+     * @param envelopeIds A list of UUIDs representing envelope IDs for which you want to find corresponding envelope
+     *      events.
+     * @return A list of `EnvelopeEvent` objects corresponding to the envelope IDs provided in the `envelopeIds` list.
+     *      The query selects all records from the `envelope_events` table where the `envelope_id` is in the list of
+     *      `envelopeIds`, and the results are ordered by the `id` in descending order.
+     */
     public List<EnvelopeEvent> findForEnvelopes(List<UUID> envelopeIds) {
         return jdbcTemplate.query(
             "SELECT * FROM envelope_events WHERE envelope_id in (:envelopeIds) ORDER BY id DESC",
@@ -36,6 +59,14 @@ public class EnvelopeEventRepository {
         );
     }
 
+    /**
+     * The function inserts a new envelope event into a database table and returns the generated key.
+     *
+     * @param event The `insert` method you provided is used to insert a new record into the `envelope_events`
+     *      table in a database using Spring's `JdbcTemplate`.
+     * @return The method `insert` is returning the generated key value of the inserted record in the `envelope_events`
+     *      table. This key value is retrieved using the `KeyHolder` object after the insertion operation is performed.
+     */
     public long insert(NewEnvelopeEvent event) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -54,3 +85,4 @@ public class EnvelopeEventRepository {
         return (long) keyHolder.getKey();
     }
 }
+

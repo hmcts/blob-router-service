@@ -30,6 +30,10 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.slf4j.LoggerFactory.getLogger;
 
+/**
+ * The `SummaryReportService` class in Java processes supplier statements, creates summary reports, and handles errors
+ * related to reconciliation reports.
+ */
 @Service
 public class SummaryReportService {
 
@@ -58,6 +62,14 @@ public class SummaryReportService {
         this.summaryReportCreator = summaryReportCreator;
     }
 
+    /**
+     * The `process` method processes supplier statements, checks for existing reports, creates summary reports, and
+     * handles errors.
+     *
+     * @param date The `process` method you provided seems to handle processing supplier statements and creating summary
+     *             reports based on certain conditions. The `date` parameter is used to specify the date for
+     *             which the processing is being done.
+     */
     public void process(LocalDate date) {
         Optional<EnvelopeSupplierStatement> optSupplierStatement = statementRepository.findLatest(date);
 
@@ -168,6 +180,15 @@ public class SummaryReportService {
         }
     }
 
+    /**
+     * The function `distinctByKey` returns a predicate that filters out elements based
+     * on a key extracted using a provided function, ensuring uniqueness based on that key.
+     *
+     * @param keyExtractor The `keyExtractor` parameter is a function that extracts a key
+     *                     from an object of type `T`. This key is used to determine uniqueness
+     *                     when filtering elements based on that key.
+     * @return A `Predicate` is being returned.
+     */
     public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         Set<Object> seen = ConcurrentHashMap.newKeySet();
         return t -> seen.add(keyExtractor.apply(t));
