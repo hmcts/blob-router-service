@@ -195,7 +195,7 @@ ext.libraries = [
 ]
 
 dependencies {
-  implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.1'
+  implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.2'
   implementation group: 'org.flywaydb', name: 'flyway-core', version: '9.22.3'
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.10.2'
