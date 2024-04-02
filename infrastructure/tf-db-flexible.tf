@@ -1,3 +1,14 @@
+# Secrets for schema perms
+data "azurerm_key_vault_secret" "POSTGRES-USER" {
+  name         = "blob-router-POSTGRES-USER"
+  key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
+}
+
+data "azurerm_key_vault_secret" "POSTGRES-PASS" {
+  name         = "blob-router-POSTGRES-PASS"
+  key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
+}
+
 module "postgresql" {
   providers = {
     azurerm.postgres_network = azurerm.postgres_network
@@ -22,8 +33,12 @@ module "postgresql" {
 
   admin_user_object_id = var.jenkins_AAD_objectId
   enable_schema_ownership = true
-  force_schema_ownership_trigger = "true"
   force_user_permissions_trigger = "1"
+
+  force_schema_ownership_trigger = var.schema_ownership_trigger
+  kv_name = local.reform-scan-vault-name
+  user_secret_name = azurerm_key_vault_secret.POSTGRES-USER.name
+  pass_secret_name = azurerm_key_vault_secret.POSTGRES-PASS.name
 }
 
 module "postgresql_staging" {

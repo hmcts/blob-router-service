@@ -3,3 +3,4 @@ api_test_expired_certificate_thumbprint       = "D593AF43215C219EEA637A851F55FC9
 api_test_not_yet_valid_certificate_thumbprint = "41B0BA6FF84CE7BDB1F7864BC9248CFBF107B54E"
 
 allowed_client_certificate_thumbprints = ["3D4A8AD0F5EF4779347B0E448ABC1ADC4D61BDF9"]
+schema_ownership_trigger = "1"
