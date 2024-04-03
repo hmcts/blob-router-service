@@ -31,14 +31,14 @@ module "postgresql" {
   business_area = "cft"
   pgsql_version = "15"
 
-  admin_user_object_id = var.jenkins_AAD_objectId
-  enable_schema_ownership = true
+  admin_user_object_id           = var.jenkins_AAD_objectId
+  enable_schema_ownership        = true
   force_user_permissions_trigger = "1"
 
   force_schema_ownership_trigger = var.schema_ownership_trigger
-  kv_name = local.reform-scan-vault-name
-  user_secret_name = azurerm_key_vault_secret.POSTGRES-USER.name
-  pass_secret_name = azurerm_key_vault_secret.POSTGRES-PASS.name
+  kv_name                        = local.reform-scan-vault-name
+  user_secret_name               = azurerm_key_vault_secret.POSTGRES-USER.name
+  pass_secret_name               = azurerm_key_vault_secret.POSTGRES-PASS.name
 }
 
 module "postgresql_staging" {
