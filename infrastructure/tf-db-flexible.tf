@@ -20,10 +20,11 @@ module "postgresql" {
   business_area = "cft"
   pgsql_version = "15"
 
-  admin_user_object_id = var.jenkins_AAD_objectId
-  enable_schema_ownership = true
-  force_schema_ownership_trigger = "true"
+  admin_user_object_id           = var.jenkins_AAD_objectId
+  enable_schema_ownership        = true
   force_user_permissions_trigger = "1"
+
+  force_schema_ownership_trigger = var.schema_ownership_trigger
 }
 
 module "postgresql_staging" {
