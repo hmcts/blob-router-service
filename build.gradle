@@ -272,6 +272,8 @@ dependencies {
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
   }
+
+  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '10.11.0'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.blobrouter.Application'
