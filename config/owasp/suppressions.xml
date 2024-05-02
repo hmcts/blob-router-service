@@ -4,33 +4,12 @@
     <packageUrl regex="true">^pkg:maven/com.fasterxml.jackson.core/jackson-databind@.*$</packageUrl>
     <cve>CVE-2023-35116</cve>
   </suppress>
-  <suppress until="2024-04-29">
-    <notes>CVE-2023-4586 is resolved in Netty 4.1.100 which is already upgraded</notes>
-    <packageUrl regex="true">^pkg:maven/io\.netty/netty.*$</packageUrl>
-    <cve>CVE-2023-4586</cve>
-  </suppress>
-  <suppress until="2024-04-29">
-    <notes>Wait until a version exists that fixes this</notes>
-    <cve>CVE-2023-46604</cve>
-  </suppress>
   <suppress>
     <notes>Azure cli. Wait for fix.</notes>
     <cve>CVE-2023-36052</cve>
   </suppress>
   <suppress>
-    <notes>Pulled in by springboot, waiting for them to release fix.</notes>
-    <cve>CVE-2023-34055</cve>
-  </suppress>
-  <suppress>
-    <notes>Pulled in by springboot, waiting for them to release fix.</notes>
-    <cve>CVE-2023-46589</cve>
-  </suppress>
-  <suppress>
-    <notes>Logback, waiting for fix</notes>
-    <cve>CVE-2023-6378</cve>
-  </suppress>
-  <suppress>
-    <notes>Logback, waiting for fix</notes>
-    <cve>CVE-2023-6481</cve>
+    <notes>Jackson-databind. Wait for newer springdoc.</notes>
+    <cve>CVE-2023-35116</cve>
   </suppress>
 </suppressions>
