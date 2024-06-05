@@ -256,10 +256,10 @@ dependencies {
 
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.1.1'
 
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.19.3', {
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.19.8', {
     exclude group: 'junit', module: 'junit'
   }
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.19.3'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.19.8'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.0-alpha-4'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
