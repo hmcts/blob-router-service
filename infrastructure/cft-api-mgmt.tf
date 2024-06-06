@@ -1,19 +1,16 @@
 locals {
-  # certificate thumbprints used by API tests
+  # Thumbprints used for API testing
   allowed_test_certificate_thumbprints = [
     var.api_test_valid_certificate_thumbprint,
     var.api_test_expired_certificate_thumbprint,
     var.api_test_not_yet_valid_certificate_thumbprint,
   ]
 
-  # list of the thumbprints of the SSL certificates that should be accepted by the API (gateway)
+  # List of thumbprints to be deployed in the APIM policy
   allowed_certificate_thumbprints = concat(
     local.allowed_test_certificate_thumbprints,
     var.allowed_client_certificate_thumbprints
   )
-
-  formatted_thumbprints = formatlist("&quot;%s&quot;", local.allowed_certificate_thumbprints)
-  quoted_thumbprints    = join(",", local.formatted_thumbprints)
 
   api_mgmt_suffix = var.apim_suffix == "" ? var.env : var.apim_suffix
   api_mgmt_name   = "cft-api-mgmt-${local.api_mgmt_suffix}"
@@ -48,5 +45,5 @@ module "cft_api_mgmt_policy" {
   api_mgmt_name          = local.api_mgmt_name
   api_mgmt_rg            = local.api_mgmt_rg
   api_name               = module.cft_api_mgmt.name
-  api_policy_xml_content = replace(file("api-policy.xml"), "ALLOWED_CERTIFICATE_THUMBPRINTS", local.quoted_thumbprints)
+  api_policy_xml_content = replace(file("api-policy.xml"), "ALLOWED_CERTIFICATE_THUMBPRINTS", join(",", formatlist("&quot;%s&quot;", local.allowed_certificate_thumbprints)))
 }
