@@ -18,10 +18,12 @@ locals {
 }
 
 module "cft_api_mgmt_product" {
-  source        = "git@github.com:hmcts/cnp-module-api-mgmt-product?ref=master"
-  api_mgmt_name = local.api_mgmt_name
-  api_mgmt_rg   = local.api_mgmt_rg
-  name          = var.component
+  source                = "git@github.com:hmcts/cnp-module-api-mgmt-product?ref=master"
+  api_mgmt_name         = local.api_mgmt_name
+  api_mgmt_rg           = local.api_mgmt_rg
+  name                  = var.component
+  approval_required     = "false"
+  subscription_required = "true"
 }
 
 module "cft_api_mgmt" {
