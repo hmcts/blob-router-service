@@ -71,7 +71,7 @@ The API allows only HTTPS requests with approved client certificates and valid s
 the service.
 
 Azure API Management is based on public swagger specs.
-As part of creating API in there documentation had to be [published](.github/workflows/swagger.yml).
+As part of creating API in there documentation had to be [published](.github/workflows/publish-openapi.yaml).
 The full url to documentation can be found [here](infrastructure/api-mgmt.tf).
 
 If SAS dispensing endpoint has changed in some incompatible way which causes amended specs - the management needs to be notified.

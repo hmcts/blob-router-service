@@ -41,6 +41,6 @@ resource "azurerm_api_management_subscription" "iron_mountain_supplier_subscript
 
 resource "azurerm_key_vault_secret" "iron_mountain_supplier_subscription_key" {
   name         = "iron-mountain-cft-apim-subscription-key"
-  value        = azurerm_api_management_subscription.iron_mountain_supplier_subscription_key.primary_key
+  value        = azurerm_api_management_subscription.iron_mountain_supplier_subscription.primary_key
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
 }
