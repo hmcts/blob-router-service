@@ -72,10 +72,10 @@ the service.
 
 Azure API Management is based on public swagger specs.
 As part of creating API in there documentation had to be [published](.github/workflows/publish-openapi.yaml).
-The full url to documentation can be found [here](infrastructure/api-mgmt.tf).
+The full url to documentation can be found [here](https://github.com/hmcts/cnp-api-docs/blob/master/docs/specs/blob-router-service.json).
 
 If SAS dispensing endpoint has changed in some incompatible way which causes amended specs - the management needs to be notified.
-This means tiny alteration in [terraform file](infrastructure/api-mgmt.tf).
+This means tiny alteration in [terraform file](infrastructure/cft-api-mgmt.tf).
 
 In case any new endpoint needs to be included - same treatment must be applied.
 
@@ -120,13 +120,11 @@ Once you're run the deployment, the API will recognise your certificate.
 
 ### Retrieving subscription key
 
-You can get your subscription key for the API using Azure Portal. In order to do this, perform the following steps:
-
-- Search for the right API Management service instance (`core-api-mgmt-{environment}`) and navigate to its page
-- From the API Management service page, navigate to Developer portal (`Developer portal` link at the top bar)
-- In developer portal navigate to `Products` tab and click on `blob-router`
-- Navigate to `Subscriptions` which holds the list of them. At least 1 (default) should be present
-- Click on the `...` at the right of selected subscription and choose `Show/hide keys`. This will toggle the keys. You will need to provide one of the Primary/Secondary value in your request to the API.
+You can get the subscription key for the API from the reform-scan-{env} key vault. 
+The available subscription keys in the key vault are:
+  - bulk-scan-team-cft-apim-subscription-key
+  - exela-cft-apim-subscription-key (supplier key)
+  - iron-mountain-cft-apim-subscription-key (supplier key)
 
 
 ### Getting the token through the API
@@ -135,7 +133,7 @@ You can call the API using the following curl command (assuming your current dir
 and certificate you've created earlier):
 
 ```
-curl -v --key private.pem --cert cert.pem https://core-api-mgmt-{environment}.azure-api.net/reform-scan/token/{service name} -H "Ocp-Apim-Subscription-Key:{subscription key}"
+curl -v --key private.pem --cert cert.pem https://cft-api-mgmt.{env}.platform.hmcts.net/reform-scan/token/{serviceName} -H "Ocp-Apim-Subscription-Key:{subscription key}"
 ```
 
 You should get a response with status 200 and a token in the body.
