@@ -4,3 +4,4 @@ api_test_not_yet_valid_certificate_thumbprint = "41B0BA6FF84CE7BDB1F7864BC9248CF
 
 allowed_client_certificate_thumbprints = ["792265A947D0C76D4F67A0878B1D06E60976DFDA"]
 schema_ownership_trigger               = "1"
+apim_suffix                            = "stg"

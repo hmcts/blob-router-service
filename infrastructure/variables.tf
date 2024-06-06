@@ -49,3 +49,7 @@ variable "num_staging_dbs" {
 variable "schema_ownership_trigger" {
   default = "true"
 }
+
+variable "apim_suffix" {
+  default = ""
+}
