@@ -4,7 +4,7 @@
 resource "azurerm_api_management_subscription" "bulk_scan_team_subscription" {
   api_management_name = local.api_mgmt_name
   resource_group_name = local.api_mgmt_rg
-  product_id          = module.cft_api_mgmt_product.product_id
+  product_id          = cft_api_mgmt_product.product_id
   display_name        = "Blob Router API - Bulk Scan DTS Team Subscription"
   state               = "active"
 }
@@ -19,7 +19,7 @@ resource "azurerm_key_vault_secret" "bulk_scan_team_subscription_key" {
 resource "azurerm_api_management_subscription" "exela_supplier_subscription" {
   api_management_name = local.api_mgmt_name
   resource_group_name = local.api_mgmt_rg
-  product_id          = module.cft_api_mgmt_product.product_id
+  product_id          = cft_api_mgmt_product.product_id
   display_name        = "Blob Router API - Exela Supplier Subscription"
   state               = "active"
 }
@@ -34,7 +34,7 @@ resource "azurerm_key_vault_secret" "exela_supplier_subscription_key" {
 resource "azurerm_api_management_subscription" "iron_mountain_supplier_subscription" {
   api_management_name = local.api_mgmt_name
   resource_group_name = local.api_mgmt_rg
-  product_id          = module.cft_api_mgmt_product.product_id
+  product_id          = cft_api_mgmt_product.product_id
   display_name        = "Blob Router API - Iron Mountain Supplier Subscription"
   state               = "active"
 }
