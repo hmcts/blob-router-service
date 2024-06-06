@@ -17,7 +17,6 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-@Disabled
 public class ReconciliationApiTest extends ApiGatewayBaseTest {
 
     private static final String RECONCILIATION_ENDPOINT_PATH = "/reconciliation-report/{date}";

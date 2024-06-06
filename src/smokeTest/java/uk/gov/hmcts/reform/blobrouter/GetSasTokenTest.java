@@ -12,7 +12,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
-@Disabled
+
 public class GetSasTokenTest extends ApiGatewayBaseTest {
 
     private static final String SAS_TOKEN_ENDPOINT_PATH = "/token/bulkscan";
