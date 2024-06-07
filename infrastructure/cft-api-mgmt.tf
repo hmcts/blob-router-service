@@ -43,8 +43,9 @@ module "cft_api_mgmt" {
   protocols = [
     "https"
   ]
-  service_url = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
-  swagger_url = "https://hmcts.github.io/cnp-api-docs/specs/blob-router-service.json"
+  service_url    = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
+  swagger_url    = "https://hmcts.github.io/cnp-api-docs/specs/blob-router-service.json"
+  content_format = "openapi-link"
 
   providers = {
     azurerm = azurerm.aks-cftapps
