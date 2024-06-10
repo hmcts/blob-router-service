@@ -39,9 +39,7 @@ module "cft_api_mgmt" {
   product_id    = module.cft_api_mgmt_product.product_id
   display_name  = "Blob Router API"
   path          = "reform-scan"
-  protocols = [
-    "https"
-  ]
+  protocols = ["http", "https"]
   service_url    = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
   swagger_url    = "https://hmcts.github.io/cnp-api-docs/specs/blob-router-service.json"
   content_format = "openapi-link"
