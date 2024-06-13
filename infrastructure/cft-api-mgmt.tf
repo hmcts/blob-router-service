@@ -32,15 +32,15 @@ module "cft_api_mgmt_product" {
 }
 
 module "cft_api_mgmt" {
-  source        = "git@github.com:hmcts/cnp-module-api-mgmt-api?ref=master"
-  name          = "${var.component}-api"
-  api_mgmt_name = local.api_mgmt_name
-  api_mgmt_rg   = local.api_mgmt_rg
-  revision      = "1"
-  product_id    = module.cft_api_mgmt_product.product_id
-  display_name  = "Blob Router API"
-  path          = "reform-scan"
-  protocols = ["http", "https"]
+  source         = "git@github.com:hmcts/cnp-module-api-mgmt-api?ref=master"
+  name           = "${var.component}-api"
+  api_mgmt_name  = local.api_mgmt_name
+  api_mgmt_rg    = local.api_mgmt_rg
+  revision       = "1"
+  product_id     = module.cft_api_mgmt_product.product_id
+  display_name   = "Blob Router API"
+  path           = "reform-scan"
+  protocols      = ["http", "https"]
   service_url    = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
   swagger_url    = "https://hmcts.github.io/cnp-api-docs/specs/blob-router-service.json"
   content_format = "openapi-link"
