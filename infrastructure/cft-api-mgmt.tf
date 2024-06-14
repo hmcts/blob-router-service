@@ -55,7 +55,8 @@ module "cft_api_mgmt_policy" {
   api_mgmt_name          = local.api_mgmt_name
   api_mgmt_rg            = local.api_mgmt_rg
   api_name               = module.cft_api_mgmt.name
-  api_policy_xml_content = replace(file("api-policy.xml"), "ALLOWED_CERTIFICATE_THUMBPRINTS", join(",", formatlist("&quot;%s&quot;", local.allowed_certificate_thumbprints)))
+  api_policy_xml_content = replace(file("cft-api-policy.xml"), "ALLOWED_CERTIFICATE_THUMBPRINTS", join(",", formatlist("\"%s\"", local.allowed_certificate_thumbprints)))
+
 
   providers = {
     azurerm = azurerm.aks-cftapps
