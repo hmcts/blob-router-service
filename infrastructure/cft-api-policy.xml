@@ -11,7 +11,7 @@
           <set-body>Missing client certificate</set-body>
         </return-response>
       </when>
-      <when condition="@(!(new string[] {ALLOWED_CERTIFICATE_THUMBPRINTS}.Any(c => context.Request.Headers.ContainsKey("X-ARR-ClientCertThumbprint") && context.Request.Headers["X-ARR-ClientCertThumbprint"].Contains(c))))">
+      <when condition="@(!(new string[] {ALLOWED_CERTIFICATE_THUMBPRINTS}.Any(c => context.Request.Headers.ContainsKey(&quot;X-ARR-ClientCertThumbprint&quot;) && context.Request.Headers[&quot;X-ARR-ClientCertThumbprint&quot;].Contains(c))))">
         <return-response>
           <set-status code="401" />
           <set-body>Invalid client certificate</set-body>
