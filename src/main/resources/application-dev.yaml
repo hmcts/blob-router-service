@@ -172,14 +172,6 @@ idam:
 
 envelope-stale-timeout-hr: ${ENVELOPE_STALE_TIMEOUT_HR}
 
-springdoc:
-  packagesToScan: uk.gov.hmcts.reform.blobrouter
-  pathsToMatch:
-    - /reconciliation-report/*
-    - /token/*
-  swagger-ui:
-    use-root-path: true
-
 actions:
   api-key: ${ACTIONS_API_KEY}
 

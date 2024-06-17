@@ -1,17 +1,4 @@
 locals {
-  # certificate thumbprints used by API tests
-  allowed_test_certificate_thumbprints = [
-    var.api_test_valid_certificate_thumbprint,
-    var.api_test_expired_certificate_thumbprint,
-    var.api_test_not_yet_valid_certificate_thumbprint,
-  ]
-
-  # list of the thumbprints of the SSL certificates that should be accepted by the API (gateway)
-  allowed_certificate_thumbprints = concat(
-    local.allowed_test_certificate_thumbprints,
-    var.allowed_client_certificate_thumbprints
-  )
-
   formatted_thumbprints = formatlist("&quot;%s&quot;", local.allowed_certificate_thumbprints)
   quoted_thumbprints    = join(",", local.formatted_thumbprints)
 }
