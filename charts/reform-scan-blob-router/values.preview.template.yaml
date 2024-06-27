@@ -5,7 +5,7 @@ java:
       key: storage_account_name
     STORAGE_ACCOUNT_URL:
       secretRef: storage-secret-reform-scan
-      key: StorageV2
+      key: blobEndpoint
     STORAGE_ACCOUNT_KEY:
       secretRef: storage-secret-reform-scan
       key: accessKey
@@ -14,7 +14,7 @@ java:
       key: storage_account_name
     STORAGE_CRIME_ACCOUNT_URL:
       secretRef: storage-secret-crime-reform-scan
-      key: StorageV2
+      key: blobEndpoint
     STORAGE_CRIME_ACCOUNT_KEY:
       secretRef: storage-secret-crime-reform-scan
       key: accessKey
