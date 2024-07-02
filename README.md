@@ -9,7 +9,7 @@
 
 Primary responsibility of this micro service is to retrieve blobs from source blob storage containers and then dispatch
 them to destination blob storage containers based on source containers.
-Currently it only routes blobs (zip files) to CFT and Crime blob storage containers. Blobs are uploaded to source storage 
+Currently it only routes blobs (zip files) to CFT and Crime blob storage containers. Blobs are uploaded to source storage
 by the third party scanning supplier.
 Before dispatching blobs it verifies if the files were uploaded by third party supplier through non repudiation checks.
 It also provides infrastructure to deploy API management service for retrieving SAS tokens used to upload blobs to source
@@ -110,7 +110,7 @@ Next, calculate the thumbprint of your certificate:
 openssl x509 -noout -fingerprint -inform pem -in cert.pem | sed -e s/://g
 ```
 
-Finally, add this thumbprint to `allowed_client_certificate_thumbprints` terraform variable for the target environment (e.g. in `aat.tfvars` file). Your definition may look similar to this:
+Add this thumbprint to `allowed_client_certificate_thumbprints` terraform variable for the target environment (e.g. in `aat.tfvars` file). Your definition may look similar to this:
 
 ```
 allowed_client_certificate_thumbprints = ["2FC66765E63BB2436F0F9E4F59E951A6D1D20D43"]
@@ -120,7 +120,7 @@ Once you're run the deployment, the API will recognise your certificate.
 
 ### Retrieving subscription key
 
-You can get the subscription key for the API from the reform-scan-{env} key vault. 
+You can get the subscription key for the API from the reform-scan-{env} key vault.
 The available subscription keys in the key vault are:
   - bulk-scan-team-cft-apim-subscription-key
   - exela-cft-apim-subscription-key (supplier key)
