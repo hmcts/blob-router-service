@@ -110,7 +110,7 @@ Next, calculate the thumbprint of your certificate:
 openssl x509 -noout -fingerprint -inform pem -in cert.pem | sed -e s/://g
 ```
 
-Add this thumbprint to `allowed_client_certificate_thumbprints` terraform variable for the target environment (e.g. in `aat.tfvars` file). Your definition may look similar to this:
+Finally, add this thumbprint to `allowed_client_certificate_thumbprints` terraform variable for the target environment (e.g. in `aat.tfvars` file). Your definition may look similar to this:
 
 ```
 allowed_client_certificate_thumbprints = ["2FC66765E63BB2436F0F9E4F59E951A6D1D20D43"]
