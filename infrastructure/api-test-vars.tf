@@ -6,11 +6,11 @@ variable "api_test_valid_certificate_thumbprint" {
 
 # thumbprint of the test certificate that's expired (used by API gateway tests)
 variable "api_test_expired_certificate_thumbprint" {
-  default = "will be added with tests"
+  default = ""
 }
 
 # thumbprint of the test certificate that's not yet valid (used by API gateway tests)
 variable "api_test_not_yet_valid_certificate_thumbprint" {
   # valid since year 2100
-  default = "will be added with tests"
+  default = ""
 }
