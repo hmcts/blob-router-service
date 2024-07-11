@@ -11,8 +11,6 @@ def type = "java"
 def product = "reform-scan"
 def component = "blob-router"
 
-env.TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = 'hmctspublic.azurecr.io/imported/'
-
 def secrets = [
   'reform-scan-${env}': [
     secret('fortify-on-demand-username', 'FORTIFY_USER_NAME'),
