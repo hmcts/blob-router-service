@@ -5,6 +5,20 @@
 [![codecov](https://codecov.io/gh/hmcts/blob-router-service/branch/master/graph/badge.svg)](https://codecov.io/gh/hmcts/blob-router-service)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c99af8bcd53947deb32e8f0a7c500676)](https://www.codacy.com/manual/HMCTS/blob-router-service)
 
+## Table of Contents
+
+* [Purpose](#Purpose)
+* [Building and deploying the application](#building-and-deploying-the-application)
+  * [Building the application](#building-the-application)
+  * [Running the application](#running-the-application)
+  * [Quick Start](#quick-start)
+* [API gateway](#api-gateway)
+  * [Calling the API](#calling-the-api)
+  * [Preparing client certificate](#preparing-client-certificate)
+  * [Retrieving subscription key](#retrieving-subscription-key)
+  * [Getting the token through the API](#getting-the-token-through-the-api)
+* [License](#license)
+
 ## Purpose
 
 Primary responsibility of this micro service is to retrieve blobs from source blob storage containers and then dispatch
@@ -64,7 +78,14 @@ You should get a response similar to this:
   {"status":"UP","diskSpace":{"status":"UP","total":249644974080,"free":137188298752,"threshold":10485760}}
 ```
 
-## API (gateway)
+### Quick Start
+An alternative faster way getting started is by using the automated setup script. This script will help set up all
+bulk scan/print repos including blob-router-service and its dependencies.
+See the [common-dev-env-bsbp](https://github.com/hmcts/common-dev-env-bsbp) repository for more information.
+Once set up script has ran successfully you can move the blob-router-service from the newly created
+common-dev-env-bsbp/apps directory to your desired location.
+
+## API gateway
 
 Blob Router uses an (Azure API Management) API to protect its SAS token dispensing endpoint.
 The API allows only HTTPS requests with approved client certificates and valid subscription keys to reach
