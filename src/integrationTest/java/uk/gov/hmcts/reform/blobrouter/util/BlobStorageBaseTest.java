@@ -35,7 +35,11 @@ public abstract class BlobStorageBaseTest {
         dockerHost = dockerComposeContainer.getHost();
 
         storageClient = new BlobServiceClientBuilder()
-            .connectionString(String.format(STORAGE_CONN_STRING, dockerHost, 10000))
+            .connectionString(
+                String.format(STORAGE_CONN_STRING,
+                              dockerHost,
+                              dockerComposeContainer.getMappedPort(10000))
+            )
             .buildClient();
     }
 
