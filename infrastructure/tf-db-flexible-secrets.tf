@@ -1,5 +1,5 @@
 locals {
-  standard_secret_prefix         = "${var.component}-POSTGRES"
+  standard_secret_prefix = "${var.component}-POSTGRES"
 
   flexible_secrets = [
     {
