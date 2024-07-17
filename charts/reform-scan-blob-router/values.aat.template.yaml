@@ -6,6 +6,12 @@ java:
     STORAGE_URL: https://reformscanstg.aat.platform.hmcts.net
     NOTIFICATIONS_QUEUE_NAME: "notifications-staging"
     NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}-premium
+    DB_HOST: "{{ .Release.Name }}-postgresql"
+    DB_NAME: "{{ .Values.postgresql.auth.database}}"
+    DB_USER: "{{ .Values.postgresql.auth.username}}"
+    DB_PASSWORD: "{{ .Values.postgresql.auth.password}}"
+    DB_PORT: '5432'
+    DB_CONN_OPTIONS: ""
   # Don't modify below here
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
@@ -39,15 +45,7 @@ java:
           alias: storage.account-secondary-key
         - name: crime-storage-connection-string
           alias: storage.crime.connection-string
-        - name: blob-router-staging-flexible-db-password
-          alias: DB_PASSWORD
-        - name: blob-router-staging-flexible-db-user
-          alias: DB_USER
-        - name: blob-router-staging-flexible-db-host
-          alias: DB_HOST
-        - name: blob-router-staging-flexible-db-port
-          alias: DB_PORT
-        - name: blob-router-staging-flexible-db-name
-          alias: DB_NAME
         - name: notification-staging-queue-send-shared-access-key
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
+  postgresql:
+    enabled: true
