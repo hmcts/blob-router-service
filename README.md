@@ -145,7 +145,6 @@ You can get the subscription key for the API from the reform-scan-{env} key vaul
 The available subscription keys in the key vault are:
   - bulk-scan-team-cft-apim-subscription-key
   - exela-cft-apim-subscription-key (supplier key)
-  - iron-mountain-cft-apim-subscription-key (supplier key)
 
 
 ### Getting the token through the API
