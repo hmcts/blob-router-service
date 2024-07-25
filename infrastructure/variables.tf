@@ -42,10 +42,6 @@ variable "deployment_namespace" {
   default = ""
 }
 
-variable "num_staging_dbs" {
-  default = 0
-}
-
 variable "schema_ownership_trigger" {
   default = "true"
 }
