@@ -8,8 +8,8 @@ locals {
 
   # List of thumbprints to be deployed in the APIM policy
   allowed_certificate_thumbprints = concat(
-    local.allowed_test_certificate_thumbprints,
-    var.allowed_client_certificate_thumbprints
+    compact(local.allowed_test_certificate_thumbprints),
+    compact(var.allowed_client_certificate_thumbprints)
   )
 
   api_mgmt_suffix = var.apim_suffix == "" ? var.env : var.apim_suffix
