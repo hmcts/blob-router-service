@@ -31,19 +31,3 @@ resource "azurerm_key_vault_secret" "exela_supplier_subscription_key" {
   value        = azurerm_api_management_subscription.exela_supplier_subscription.primary_key
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
 }
-
-# Supplier subscription - Iron Mountain 
-resource "azurerm_api_management_subscription" "iron_mountain_supplier_subscription" {
-  api_management_name = local.api_mgmt_name
-  resource_group_name = local.api_mgmt_rg
-  product_id          = module.cft_api_mgmt_product.id
-  display_name        = "Blob Router API - Iron Mountain Supplier Subscription"
-  state               = "active"
-  provider            = azurerm.aks-cftapps
-}
-
-resource "azurerm_key_vault_secret" "iron_mountain_supplier_subscription_key" {
-  name         = "iron-mountain-cft-apim-subscription-key"
-  value        = azurerm_api_management_subscription.iron_mountain_supplier_subscription.primary_key
-  key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
-}
