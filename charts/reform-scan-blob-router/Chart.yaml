@@ -2,7 +2,7 @@ apiVersion: v2
 description: A Helm chart for Blob Router Service
 name: reform-scan-blob-router
 home: https://github.com/hmcts/blob-router-service
-version: 1.0.25
+version: 1.0.26
 maintainers:
   - name: HMCTS BSP Team
     email: bspteam@hmcts.net
