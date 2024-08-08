@@ -96,7 +96,7 @@ java:
     ENVELOPE_STALE_TIMEOUT_HR: 48
     REJECT_DUPLICATES_ENABLED: true
     NFD_ENABLED: true
-    PRIVATELAW_ENABLED: false
+    PRIVATELAW_ENABLED: true
   image: 'hmctspublic.azurecr.io/reform-scan/blob-router:latest'
 reformblobstorage:
   resourceGroup: reform-scan-aks
