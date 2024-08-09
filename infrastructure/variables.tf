@@ -53,3 +53,7 @@ variable "apim_suffix" {
 variable "force_user_perms_trigger" {
   default = "1"
 }
+
+variable "cft_subscription_id" {
+  default = ""
+}
