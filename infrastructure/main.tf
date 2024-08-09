@@ -11,7 +11,7 @@ provider "azurerm" {
 
 provider "azurerm" {
   alias           = "aks-cftapps"
-  subscription_id = var.aks_subscription_id
+  subscription_id = var.cft_subscription_id
   features {}
 }
 

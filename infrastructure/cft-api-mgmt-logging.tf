@@ -1,4 +1,5 @@
 resource "azurerm_api_management_api_diagnostic" "api_logs" {
+  provider = azurerm.aks-cftapps
   identifier               = "applicationinsights"
   resource_group_name      = local.api_mgmt_rg
   api_management_name      = local.api_mgmt_name
