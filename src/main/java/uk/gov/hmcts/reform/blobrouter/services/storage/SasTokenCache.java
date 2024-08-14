@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.blobrouter.services.storage;
 
+import com.azure.storage.common.Utility;
 import com.azure.storage.common.implementation.Constants;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -21,7 +22,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static com.azure.storage.common.implementation.Constants.UrlConstants.SAS_EXPIRY_TIME;
-import static com.azure.storage.common.implementation.StorageImplUtils.parseQueryString;
+import static com.azure.storage.common.implementation.StorageImplUtils.parseQueryStringSplitValues;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -164,14 +165,14 @@ public class SasTokenCache {
             @NonNull String sasToken,
             long currentTime
         ) {
-            Map<String, String> map = parseQueryString(sasToken);
+            Map<String, String[]> map = parseQueryStringSplitValues(Utility.urlDecode(sasToken));
             return calculateTimeToExpire(
                 Constants.ISO_8601_UTC_DATE_FORMATTER.parse(
                     map.computeIfAbsent(
                         SAS_EXPIRY_TIME, key -> {
                             throw new InvalidSasTokenException(MESSAGE);
                         }
-                    )
+                    )[0]
                 )
             );
         }
