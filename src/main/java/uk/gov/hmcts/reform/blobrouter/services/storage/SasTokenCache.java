@@ -173,8 +173,8 @@ public class SasTokenCache {
          *                      was generated for.
          *
          * @param sasToken - the SAS token
-         * @param currentTime
-         * @return long - the length of time before the SAS token will be removed from cache
+         * @param currentTime - current time, in nanoseconds
+         * @return long - the length of time before the SAS token will be removed from cache, in nanoseconds
          */
         @Override
         public long expireAfterCreate(
