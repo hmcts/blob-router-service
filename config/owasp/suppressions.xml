@@ -5,10 +5,6 @@
     <cve>CVE-2023-35116</cve>
   </suppress>
   <suppress>
-    <notes>Azure cli. Wait for fix.</notes>
-    <cve>CVE-2023-36052</cve>
-  </suppress>
-  <suppress>
     <notes>Jackson-databind. Wait for newer springdoc.</notes>
     <cve>CVE-2023-35116</cve>
   </suppress>
