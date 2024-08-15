@@ -155,10 +155,27 @@ public class SasTokenCache {
         return sasToken;
     }
 
+    /**
+     * SasTokenCacheExpiry - implements the Expiry class from the Caffeine caching Java library.
+     * See also {@link com.github.benmanes.caffeine.cache.Expiry}
+     */
     private class SasTokenCacheExpiry implements Expiry<String, String> {
 
         public static final String MESSAGE = "Invalid SAS, the SAS expiration time parameter not found.";
 
+        /**
+         * Defines the cache eviction policy for a SAS token after its creation.
+         * Decodes and parses the SAS token string into String/String[] key value pairs e.g.
+         * 'se=2020-03-05T14%3A54%3A20Z' becomes like <'se', [2020-03-05T14:35:32.820Z]>
+         * The SAS token expiration value from these key/value pairs is then used to
+         * calculate when the SAS token should be evicted from the cache
+         * @param containerName - the key the SAS token is stored under in the cache i.e. the container the token
+         *                      was generated for.
+         *
+         * @param sasToken - the SAS token
+         * @param currentTime
+         * @return long - the length of time before the SAS token will be removed from cache
+         */
         @Override
         public long expireAfterCreate(
             @NonNull String containerName,
