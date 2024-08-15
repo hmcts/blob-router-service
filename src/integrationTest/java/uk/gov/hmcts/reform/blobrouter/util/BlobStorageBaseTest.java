@@ -16,7 +16,7 @@ import java.util.Set;
 public abstract class BlobStorageBaseTest {
 
     private static GenericContainer<?> dockerComposeContainer =
-        new GenericContainer<>("hmctspublic.azurecr.io/imported/azure-storage/azurite:3.31.0")
+        new GenericContainer<>("hmctspublic.azurecr.io/imported/azure-storage/azurite:3.29.0")
         .withExposedPorts(10000);
     protected static BlobServiceClient storageClient;
     private static String dockerHost;
