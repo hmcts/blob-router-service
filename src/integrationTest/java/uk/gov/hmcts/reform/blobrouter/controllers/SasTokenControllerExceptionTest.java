@@ -28,15 +28,12 @@ public class SasTokenControllerExceptionTest extends ControllerTestBase {
     @MockBean
     private BlobContainerClientProxy blobContainerClientProxy;
 
-    private static final String KEY_ERROR =
-        "'base64Key' was not a valid Base64 scheme. Ensure the Storage account key or SAS key is properly formatted.";
-
     @Test
     public void should_throw_exception_when_storage_is_not_configured() throws Exception {
         mockMvc
             .perform(get("/token/bulkscan"))
             .andDo(print())
             .andExpect(status().isInternalServerError())
-            .andExpect(jsonPath("$.message").value(KEY_ERROR));
+            .andExpect(jsonPath("$.message").value("Exception occurred while generating SAS Token"));
     }
 }
