@@ -4,7 +4,7 @@
     <packageUrl regex="true">^pkg:maven/com.fasterxml.jackson.core/jackson-databind@.*$</packageUrl>
     <cve>CVE-2023-35116</cve>
   </suppress>
-  <suppress>
+  <suppress until="2025-02-01">
     <notes>Azure cli. Wait for fix.</notes>
     <cve>CVE-2023-36052</cve>
   </suppress>
