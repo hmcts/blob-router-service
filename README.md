@@ -153,7 +153,7 @@ You can call the API using the following curl command (assuming your current dir
 and certificate you've created earlier):
 
 ```
-curl -v --key private.pem --cert cert.pem https://cft-api-mgmt.{env}.platform.hmcts.net/reform-scan/token/{serviceName} -H "Ocp-Apim-Subscription-Key:{subscription key}"
+curl -v --key private.pem --cert cert.pem https://cft-mtls-api-mgmt-appgw.{env}.platform.hmcts.net/reform-scan/token/{serviceName} -H "Ocp-Apim-Subscription-Key:{subscription key}"
 ```
 
 You should get a response with status 200 and a token in the body.
