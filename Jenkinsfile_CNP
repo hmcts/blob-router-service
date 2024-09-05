@@ -36,7 +36,6 @@ def combinedSecrets = [
 
      secret('bulk-scan-team-cft-apim-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
 
-     secret('test-subscription-key', 'TEST_SUBSCRIPTION_KEY'),
      secret('reconciliation-api-key', 'TEST_RECONCILIATION_API_KEY')
    ]
  ]
