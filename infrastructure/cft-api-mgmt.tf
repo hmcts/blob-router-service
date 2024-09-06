@@ -1,14 +1,7 @@
 locals {
-  # Thumbprints used for API testing
-  allowed_test_certificate_thumbprints = [
-    var.api_test_valid_certificate_thumbprint,
-    var.api_test_expired_certificate_thumbprint,
-    var.api_test_not_yet_valid_certificate_thumbprint,
-  ]
 
   # List of thumbprints to be deployed in the APIM policy
   allowed_certificate_thumbprints = concat(
-    compact(local.allowed_test_certificate_thumbprints),
     compact(var.allowed_client_certificate_thumbprints)
   )
 
