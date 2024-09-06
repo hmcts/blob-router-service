@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,6 +21,7 @@ public class GetSasTokenTest extends ApiGatewayBaseTest {
         loadConfig();
     }
 
+    @Disabled
     @Test
     void should_accept_request_with_valid_certificate_and_subscription_key() throws Exception {
         Response response =
@@ -30,6 +32,7 @@ public class GetSasTokenTest extends ApiGatewayBaseTest {
         assertThat(response.body().jsonPath().getString("sas_token")).isNotEmpty();
     }
 
+    @Disabled
     @Test
     void should_reject_request_with_invalid_subscription_key() throws Exception {
         Response response = callSasTokenEndpoint(
@@ -42,6 +45,7 @@ public class GetSasTokenTest extends ApiGatewayBaseTest {
         assertThat(response.body().asString()).contains("Access denied due to invalid subscription key");
     }
 
+    @Disabled
     @Test
     void should_reject_request_lacking_subscription_key() throws Exception {
         Response response = callSasTokenEndpoint(

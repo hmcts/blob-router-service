@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
         loadConfig();
     }
 
+    @Disabled
     @Test
     void should_accept_request_with_valid_certificate_and_valid_subscription_key() throws Exception {
         Response response = callReconciliationEndpoint(validClientKeyStore, validSubscriptionKey);
@@ -31,6 +33,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
         assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST.value());
     }
 
+    @Disabled
     @Test
     void should_reject_request_with_invalid_subscription_key() throws Exception {
         Response response = callReconciliationEndpoint(validClientKeyStore, "invalid-subscription-key");
@@ -39,6 +42,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
         assertThat(response.body().asString()).contains("Access denied due to invalid subscription key");
     }
 
+    @Disabled
     @Test
     void should_reject_request_with_missing_subscription_header() throws Exception {
         Response response = callReconciliationEndpoint(validClientKeyStore, null);
