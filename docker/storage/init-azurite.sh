@@ -9,6 +9,7 @@ az storage container create --name crime --connection-string $SOURCE_CONNECTION_
 az storage container create --name bulkscan --connection-string $SOURCE_CONNECTION_STRING
 az storage container create --name bulkscanauto --connection-string $SOURCE_CONNECTION_STRING
 az storage container create --name publiclaw --connection-string $SOURCE_CONNECTION_STRING
+az storage container create --name privatelaw --connection-string $SOURCE_CONNECTION_STRING
 az storage container create --name sscs --connection-string $SOURCE_CONNECTION_STRING
 az storage container create --name nfd --connection-string $SOURCE_CONNECTION_STRING
 az storage container create --name finrem --connection-string $SOURCE_CONNECTION_STRING
@@ -30,6 +31,8 @@ az storage container create --name bulkscanauto --connection-string $SOURCE_CONN
 az storage container create --name bulkscanauto-rejected --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name publiclaw --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name publiclaw-rejected --connection-string $SOURCE_CONNECTION_STRING2
+az storage container create --name privatelaw --connection-string $SOURCE_CONNECTION_STRING2
+az storage container create --name privatelaw-rejected --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name sscs --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name sscs-rejected --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name nfd --connection-string $SOURCE_CONNECTION_STRING2
