@@ -21,7 +21,7 @@
 
 ## Purpose
 
-Primary responsibility of this micro service is to retrieve blobs from source blob storage containers and then dispatch
+Primary responsibility of this microservice is to retrieve blobs from source blob storage containers and then dispatch
 them to destination blob storage containers based on source containers.
 Currently it only routes blobs (zip files) to CFT and Crime blob storage containers. Blobs are uploaded to source storage
 by the third party scanning supplier.
