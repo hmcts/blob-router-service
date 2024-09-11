@@ -10,13 +10,13 @@ java:
       secretRef: storage-secret-reform-scan
       key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
-      secretRef: storage-account-crime-reform-scan
+      secretRef: storage-account-crime-reform-scan-{{ .Release.Name }}
       key: storage_account_name
     STORAGE_CRIME_ACCOUNT_URL:
-      secretRef: storage-secret-crime-reform-scan
+      secretRef: storage-secret-crime-reform-scan-{{ .Release.Name }}
       key: blobEndpoint
     STORAGE_CRIME_ACCOUNT_KEY:
-      secretRef: storage-secret-crime-reform-scan
+      secretRef: storage-secret-crime-reform-scan-{{ .Release.Name }}
       key: accessKey
     SB_ACCESS_KEY:
       secretRef: reform-scan-sb-preview
