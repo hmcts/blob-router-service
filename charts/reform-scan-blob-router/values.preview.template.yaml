@@ -1,13 +1,13 @@
 java:
   secrets:
     STORAGE_ACCOUNT_NAME:
-      secretRef: storage-account-reform-scan
+      secretRef: storage-account-reform-scan-{{ .Release.Name }}
       key: storage_account_name
     STORAGE_ACCOUNT_URL:
-      secretRef: storage-secret-reform-scan
+      secretRef: storage-secret-reform-scan-{{ .Release.Name }}
       key: blobEndpoint
     STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-reform-scan
+      secretRef: storage-secret-reform-scan-{{ .Release.Name }}
       key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
       secretRef: storage-account-crime-reform-scan-{{ .Release.Name }}
