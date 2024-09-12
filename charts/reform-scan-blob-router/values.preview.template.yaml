@@ -115,7 +115,7 @@ reformblobstorage:
 crimeblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: crime-reform-scan
+  releaseNameOverride: crime-reform-scan-{{ .Release.Name }}
   teamName: "BSP"
   location: uksouth
   setup:
