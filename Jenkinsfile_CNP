@@ -90,8 +90,8 @@ withPipeline(type, product, component) {
       def dockerImage = new DockerImage(product, component, null, env.BRANCH_NAME, env.GIT_COMMIT, env.LAST_COMMIT_TIMESTAMP)
       def subscription = env.SUBSCRIPTION_NAME
       def aksServiceName = dockerImage.getAksServiceName().toLowerCase()
-      def storageSecret = "storage-secret-reform-scan-{.Release.Name}"
-      def storageSecretName = "storage-account-reform-scan-{.Release.Name}"
+      def storageSecret = "storage-secret-reform-scan-${aksServiceName}"
+      def storageSecretName = "storage-account-reform-scan-${aksServiceName}"
       def crimeStorageAccountSecret = "storage-secret-crime-reform-scan"
       def serviceBusSecret = "reform-scan-sb-preview"
 
