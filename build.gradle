@@ -1,9 +1,14 @@
 buildscript {
+  ext {
+    flywayVersion = '10.17.3'
+    postgresqlVersion = '42.7.4'
+  }
   dependencies {
-    classpath("org.postgresql:postgresql:42.7.3")
-    classpath("org.flywaydb:flyway-database-postgresql:10.13.0")
+    classpath("org.postgresql:postgresql:$postgresqlVersion") // must be compatible with flyway version
+    classpath("org.flywaydb:flyway-database-postgresql:$flywayVersion") // flyway dependency/plugin versions must always match
   }
 }
+
 plugins {
   id 'application'
   id 'checkstyle'
@@ -14,7 +19,7 @@ plugins {
   id 'org.owasp.dependencycheck' version '10.0.4'
   id 'com.github.ben-manes.versions' version '0.51.0'
   id 'org.sonarqube' version '4.4.1.3373'
-  id 'org.flywaydb.flyway' version '10.13.0'
+  id 'org.flywaydb.flyway' version "$flywayVersion"
 }
 
 group = 'uk.gov.hmcts.reform'
@@ -186,7 +191,9 @@ def versions = [
   junit           : '5.11.0',
   junitPlatform   : '1.11.0',
   reformLogging   : '6.1.6',
-  apiguardian     : '1.1.2'
+  apiguardian     : '1.1.2',
+  flyway          : "$flywayVersion",
+  postgresql      : "$postgresqlVersion"
 ]
 
 ext.libraries = [
@@ -202,7 +209,7 @@ ext.libraries = [
 
 dependencies {
   implementation group: 'org.postgresql', name: 'postgresql', version: '42.7.3'
-  implementation group: 'org.flywaydb', name: 'flyway-core', version: '10.13.0'
+  implementation group: 'org.flywaydb', name: 'flyway-core', version: versions.flyway
 
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.14.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.14.0'
@@ -279,7 +286,7 @@ dependencies {
     exclude group: 'junit', module: 'junit'
   }
 
-  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: '10.13.0'
+  runtimeOnly group: 'org.flywaydb', name: 'flyway-database-postgresql', version: versions.flyway
 }
 
 mainClassName = 'uk.gov.hmcts.reform.blobrouter.Application'
