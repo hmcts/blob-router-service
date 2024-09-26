@@ -163,4 +163,17 @@ resource "azurerm_key_vault_secret" "reports_recipients" {
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
 }
 
-# endregion
+data "azurerm_key_vault_secret" "apim_app_id" {
+  key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
+  name         = "bulk-scan-app-id"
+}
+
+data "azurerm_key_vault_secret" "apim_client_id" {
+  key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
+  name         = "bulk-scan-client-id"
+}
+
+data "azurerm_key_vault_secret" "apim_tenant_id" {
+  key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
+  name         = "tenant-id"
+}
