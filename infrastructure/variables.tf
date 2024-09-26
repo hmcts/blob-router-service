@@ -57,3 +57,8 @@ variable "force_user_perms_trigger" {
 variable "cft_subscription_id" {
   default = ""
 }
+
+variable "secret_names" {
+  type        = list(string)
+  description = "List of secret names to be copied from source Key Vault to destination Key Vault"
+}

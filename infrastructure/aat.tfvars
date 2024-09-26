@@ -2,3 +2,11 @@ allowed_client_certificate_thumbprints = ["792265A947D0C76D4F67A0878B1D06E60976D
 schema_ownership_trigger               = "1"
 apim_suffix                            = "stg"
 cft_subscription_id                    = "96c274ce-846d-4e48-89a7-d528432298a7"
+
+secret_names = [
+  "bulk-scan-app-non-prod-app-id",
+  "bulk-scan-app-non-prod-secret",
+  "bulk-scan-client-non-prod-app-id",
+  "bulk-scan-client-non-prod-secret",
+  "tenant-id"
+]
