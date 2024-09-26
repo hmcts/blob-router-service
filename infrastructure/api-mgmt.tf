@@ -12,6 +12,10 @@ module "api_mgmt_product" {
   product_access_control_groups = ["developers"]
   approval_required             = "false"
   subscription_required         = "false"
+
+  providers = {
+    azurerm = azurerm.aks-cftapps
+  }
 }
 
 module "api_mgmt" {
@@ -27,6 +31,14 @@ module "api_mgmt" {
   service_url    = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
   swagger_url    = "https://hmcts.github.io/cnp-api-docs/specs/blob-router-service.json"
   content_format = "openapi-link"
+
+  providers = {
+    azurerm = azurerm.aks-cftapps
+  }
+
+  depends_on = [
+    module.api_mgmt_product
+  ]
 }
 
 module "api_mgmt_policy" {
@@ -47,4 +59,12 @@ module "api_mgmt_policy" {
     "APP_ID",
     data.azurerm_key_vault_secret.apim_app_id.value
   )
+
+  providers = {
+    azurerm = azurerm.aks-cftapps
+  }
+
+  depends_on = [
+    module.api_mgmt
+  ]
 }
