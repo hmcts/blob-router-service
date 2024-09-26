@@ -62,3 +62,7 @@ variable "secret_names" {
   type        = list(string)
   description = "List of secret names to be copied from source Key Vault to destination Key Vault"
 }
+
+variable "mgmt_subscription_id" {
+  default = "6c4d2513-a873-41b4-afdd-b05a33206631"
+}

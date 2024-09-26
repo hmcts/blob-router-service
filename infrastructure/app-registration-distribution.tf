@@ -1,6 +1,7 @@
 # Moves app registrations used for the APIM from the central KV to one of bulk scans
 
 data "azurerm_key_vault" "source_kv" {
+  provider = azurerm.mgmt
   name                = "central-app-reg-kv"
   resource_group_name = "central-app-registration-rg"
 }
