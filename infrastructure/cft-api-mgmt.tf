@@ -1,13 +1,8 @@
 locals {
-
   # List of thumbprints to be deployed in the APIM policy
   allowed_certificate_thumbprints = concat(
     compact(var.allowed_client_certificate_thumbprints)
   )
-
-  api_mgmt_suffix = var.apim_suffix == "" ? var.env : var.apim_suffix
-  api_mgmt_name   = "cft-api-mgmt-${local.api_mgmt_suffix}"
-  api_mgmt_rg     = join("-", ["cft", var.env, "network-rg"])
 }
 
 module "cft_api_mgmt_product" {

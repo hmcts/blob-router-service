@@ -1,0 +1,22 @@
+<policies>
+  <inbound>
+    <base />
+    <validate-azure-ad-token header-name="Authorization" tenant-id="{TENANT_ID}" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. Access token is missing or invalid.">
+      <client-application-ids>
+        <application-id>{CLIENT_ID}</application-id>
+      </client-application-ids>
+      <audiences>
+        <audience>{APP_ID}</audience>
+      </audiences>
+    </validate-azure-ad-token>
+  </inbound>
+  <backend>
+    <base />
+  </backend>
+  <outbound>
+    <base />
+  </outbound>
+  <on-error>
+    <base />
+  </on-error>
+</policies>
