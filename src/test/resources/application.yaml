@@ -1,0 +1,7 @@
+bulk-scan-processor-url: ${PROCESSOR_URL:AAAAAAAA}
+
+pcq-backend-api-url: ${PCQ_BACKEND_API_URL:AAAAAAAA}
+
+idam:
+  s2s-auth:
+    url: ${S2S_URL:http://localhost:4552}
