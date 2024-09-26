@@ -1,20 +1,3 @@
-provider "azurerm" {
-  features {}
-}
-
-provider "azurerm" {
-  features {}
-  skip_provider_registration = true
-  alias                      = "postgres_network"
-  subscription_id            = var.aks_subscription_id
-}
-
-provider "azurerm" {
-  alias           = "aks-cftapps"
-  subscription_id = var.aks_subscription_id
-  features {}
-}
-
 locals {
   vault_name             = "reform-scan-${var.env}"
   reform-scan-vault-name = "reform-scan-${var.env}"

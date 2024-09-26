@@ -47,4 +47,8 @@ resource "azurerm_api_management_api_diagnostic" "apim_logs" {
       "origin",
     ]
   }
+
+  depends_on = [
+    module.api_mgmt
+  ]
 }
