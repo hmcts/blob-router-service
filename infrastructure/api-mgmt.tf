@@ -4,6 +4,16 @@ locals {
   api_mgmt_rg     = join("-", ["cft", var.env, "network-rg"])
 }
 
+data "template_file" "apim_policy" {
+  template = file("${path.module}/api-mgmt-policy.xml")
+
+  vars = {
+    tenant_id = data.azurerm_key_vault_secret.apim_tenant_id.value
+    client_id = data.azurerm_key_vault_secret.apim_client_id.value
+    app_id    = data.azurerm_key_vault_secret.apim_app_id.value
+  }
+}
+
 module "api_mgmt_product" {
   source                        = "git@github.com:hmcts/cnp-module-api-mgmt-product?ref=master"
   api_mgmt_name                 = local.api_mgmt_name
@@ -35,36 +45,16 @@ module "api_mgmt" {
   providers = {
     azurerm = azurerm.aks-cftapps
   }
-
-  depends_on = [
-    module.api_mgmt_product
-  ]
 }
 
 module "api_mgmt_policy" {
-  source        = "git@github.com:hmcts/cnp-module-api-mgmt-api-policy?ref=master"
-  api_mgmt_name = local.api_mgmt_name
-  api_mgmt_rg   = local.api_mgmt_rg
-  api_name      = module.api_mgmt.name
-  api_policy_xml_content = replace(
-    replace(
-      replace(
-        file("api-mgmt-policy.xml"),
-        "TENANT_ID",
-        data.azurerm_key_vault_secret.apim_tenant_id.value
-      ),
-      "CLIENT_ID",
-      data.azurerm_key_vault_secret.apim_client_id.value
-    ),
-    "APP_ID",
-    data.azurerm_key_vault_secret.apim_app_id.value
-  )
+  source                 = "git@github.com:hmcts/cnp-module-api-mgmt-api-policy?ref=master"
+  api_mgmt_name          = local.api_mgmt_name
+  api_mgmt_rg            = local.api_mgmt_rg
+  api_name               = module.api_mgmt.name
+  api_policy_xml_content = data.template_file.apim_policy.rendered
 
   providers = {
     azurerm = azurerm.aks-cftapps
   }
-
-  depends_on = [
-    module.api_mgmt
-  ]
 }
