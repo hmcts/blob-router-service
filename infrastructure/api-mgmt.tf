@@ -29,23 +29,19 @@ module "api_mgmt_product" {
 }
 
 module "api_mgmt" {
-  source                = "git@github.com:hmcts/cnp-module-api-mgmt-api?ref=master"
-  name                  = "bulk-scan-api"
-  api_mgmt_name         = local.api_mgmt_name
-  api_mgmt_rg           = local.api_mgmt_rg
-  revision              = "1"
-  product_id            = module.api_mgmt_product.product_id
-  display_name          = "Bulk Scan API"
-  path                  = "bulk-scan"
-  protocols             = ["http", "https"]
-  service_url           = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
-  swagger_url           = "https://hmcts.github.io/cnp-api-docs/specs/blob-router-service.json"
-  content_format        = "openapi-link"
+  source         = "git@github.com:hmcts/cnp-module-api-mgmt-api?ref=master"
+  name           = "bulk-scan-api"
+  api_mgmt_name  = local.api_mgmt_name
+  api_mgmt_rg    = local.api_mgmt_rg
+  revision       = "1"
+  product_id     = module.api_mgmt_product.product_id
+  display_name   = "Bulk Scan API"
+  path           = "bulk-scan"
+  protocols      = ["http", "https"]
+  service_url    = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
+  swagger_url    = "https://hmcts.github.io/cnp-api-docs/specs/blob-router-service.json"
+  content_format = "openapi-link"
   subscription_required = "false"
-
-  providers = {
-    azurerm = azurerm.aks-cftapps
-  }
 }
 
 # module "api_mgmt_policy" {
