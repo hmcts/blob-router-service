@@ -41,6 +41,7 @@ module "api_mgmt" {
   service_url    = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
   swagger_url    = "https://hmcts.github.io/cnp-api-docs/specs/blob-router-service.json"
   content_format = "openapi-link"
+  subscription_required = "false"
 }
 
 # module "api_mgmt_policy" {
