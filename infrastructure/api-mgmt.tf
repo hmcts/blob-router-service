@@ -48,14 +48,14 @@ module "api_mgmt" {
   }
 }
 
-# module "api_mgmt_policy" {
-#   source                 = "git@github.com:hmcts/cnp-module-api-mgmt-api-policy?ref=master"
-#   api_mgmt_name          = local.api_mgmt_name
-#   api_mgmt_rg            = local.api_mgmt_rg
-#   api_name               = module.api_mgmt.name
-#   api_policy_xml_content = data.template_file.apim_policy.rendered
+module "api_mgmt_policy" {
+  source                 = "git@github.com:hmcts/cnp-module-api-mgmt-api-policy?ref=master"
+  api_mgmt_name          = local.api_mgmt_name
+  api_mgmt_rg            = local.api_mgmt_rg
+  api_name               = module.api_mgmt.name
+  api_policy_xml_content = data.template_file.apim_policy.rendered
 
-#   providers = {
-#     azurerm = azurerm.aks-cftapps
-#   }
-# }
+  providers = {
+    azurerm = azurerm.aks-cftapps
+  }
+}
