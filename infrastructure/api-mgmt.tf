@@ -33,7 +33,7 @@ module "api_mgmt" {
   name                  = "bulk-scan-api"
   api_mgmt_name         = local.api_mgmt_name
   api_mgmt_rg           = local.api_mgmt_rg
-  revision              = "1"
+  revision              = "2"
   product_id            = module.api_mgmt_product.product_id
   display_name          = "Bulk Scan API"
   path                  = "bulk-scan"
