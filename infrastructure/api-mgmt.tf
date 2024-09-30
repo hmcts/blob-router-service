@@ -39,7 +39,7 @@ module "api_mgmt" {
   path                  = "bulk-scan"
   protocols             = ["http", "https"]
   service_url           = "http://${var.product}-${var.component}-${var.env}.service.core-compute-${var.env}.internal"
-  swagger_url           = "https://hmcts.github.io/cnp-api-docs/specs/reform-scan-notification-service.json"
+  swagger_url           = "https://hmcts.github.io/cnp-api-docs/specs/blob-router-service.json"
   content_format        = "openapi-link"
   subscription_required = "false"
 
