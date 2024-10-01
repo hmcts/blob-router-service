@@ -9,8 +9,6 @@
         <audience>${app_id}</audience>
       </audiences>
     </validate-azure-ad-token>
-  </inbound>
-  <backend>
     <choose>
       <when condition="@(context.Request.Url.Path.ToLower().Contains("reconciliation-report"))">
         <set-header name="Authorization" exists-action="override">
@@ -18,6 +16,9 @@
         </set-header>
       </when>
     </choose>
+  </inbound>
+  <backend>
+    <base />
   </backend>
   <outbound>
     <base />
