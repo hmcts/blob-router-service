@@ -11,12 +11,13 @@
     </validate-azure-ad-token>
   </inbound>
   <backend>
-    <base />
-    <when condition="@(context.Request.Url.Path.ToLower().Contains("reconciliation-report"))">
-      <set-header name="Authorization" exists-action="override">
-        <value>@("Bearer " + ${api_key})</value>
-      </set-header>
-    </when>
+    <choose>
+      <when condition="@(context.Request.Url.Path.ToLower().Contains("reconciliation-report"))">
+        <set-header name="Authorization" exists-action="override">
+          <value>@("Bearer " + ${api_key})</value>
+        </set-header>
+      </when>
+    </choose>
   </backend>
   <outbound>
     <base />
