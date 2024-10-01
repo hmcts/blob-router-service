@@ -160,3 +160,8 @@ data "azurerm_key_vault_secret" "apim_tenant_id" {
   key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
   name         = "tenant-id"
 }
+
+data "azurerm_key_vault_secret" "api_key" {
+  key_vault_id = data.azurerm_key_vault.reform_scan_key_vault.id
+  name         = "reconciliation-api-key"
+}
