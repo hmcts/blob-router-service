@@ -21,10 +21,6 @@ az storage container create --name jason --connection-string $SOURCE_CONNECTION_
 
 SOURCE_CONNECTION_STRING2="DefaultEndpointsProtocol=http;AccountName=bulkscanlocal;AccountKey=cmVmb3Jtc2NhbmtleQo=;BlobEndpoint=http://azure-storage-emulator-azurite:10000/bulkscanlocal;"
 
-az storage container create --name pcq --connection-string $SOURCE_CONNECTION_STRING2
-az storage container create --name pcq-rejected --connection-string $SOURCE_CONNECTION_STRING2
-az storage container create --name crime --connection-string $SOURCE_CONNECTION_STRING2
-az storage container create --name crime-rejected --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name bulkscan --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name bulkscan-rejected --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name bulkscanauto --connection-string $SOURCE_CONNECTION_STRING2
@@ -47,7 +43,11 @@ az storage container create --name cmc --connection-string $SOURCE_CONNECTION_ST
 az storage container create --name cmc-rejected --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name mosh --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name mosh-rejected --connection-string $SOURCE_CONNECTION_STRING2
-az storage container create --name jason --connection-string $SOURCE_CONNECTION_STRING2
-az storage container create --name jason-rejected --connection-string $SOURCE_CONNECTION_STRING2
 
+SOURCE_CONNECTION_STRING3="DefaultEndpointsProtocol=http;AccountName=crimelocal;AccountKey=cmVmb3Jtc2NhbmtleQo=;BlobEndpoint=http://azure-storage-emulator-azurite:10000/crimelocal;"
 
+az storage container create --name bs-sit-scans-received --connection-string $SOURCE_CONNECTION_STRING3
+
+SOURCE_CONNECTION_STRING4="DefaultEndpointsProtocol=http;AccountName=pcqlocal;AccountKey=cmVmb3Jtc2NhbmtleQo=;BlobEndpoint=http://azure-storage-emulator-azurite:10000/pcqlocal;"
+
+az storage container create --name pcq --connection-string $SOURCE_CONNECTION_STRING4
