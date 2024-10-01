@@ -11,6 +11,7 @@ data "template_file" "apim_policy" {
     tenant_id = data.azurerm_key_vault_secret.apim_tenant_id.value
     client_id = data.azurerm_key_vault_secret.apim_client_id.value
     app_id    = data.azurerm_key_vault_secret.apim_app_id.value
+    api_key   = data.azurerm_key_vault_secret.api_key.value
   }
 }
 
