@@ -21,6 +21,10 @@ az storage container create --name jason --connection-string $SOURCE_CONNECTION_
 
 SOURCE_CONNECTION_STRING2="DefaultEndpointsProtocol=http;AccountName=bulkscanlocal;AccountKey=cmVmb3Jtc2NhbmtleQo=;BlobEndpoint=http://azure-storage-emulator-azurite:10000/bulkscanlocal;"
 
+az storage container create --name pcq --connection-string $SOURCE_CONNECTION_STRING2
+az storage container create --name pcq-rejected --connection-string $SOURCE_CONNECTION_STRING2
+az storage container create --name crime --connection-string $SOURCE_CONNECTION_STRING2
+az storage container create --name crime-rejected --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name bulkscan --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name bulkscan-rejected --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name bulkscanauto --connection-string $SOURCE_CONNECTION_STRING2
