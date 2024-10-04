@@ -20,6 +20,17 @@ public class PcqBlobDispatchingTest extends FunctionalTestBase {
         super.setUp();
     }
 
+    /*
+    Note: to run this locally, you need to generate a SAS token by connecting to Azure Storage Explorers pcqlocal
+    account. Then right click and generate a SAS Token.
+    Finally, within SasTokenCache.java, replace:
+        final String sasToken = pcqClient.getSasToken(authTokenGenerator.generate()).sasToken;
+    With:
+        final String sasToken =
+            <The sas token retrieved; exluding the BlobEndpoint, QueueEndpoint and TableEndpoint structure elements>
+            I.e:
+            sv=<value>&ss=<value>&srt=<value>&st=<value>se=<value>sp=<value> (without ; in the string at the end)
+     */
     @Test
     void should_move_extracted_pcq_envelope_to_pcq_storage() throws Exception {
         // upload pcq file with unique name
