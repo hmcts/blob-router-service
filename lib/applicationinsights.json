@@ -13,7 +13,13 @@
               "key": "http.url",
               "value": "https?://[^/]+/health.*",
               "matchType": "regexp"
-            },
+            }
+          ],
+          "percentage": 0
+        },
+        {
+          "telemetryType": "request",
+          "attributes": [
             {
               "key": "name",
               "value": ".*run.*",
@@ -34,3 +40,4 @@
     }
   }
 }
+
