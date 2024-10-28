@@ -15,31 +15,29 @@
               "matchType": "regexp"
             }
           ],
-          "percentage": 1
+          "percentage": 0
         },
         {
-          "telemetryType": "dependency",
+          "telemetryType": "request",
           "attributes": [
             {
               "key": "name",
-              "value": "Azure blob: bulkscan[^.]+/[^.]+",
+              "value": ".*run.*",
               "matchType": "regexp"
             }
           ],
-          "percentage": 1
+          "percentage": 0
         },
         {
           "telemetryType": "dependency",
-          "attributes": [
-            {
-              "key": "name",
-              "value": "^AzureBlobStorage(?:Cont\\.listBlobFlatSegment|Blob\\.getProperties)$",
-              "matchType": "regexp"
-            }
-          ],
-          "percentage": 1
+          "percentage": 0
+        },
+        {
+          "telemetryType": "trace",
+          "percentage": 0
         }
       ]
     }
   }
 }
+
