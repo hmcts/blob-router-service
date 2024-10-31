@@ -1,6 +1,6 @@
 buildscript {
   ext {
-    flywayVersion = '10.17.3'
+    flywayVersion = '10.20.1'
     postgresqlVersion = '42.7.4'
   }
   dependencies {
@@ -248,7 +248,7 @@ dependencies {
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.11.0'
   implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.17.0'
-  implementation group: 'com.google.guava', name: 'guava', version: '33.3.1-jre'
+  implementation group: 'com.google.guava', name: 'guava', version: '33.3.0-jre'
 
   testImplementation libraries.junit5
   testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
