@@ -166,15 +166,13 @@ class BlobMoverTest {
         var targetBlob = mockBlobClient(REJECTED_CONTAINER_NAME, BLOB_NAME);
         given(sourceBlob.exists()).willReturn(true);
 
-        String sasToken = "sas_token_01-03-2021";
-        given(sourceBlob.generateSas(any())).willReturn(sasToken);
         String blobUrl = "http://bloburl";
         given(sourceBlob.getBlobUrl()).willReturn(blobUrl);
         given(targetBlob.exists()).willReturn(true);
 
         SyncPoller syncPoller = mock(SyncPoller.class);
         given(targetBlob
-            .beginCopy(blobUrl + "?" + sasToken, null, null, null, null, null, Duration.ofSeconds(2)))
+            .beginCopy(blobUrl, null, null, null, null, null, Duration.ofSeconds(2)))
             .willReturn(syncPoller);
 
         var pollResponse = mock(PollResponse.class);
@@ -199,7 +197,6 @@ class BlobMoverTest {
         var targetBlob = mockBlobClient(REJECTED_CONTAINER_NAME, BLOB_NAME);
         given(sourceBlob.exists()).willReturn(true);
 
-        given(sourceBlob.generateSas(any())).willReturn("sasToken");
         given(sourceBlob.getBlobUrl()).willReturn("blobUrl");
 
         SyncPoller syncPoller = mock(SyncPoller.class);
@@ -233,7 +230,6 @@ class BlobMoverTest {
         var targetBlob = mockBlobClient(REJECTED_CONTAINER_NAME, BLOB_NAME);
         given(sourceBlob.exists()).willReturn(true);
 
-        given(sourceBlob.generateSas(any())).willReturn("sasToken");
         given(sourceBlob.getBlobUrl()).willReturn("blobUrl");
 
         SyncPoller syncPoller = mock(SyncPoller.class);

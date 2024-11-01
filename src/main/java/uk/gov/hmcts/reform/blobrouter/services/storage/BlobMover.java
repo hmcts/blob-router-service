@@ -74,14 +74,6 @@ public class BlobMover {
         if (!sourceBlob.exists()) {
             logger.error("File already deleted. {}", loggingContext);
         } else {
-            String sasToken = sourceBlob
-                .generateSas(
-                    new BlobServiceSasSignatureValues(
-                        OffsetDateTime.of(LocalDateTime.now().plus(5, ChronoUnit.MINUTES), ZoneOffset.UTC),
-                        new BlobContainerSasPermission().setReadPermission(true)
-                    )
-                );
-
             if (targetBlob.exists()) {
                 targetBlob.createSnapshot();
             }
@@ -90,7 +82,7 @@ public class BlobMover {
             try {
                 poller = targetBlob
                     .beginCopy(
-                        sourceBlob.getBlobUrl() + "?" + sasToken,
+                        sourceBlob.getBlobUrl(),
                         null,
                         null,
                         null,
