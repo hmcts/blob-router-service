@@ -7,7 +7,6 @@ import com.azure.storage.blob.models.ListBlobsOptions;
 import com.google.common.io.Resources;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import uk.gov.hmcts.reform.blobrouter.util.BlobStorageBaseTest;
 
