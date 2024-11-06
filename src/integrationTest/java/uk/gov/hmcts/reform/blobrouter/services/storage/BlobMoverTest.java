@@ -21,7 +21,6 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 @SuppressWarnings("unchecked")
-@Disabled
 class BlobMoverTest extends BlobStorageBaseTest {
 
     BlobMover mover;
