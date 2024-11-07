@@ -17,7 +17,8 @@ public abstract class BlobStorageBaseTest {
 
     private static GenericContainer<?> dockerComposeContainer =
         new GenericContainer<>("hmctspublic.azurecr.io/imported/azure-storage/azurite:3.29.0")
-        .withExposedPorts(10000);
+        .withExposedPorts(10000)
+            .withCommand("azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --skipApiVersionCheck");
     protected static BlobServiceClient storageClient;
     private static String dockerHost;
     private static final String STORAGE_CONN_STRING = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
