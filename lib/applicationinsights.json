@@ -31,10 +31,6 @@
         {
           "telemetryType": "dependency",
           "percentage": 0
-        },
-        {
-          "telemetryType": "trace",
-          "percentage": 0
         }
       ]
     }
