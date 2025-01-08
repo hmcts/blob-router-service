@@ -105,7 +105,7 @@ service:
       enabled: ${PRIVATELAW_ENABLED}
     - source-container: sscs-ibca
       sas-validity: 300 #In seconds
-      target-storage-account: bulkscan
+      target-storage-account: cft
       target-container: sscs-ibca
 
 reports:
