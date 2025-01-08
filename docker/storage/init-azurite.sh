@@ -30,6 +30,8 @@ az storage container create --name cmc --connection-string $SOURCE_CONNECTION_ST
 az storage container create --name cmc-rejected --connection-string $SOURCE_CONNECTION_STRING
 az storage container create --name mosh --connection-string $SOURCE_CONNECTION_STRING
 az storage container create --name mosh-rejected --connection-string $SOURCE_CONNECTION_STRING
+az storage container create --name sscs-ibca --connection-string $SOURCE_CONNECTION_STRING
+az storage container create --name sscs-ibca-rejected --connection-string $SOURCE_CONNECTION_STRING
 
 SOURCE_CONNECTION_STRING2="DefaultEndpointsProtocol=http;AccountName=reformscanlocal;AccountKey=cmVmb3Jtc2NhbmtleQo=;BlobEndpoint=http://azure-storage-emulator-azurite:10000/reformscanlocal;"
 
@@ -59,6 +61,8 @@ az storage container create --name cmc --connection-string $SOURCE_CONNECTION_ST
 az storage container create --name cmc-rejected --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name mosh --connection-string $SOURCE_CONNECTION_STRING2
 az storage container create --name mosh-rejected --connection-string $SOURCE_CONNECTION_STRING2
+az storage container create --name sscs-ibca --connection-string $SOURCE_CONNECTION_STRING2
+az storage container create --name sscs-ibca-rejected --connection-string $SOURCE_CONNECTION_STRING2
 
 SOURCE_CONNECTION_STRING3="DefaultEndpointsProtocol=http;AccountName=crimelocal;AccountKey=cmVmb3Jtc2NhbmtleQo=;BlobEndpoint=http://azure-storage-emulator-azurite:10000/crimelocal;"
 

@@ -115,6 +115,7 @@ reformblobstorage:
       - privatelaw
       - pcq
       - pcq-rejected
+      - sscs-ibca
 
 crimeblobstorage:
   enabled: true
