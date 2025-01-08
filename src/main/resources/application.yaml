@@ -155,7 +155,7 @@ scheduling:
     scan:
       delay: ${TASK_SCAN_DELAY} # In milliseconds
     send-daily-report:
-      cron: ${c}
+      cron: ${SEND_DAILY_REPORT_CRON}
       enabled: ${SEND_DAILY_REPORT_ENABLED}
     create-reconciliation-summary-report:
       cron: ${CREATE_RECONCILIATION_SUMMARY_REPORT_CRON}
