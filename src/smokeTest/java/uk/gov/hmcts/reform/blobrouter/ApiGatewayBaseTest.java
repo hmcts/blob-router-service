@@ -166,7 +166,8 @@ class ApiGatewayBaseTest {
         final String tenantId;
 
 
-        protected OauthCredential(String clientId, String clientSecret, String appId, String appSecret, String tenantId) {
+        protected OauthCredential(String clientId, String clientSecret, String appId,
+                                  String appSecret, String tenantId) {
             this.clientId = clientId;
             this.clientSecret = clientSecret;
             this.appId = appId;
