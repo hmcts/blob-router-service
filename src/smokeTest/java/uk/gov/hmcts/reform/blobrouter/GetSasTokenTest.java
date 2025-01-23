@@ -109,7 +109,7 @@ public class GetSasTokenTest extends ApiGatewayBaseTest {
 
     private Response callSasTokenEndpointWithJwt(String jwtAccessToken) throws JsonProcessingException {
         Response response = RestAssured.given().header("Authorization", jwtAccessToken)
-            .get(apiGatewayUrlNew + SAS_TOKEN_ENDPOINT_PATH)
+            .get(oauthGatewayUrl + SAS_TOKEN_ENDPOINT_PATH)
             .thenReturn();
         System.out.println(response.asPrettyString());
         return response;
@@ -117,7 +117,7 @@ public class GetSasTokenTest extends ApiGatewayBaseTest {
 
     private Response callSasTokenEndpointWithoutJwt() {
         Response response = RestAssured.given()
-            .get(apiGatewayUrlNew + SAS_TOKEN_ENDPOINT_PATH)
+            .get(oauthGatewayUrl + SAS_TOKEN_ENDPOINT_PATH)
             .thenReturn();
         System.out.println(response.asPrettyString());
         return response;

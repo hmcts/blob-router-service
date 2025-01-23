@@ -25,7 +25,7 @@ class ApiGatewayBaseTest {
 
     private static Config config;
     protected static String apiGatewayUrl;
-    protected static String apiGatewayUrlNew;
+    protected static String oauthGatewayUrl;
     protected static KeyStoreWithPassword validClientKeyStore;
     protected static String validSubscriptionKey;
 
@@ -34,7 +34,7 @@ class ApiGatewayBaseTest {
     protected static void loadConfig() throws Exception {
         config = ConfigFactory.load();
         apiGatewayUrl = getApiGatewayUrl();
-        apiGatewayUrlNew = getOauthApiGatewayUrlNew();
+        oauthGatewayUrl = getOauthApiGatewayUrlNew();
         validClientKeyStore = getValidClientKeyStore();
         validSubscriptionKey = getValidSubscriptionKey();
         oauthCredential = getValidOauthCredential();

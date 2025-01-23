@@ -110,7 +110,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
         return RestAssured.given().header("Authorization", jwtAccessToken)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .body(statementsReport)
-            .post(apiGatewayUrlNew + RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
+            .post(oauthGatewayUrl + RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
             .thenReturn();
     }
 
@@ -119,7 +119,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
         return RestAssured.given()
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .body(statementsReport)
-            .post(apiGatewayUrlNew + RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
+            .post(oauthGatewayUrl + RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
             .thenReturn();
     }
 
