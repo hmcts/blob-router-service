@@ -26,7 +26,6 @@ class ApiGatewayBaseTest {
     private static Config config;
     protected static String apiGatewayUrl;
     protected static String apiGatewayUrlNew;
-    protected static String jwtAccessTokenUrl;
     protected static KeyStoreWithPassword validClientKeyStore;
     protected static String validSubscriptionKey;
 
@@ -35,8 +34,7 @@ class ApiGatewayBaseTest {
     protected static void loadConfig() throws Exception {
         config = ConfigFactory.load();
         apiGatewayUrl = getApiGatewayUrl();
-        apiGatewayUrlNew = getApiGatewayUrlNew();
-        jwtAccessTokenUrl = getJwtAccessTokenUrl();
+        apiGatewayUrlNew = getOauthApiGatewayUrlNew();
         validClientKeyStore = getValidClientKeyStore();
         validSubscriptionKey = getValidSubscriptionKey();
         oauthCredential = getValidOauthCredential();
@@ -60,7 +58,7 @@ class ApiGatewayBaseTest {
             .formParam("client_id", oauthCredential.clientId)
             .formParam("scope", "api://" + oauthCredential.appId + "/.default")
             .formParam("client_secret", oauthCredential.clientSecret)
-            .post(jwtAccessTokenUrl)
+            .post("https://login.microsoftonline.com/" + oauthCredential.tenantId + "/oauth2/v2.0/token")
             .thenReturn();
 
         return response.jsonPath().getString("access_token");
@@ -129,20 +127,14 @@ class ApiGatewayBaseTest {
         return new KeyStoreWithPassword(keyStore, PASSWORD_FOR_UNRECOGNISED_CLIENT_CERT);
     }
 
-    private static String getJwtAccessTokenUrl() {
-        String jwtAccessTokenUrl = config.resolve().getString("jwt-access-token-url");
-        assertThat(jwtAccessTokenUrl).as("JWT Access Token URL").isNotEmpty();
-        return jwtAccessTokenUrl;
-    }
-
     private static String getApiGatewayUrl() {
         String apiUrl = config.resolve().getString("api-gateway-url");
         assertThat(apiUrl).as("API gateway URL").isNotEmpty();
         return apiUrl;
     }
 
-    private static String getApiGatewayUrlNew() {
-        String apiUrl = config.resolve().getString("api-gateway-url-new");
+    private static String getOauthApiGatewayUrlNew() {
+        String apiUrl = config.resolve().getString("oauth-api-gateway-url");
         assertThat(apiUrl).as("New API gateway URL").isNotEmpty();
         return apiUrl;
     }
