@@ -1,6 +1,6 @@
 #!groovy
 
-@Library("Infrastructure")
+@Library("Infrastructure@api-gateway-step")
 
 import uk.gov.hmcts.contino.DockerImage
 import uk.gov.hmcts.contino.GradleBuilder
