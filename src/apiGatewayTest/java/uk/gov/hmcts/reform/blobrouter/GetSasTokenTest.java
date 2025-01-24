@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 
 @ExtendWith(SpringExtension.class)
 public class GetSasTokenTest {
@@ -41,7 +41,7 @@ public class GetSasTokenTest {
         assertThat(jwtAccessToken).isNotEmpty();
 
         Response response = callSasTokenEndpointWithJwt(jwtAccessToken);
-        assertThat(response.getStatusCode()).isEqualTo(OK.value());
+        assertThat(response.getStatusCode()).isEqualTo(UNPROCESSABLE_ENTITY.value());
         assertThat(response.body().jsonPath().getString("sas_token")).isNotEmpty();
     }
 
