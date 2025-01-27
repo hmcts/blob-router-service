@@ -52,6 +52,13 @@ sourceSets {
       runtimeClasspath += main.output
     }
   }
+
+  apiGatewayTest {
+    java {
+      compileClasspath += main.output
+      runtimeClasspath += main.output
+    }
+  }
 }
 
 tasks.withType(JavaCompile) {
@@ -92,6 +99,11 @@ task smoke(type: Test) {
   classpath = sourceSets.smokeTest.runtimeClasspath
 }
 
+task apiGateway(type: Test, description: 'Runs the smoke tests for API gateway.', group: 'Verification') {
+  testClassesDirs = sourceSets.apiGatewayTest.output.classesDirs
+  classpath = sourceSets.apiGatewayTest.runtimeClasspath
+}
+
 tasks.withType(Test) {
   useJUnitPlatform()
 
@@ -116,7 +128,7 @@ pmd {
   toolVersion = "6.55.0"
   ignoreFailures = true
   incrementalAnalysis = true
-  sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.integrationTest, sourceSets.smokeTest]
+  sourceSets = [sourceSets.main, sourceSets.test, sourceSets.functionalTest, sourceSets.integrationTest, sourceSets.smokeTest, sourceSets.apiGatewayTest]
   reportsDir = layout.buildDirectory.dir("reports/pmd").get().asFile
   // https://github.com/pmd/pmd/issues/876
   ruleSets = []
@@ -283,6 +295,15 @@ dependencies {
   smokeTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.24.2'
   smokeTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.3'
   smokeTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
+    exclude group: 'junit', module: 'junit'
+  }
+
+  apiGatewayTestImplementation sourceSets.main.runtimeClasspath
+  apiGatewayTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', {
+    exclude group: 'junit', module: 'junit'
+    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+  }
+  apiGatewayTestImplementation group: 'io.rest-assured', name: 'rest-assured', {
     exclude group: 'junit', module: 'junit'
   }
 

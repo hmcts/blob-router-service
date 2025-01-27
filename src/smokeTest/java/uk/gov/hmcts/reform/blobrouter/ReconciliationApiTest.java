@@ -25,6 +25,7 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
         loadConfig();
     }
 
+    //OLD APIM tests
     @Disabled
     @Test
     void should_accept_request_with_valid_certificate_and_valid_subscription_key() throws Exception {
@@ -51,6 +52,32 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
         assertThat(response.body().asString()).contains("Access denied due to missing subscription key");
     }
 
+    //NEW APIM TESTS
+    @Test
+    void should_reject_request_with_missing_jwt_token() {
+        Response response = callReconciliationEndpointWithoutJwt();
+
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
+        assertThat(response.body().asString()).contains("Unauthorized. Access token is missing or invalid.");
+    }
+
+    @Test
+    void should_reject_request_with_invalid_jwt_token() {
+        Response response = callReconciliationEndpointWithJwt("imnotarealaccesstoken");
+        assertThat(response.statusCode()).isEqualTo(UNAUTHORIZED.value());
+        assertThat(response.body().asString()).contains("Unauthorized. Access token is missing or invalid.");
+    }
+
+    @Test
+    void should_accept_request_with_valid_jwt_token() {
+        String jwtAccessToken = getJwtAccessToken();
+        assertThat(jwtAccessToken).isNotEmpty();
+
+        Response response = callReconciliationEndpointWithJwt(jwtAccessToken);
+        assertThat(response.getStatusCode()).isEqualTo(BAD_REQUEST.value());
+    }
+
+
     private Response callReconciliationEndpoint(
         KeyStoreWithPassword clientKeyStore,
         String subscriptionKey
@@ -76,6 +103,24 @@ public class ReconciliationApiTest extends ApiGatewayBaseTest {
             request = request.header(SUBSCRIPTION_KEY_HEADER_NAME, subscriptionKey);
         }
         return request.post(RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString());
+    }
+
+    private Response callReconciliationEndpointWithJwt(String jwtAccessToken) {
+        String statementsReport = "{\"test\": {}}";
+        return RestAssured.given().header("Authorization", jwtAccessToken)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .body(statementsReport)
+            .post(oauthGatewayUrl + RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
+            .thenReturn();
+    }
+
+    private Response callReconciliationEndpointWithoutJwt() {
+        String statementsReport = "{\"test\": {}}";
+        return RestAssured.given()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .body(statementsReport)
+            .post(oauthGatewayUrl + RECONCILIATION_ENDPOINT_PATH, LocalDate.now().toString())
+            .thenReturn();
     }
 
 }

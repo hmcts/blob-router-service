@@ -84,7 +84,7 @@ See the [common-dev-env-bsbp](https://github.com/hmcts/common-dev-env-bsbp) repo
 Once set up script has ran successfully you can move the blob-router-service from the newly created
 common-dev-env-bsbp/apps directory to your desired location.
 
-## API gateway
+## API gateway (OLD)
 
 Blob Router uses an (Azure API Management) API to protect its SAS token dispensing endpoint.
 The API allows only HTTPS requests with approved client certificates and valid subscription keys to reach
@@ -156,6 +156,56 @@ curl -v --key private.pem --cert cert.pem https://cft-mtls-api-mgmt-appgw.{env}.
 ```
 
 You should get a response with status 200 and a token in the body.
+
+## API gateway (New - Microsoft OAuth)
+
+Blob Router uses an (Azure API Management) API to protect its SAS token dispensing endpoint.
+The API only allows HTTPS requests with a valid Microsoft OAuth access token.
+
+Azure API Management is based on public swagger specs.
+As part of creating API in there documentation had to be [published](.github/workflows/publish-openapi.yaml).
+The full url to documentation can be found [here](https://github.com/hmcts/cnp-api-docs/blob/master/docs/specs/blob-router-service.json).
+
+### Calling the API
+
+In order to talk to the SAS dispensing endpoint through the API, you need to have the following pieces
+of information:
+
+- Microsoft OAuth Access Token
+- name of an existing client service (e.g. `bulkscan`)
+
+### Getting a Microsoft OAuth Access Token
+
+To get the access token you will need to make a post request to the Microsoft identity platform. The body of the post
+request will need four values from the key vault:
+- bulk-scan-app-id
+- bulk-scan-client-id
+- bulk-scan-client-secret
+- tenant-id
+
+The curl command would look like the below (or you can make use of an API development software like Postman)
+
+> ℹ️ Replace the `{}` substitutes with the values you've retrieved from the key vault!
+> ℹ️ Grant type must be `client_credentials`
+```
+curl -X POST -H "Content-Type: application/x-www-form-urlencoded" -d 'client_id={client-id}&scope=api://{bulk-scan-app-id}/.default&client_secret={bulk-scan-client-secret}...&grant_type=client_credentials' 'https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token'
+```
+You should be returned a response body that has access_token as one of the fields. The value of that field (the access token) is what you will
+need in the next section.
+
+You can read more about how to get an access token [here](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow#get-a-token).
+You can read more about the investigation and plan for its use within Bulk Scan [here](https://tools.hmcts.net/confluence/display/DATS/Bulk+scan+-+Azure+API+Management+OAuth+2.0+Investigation+and+Plan)
+
+### Getting the token through the API
+
+You can call the API using the following curl command using the access token
+> ℹ️ Replace the {} substitutes with the service and the access token received in the previous section
+
+```
+curl -X GET "https://cft-api-mgmt.aat.platform.hmcts.net/bulk-scan/token/{service}" -H "Authorization: {access-token}"
+```
+
+You should get a response with status 200 and a sas token in the body.
 
 ## License
 
