@@ -12,7 +12,7 @@ import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @ExtendWith(SpringExtension.class)
-public class GetSasTokenTest extends OauthBase{
+public class GetSasTokenTest extends OauthBase {
 
     private static final String SAS_TOKEN_ENDPOINT_PATH = "/token/bulkscan";
 

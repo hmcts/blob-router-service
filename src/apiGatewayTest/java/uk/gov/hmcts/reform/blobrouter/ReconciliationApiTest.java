@@ -18,6 +18,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 public class ReconciliationApiTest extends OauthBase {
 
     private static final String RECONCILIATION_ENDPOINT_PATH = "/reconciliation-report/{date}";
+
     @Test
     void should_reject_request_with_missing_jwt_token() {
         Response response = callReconciliationEndpointWithoutJwt();
