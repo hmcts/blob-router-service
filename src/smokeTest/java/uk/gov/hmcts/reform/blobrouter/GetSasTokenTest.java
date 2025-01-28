@@ -111,7 +111,6 @@ public class GetSasTokenTest extends ApiGatewayBaseTest {
         Response response = RestAssured.given().header("Authorization", jwtAccessToken)
             .get(oauthGatewayUrl + SAS_TOKEN_ENDPOINT_PATH)
             .thenReturn();
-        System.out.println(response.asPrettyString());
         return response;
     }
 
@@ -119,7 +118,6 @@ public class GetSasTokenTest extends ApiGatewayBaseTest {
         Response response = RestAssured.given()
             .get(oauthGatewayUrl + SAS_TOKEN_ENDPOINT_PATH)
             .thenReturn();
-        System.out.println(response.asPrettyString());
         return response;
     }
 }
