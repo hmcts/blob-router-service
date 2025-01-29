@@ -34,7 +34,7 @@ class ApiGatewayBaseTest {
     protected static void loadConfig() throws Exception {
         config = ConfigFactory.load();
         apiGatewayUrl = getApiGatewayUrl();
-        oauthGatewayUrl = getOauthApiGatewayUrlNew();
+        oauthGatewayUrl = getOauthApiGatewayUrl();
         validClientKeyStore = getValidClientKeyStore();
         validSubscriptionKey = getValidSubscriptionKey();
         oauthCredential = getValidOauthCredential();
@@ -133,7 +133,7 @@ class ApiGatewayBaseTest {
         return apiUrl;
     }
 
-    private static String getOauthApiGatewayUrlNew() {
+    private static String getOauthApiGatewayUrl() {
         String apiUrl = config.resolve().getString("oauth-api-gateway-url");
         assertThat(apiUrl).as("New API gateway URL").isNotEmpty();
         return apiUrl;
