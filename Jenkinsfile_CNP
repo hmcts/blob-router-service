@@ -12,7 +12,7 @@ def product = "reform-scan"
 def component = "blob-router"
 
 def channel = '#bsp-build-notices'
-
+def environment = new Environment(["NONPROD_ENVIRONMENT_NAME": "aat"])
 env.TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX = 'hmctspublic.azurecr.io/imported/'
 
 def combinedSecrets = [
@@ -75,6 +75,7 @@ withPipeline(type, product, component) {
 
   onPR(){
     loadVaultSecrets(smokeTestSecrets)
+    env.ENVIRONMENT="aat"
   }
 
   def branchesToSync = ['demo', 'perftest']
