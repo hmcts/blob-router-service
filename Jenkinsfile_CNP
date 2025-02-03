@@ -31,6 +31,7 @@ def combinedSecrets = [
      secret('bulk-scan-app-secret',  'BULK_SCAN_APP_SECRET'),
      secret('bulk-scan-client-id', 'BULK_SCAN_CLIENT_ID'),
      secret('bulk-scan-client-secret', 'BULK_SCAN_CLIENT_SECRET'),
+     secret('tenant-id', 'TENANT_ID')
    ]
  ]
 
