@@ -26,6 +26,11 @@ def combinedSecrets = [
      secret('storage-account-staging-secondary-key', 'TEST_STORAGE_ACCOUNT_KEY'),
      secret('storage-account-staging-name', 'TEST_STORAGE_ACCOUNT_NAME'),
      secret('reconciliation-api-key', 'TEST_RECONCILIATION_API_KEY')
+
+     secret('bulk-scan-app-id', 'BULK_SCAN_APP_ID'),
+     secret('bulk-scan-app-secret',  'BULK_SCAN_APP_SECRET'),
+     secret('bulk-scan-client-id', 'BULK_SCAN_CLIENT_ID'),
+     secret('bulk-scan-client-secret', 'BULK_SCAN_CLIENT_SECRET'),
    ]
  ]
 
