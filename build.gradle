@@ -214,8 +214,8 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '5.14.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.14.0'
 
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.28.1'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.5'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.30.0'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.10'
 
   implementation group: 'org.apache.qpid', name: 'qpid-jms-client', version: '1.11.0'
 
