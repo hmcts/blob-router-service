@@ -1,7 +1,7 @@
 buildscript {
   ext {
     flywayVersion = '10.20.1'
-    postgresqlVersion = '42.7.4'
+    postgresqlVersion = '42.7.5'
   }
   dependencies {
     classpath("org.postgresql:postgresql:$postgresqlVersion") // must be compatible with flyway version
@@ -14,8 +14,8 @@ plugins {
   id 'checkstyle'
   id 'pmd'
   id 'jacoco'
-  id 'io.spring.dependency-management' version '1.1.6'
-  id 'org.springframework.boot' version '3.3.5'
+  id 'io.spring.dependency-management' version '1.1.7'
+  id 'org.springframework.boot' version '3.3.9'
   id 'org.owasp.dependencycheck' version '9.2.0'
   id 'com.github.ben-manes.versions' version '0.51.0'
   id 'org.sonarqube' version '5.0.0.4638'
@@ -215,7 +215,7 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '5.14.0'
 
   implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.28.1'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.5'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.10'
 
   implementation group: 'org.apache.qpid', name: 'qpid-jms-client', version: '1.11.0'
 
