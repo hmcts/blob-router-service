@@ -27,5 +27,5 @@ dependencies:
   - name: blobstorage
     alias: pcqblobstorage
     version: 2.0.2
-    repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+    repository: oci://hmctspublic.azurecr.io/helm
     condition: pcqblobstorage.enabled
