@@ -17,15 +17,15 @@ dependencies:
   - name: blobstorage
     alias: reformblobstorage
     version: 2.1.0
-    repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+    repository: oci://hmctspublic.azurecr.io/helm
     condition: reformblobstorage.enabled
   - name: blobstorage
     alias: crimeblobstorage
-    version: 2.0.2
-    repository: https://hmctspublic.azurecr.io/helm/v1/repo/
+    version: 2.1.0
+    repository: oci://hmctspublic.azurecr.io/helm
     condition: crimeblobstorage.enabled
   - name: blobstorage
     alias: pcqblobstorage
-    version: 2.0.2
+    version: 2.1.0
     repository: oci://hmctspublic.azurecr.io/helm
     condition: pcqblobstorage.enabled
