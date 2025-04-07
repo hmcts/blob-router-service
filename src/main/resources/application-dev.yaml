@@ -103,10 +103,6 @@ service:
       target-storage-account: cft
       target-container: privatelaw
       enabled: ${PRIVATELAW_ENABLED}
-    - source-container: sscs-ibca
-      sas-validity: 300 #In seconds
-      target-storage-account: cft
-      target-container: sscs-ibca
 
 reports:
   recipients: ${REPORTS_RECIPIENTS}
