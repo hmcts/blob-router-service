@@ -235,7 +235,7 @@ dependencies {
   implementation group: 'io.github.openfeign', name: 'feign-jackson', version: '13.5'
   // end region
 
-  implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.3.1'
+  implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.4.3'
   implementation group: 'javax.jms', name: 'javax.jms-api', version: '2.0.1'
   implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '3.1.0' // until logging-appinsights supports SB 3.x
 
