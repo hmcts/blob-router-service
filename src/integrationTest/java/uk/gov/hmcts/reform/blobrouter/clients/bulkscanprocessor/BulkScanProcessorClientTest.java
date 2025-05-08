@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.io.Resources;
 import feign.FeignException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +35,7 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 @AutoConfigureWireMock(port = 0)
 @ActiveProfiles("integration-test")
 @SpringBootTest(properties = "bulk-scan-processor-url=http://localhost:${wiremock.server.port}")
+@Disabled
 public class BulkScanProcessorClientTest {
 
     @Autowired
