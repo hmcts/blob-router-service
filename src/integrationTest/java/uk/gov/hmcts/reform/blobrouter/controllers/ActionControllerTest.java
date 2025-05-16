@@ -5,8 +5,8 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor.BulkScanProcessorClient;
 import uk.gov.hmcts.reform.blobrouter.clients.response.ZipFileResponse;
@@ -54,13 +54,13 @@ class ActionControllerTest {
     @Autowired
     private ActionController actionController;
 
-    @MockBean
+    @MockitoBean
     private EnvelopeRepository envelopeRepository;
 
-    @MockBean
+    @MockitoBean
     private EnvelopeEventRepository envelopeEventRepository;
 
-    @MockBean
+    @MockitoBean
     private BulkScanProcessorClient bulkScanProcessorClient;
 
     @Test

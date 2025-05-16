@@ -5,9 +5,9 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.atLeastOnce;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verify;
 @Profile("integration-test")
 public class SchedulerConfigTest {
 
-    @SpyBean
+    @MockitoSpyBean
     private LockProvider lockProvider;
 
     @Test
