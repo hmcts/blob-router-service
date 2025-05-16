@@ -7,7 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.envelopes.EnvelopeRepository;
@@ -42,7 +42,7 @@ class NewEnvelopesFinderTest {
     @Mock
     private ServiceConfiguration serviceConfiguration;
 
-    @MockBean
+    @MockitoBean
     private ClockProvider clockProvider;
 
     private NewEnvelopesFinder envelopesFinder;

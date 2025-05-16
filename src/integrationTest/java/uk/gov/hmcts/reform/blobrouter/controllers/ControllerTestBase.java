@@ -1,7 +1,7 @@
 package uk.gov.hmcts.reform.blobrouter.controllers;
 
 import net.javacrumbs.shedlock.core.LockProvider;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.blobrouter.config.ShedLockConfig;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 
@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
  * `ShedLockConfig` for use in controller tests.
  */
 public class ControllerTestBase {
-    @MockBean protected EnvelopeService envelopeService;
-    @MockBean protected LockProvider lockProvider;
-    @MockBean protected ShedLockConfig shedLockConfig;
+    @MockitoBean protected EnvelopeService envelopeService;
+    @MockitoBean protected LockProvider lockProvider;
+    @MockitoBean protected ShedLockConfig shedLockConfig;
 }
