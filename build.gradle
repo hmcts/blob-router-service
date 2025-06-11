@@ -1,7 +1,7 @@
 buildscript {
   ext {
     flywayVersion = '11.8.2'
-    postgresqlVersion = '42.7.5'
+    postgresqlVersion = '42.7.7'
   }
   dependencies {
     classpath("org.postgresql:postgresql:$postgresqlVersion") // must be compatible with flyway version
