@@ -242,8 +242,8 @@ dependencies {
 
   integrationTestImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '4.3.0'
 
-  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.21.2'
-  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.21.2'
+  integrationTestImplementation group: 'org.testcontainers', name: 'postgresql', version: '1.21.3'
+  integrationTestImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.21.3'
   integrationTestImplementation group: 'com.icegreen', name: 'greenmail', version: '2.1.3'
 
   functionalTestImplementation sourceSets.main.runtimeClasspath
