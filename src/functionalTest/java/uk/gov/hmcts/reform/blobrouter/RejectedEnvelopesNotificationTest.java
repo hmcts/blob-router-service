@@ -27,32 +27,21 @@ public class RejectedEnvelopesNotificationTest extends FunctionalTestBase {
 
     @Test
     void should_send_notification_for_rejected_envelope() throws Exception {
-        System.out.println("[HERE] Starting should_send_notification_for_rejected_envelope");
         // upload file with unique name and without signature
         String fileName = "reject_bulkscan" + randomFileName();
-        System.out.println("[HERE] Generated fileName: " + fileName);
 
         byte[] wrappingZipContent = createZipArchive(singletonList("test-data/envelope/envelope.zip"));
-        System.out.println("[HERE] Created zip archive for upload, size: " + wrappingZipContent.length + " bytes");
 
         // when
-        System.out.println("[HERE] Uploading file to container: " + BULK_SCAN_CONTAINER);
         uploadFile(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName, wrappingZipContent);
-        System.out.println("[HERE] Upload complete. Waiting for blob to disappear from source container...");
 
         // then
         await("Wait for the blob to disappear from source container")
             .atMost(2, TimeUnit.MINUTES)
-            .until(() -> {
-                boolean exists = blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName);
-                System.out.println("[HERE] Blob exists after upload? " + exists);
-                return !exists;
-            });
-        System.out.println("[HERE] Blob no longer exists in source container");
+            .until(() -> !blobExists(blobRouterStorageClient, BULK_SCAN_CONTAINER, fileName));
 
         // and
         assertNotificationIsSent(fileName);
-        System.out.println("[HERE] Notification assertion complete for file: " + fileName);
     }
 
     private void assertNotificationIsSent(String fileName) {
