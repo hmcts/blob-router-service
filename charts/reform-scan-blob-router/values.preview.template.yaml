@@ -1,4 +1,8 @@
 java:
+  devmemoryRequests: '1024Mi'
+  devcpuRequests: '500m'
+  devmemoryLimits: '2048Mi'
+  devcpuLimits: '5000m'
   secrets:
     STORAGE_ACCOUNT_NAME:
       secretRef: storage-account-reform-scan
