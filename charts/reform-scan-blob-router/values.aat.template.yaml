@@ -44,6 +44,8 @@ java:
           alias: S2S_SECRET
         - name: reconciliation-report-recipients
           alias: RECONCILIATION_REPORT_RECIPIENTS
+        - name: notification-staging-queue-send-shared-access-key
+          alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
   environment:
     DB_HOST: "{{ .Release.Name }}-postgresql"
     DB_NAME: "{{ .Values.postgresql.auth.database}}"
@@ -69,14 +71,11 @@ java:
     BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
     CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
 
-    NOTIFICATIONS_QUEUE_ACCESS_KEY_SEND_NAME: "RootManageSharedAccessKey"
-    NOTIFICATIONS_QUEUE_NAME: "{{ .Release.Name }}-servicebus-notifications"
-    NOTIFICATIONS_QUEUE_NAMESPACE: "reform-scan-sb-preview"
-    NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY: "$(SB_ACCESS_KEY)"
-    SB_NAMESPACE: "reform-scan-sb-preview"
-
     S2S_NAME: "reform_scan_blob_router"
     S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
+    NOTIFICATIONS_QUEUE_NAME: "notifications-staging"
+    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}-premium
+
   image: ${IMAGE_NAME}
   ingressHost: ${SERVICE_FQDN}
 
@@ -131,18 +130,3 @@ java:
     setup:
       containers:
         - pcq
-
-  servicebus:
-    resourceGroup: reform-scan-aso-preview-rg
-    teamName: "BSP"
-    location: uksouth
-    serviceplan: basic
-    sbNamespace: reform-scan-servicebus-preview
-    setup:
-      queues:
-        - name: notifications
-    enabled: true
-
-
-
-
