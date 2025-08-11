@@ -61,6 +61,11 @@ service:
       sas-validity: 300 #In seconds
       target-storage-account: cft
       target-container: bulkscanauto
+    - source-container: tempcontainer
+      sas-validity: 300 #In seconds
+      enabled: false
+      target-storage-account: cft
+      target-container: tempcontainer
     - source-container: cmc
       sas-validity: 300 #In seconds
       target-storage-account: cft
