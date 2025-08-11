@@ -1,27 +1,26 @@
 java:
-  secrets:
-    STORAGE_ACCOUNT_NAME:
-      secretRef: storage-account-reform-scan
-      key: storage_account_name
-    STORAGE_ACCOUNT_URL:
-      secretRef: storage-secret-reform-scan
-      key: blobEndpoint
-    STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-reform-scan
-      key: accessKey
-    STORAGE_CRIME_ACCOUNT_NAME:
-      secretRef: storage-account-crime-reform-scan
-      key: storage_account_name
-    STORAGE_CRIME_ACCOUNT_URL:
-      secretRef: storage-secret-crime-reform-scan
-      key: blobEndpoint
-    STORAGE_CRIME_ACCOUNT_KEY:
-      secretRef: storage-secret-crime-reform-scan
-      key: accessKey
+  environment:
+    DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
+    SEND_NOTIFICATIONS_CRON: "0/10 * * * * *"
+    FLYWAY_SKIP_MIGRATIONS: false
+    STORAGE_URL: https://reformscanstg.aat.platform.hmcts.net
+    NOTIFICATIONS_QUEUE_NAME: "notifications-staging"
+    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}-premium
+    DB_HOST: "{{ .Release.Name }}-postgresql"
+    DB_NAME: "{{ .Values.postgresql.auth.database}}"
+    DB_USER: "{{ .Values.postgresql.auth.username}}"
+    DB_PASSWORD: "{{ .Values.postgresql.auth.password}}"
+    DB_PORT: '5432'
+    DB_CONN_OPTIONS: ""
+  # Don't modify below here
+  image: ${IMAGE_NAME}
+  ingressHost: ${SERVICE_FQDN}
   keyVaults:
     reform-scan:
       resourceGroup: reform-scan
       secrets:
+        - name: app-insights-instrumentation-key
+          alias: azure.application-insights.instrumentation-key
         - name: reports-email-username
           alias: SMTP_USERNAME
         - name: reports-email-password
@@ -38,89 +37,19 @@ java:
           alias: S2S_SECRET
         - name: reconciliation-report-recipients
           alias: RECONCILIATION_REPORT_RECIPIENTS
+        - name: storage-account-staging-name
+          alias: storage.account-name
+        - name: storage-account-staging-primary-key
+          alias: storage.account-key
+        - name: storage-account-staging-secondary-key
+          alias: storage.account-secondary-key
+        - name: crime-storage-connection-string
+          alias: storage.crime.connection-string
         - name: notification-staging-queue-send-shared-access-key
           alias: NOTIFICATIONS_QUEUE_SEND_ACCESS_KEY
-  environment:
-    DB_HOST: "{{ .Release.Name }}-postgresql"
-    DB_NAME: "{{ .Values.postgresql.auth.database}}"
-    DB_USER: "{{ .Values.postgresql.auth.username}}"
-    DB_PASSWORD: "{{ .Values.postgresql.auth.password}}"
-    DB_PORT: '5432'
-    DB_CONN_OPTIONS: ""
-
-    DELETE_DISPATCHED_FILES_CRON: "0/10 * * * * *"
-    TASK_SCAN_DELAY: "1000" # in millis
-    SEND_NOTIFICATIONS_CRON: "0/10 * * * * *"
-
-    FLYWAY_SKIP_MIGRATIONS: false
-
-    STORAGE_BULKSCAN_URL: https://bulkscanaat.blob.core.windows.net
-    STORAGE_PCQ_URL: "https://pcqsharedaat.blob.core.windows.net"
-
-    STORAGE_URL: "https://$(STORAGE_ACCOUNT_NAME).blob.core.windows.net"
-    STORAGE_CRIME_CONNECTION_STRING: "DefaultEndpointsProtocol=https;AccountName=$(STORAGE_CRIME_ACCOUNT_NAME);AccountKey=$(STORAGE_CRIME_ACCOUNT_KEY);EndpointSuffix=core.windows.net"
-
-    PCQ_BACKEND_API_URL: "http://pcq-backend-aat.service.core-compute-aat.internal"
-
-    BULK_SCAN_PROCESSOR_URL: http://bulk-scan-processor-aat.service.core-compute-aat.internal
-    CRIME_DESTINATION_CONTAINER: bs-sit-scans-received
-
-    S2S_NAME: "reform_scan_blob_router"
-    S2S_URL: "http://rpe-service-auth-provider-aat.service.core-compute-aat.internal"
-    NOTIFICATIONS_QUEUE_NAME: "notifications-staging"
-    NOTIFICATIONS_QUEUE_NAMESPACE: reform-scan-servicebus-{{ .Values.global.environment }}-premium
-
-  image: ${IMAGE_NAME}
-  ingressHost: ${SERVICE_FQDN}
-
   postgresql:
     enabled: true
     image:
       registry: hmctspublic.azurecr.io
       repository: imported/bitnami/postgresql
       tag: '15'
-
-  reformblobstorage:
-    enabled: true
-    resourceGroup: reform-scan-aso-preview-rg
-    releaseNameOverride: reform-scan
-    teamName: "BSP"
-    location: uksouth
-    setup:
-      containers:
-        - bulkscan
-        - bulkscan-rejected
-        - bulkscanauto
-        - bulkscanauto-rejected
-        - crime
-        - crime-rejected
-        - cmc
-        - sscs
-        - finrem
-        - divorce
-        - nfd
-        - probate
-        - publiclaw
-        - privatelaw
-        - pcq
-        - pcq-rejected
-
-  crimeblobstorage:
-    enabled: true
-    resourceGroup: reform-scan-aso-preview-rg
-    releaseNameOverride: crime-reform-scan
-    teamName: "BSP"
-    location: uksouth
-    setup:
-      containers:
-        - bs-sit-scans-received
-
-  pcqblobstorage:
-    enabled: true
-    resourceGroup: reform-scan-aso-preview-rg
-    releaseNameOverride: pcq-reform-scan
-    teamName: "BSP"
-    location: uksouth
-    setup:
-      containers:
-        - pcq
