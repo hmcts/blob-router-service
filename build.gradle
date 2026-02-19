@@ -229,7 +229,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.3'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.1'
-  implementation group: 'com.google.guava', name: 'guava', version: '33.4.8-jre'
+  implementation group: 'com.google.guava', name: 'guava', version: '33.5.0-jre'
   implementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.10', classifier: 'all'
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
