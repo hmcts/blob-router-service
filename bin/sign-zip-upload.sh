@@ -91,14 +91,20 @@ rm ${SIGNATURE_FILE_NAME}
 
 echo "Uploading $ZIP_FILE_NAME to blob storage..."
 
-UPLOAD_COMMAND=`curl -i -X PUT --upload-file "$ZIP_FILE_NAME" -H "x-ms-date: $(date -u)" -H "x-ms-blob-type: BlockBlob" -H "Content-Type: application/octet-stream" "https://reformscan.$ENVI.platform.hmcts.net/$CONTAINER/$ZIP_FILE_NAME?$SAS_TOKEN"`
+CLEAN_CONTAINER=$(echo "$CONTAINER" | tr -d '\n' | xargs)
+CLEAN_ZIP_FILE_NAME=$(echo "$ZIP_FILE_NAME" | tr -d '\n' | xargs)
+CLEAN_SAS_TOKEN=$(echo "$SAS_TOKEN" | tr -d '\n' | xargs)
 
-if [[ ${UPLOAD_COMMAND} == *"201 Created"* ]]; then
-  echo "Uploaded $ZIP_FILE_NAME to blob storage"
+response=$(curl -s -o /dev/null -w "%{http_code}" -X PUT --upload-file "$CLEAN_ZIP_FILE_NAME" \
+  -H "x-ms-date: $(date -u)" \
+  -H "x-ms-blob-type: BlockBlob" \
+  -H "Content-Type: application/octet-stream" \
+  "https://reformscan.$ENVI.platform.hmcts.net/$CLEAN_CONTAINER/$CLEAN_ZIP_FILE_NAME?$CLEAN_SAS_TOKEN")
+
+if [ "$response" -eq 201 ]; then
+  echo "Upload successful!"
 else
-  echo "Did not upload $ZIP_FILE_NAME. Command outcome:\n"
-  echo ${UPLOAD_COMMAND}
-fi
+  echo "Upload failed with status $response"
 
 # more cleanup
 rm ${ZIP_FILE_NAME}
