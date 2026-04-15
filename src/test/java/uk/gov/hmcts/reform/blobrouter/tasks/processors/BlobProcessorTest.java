@@ -28,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.will;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -128,7 +129,7 @@ class BlobProcessorTest {
         setupContainerConfig(SOURCE_CONTAINER, TARGET_CONTAINER, PCQ);
 
         HttpResponse errorResponse = mock(HttpResponse.class);
-        given(errorResponse.getStatusCode()).willReturn(BAD_GATEWAY.value());
+        lenient().when(errorResponse.getStatusCode()).thenReturn(BAD_GATEWAY.value());
         given(verifier.verifyZip(any(), any())).willReturn(OK_VERIFICATION_RESULT);
 
         willThrow(new BlobStorageException("test", errorResponse, null))
