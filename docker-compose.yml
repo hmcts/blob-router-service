@@ -24,7 +24,7 @@ services:
         - http_proxy
         - https_proxy
         - no_proxy
-    image: hmctspublic.azurecr.io/reform-scan/blob-router
+    image: hmctsprod.azurecr.io/reform-scan/blob-router
     links:
       - blob-router-service-db
     ports:
