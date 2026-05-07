@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 echo "Checking toolset..."
 
@@ -105,6 +105,7 @@ if [ "$response" -eq 201 ]; then
   echo "Upload successful!"
 else
   echo "Upload failed with status $response"
+fi
 
 # more cleanup
-rm ${ZIP_FILE_NAME}
+rm "${ZIP_FILE_NAME}"
