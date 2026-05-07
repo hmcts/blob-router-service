@@ -6,6 +6,8 @@
 
 ### Zip and sign and upload
 
+Note: A SAS token is now automatically fetched from blob-router, so there is no need to fetch it manually and export as environment variable.
+
 Tool `sign-zip-upload.sh` provides the capabilities to zip the directory of your choosing.
 It is considered to have correct metafile json and required pdf files.
 It may contain anything else but for correctness - script only takes `*.json` and `*.pdf` files.
