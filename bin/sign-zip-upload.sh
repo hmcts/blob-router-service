@@ -16,6 +16,13 @@ command -v jq >/dev/null 2>&1 || {
   exit 1
 }
 
+command -v curl >/dev/null 2>&1 || {
+  echo "##########################"
+  echo >&2 "Please install curl"
+  echo "##########################"
+  exit 1
+}
+
 if [[ -z "${1}" ]]; then
   echo "Missing folder name in current working directory"
   echo "Folder contents will be considered up to standards, zipped and uploaded to blob storage"
@@ -43,14 +50,7 @@ if [[ ! -d "$DIRECTORY" ]]; then
 fi
 
 if [[ -z "$CONTAINER" ]]; then
-  echo "Missing container name. Script is incomplete - check `CONTAINER=""` value is set"
-
-  exit 1
-fi
-
-if [[ -z "$SAS_TOKEN" ]]; then
-  echo "Missing SAS token. Export it into current session or locally per script run."
-  echo "Ask BSP Team for help"
+  echo "Missing container name. Export CONTAINER in the current shell session."
 
   exit 1
 fi
@@ -93,7 +93,21 @@ echo "Uploading $ZIP_FILE_NAME to blob storage..."
 
 CLEAN_CONTAINER=$(echo "$CONTAINER" | tr -d '\n' | xargs)
 CLEAN_ZIP_FILE_NAME=$(echo "$ZIP_FILE_NAME" | tr -d '\n' | xargs)
-CLEAN_SAS_TOKEN=$(echo "$SAS_TOKEN" | tr -d '\n' | xargs)
+TOKEN_URL="http://reform-scan-blob-router-$ENVI.service.core-compute-$ENVI.internal/token/$CLEAN_CONTAINER"
+
+echo "Fetching SAS token from blob-router..."
+
+token_response=$(curl -fsS "$TOKEN_URL") || {
+  echo "Failed to retrieve SAS token from $TOKEN_URL"
+  exit 1
+}
+
+CLEAN_SAS_TOKEN=$(echo "$token_response" | jq -r '.sas_token' | tr -d '\n' | xargs)
+
+if [[ -z "$CLEAN_SAS_TOKEN" || "$CLEAN_SAS_TOKEN" == "null" ]]; then
+  echo "Token service did not return a valid sas_token"
+  exit 1
+fi
 
 response=$(curl -s -o /dev/null -w "%{http_code}" -X PUT --upload-file "$CLEAN_ZIP_FILE_NAME" \
   -H "x-ms-date: $(date -u)" \
