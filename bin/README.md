@@ -38,7 +38,7 @@ In the above command:
 - `CONTAINER` environment variable. Current session where command is executed
 
 The upload token is fetched from:
-`http://reform-scan-blob-router-demo.service.core-compute-demo.internal/token/{container}`
+`http://reform-scan-blob-router-{env}.service.core-compute-{env}.internal/token/{container}`
 
 Response format:
 
