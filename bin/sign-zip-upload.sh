@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 echo "Checking toolset..."
 
@@ -13,6 +13,13 @@ command -v jq >/dev/null 2>&1 || {
   echo "###################################"
   echo >&2 "Please install JQ CLI processor"
   echo "###################################"
+  exit 1
+}
+
+command -v curl >/dev/null 2>&1 || {
+  echo "##########################"
+  echo >&2 "Please install curl"
+  echo "##########################"
   exit 1
 }
 
@@ -43,14 +50,7 @@ if [[ ! -d "$DIRECTORY" ]]; then
 fi
 
 if [[ -z "$CONTAINER" ]]; then
-  echo "Missing container name. Script is incomplete - check `CONTAINER=""` value is set"
-
-  exit 1
-fi
-
-if [[ -z "$SAS_TOKEN" ]]; then
-  echo "Missing SAS token. Export it into current session or locally per script run."
-  echo "Ask BSP Team for help"
+  echo "Missing container name. Export CONTAINER in the current shell session."
 
   exit 1
 fi
@@ -91,14 +91,35 @@ rm ${SIGNATURE_FILE_NAME}
 
 echo "Uploading $ZIP_FILE_NAME to blob storage..."
 
-UPLOAD_COMMAND=`curl -i -X PUT --upload-file "$ZIP_FILE_NAME" -H "x-ms-date: $(date -u)" -H "x-ms-blob-type: BlockBlob" -H "Content-Type: application/octet-stream" "https://reformscan.$ENVI.platform.hmcts.net/$CONTAINER/$ZIP_FILE_NAME?$SAS_TOKEN"`
+CLEAN_CONTAINER=$(echo "$CONTAINER" | tr -d '\n' | xargs)
+CLEAN_ZIP_FILE_NAME=$(echo "$ZIP_FILE_NAME" | tr -d '\n' | xargs)
+TOKEN_URL="http://reform-scan-blob-router-$ENVI.service.core-compute-$ENVI.internal/token/$CLEAN_CONTAINER"
 
-if [[ ${UPLOAD_COMMAND} == *"201 Created"* ]]; then
-  echo "Uploaded $ZIP_FILE_NAME to blob storage"
+echo "Fetching SAS token from blob-router..."
+
+token_response=$(curl -fsS "$TOKEN_URL") || {
+  echo "Failed to retrieve SAS token from $TOKEN_URL"
+  exit 1
+}
+
+CLEAN_SAS_TOKEN=$(echo "$token_response" | jq -r '.sas_token' | tr -d '\n' | xargs)
+
+if [[ -z "$CLEAN_SAS_TOKEN" || "$CLEAN_SAS_TOKEN" == "null" ]]; then
+  echo "Token service did not return a valid sas_token"
+  exit 1
+fi
+
+response=$(curl -s -o /dev/null -w "%{http_code}" -X PUT --upload-file "$CLEAN_ZIP_FILE_NAME" \
+  -H "x-ms-date: $(date -u)" \
+  -H "x-ms-blob-type: BlockBlob" \
+  -H "Content-Type: application/octet-stream" \
+  "https://reformscan.$ENVI.platform.hmcts.net/$CLEAN_CONTAINER/$CLEAN_ZIP_FILE_NAME?$CLEAN_SAS_TOKEN")
+
+if [ "$response" -eq 201 ]; then
+  echo "Upload successful!"
 else
-  echo "Did not upload $ZIP_FILE_NAME. Command outcome:\n"
-  echo ${UPLOAD_COMMAND}
+  echo "Upload failed with status $response"
 fi
 
 # more cleanup
-rm ${ZIP_FILE_NAME}
+rm "${ZIP_FILE_NAME}"
