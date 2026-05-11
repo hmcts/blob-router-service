@@ -4,7 +4,7 @@ import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.jdbctemplate.JdbcTemplateLockProvider;
 import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration.FlywayConfiguration;
+import org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -17,7 +17,7 @@ import javax.sql.DataSource;
  * JdbcTemplateLockProvider.
  */
 @Configuration
-@AutoConfigureAfter(FlywayConfiguration.class)
+@AutoConfigureAfter(FlywayAutoConfiguration.class)
 @DependsOn({"flyway", "flywayInitializer"})
 @EnableScheduling
 @EnableSchedulerLock(defaultLockAtMostFor = "${scheduling.lock_at_most_for}")

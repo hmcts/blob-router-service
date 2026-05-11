@@ -6,7 +6,6 @@ import feign.FeignException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.hmcts.reform.blobrouter.clients.response.SasTokenResponse;
 import uk.gov.hmcts.reform.blobrouter.clients.response.ZipFileResponse;
@@ -31,7 +30,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
-@AutoConfigureWireMock(port = 0)
 @ActiveProfiles("integration-test")
 @SpringBootTest(properties = "bulk-scan-processor-url=http://localhost:${wiremock.server.port}")
 public class BulkScanProcessorClientTest {

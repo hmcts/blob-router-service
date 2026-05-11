@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.ReconciliationReportRepository;
 import uk.gov.hmcts.reform.blobrouter.data.reconciliation.reports.model.ReconciliationReport;
@@ -68,7 +68,7 @@ public class ReconciliationService {
             );
             logger.info("Save supplier statement for date: {}", statement.date);
             return statementRepo.save(statement);
-        } catch (JsonProcessingException | SQLException e) {
+        } catch (JacksonException | SQLException e) {
             throw new InvalidSupplierStatementException("Failed to process Supplier statement", e);
         }
     }
