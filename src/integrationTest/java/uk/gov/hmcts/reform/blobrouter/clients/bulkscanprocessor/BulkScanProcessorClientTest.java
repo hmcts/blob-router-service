@@ -1,12 +1,19 @@
 package uk.gov.hmcts.reform.blobrouter.clients.bulkscanprocessor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.google.common.io.Resources;
 import feign.FeignException;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import uk.gov.hmcts.reform.blobrouter.clients.response.SasTokenResponse;
 import uk.gov.hmcts.reform.blobrouter.clients.response.ZipFileResponse;
 import uk.gov.hmcts.reform.blobrouter.reconciliation.report.DiscrepancyItem;
@@ -31,8 +38,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 @ActiveProfiles("integration-test")
-@SpringBootTest(properties = "bulk-scan-processor-url=http://localhost:${wiremock.server.port}")
+@SpringBootTest
 public class BulkScanProcessorClientTest {
+
+    static WireMockServer wireMockServer =
+        new WireMockServer(WireMockConfiguration.options().dynamicPort());
+
+    @BeforeAll
+    static void setup() {
+        wireMockServer.start();
+        WireMock.configureFor("localhost", wireMockServer.port());
+    }
+
+    @AfterAll
+    static void teardown() {
+        wireMockServer.stop();
+    }
+
+    @DynamicPropertySource
+    static void properties(DynamicPropertyRegistry registry) {
+        registry.add(
+            "bulk-scan-processor-url",
+            () -> "http://localhost:" + wireMockServer.port()
+        );
+    }
 
     @Autowired
     private BulkScanProcessorClient client;

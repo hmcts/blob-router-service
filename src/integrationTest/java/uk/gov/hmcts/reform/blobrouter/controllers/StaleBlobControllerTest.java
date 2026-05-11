@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.blobrouter.services.storage.StaleBlobFinder;
 import uk.gov.hmcts.reform.blobrouter.util.DateFormatter;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -37,7 +38,7 @@ public class StaleBlobControllerTest {
     @Test
     void should_return_list_of_stale_blobs_when_there_is_with_request_param() throws Exception {
 
-        Instant createdAt = Instant.now();
+        Instant createdAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
         given(staleBlobFinder.findStaleBlobs(60))
             .willReturn(Arrays.asList(
@@ -67,7 +68,7 @@ public class StaleBlobControllerTest {
     @Test
     void should_return_list_of_stale_blobs_when_there_is_by_default_param_value() throws Exception {
 
-        Instant createdAt = Instant.now();
+        Instant createdAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
         given(staleBlobFinder.findStaleBlobs(120))
             .willReturn(Arrays.asList(new BlobInfo("container1", "file_name_1", createdAt)));
