@@ -33,21 +33,21 @@ class RejectedContainerCleanerTest extends BlobStorageBaseTest {
         upload(rejectedContainer, "bye.zip");
         upload(rejectedContainer, "cya.zip");
 
-            given(blobChecker.shouldBeDeleted(any())).willReturn(true); // always allow deleting blobs
+        given(blobChecker.shouldBeDeleted(any())).willReturn(true); // always allow deleting blobs
 
 
-            // when
-            new RejectedContainerCleaner(storageClient, blobChecker, envelopeService, leaseAcquirer).cleanUp();
+        // when
+        new RejectedContainerCleaner(storageClient, blobChecker, envelopeService, leaseAcquirer).cleanUp();
 
-            // then
-            assertThat(normalContainer.listBlobs())
-                .extracting(BlobItem::getName)
-                .as("File from input container should stay")
-                .contains("keep.zip");
+        // then
+        assertThat(normalContainer.listBlobs())
+            .extracting(BlobItem::getName)
+            .as("File from input container should stay")
+            .contains("keep.zip");
 
-            assertThat(rejectedContainer.listBlobs())
-                .as("Rejected files should be deleted")
-                .isEmpty();
+        assertThat(rejectedContainer.listBlobs())
+            .as("Rejected files should be deleted")
+            .isEmpty();
     }
 
     private void upload(BlobContainerClient containerClient, String fileName) {
