@@ -211,6 +211,7 @@ dependencies {
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-webmvc'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-activemq'
+  implementation("org.apache.activemq:activemq-broker")
   implementation 'org.springframework.boot:spring-boot-starter-jdbc'
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '5.0.1'
 
