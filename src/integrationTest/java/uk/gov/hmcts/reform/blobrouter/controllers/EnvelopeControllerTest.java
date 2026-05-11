@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.blobrouter.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import reactor.util.function.Tuples;
@@ -18,6 +18,7 @@ import uk.gov.hmcts.reform.blobrouter.util.DateFormatter;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import static java.time.Instant.now;
@@ -53,8 +54,8 @@ public class EnvelopeControllerTest extends ControllerTestBase {
         final String fileName = "some_file_name.zip";
         final String container = "some_container";
 
-        Instant createdDate = Instant.parse("2020-05-20T10:15:10.000Z");
-        Envelope envelopeInDb = envelope(fileName, container, Instant.from(createdDate));
+        Instant createdDate = Instant.parse("2020-05-20T10:15:10Z").truncatedTo(ChronoUnit.MILLIS);
+        Envelope envelopeInDb = envelope(fileName, container, createdDate);
         var eventRecordInDb1 = envelopeEvent(envelopeInDb.id, 1, EventType.FILE_PROCESSING_STARTED);
         var eventRecordInDb2 = envelopeEvent(envelopeInDb.id, 2, EventType.DISPATCHED);
 
@@ -78,7 +79,7 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             .andExpect(jsonPath("$.count").value(1))
             .andExpect(jsonPath("$.data", hasSize(1)))
             .andExpect(jsonPath("$.data[0].id").value(envelopeInDb.id.toString()))
-            .andExpect(jsonPath("$.data[0].created_at").value("2020-05-20T10:15:10.000Z"))
+            .andExpect(jsonPath("$.data[0].created_at").value("2020-05-20T10:15:10Z"))
             .andExpect(jsonPath("$.data[0].file_created_at").value(
                 DateFormatter.getSimpleDateTime(envelopeInDb.fileCreatedAt))
             )
@@ -369,9 +370,9 @@ public class EnvelopeControllerTest extends ControllerTestBase {
             UUID.randomUUID(),
             container,
             fileName,
-            createdDate,
-            now(),
-            now(),
+            createdDate.truncatedTo(ChronoUnit.MILLIS),
+            now().truncatedTo(ChronoUnit.MILLIS),
+            now().truncatedTo(ChronoUnit.MILLIS),
             Status.DISPATCHED,
             false,
             false,
@@ -380,6 +381,6 @@ public class EnvelopeControllerTest extends ControllerTestBase {
     }
 
     private EnvelopeEvent envelopeEvent(UUID envelopeId, int eventId, EventType eventType) {
-        return new EnvelopeEvent(eventId, envelopeId, eventType, null, null, now());
+        return new EnvelopeEvent(eventId, envelopeId, eventType, null, null, now().truncatedTo(ChronoUnit.MILLIS));
     }
 }

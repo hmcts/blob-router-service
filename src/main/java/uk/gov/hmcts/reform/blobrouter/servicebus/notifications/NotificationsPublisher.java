@@ -2,11 +2,11 @@ package uk.gov.hmcts.reform.blobrouter.servicebus.notifications;
 
 import com.azure.messaging.servicebus.ServiceBusMessage;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;

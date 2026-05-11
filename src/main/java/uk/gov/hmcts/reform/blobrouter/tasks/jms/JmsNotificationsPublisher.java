@@ -1,12 +1,12 @@
 package uk.gov.hmcts.reform.blobrouter.tasks.jms;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.NotificationsPublishingException;
 import uk.gov.hmcts.reform.blobrouter.servicebus.notifications.model.NotificationMsg;
 

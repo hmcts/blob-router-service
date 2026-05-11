@@ -1,10 +1,10 @@
 package uk.gov.hmcts.reform.blobrouter.reconciliation.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import uk.gov.hmcts.reform.blobrouter.config.ServiceConfiguration;
 import uk.gov.hmcts.reform.blobrouter.config.StorageConfigItem;
 import uk.gov.hmcts.reform.blobrouter.config.TargetStorageAccount;
@@ -110,7 +110,7 @@ public class SummaryReportService {
         try {
             supplierStatement = objectMapper
                 .readValue(envelopeSupplierStatement.content, SupplierStatement.class);
-        } catch (JsonProcessingException jsonEx) {
+        } catch (JacksonException jsonEx) {
             logger.error(
                 "Error while parsing supplier statement. Supplier statement id:{}, date:{}",
                 envelopeSupplierStatement.id,

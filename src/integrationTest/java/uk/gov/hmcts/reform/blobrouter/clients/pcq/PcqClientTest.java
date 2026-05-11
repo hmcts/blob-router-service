@@ -1,10 +1,16 @@
 package uk.gov.hmcts.reform.blobrouter.clients.pcq;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import uk.gov.hmcts.reform.blobrouter.clients.response.SasTokenResponse;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -13,10 +19,31 @@ import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@AutoConfigureWireMock(port = 0)
 @ActiveProfiles("integration-test")
-@SpringBootTest(properties = "pcq-backend-api-url=http://localhost:${wiremock.server.port}")
+@SpringBootTest
 public class PcqClientTest {
+
+    static WireMockServer wireMockServer =
+        new WireMockServer(WireMockConfiguration.options().dynamicPort());
+
+    @BeforeAll
+    static void setup() {
+        wireMockServer.start();
+        WireMock.configureFor("localhost", wireMockServer.port());
+    }
+
+    @AfterAll
+    static void teardown() {
+        wireMockServer.stop();
+    }
+
+    @DynamicPropertySource
+    static void properties(DynamicPropertyRegistry registry) {
+        registry.add(
+            "pcq-backend-api-url",
+            () -> "http://localhost:" + wireMockServer.port()
+        );
+    }
 
     @Autowired
     private PcqClient client;
