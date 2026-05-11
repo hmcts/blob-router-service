@@ -3,9 +3,9 @@ package uk.gov.hmcts.reform.blobrouter.services.storage;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.models.BlobItem;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.gov.hmcts.reform.blobrouter.services.EnvelopeService;
 import uk.gov.hmcts.reform.blobrouter.services.RejectedBlobChecker;
 import uk.gov.hmcts.reform.blobrouter.tasks.processors.RejectedContainerCleaner;
@@ -21,7 +21,7 @@ class RejectedContainerCleanerTest extends BlobStorageBaseTest {
     @Autowired EnvelopeService envelopeService;
     @Autowired LeaseAcquirer leaseAcquirer;
 
-    @Mock RejectedBlobChecker blobChecker;
+    @MockitoBean RejectedBlobChecker blobChecker;
 
     @Test
     void should_delete_files_from_rejected_container() {
@@ -33,20 +33,21 @@ class RejectedContainerCleanerTest extends BlobStorageBaseTest {
         upload(rejectedContainer, "bye.zip");
         upload(rejectedContainer, "cya.zip");
 
-        given(blobChecker.shouldBeDeleted(any())).willReturn(true); // always allow deleting blobs
+            given(blobChecker.shouldBeDeleted(any())).willReturn(true); // always allow deleting blobs
 
-        // when
-        new RejectedContainerCleaner(storageClient, blobChecker, envelopeService, leaseAcquirer).cleanUp();
 
-        // then
-        assertThat(normalContainer.listBlobs())
-            .extracting(BlobItem::getName)
-            .as("File from input container should stay")
-            .contains("keep.zip");
+            // when
+            new RejectedContainerCleaner(storageClient, blobChecker, envelopeService, leaseAcquirer).cleanUp();
 
-        assertThat(rejectedContainer.listBlobs())
-            .as("Rejected files should be deleted")
-            .isEmpty();
+            // then
+            assertThat(normalContainer.listBlobs())
+                .extracting(BlobItem::getName)
+                .as("File from input container should stay")
+                .contains("keep.zip");
+
+            assertThat(rejectedContainer.listBlobs())
+                .as("Rejected files should be deleted")
+                .isEmpty();
     }
 
     private void upload(BlobContainerClient containerClient, String fileName) {
