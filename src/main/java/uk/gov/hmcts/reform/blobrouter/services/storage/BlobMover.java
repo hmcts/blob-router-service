@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
-import static com.microsoft.applicationinsights.web.dependencies.apachecommons.io.FileUtils.byteCountToDisplaySize;
+import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 import static org.slf4j.LoggerFactory.getLogger;
 import static uk.gov.hmcts.reform.blobrouter.services.storage.RejectedFilesHandler.REJECTED_CONTAINER_SUFFIX;
 
