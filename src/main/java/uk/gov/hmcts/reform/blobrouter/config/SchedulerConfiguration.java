@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.blobrouter.config;
 
-import com.microsoft.applicationinsights.web.internal.RequestTelemetryContext;
-import com.microsoft.applicationinsights.web.internal.ThreadContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -12,30 +10,20 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
-
-import static java.time.LocalDateTime.now;
 
 /**
  * The `SchedulerConfiguration` class in Java configures a custom `ThreadPoolTaskScheduler` for routing tasks with error
- * handling and telemetry context management.
+ * handling and consistent task wrapping.
  */
 @Configuration
 public class SchedulerConfiguration implements SchedulingConfigurer {
 
     private static final int POOL_SIZE = 10;
-    private static AtomicInteger errorCount = new AtomicInteger(0);
+    private static final AtomicInteger errorCount = new AtomicInteger(0);
     private static final Logger log = LoggerFactory.getLogger(SchedulerConfiguration.class);
-
-    private static final Supplier<Long> CURRENT_MILLIS_SUPPLIER = () -> now()
-        .atZone(ZoneId.of("Europe/London")).toInstant().toEpochMilli();
-
-    private static final Supplier<RequestTelemetryContext> REQUEST_CONTEXT_SUPPLIER = () ->
-        new RequestTelemetryContext(CURRENT_MILLIS_SUPPLIER.get(), null);
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
@@ -62,7 +50,7 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
     }
 
     /**
-     * Custom {@link ThreadPoolTaskScheduler} to be able to register scheduled tasks via AppInsights.
+     * Custom {@link ThreadPoolTaskScheduler} that wraps every task consistently.
      */
     private static class RouterTaskScheduler extends ThreadPoolTaskScheduler {
 
@@ -75,7 +63,7 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
 
         @Override
         public ScheduledFuture<?> schedule(Runnable task, Trigger trigger) {
-            return super.schedule(new WrappedRunnable(task, REQUEST_CONTEXT_SUPPLIER.get()), trigger);
+            return super.schedule(new WrappedRunnable(task), trigger);
         }
 
         @Override
@@ -104,34 +92,24 @@ public class SchedulerConfiguration implements SchedulingConfigurer {
         }
 
         private Runnable getWrappedRunnable(Runnable task) {
-            return new WrappedRunnable(task, REQUEST_CONTEXT_SUPPLIER.get());
+            return new WrappedRunnable(task);
         }
     }
 
     /**
      * The `WrappedRunnable` class implements the `Runnable` interface and wraps another `Runnable` task while
-     * managing a `RequestTelemetryContext` for each run.
+     * preserving a dedicated hook point for scheduled-task execution behavior.
      */
     private static class WrappedRunnable implements Runnable {
 
         private final Runnable task;
-        private RequestTelemetryContext requestContext;
 
-        WrappedRunnable(Runnable task, RequestTelemetryContext requestContext) {
+        WrappedRunnable(Runnable task) {
             this.task = task;
-            this.requestContext = requestContext;
         }
 
         @Override
         public void run() {
-            if (ThreadContext.getRequestTelemetryContext() != null) {
-                ThreadContext.remove();
-
-                // since this runnable is ran on schedule, update the context on every run
-                requestContext = REQUEST_CONTEXT_SUPPLIER.get();
-            }
-
-            ThreadContext.setRequestTelemetryContext(requestContext);
 
             task.run();
         }

@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import uk.gov.hmcts.reform.blobrouter.config.TestConfiguration;
-import uk.gov.hmcts.reform.logging.appinsights.SyntheticHeaders;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -20,6 +19,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 public class ReconciliationControllerTest {
 
     private static final TestConfiguration config = new TestConfiguration();
+    private static final String SYNTHETIC_TEST_SOURCE_HEADER = "SyntheticTest-Source";
 
     @Test
     void should_return_success_response_when_authorization_key_is_valid() throws Exception {
@@ -50,7 +50,7 @@ public class ReconciliationControllerTest {
             .relaxedHTTPSValidation()
             .baseUri(config.blobRouterUrl)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(SyntheticHeaders.SYNTHETIC_TEST_SOURCE, "Blob Router Service Functional test")
+            .header(SYNTHETIC_TEST_SOURCE_HEADER, "Blob Router Service Functional test")
             .header(HttpHeaders.AUTHORIZATION, authKey)
             .body(report)
             .post("/reconciliation-report/{date}", LocalDate.now().toString())

@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/hmcts/blob-router-service/branch/master/graph/badge.svg)](https://codecov.io/gh/hmcts/blob-router-service)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/c99af8bcd53947deb32e8f0a7c500676)](https://www.codacy.com/manual/HMCTS/blob-router-service)
 
-## Table of Contents
+## Table of Contents.
 
 * [Purpose](#Purpose)
 * [Building and deploying the application](#building-and-deploying-the-application)
