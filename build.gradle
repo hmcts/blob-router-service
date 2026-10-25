@@ -250,7 +250,7 @@ dependencies {
 
   functionalTestImplementation group: 'org.assertj', name: 'assertj-core', version: '3.27.7'
   functionalTestImplementation group: 'com.jayway.awaitility', name: 'awaitility', version: '1.7.0'
-  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.6'
+  functionalTestImplementation group: 'com.typesafe', name: 'config', version: '1.4.9'
   functionalTestImplementation group: 'io.rest-assured', name: 'rest-assured', version: '5.5.7'
 
   smokeTestImplementation sourceSets.functionalTest.runtimeClasspath
