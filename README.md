@@ -30,6 +30,7 @@ It also provides infrastructure to deploy API management service for retrieving 
 containers.
 
 ## Building and deploying the application
+
 ### Building the application
 
 The project uses [Gradle](https://gradle.org) as a build tool. It already contains
