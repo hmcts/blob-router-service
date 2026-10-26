@@ -30,6 +30,11 @@ It also provides infrastructure to deploy API management service for retrieving 
 containers.
 
 ## Building and deploying the application
+
+### Prerequisites
+- [JDK 25](https://www.oracle.com/java)
+- Project requires Spring Boot v3.x to be present
+
 ### Building the application
 
 The project uses [Gradle](https://gradle.org) as a build tool. It already contains
