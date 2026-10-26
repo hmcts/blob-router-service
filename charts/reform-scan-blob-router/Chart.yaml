@@ -11,21 +11,21 @@ dependencies:
     version: 6.1.1
     repository: oci://hmctsprod.azurecr.io/helm
   - name: servicebus
-    version: 1.2.2
+    version: 1.3.0
     repository: oci://hmctsprod.azurecr.io/helm
     condition: servicebus.enabled
   - name: blobstorage
     alias: reformblobstorage
-    version: 2.2.3
+    version: 2.3.1
     repository: oci://hmctsprod.azurecr.io/helm
     condition: reformblobstorage.enabled
   - name: blobstorage
     alias: crimeblobstorage
-    version: 2.2.3
+    version: 2.3.1
     repository: oci://hmctsprod.azurecr.io/helm
     condition: crimeblobstorage.enabled
   - name: blobstorage
     alias: pcqblobstorage
-    version: 2.2.3
+    version: 2.3.1
     repository: oci://hmctsprod.azurecr.io/helm
     condition: pcqblobstorage.enabled
