@@ -97,8 +97,6 @@ java:
 
 reformblobstorage:
   enabled: true
-  annotations:
-    serviceoperator.azure.com/reconcile-policy: detach-on-delete
   resourceGroup: reform-scan-aso-preview-rg
   releaseNameOverride: reform-scan
   teamName: "BSP"
@@ -124,8 +122,6 @@ reformblobstorage:
 
 crimeblobstorage:
   enabled: true
-  annotations:
-    serviceoperator.azure.com/reconcile-policy: detach-on-delete
   resourceGroup: reform-scan-aso-preview-rg
   releaseNameOverride: crime-reform-scan
   teamName: "BSP"
@@ -136,8 +132,6 @@ crimeblobstorage:
 
 pcqblobstorage:
   enabled: true
-  annotations:
-    serviceoperator.azure.com/reconcile-policy: detach-on-delete
   resourceGroup: reform-scan-aso-preview-rg
   releaseNameOverride: pcq-reform-scan
   teamName: "BSP"
