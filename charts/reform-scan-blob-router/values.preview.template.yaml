@@ -98,7 +98,6 @@ java:
 reformblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
@@ -123,7 +122,6 @@ reformblobstorage:
 crimeblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: crime-reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
@@ -133,7 +131,6 @@ crimeblobstorage:
 pcqblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: pcq-reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
