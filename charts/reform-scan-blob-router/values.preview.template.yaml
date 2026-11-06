@@ -5,22 +5,22 @@ java:
   devcpuLimits: '5000m'
   secrets:
     STORAGE_ACCOUNT_NAME:
-      secretRef: storage-account-reform-scan
+      secretRef: storage-account-{{ .Release.Name }}-reformblobstorage
       key: storage_account_name
     STORAGE_ACCOUNT_URL:
-      secretRef: storage-secret-reform-scan
+      secretRef: storage-secret-{{ .Release.Name }}-reformblobstorage
       key: blobEndpoint
     STORAGE_ACCOUNT_KEY:
-      secretRef: storage-secret-reform-scan
+      secretRef: storage-secret-{{ .Release.Name }}-reformblobstorage
       key: accessKey
     STORAGE_CRIME_ACCOUNT_NAME:
-      secretRef: storage-account-crime-reform-scan
+      secretRef: storage-account-{{ .Release.Name }}-crimeblobstorage
       key: storage_account_name
     STORAGE_CRIME_ACCOUNT_URL:
-      secretRef: storage-secret-crime-reform-scan
+      secretRef: storage-secret-{{ .Release.Name }}-crimeblobstorage
       key: blobEndpoint
     STORAGE_CRIME_ACCOUNT_KEY:
-      secretRef: storage-secret-crime-reform-scan
+      secretRef: storage-secret-{{ .Release.Name }}-crimeblobstorage
       key: accessKey
     SB_ACCESS_KEY:
       secretRef: reform-scan-sb-preview
@@ -98,7 +98,6 @@ java:
 reformblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
@@ -123,7 +122,6 @@ reformblobstorage:
 crimeblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: crime-reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
@@ -133,7 +131,6 @@ crimeblobstorage:
 pcqblobstorage:
   enabled: true
   resourceGroup: reform-scan-aso-preview-rg
-  releaseNameOverride: pcq-reform-scan
   teamName: "BSP"
   location: uksouth
   setup:
