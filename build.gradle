@@ -108,7 +108,7 @@ task fortifyScan(type: JavaExec)  {
 
 checkstyle {
   maxWarnings = 0
-  toolVersion = '11.0.1'
+  toolVersion = '11.1.0'
   getConfigDirectory().set(new File(rootDir, 'config/checkstyle'))
 }
 
@@ -205,8 +205,8 @@ dependencies {
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-spring', version: '6.10.0'
   implementation group: 'net.javacrumbs.shedlock', name: 'shedlock-provider-jdbc-template', version: '6.10.0'
 
-  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.35.1'
-  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.17.20'
+  implementation group: 'com.azure', name: 'azure-storage-blob', version: '12.37.2'
+  implementation group: 'com.azure', name: 'azure-messaging-servicebus', version: '7.19.1'
 
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail'
   implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
@@ -215,7 +215,7 @@ dependencies {
   implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '4.3.3'
 
   implementation group: 'org.checkerframework', name: 'checker-qual', version: '3.54.0'
-  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '13.11'
+  implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: '13.18'
 
   implementation group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.5.2'
   implementation group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.1'
@@ -228,7 +228,7 @@ dependencies {
   implementation group: 'com.github.hmcts', name: 'service-auth-provider-java-client', version: '5.3.5'
 
   implementation group: 'org.apache.commons', name: 'commons-csv', version: '1.14.1'
-  implementation group: 'com.google.guava', name: 'guava', version: '33.6.0-jre'
+  implementation group: 'com.google.guava', name: 'guava', version: '33.7.2-jre'
   implementation group: 'com.github.hmcts', name: 'fortify-client', version: '1.4.10', classifier: 'all'
 
   testImplementation group: 'org.apiguardian', name: 'apiguardian-api', version: '1.1.2'
